@@ -13,9 +13,6 @@ export interface IUser extends Document {
 }
 
 const UserSchema: Schema = new Schema({
-  _id: {
-    type: String
-  },
   email: {
     type: String,
     required: true,
@@ -32,7 +29,7 @@ const UserSchema: Schema = new Schema({
     default: AccountStatusEnum.ACTIVE
   },
   refreshToken: {
-    type: String
+    type: String,
   },
   resetPasswordToken: {
     type: String,

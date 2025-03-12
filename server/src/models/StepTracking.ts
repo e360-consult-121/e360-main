@@ -89,4 +89,4 @@ const stepTracking = new mongoose.Schema({
         },
     ],
 });
-export const StepTracking = mongoose.model<IStepTracking>("StepTracking", stepTracking)
+export const StepTrackingModel = mongoose.model<IStepTracking>("StepTracking", stepTracking)

@@ -25,6 +25,7 @@ const RequirementSchema = new mongoose.Schema({
   },
   required: {
     type: Boolean,
+    default:true,
     required: true,
   },
   source: {
@@ -34,4 +35,4 @@ const RequirementSchema = new mongoose.Schema({
   },
 });
 
-export const Requirement = mongoose.model<IRequirement>("Requirement", RequirementSchema);
+export const RequirementModel = mongoose.model<IRequirement>("Requirement", RequirementSchema);

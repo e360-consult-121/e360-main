@@ -30,4 +30,4 @@ const RequirementStatusSchema = new Schema<IRequirementStatus>({
   },
 });
 
-export const RequirementStatus = mongoose.model<IRequirementStatus>("RequirementStatus", RequirementStatusSchema);
+export const RequirementStatusModel = mongoose.model<IRequirementStatus>("RequirementStatus", RequirementStatusSchema);

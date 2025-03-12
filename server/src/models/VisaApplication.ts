@@ -34,5 +34,5 @@ const visaApplication = new mongoose.Schema({
     timestamps:true
 });
 
-export const VisaApplication = mongoose.model<IVisaApplication>("VisaApplication", visaApplication);
+export const VisaApplicationModel = mongoose.model<IVisaApplication>("VisaApplication", visaApplication);
 
