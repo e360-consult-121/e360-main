@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-const Layout = () => {
+const AdminLayout = () => {
   return (
     <div className="h-screen flex flex-1">
       {/* Sidebar portion */}
@@ -14,4 +14,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default AdminLayout;
