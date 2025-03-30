@@ -2,7 +2,14 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { Modal } from "@mui/material";
 import { useRef, useState } from "react";
 
-const FileUploadComp = () => {
+type FileUploadComp = {
+  fileName:string,
+  fileType:string,
+  fileSize:string
+}
+
+
+const FileUploadComp: React.FC<FileUploadComp> = ({fileName,fileType,fileSize}) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +56,6 @@ const FileUploadComp = () => {
                   <button
                     onClick={() => {
                       const fileInputElement = fileInputRef.current;
-
                       fileInputElement?.click();
                     }}
                     className="bg-golden-yellow-400 py-2 px-4 text-neutrals-950 rounded-xl cursor-pointer"
@@ -89,7 +95,7 @@ const FileUploadComp = () => {
               {/* Progress bar */}
               {/* <div className="w-full h-[7px] bg-golden-yellow-100 rounded-full">
                   <div className="h-full w-[50%] bg-golden-yellow-400 rounded-full"></div>
-                </div> */}
+              </div> */}
               {/* </div> */}
             </div>
           </div>
@@ -118,11 +124,11 @@ const FileUploadComp = () => {
 
         <div className="flex flex-col space-y-1">
           <h1 className="text-neutrals-950 text-sm font-semibold">
-            Full passport copy
+            {fileName}
           </h1>
           <div className="flex space-x-3 text-neutrals-400 text-xs">
-            <p>File Format: PNG</p>
-            <p>Max. File Size: 12MB</p>
+            <p>File Format: {fileType}</p>
+            <p>Max. File Size: {fileSize}</p>
           </div>
         </div>
       </div>
