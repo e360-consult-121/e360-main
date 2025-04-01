@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import morgan from "morgan"; // Logger middleware
+import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
@@ -10,7 +10,8 @@ import errorHandlerMiddleware from "./middlewares/errorHandler";
 import notFoundMiddleware from "./middlewares/notFound";
 import cookieParser from "cookie-parser";
 import logger from "./utils/logger";
-import bodyParser from "body-parser"; // Import body-parser
+import bodyParser from "body-parser";
+import multer from "multer"; // Import multer
 
 dotenv.config();
 
@@ -18,9 +19,8 @@ connectDB();
 
 const app = express();
 
-const morganFormat = ":method :url :status :response-time ms";
-
 // Morgan middleware for logging HTTP requests
+const morganFormat = ":method :url :status :response-time ms";
 app.use(
   morgan(morganFormat, {
     stream: {
@@ -49,15 +49,20 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-// Add body-parser middleware
+// Body parsing middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Multer setup for multipart/form-data
+const upload = multer({ storage: multer.memoryStorage() }); // Store in memory; adjust as needed
+
 app.use("/api/v1", v1Routes);
 
-app.post("/api/v1/webhook", (req: Request, res: Response) => {
-  console.log("Headers:", req.headers); // Log the headers to check Content-Type
-  console.log("Raw Body:", req.body); // Log the parsed body
+// Webhook endpoint with multer middleware
+app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response) => {
+  console.log("Headers:", req.headers);
+  console.log("Parsed Body:", req.body); // Form fields will be here
+  console.log("Files (if any):", req.files); // Files, if uploaded
   console.log("Received Webhook Data:", JSON.stringify(req.body, null, 2));
 
   res.json({ status: "success" });
@@ -66,7 +71,6 @@ app.post("/api/v1/webhook", (req: Request, res: Response) => {
 if (process.env.NODE_ENV === "production") {
   const buildPath = path.join(__dirname, "..", "..", "client", "dist");
   app.use(express.static(buildPath));
-
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(buildPath, "index.html"));
   });
@@ -75,7 +79,6 @@ if (process.env.NODE_ENV === "production") {
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-// Dynamic Port Handling
 const args = process.argv.slice(2);
 const portArgIndex = args.indexOf("--port");
 const PORT =
