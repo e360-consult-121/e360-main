@@ -11,7 +11,7 @@ import notFoundMiddleware from "./middlewares/notFound";
 import cookieParser from "cookie-parser";
 import logger from "./utils/logger";
 import bodyParser from "body-parser";
-import multer from "multer"; // Import multer
+import multer from "multer";
 
 dotenv.config();
 
@@ -19,7 +19,6 @@ connectDB();
 
 const app = express();
 
-// Morgan middleware for logging HTTP requests
 const morganFormat = ":method :url :status :response-time ms";
 app.use(
   morgan(morganFormat, {
@@ -49,21 +48,35 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-// Body parsing middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Multer setup for multipart/form-data
-const upload = multer({ storage: multer.memoryStorage() }); // Store in memory; adjust as needed
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.use("/api/v1", v1Routes);
 
-// Webhook endpoint with multer middleware
-app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response) => {
-  console.log("Headers:", req.headers);
-  console.log("Parsed Body:", req.body); // Form fields will be here
-  console.log("Files (if any):", req.files); // Files, if uploaded
-  console.log("Received Webhook Data:", JSON.stringify(req.body, null, 2));
+// Webhook endpoint
+app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): Promise<void> => {
+  const { formID, rawRequest } = req.body;
+
+  // Parse the rawRequest JSON string into an object
+  let formData;
+  try {
+    formData = JSON.parse(rawRequest);
+  } catch (error: any) {
+    logger.error(`Failed to parse rawRequest: ${error.message}`);
+    res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
+    return;
+  }
+
+  // Structure the data for logging and database use
+  const webhookData = {
+    formId: formID,
+    submissionData: formData,
+  };
+
+  // Log the cleaned-up data
+  logger.info("Webhook Received:", JSON.stringify(webhookData, null, 2));
 
   res.json({ status: "success" });
 });
