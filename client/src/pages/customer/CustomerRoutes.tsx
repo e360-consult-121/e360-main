@@ -17,7 +17,7 @@ const CustomerRoutes = () => {
         <Route path="/applications" element={<PrevApplications />} />
         <Route path="/notification" element={<Notification />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/dashboard/:caseid" element={<SingleVisaApplication />} />
+        <Route path="/dashboard/:caseId" element={<SingleVisaApplication />} />
       </Route>
     </Routes>
   );
