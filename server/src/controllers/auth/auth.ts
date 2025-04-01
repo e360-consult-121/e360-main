@@ -5,6 +5,8 @@ import bcrypt from "bcrypt";
 import { RoleEnum } from "../../types/enums/enums";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/jwtUtils";
 
+
+// sign-up
 export const registerUser = async (
   req: Request,
   res: Response,
@@ -40,6 +42,8 @@ export const registerUser = async (
   })
 }
 
+
+// login-user
 export const login = async (
   req: Request,
   res: Response,
@@ -81,6 +85,8 @@ export const login = async (
     message: "Login successfully"
   })
 }
+
+
 
 export const refreshToken = async (
   req: Request,

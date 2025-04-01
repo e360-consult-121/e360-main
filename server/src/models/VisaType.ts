@@ -20,6 +20,7 @@ const VisaTypeSchema = new Schema<IVisaType>({
     },
     steps: [
         {
+            
             stepName: {
                 type: String,
                 required: true

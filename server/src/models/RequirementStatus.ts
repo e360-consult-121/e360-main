@@ -22,7 +22,7 @@ const RequirementStatusSchema = new Schema<IRequirementStatus>({
   },
   reason: {
     type: String,
-    required: true,
+    // required: true,
   },
   value: {
     type: Schema.Types.Mixed,
