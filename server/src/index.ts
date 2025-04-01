@@ -56,8 +56,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/v1", v1Routes);
 
 app.post("/api/v1/webhook", (req: Request, res: Response) => {
-  const data = req.body;
-  console.log("Received Webhook Data:", JSON.stringify(data, null, 2));
+  console.log("Headers:", req.headers); // Log the headers to check Content-Type
+  console.log("Raw Body:", req.body); // Log the parsed body
+  console.log("Received Webhook Data:", JSON.stringify(req.body, null, 2));
 
   res.json({ status: "success" });
 });
