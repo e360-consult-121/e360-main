@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import morgan from "morgan";  // morgan is a logger middleware
+import morgan from "morgan"; // morgan is a logger middleware
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
@@ -11,7 +11,6 @@ import notFoundMiddleware from "./middlewares/notFound";
 import cookieParser from "cookie-parser";
 import logger from "./utils/logger";
 dotenv.config();
-
 
 connectDB();
 
@@ -36,7 +35,7 @@ app.use(
   })
 );
 
-app.use(helmet())
+app.use(helmet());
 
 const corsOptions = {
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -55,7 +54,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", v1Routes);
 
 app.post("/api/v1/webhook", (req: Request, res: Response) => {
-  console.log("Received data:", req.body);
+  const data = req.body;
+  const logData = JSON.stringify(data, null, 2);
+  console.log(logData);
+
   res.json({ status: "success" });
 });
 
@@ -70,7 +72,6 @@ if (process.env.NODE_ENV === "production") {
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
-
 
 // Dynamic Port
 const args = process.argv.slice(2);
