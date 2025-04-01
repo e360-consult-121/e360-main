@@ -56,29 +56,34 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use("/api/v1", v1Routes);
 
 // Webhook endpoint
-app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): Promise<void> => {
-  const { formID, rawRequest } = req.body;
+app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void => {
+  logger.info("Webhook endpoint hit");
 
-  // Parse the rawRequest JSON string into an object
+  const { formID, rawRequest } = req.body;
+  logger.info(`Received formID: ${formID}`);
+  logger.info(`Received rawRequest: ${rawRequest}`);
+
   let formData;
   try {
     formData = JSON.parse(rawRequest);
+    logger.info("Parsed rawRequest successfully");
   } catch (error: any) {
     logger.error(`Failed to parse rawRequest: ${error.message}`);
     res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
-    return;
+    return; 
   }
 
-  // Structure the data for logging and database use
+  
   const webhookData = {
     formId: formID,
     submissionData: formData,
   };
 
-  // Log the cleaned-up data
-  logger.info("Webhook Received:", JSON.stringify(webhookData, null, 2));
+  
+  logger.info("Structured webhook data:", JSON.stringify(webhookData, null, 2));
 
-  res.json({ status: "success" });
+  res.json({ status: "success" }); 
+  logger.info("Response sent successfully");
 });
 
 if (process.env.NODE_ENV === "production") {
