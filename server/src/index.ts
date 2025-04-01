@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import morgan from "morgan"; // morgan is a logger middleware
+import morgan from "morgan"; // Logger middleware
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
@@ -10,6 +10,8 @@ import errorHandlerMiddleware from "./middlewares/errorHandler";
 import notFoundMiddleware from "./middlewares/notFound";
 import cookieParser from "cookie-parser";
 import logger from "./utils/logger";
+import bodyParser from "body-parser"; // Import body-parser
+
 dotenv.config();
 
 connectDB();
@@ -18,7 +20,7 @@ const app = express();
 
 const morganFormat = ":method :url :status :response-time ms";
 
-// morgan middleware HTTP request logs ko generate karta hai.
+// Morgan middleware for logging HTTP requests
 app.use(
   morgan(morganFormat, {
     stream: {
@@ -45,18 +47,17 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use(cookieParser());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Add body-parser middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/v1", v1Routes);
 
 app.post("/api/v1/webhook", (req: Request, res: Response) => {
   const data = req.body;
-  const logData = JSON.stringify(data, null, 2);
-  console.log(logData);
+  console.log("Received Webhook Data:", JSON.stringify(data, null, 2));
 
   res.json({ status: "success" });
 });
@@ -73,7 +74,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-// Dynamic Port
+// Dynamic Port Handling
 const args = process.argv.slice(2);
 const portArgIndex = args.indexOf("--port");
 const PORT =
