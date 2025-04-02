@@ -10,7 +10,6 @@ export interface IUser extends Document {
   resetPasswordExpires: Date;
   status: AccountStatusEnum;
   role: RoleEnum;
-
 }
 
 const UserSchema: Schema = new Schema({

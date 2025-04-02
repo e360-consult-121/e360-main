@@ -63,6 +63,8 @@ app.get("/health", (req: Request, res: Response): void => {
 // Webhook 
 app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void => {
   logger.info("Webhook endpoint hit");
+  // raw data 
+  logger.info("Raw incoming data: " + JSON.stringify(req.body, null, 2));
 
   const { formID, rawRequest } = req.body;
   logger.info(`Received formID: ${formID}`);
@@ -112,6 +114,9 @@ app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void =>
   res.json({ status: "success" });
   logger.info("Response sent successfully");
 });
+
+
+
 
 
 
