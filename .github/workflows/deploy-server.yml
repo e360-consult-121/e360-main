@@ -1,0 +1,124 @@
+# .github/workflows/deploy-server.yml
+name: Deploy Server to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'server/**'
+
+jobs:
+  deploy-server:
+    name: Deploy Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Cache Server Dependencies
+        uses: actions/cache@v3
+        with:
+          path: server/node_modules
+          key: ${{ runner.os }}-server-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-server-
+
+      - name: Install and Build Server
+        run: |
+          cd server
+          # Create .env file with necessary environment variables
+          echo -e "NODE_ENV=production" > .env
+          echo -e "PORT=${{ secrets.SERVER_PORT }}" >> .env
+          echo -e "DB_URL=${{ secrets.DB_URL }}" >> .env
+          echo -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          # Add other environment variables as needed
+          
+          npm ci
+          npm run build
+          # Handle potential nested dist folders
+          if [ -d "dist/server/dist" ]; then
+            mv dist/server/dist/* dist/
+            rm -rf dist/server
+          fi
+
+      - name: Clean and Prepare Remote Server Directory
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/e360consult/server
+            mkdir -p /home/ubuntu/e360consult/server
+
+      - name: Deploy Server Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "server/dist/*, server/package*.json, server/.env"
+          target: "/home/ubuntu/e360consult/server/"
+          strip_components: 1
+
+      - name: Install Server Dependencies on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/e360consult/server
+            npm ci --production
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/server
+
+      - name: Restart PM2 Application
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/e360consult
+            if [ ! -f "ecosystem.config.js" ]; then
+              echo "Creating PM2 ecosystem config file"
+              echo 'module.exports = {
+                apps: [{
+                  name: "e360-consult",
+                  script: "server/dist/index.js",
+                  env: {
+                    NODE_ENV: "production",
+                  },
+                  watch: false,
+                  max_memory_restart: "300M"
+                }]
+              }' > ecosystem.config.js
+            fi
+            pm2 reload ecosystem.config.js --only e360-consult
+
+      - name: Verify Server Deployment
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            # Wait for server to start
+            sleep 5
+            # Check if server is running
+            if ! pm2 show e360-consult | grep -q "online"; then
+              echo "Server deployment verification failed - PM2 process not running"
+              exit 1
+            fi
+            # Optional: Check if server responds to health check
+            if command -v curl &> /dev/null; then
+              PORT=$(grep PORT /home/ubuntu/e360consult/server/.env | cut -d= -f2)
+              PORT=${PORT:-3000}
+              if ! curl -s http://localhost:$PORT/health; then
+                echo "Server health check failed"
+                exit 1
+              fi
+            fi
+            echo "Server deployment completed successfully"
