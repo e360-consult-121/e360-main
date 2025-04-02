@@ -114,8 +114,7 @@ jobs:
             fi
             # Optional: Check if server responds to health check
             if command -v curl &> /dev/null; then
-              PORT=$(grep PORT /home/ubuntu/e360consult/server/.env | cut -d= -f2)
-              PORT=${PORT:-3000}
+              PORT=${PORT:-8082}
               if ! curl -s http://localhost:$PORT/health; then
                 echo "Server health check failed"
                 exit 1

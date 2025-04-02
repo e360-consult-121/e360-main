@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import helmet from "helmet";
@@ -54,6 +54,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use("/api/v1", v1Routes);
+
+app.get("/health", (req: Request, res: Response): void => {
+  logger.info("Health check endpoint hit");
+  res.json({ status: "ok" });
+});
 
 // Webhook 
 app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void => {
