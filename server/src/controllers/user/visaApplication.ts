@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { VisaTypeModel } from '../../models/VisaType';
 import { VisaApplicationModel } from '../../models/VisaApplication';
-import { StepStatusModel } from '../../models/StepStatus';
-import { RequirementStatusModel } from '../../models/RequirementStatus';
+import { StepStatusModel } from '../../models/VisaApplicationStepStatus';
+import { RequirementStatusModel } from '../../models/VisaApplicationReqStatus';
 import AppError from '../../utils/appError';
 import mongoose from 'mongoose';
 import { Types } from "mongoose";
