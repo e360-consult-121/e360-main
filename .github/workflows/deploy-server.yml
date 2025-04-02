@@ -114,8 +114,8 @@ jobs:
             fi
             # Optional: Check if server responds to health check
             if command -v curl &> /dev/null; then
-              PORT=${PORT:-8082}
-              if ! curl -s http://localhost:$PORT/health; then
+              PORT=${{ secrets.c }}
+              if ! curl -s http://localhost:$PORT/health | grep -q "ok"; then
                 echo "Server health check failed"
                 exit 1
               fi
