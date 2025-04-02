@@ -1,0 +1,138 @@
+# .github/workflows/deploy-full-stack.yml
+name: Deploy Full Stack to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'client/**'
+      - 'server/**'
+
+jobs:
+  deploy-full-stack:
+    name: Deploy Client and Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # CLIENT DEPLOYMENT
+      - name: Cache Client Dependencies
+        uses: actions/cache@v3
+        with:
+          path: client/node_modules
+          key: ${{ runner.os }}-client-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-client-
+
+      - name: Build Client
+        run: |
+          cd client
+          echo -e "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL }}" > .env
+          npm ci
+          npm run build
+
+      # SERVER DEPLOYMENT
+      - name: Cache Server Dependencies
+        uses: actions/cache@v3
+        with:
+          path: server/node_modules
+          key: ${{ runner.os }}-server-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-server-
+
+      - name: Install and Build Server
+        run: |
+          cd server
+          # Create .env file with necessary environment variables
+          echo -e "NODE_ENV=production" > .env
+          echo -e "PORT=${{ secrets.SERVER_PORT }}" >> .env
+          echo -e "DB_URL=${{ secrets.DB_URL }}" >> .env
+          echo -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          # Add other environment variables as needed
+          
+          npm ci
+          npm run build
+          # Handle potential nested dist folders
+          if [ -d "dist/server/dist" ]; then
+            mv dist/server/dist/* dist/
+            rm -rf dist/server
+          fi
+
+      # DEPLOY TO EC2
+      - name: Clean and Prepare Remote Directories
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/e360consult/client/dist
+            sudo rm -rf /home/ubuntu/e360consult/server
+            mkdir -p /home/ubuntu/e360consult/client/
+            mkdir -p /home/ubuntu/e360consult/server
+
+      - name: Deploy Client Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "client/dist/*"
+          target: "/home/ubuntu/e360consult/client"
+          strip_components: 2
+
+      - name: Deploy Server Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "server/dist/*, server/package*.json, server/.env"
+          target: "/home/ubuntu/e360consult/server/"
+          strip_components: 1
+
+      - name: Final Setup and Restart Services
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            # Set proper permissions
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult
+            
+            # Install server dependencies
+            cd /home/ubuntu/e360consult/server
+            npm ci --production
+            
+            # Set up PM2 config if it doesn't exist
+            cd /home/ubuntu/e360consult
+            if [ ! -f "ecosystem.config.js" ]; then
+              echo "Creating PM2 ecosystem config file"
+              echo 'module.exports = {
+                apps: [{
+                  name: "e360-consult",
+                  script: "server/dist/index.js",
+                  env: {
+                    NODE_ENV: "production",
+                  },
+                  watch: false,
+                  max_memory_restart: "300M"
+                }]
+              }' > ecosystem.config.js
+            fi
+            
+            # Restart application
+            pm2 reload ecosystem.config.js --only e360-consult
+            
+            # Verify deployment
+            sleep 5
+            if ! pm2 show e360-consult | grep -q "online"; then
+              echo "Server deployment verification failed - PM2 process not running"
+              exit 1
+            fi
+            
+            echo "Full stack deployment completed successfully"
