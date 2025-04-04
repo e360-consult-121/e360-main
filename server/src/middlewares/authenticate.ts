@@ -20,9 +20,9 @@ declare global {
 }
 
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
-  const token =
-    req.cookies["accessToken"]
 
+  const token = req.cookies["accessToken"]
+  
   if (!token) {
     return next(new AppError("Token must be provided", 401));
   }
@@ -32,11 +32,11 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
 
     if(payload && payload.role === RoleEnum.ADMIN)
     {
-      req.admin = payload
+      req.admin = payload   // if admin
       return next();
     }
     else if(payload && payload.role === RoleEnum.USER) {
-      req.user = payload
+      req.user = payload    // if customer/ user
       return next();
     }
     else {

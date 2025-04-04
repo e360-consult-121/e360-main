@@ -11,6 +11,7 @@ export const createVisaType = async (
     res: Response,
     next: NextFunction
 ): Promise<Response | void> => {
+    
     const {visaType} = req.body;
 
     console.log("visa")
@@ -21,7 +22,7 @@ export const createVisaType = async (
 
     const newVisaType = await VisaTypeModel.create({
         visaType,
-        steps: [],
+        steps: [],  // initially empty array for steps
     });
 
     if (!newVisaType)

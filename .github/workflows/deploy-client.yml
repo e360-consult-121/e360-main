@@ -1,0 +1,67 @@
+# .github/workflows/deploy-client.yml
+name: Deploy Client to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'client/**'
+
+jobs:
+  deploy-client:
+    name: Deploy Client
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Cache Client Dependencies
+        uses: actions/cache@v3
+        with:
+          path: client/node_modules
+          key: ${{ runner.os }}-client-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-client-
+
+      - name: Build Client
+        run: |
+          cd client
+          echo -e "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL }}" > .env
+          npm ci
+          npm run build
+
+      - name: Clean and Prepare Remote Client Directory
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/e360consult/client/dist
+            mkdir -p /home/ubuntu/e360consult/client/
+
+      - name: Deploy Client Build Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "client/dist/*"
+          target: "/home/ubuntu/e360consult/client"
+          strip_components: 2
+
+      - name: Set Permissions and Verify Deployment
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/client
+            if [ ! -f "/home/ubuntu/e360consult/client/index.html" ]; then
+              echo "Client deployment verification failed - index.html not found"
+              exit 1
+            fi
+            echo "Client deployment completed successfully"

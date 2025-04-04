@@ -33,8 +33,8 @@ export enum DocumentSourceEnum {
 }
 
 export enum QuestionTypeEnum {
-  TEXT = "text",
-  EMAIL = "email",
+  TEXT = "text",  // Text input.
+  EMAIL = "email", //Email input.
   PHONE_NUMBER = "phone",
   DOB = "dob",
   RADIO = "radio",
@@ -54,17 +54,15 @@ export enum VisaApplicationStatusEnum {
 }
 
 export enum StepStatusEnum {
-  PENDING = "PENDING",
   IN_PROGRESS = "IN_PROGRESS",
-  REJECTED = "REJECTED",
-  // ACCEPTED = "ACCEPTED",
-  APPROVED="APPROVED"
+  SUBMITED = "SUBMITED",
+  APPROVED="APPROVED",
+  REJECTED = "REJECTED", 
 }
 
 export enum QuestionStatusEnum{
-  NOT_UPLOADED="not_uploaded",
-  UPLOADED ="uploaded",
-  APPROVED="approved",
-  RE_UPLOAD="re_upload",
-
+  NOT_UPLOADED="NOT_UPLOADED",
+  UPLOADED ="UPLOADED",
+  VERIFIED="VERIFIED",  // Mark as verified
+  RE_UPLOAD="RE_UPLOAD",
 }

@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { AccountStatusEnum, RoleEnum } from "../types/enums/enums";
 
+// This defines a  interface IUser that extends Document (Mongoose document).
 export interface IUser extends Document {
   email: string;
   password: string;
@@ -9,7 +10,6 @@ export interface IUser extends Document {
   resetPasswordExpires: Date;
   status: AccountStatusEnum;
   role: RoleEnum;
-
 }
 
 const UserSchema: Schema = new Schema({
@@ -18,11 +18,12 @@ const UserSchema: Schema = new Schema({
     required: true,
     unique: true
   },
+  // phone number -->> needed honge jab admin side running applications show karenge 
   password: {
     type: String,
     required: true
   },
-  status: {
+  UserStatus: {
     type: String,
     enum: Object.values(AccountStatusEnum),
     required: true,
