@@ -1,15 +1,31 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AdminRoutes from "./pages/admin/AdminRoutes";
 import CustomerRoutes from "./pages/customer/CustomerRoutes";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import Login from "./pages/auth/Login";
+
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Admin routes */}
-        <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route path="/login" element={<Login />} />
 
-        {/* Customer routes */}
-        <Route path="/*" element={<CustomerRoutes />} />
+        {/* Admin routes */}
+        <Route path="/admin/*" element={
+          <ProtectedRoute>
+            <AdminRoutes />
+          </ProtectedRoute>
+          } />
+
+        {/* Protected Customer routes */}
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <CustomerRoutes />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

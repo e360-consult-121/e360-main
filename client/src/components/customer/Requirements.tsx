@@ -1,67 +1,135 @@
-import { Button, Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
-import FileUploadComp from "./FileUploadComp"
+import {
+  Box,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import UploadComponent from "./UploadComponent";
+import UploadModal from "./UploadModal";
+import { useState } from "react";
 
-const Requirements = ({phase}:{phase:string}) => {
+const Requirements = ({
+  phase,
+  requirementData,
+}: {
+  phase: string;
+  requirementData: any;
+}) => {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
+
   return (
     <div className="flex flex-col mt-6 overflow-y-auto h-56 custom-scrollbar">
-     {phase === "IN_PROGRESS" ? (
-      <>
-      <p className="text-neutrals-950 text-sm font-semibold">Documents</p>
-    <FileUploadComp 
-    fileName={"Biometric Page of Passport"}
-    fileType={"PNG"}
-    fileSize={"12MB"}
-    />
-    </>
-    )
-    :
-    <div>
-      <TableContainer component={Paper}
-      sx={{
-        boxShadow:"none"
-      }}
-      >
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell><Typography variant="body2" fontWeight={600}>Documents</Typography></TableCell>
-            <TableCell><Typography variant="body2" fontWeight={600}>Status</Typography></TableCell>
-            <TableCell><Typography variant="body2" fontWeight={600}>Remarks</Typography></TableCell>
-            <TableCell><Typography variant="body2" fontWeight={600}>Action</Typography></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell>
-            <FileUploadComp 
-            fileName={"Biometric Page of Passport"}
-            fileType={"PNG"}
-            fileSize={"12MB"}
-            />
-            </TableCell>
-            <TableCell>
-              {/* {document.status === "Approved" && <Chip icon={<CheckCircleIcon color="success" />} label="Approved" color="success" />}
-              {document.status === "Pending" && <Chip label="Pending" color="warning" />}
-              {document.status === "Needs Re-Upload" && (
-                <Chip icon={<ErrorIcon color="error" />} label="Needs Re-Upload" color="error" />
-              )} */}
-            </TableCell>
-            <TableCell>
-              {/* {document.remarks && <Typography variant="caption" color="error">{document.remarks}</Typography>} */}
-            </TableCell>
-            <TableCell>
-              <Button variant="contained" color="warning" size="small">Preview</Button>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-    </div> 
-    
-    
-    }
-  </div>
-  )
-}
+      {phase === "IN_PROGRESS" ? (
+        <>
+          <p className="text-neutrals-950 text-sm font-semibold">Documents</p>
+          {requirementData.map((data: any) => (
+            <div key={data.visaApplicationReqStatusId} className="mt-4">
+              <UploadComponent d={data} phase={phase} />
+            </div>
+          ))}
+        </>
+      ) : (
+        <>
+          <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>
+                      Documents
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>
+                      Status
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>
+                      Remarks
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    <Typography variant="body2" fontWeight={600}>
+                      Action
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {requirementData.map((data: any) => (
+                  <TableRow key={data.fileName}>
+                    <TableCell>
+                      <UploadComponent d={data} phase={phase} />
+                    </TableCell>
+                    <TableCell>
+                      {data.reqStatus === "VERIFIED" ? (
+                        <Typography sx={{ color: "#65AE64", fontSize: "14px" }}>
+                          • Approved
+                        </Typography>
+                      ) : data.reqStatus === "UPLOADED" ? (
+                        <Typography sx={{ color: "#8D8982", fontSize: "14px" }}>
+                          • Pending
+                        </Typography>
+                      ) : data.reqStatus === "RE_UPLOAD" ||
+                        data.reqStatus === "NOT_UPLOADED" ? (
+                        <Typography sx={{ color: "#F54236", fontSize: "14px" }}>
+                          • Needs Re-Upload
+                        </Typography>
+                      ) : (
+                        <></>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {data.reason && (
+                        <Typography
+                          variant="caption"
+                          color="black"
+                          sx={{ fontSize: "14px" }}
+                        >
+                          {data.reason}
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "end",
+                        }}
+                      >
+                        {(data.reqStatus === "RE_UPLOAD" ||
+                          data.reqStatus === "NOT_UPLOADED") && (
+                          <button
+                            className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
+                            onClick={() => setIsUploadModalOpen(true)}
+                          >
+                            Re-Upload
+                          </button>
+                        )}
+                        <button className="bg-[#F6C328] py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer ml-auto">
+                          Preview
+                        </button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <UploadModal
+            isUploadModalOpen={isUploadModalOpen}
+            setIsUploadModalOpen={setIsUploadModalOpen}
+          />
+        </>
+      )}
+    </div>
+  );
+};
 
-export default Requirements
+export default Requirements;
