@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { VisaTypeModel } from '../../models/VisaType';
-import { RequirementModel } from '../../models/Requirement';
+import { VisaStepModel } from '../../models/VisaStep';
+import { VisaStepRequirementModel } from '../../models/VisaStepRequirement';
 import { VisaTypeEnum } from '../../types/enums/enums';
 import AppError from '../../utils/appError';
 import { ObjectId } from 'mongoose';
 
-
+// create visaType
 export const createVisaType = async (
     req: Request,
     res: Response,
@@ -22,7 +23,6 @@ export const createVisaType = async (
 
     const newVisaType = await VisaTypeModel.create({
         visaType,
-        steps: [],  // initially empty array for steps
     });
 
     if (!newVisaType)
@@ -40,35 +40,32 @@ export const addStepToVisaType = async (
     res: Response,
     next: NextFunction
 ): Promise<Response | void> => {
-    const { visaTypeId, newStep } = req.body;
+    const { visaTypeId, stepName, stepNumber, stepSource, stepType } = req.body;
 
-    // format of newStep taken from frontend
-    // newStep={
-    //     stepName:"",
-    //     stepNumber:"",
-    //     requirements:[]
-    // }
-
-    if (!visaTypeId || !newStep)
-        throw new AppError("VisaType ID and new step are required.", 400);
+    if (!visaTypeId || !stepName || stepNumber == null || !stepSource || !stepType) {
+        throw new AppError("visaTypeId, stepName, stepNumber, stepSource, and stepType are required.", 400);
+    }
 
     const visaType = await VisaTypeModel.findById(visaTypeId);
-    if (!visaType)
+    if (!visaType) {
         throw new AppError("VisaType not found.", 404);
+    }
 
-    // Add the new step to the VisaType's steps array
-    visaType.steps.push(newStep);
+    const newStep = await VisaStepModel.create({
+        visaTypeId,
+        stepName,
+        stepNumber,
+        stepSource,
+        stepType,
+    });
 
-    const updatedVisaType = await visaType.save();
-
-    if (!updatedVisaType)
-        throw new AppError("new Steps not added", 500);
-
-    res.status(200).json({
-        message: 'Step added successfully.',
-        updatedVisaType,
+    res.status(201).json({
+        message: "Step added successfully.",
+        step: newStep,
     });
 };
+
+
 
 // Controller to create a new Requirement and push it to a particular steps in VisaType
 export const createRequirementAndPushToVisaType = async (
@@ -78,43 +75,35 @@ export const createRequirementAndPushToVisaType = async (
 ): Promise<Response | void> => {
     const { visaTypeId, stepNumber, requirementData } = req.body;
 
-    // // requirement Data format taken from frontend
-    // requirementData = {
-    //     type: QuestionTypeEnum.IMAGE,
-    //     question: "",
-    //     options: [],
-    //     source: DocumentSourceEnum.USER;
-    // }
+    if (!visaTypeId || !stepNumber || !requirementData) {
+        throw new AppError("visaTypeId, stepNumber, and requirementData are required.", 400);
+    }
 
-    if (!visaTypeId || !requirementData || !stepNumber)
-        throw new AppError("VisaType ID, stepNumber and requirement data are required.", 400);
-
-    // Is visaType Exist
+    // 1. Check if visaType exists
     const visaType = await VisaTypeModel.findById(visaTypeId);
-    if (!visaType)
+    if (!visaType) {
         throw new AppError("VisaType not found.", 404);
+    }
 
-    // Is step exist in visaType
-    const step = visaType.steps.find((s) => s.stepNumber === stepNumber);
-    if (!step)
-        throw new AppError("Step not found.", 404);
+    // 2. Find the visaStep using visaTypeId and stepNumber
+    const visaStep = await VisaStepModel.findOne({ visaTypeId, stepNumber });
+    if (!visaStep) {
+        throw new AppError("Step not found for given visaType and stepNumber.", 404);
+    }
 
-
-    // Create the Requirement
-    const newRequirement = await RequirementModel.create(requirementData);
-    if (!newRequirement)
-        throw new AppError("Failed to create new requirements", 501);
-
-    // Pushing this new requirement Id to particular step in visaType
-    step.requirements.push(newRequirement._id as ObjectId);
-
-    // Save the VisaType with the new requirement
-    await visaType.save();
+    // 3. Create requirement with visaTypeId and visaStepId
+    const newRequirement = await VisaStepRequirementModel.create({
+        visaTypeId,
+        visaStepId: visaStep._id,
+        question: requirementData.question,
+        requirementType: requirementData.requirementType,
+        required: requirementData.required ?? true, // fallback to true
+        options: requirementData.options || [],
+    });
 
     res.status(201).json({
-        message: 'Requirement created and added to VisaType successfully.',
+        message: "Requirement created successfully.",
         requirement: newRequirement,
-        visaType,
     });
 };
 
