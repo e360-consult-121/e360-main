@@ -23,7 +23,7 @@ const VisaApplicationSchema = new Schema<IVisaApplication>(
             required: true
         },
         currentStep: {
-            type: Number, d to Number
+            type: Number,
             required: true
         },
         visaApplicationStatus: {
