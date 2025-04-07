@@ -39,8 +39,8 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            sudo rm -rf /home/ubuntu/e360consult/client/dist
-            mkdir -p /home/ubuntu/e360consult/client/
+            sudo rm -rf /home/ubuntu/e360consult/e360-main/client/dist
+            mkdir -p /home/ubuntu/e360consult/e360-main/client/
 
       - name: Deploy Client Build Files
         uses: appleboy/scp-action@v0.1.7
@@ -49,7 +49,7 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           source: "client/dist/*"
-          target: "/home/ubuntu/e360consult/client"
+          target: "/home/ubuntu/e360consult/e360-main/client"
           strip_components: 2
 
       - name: Set Permissions and Verify Deployment
@@ -59,8 +59,8 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/client
-            if [ ! -f "/home/ubuntu/e360consult/client/index.html" ]; then
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/client
+            if [ ! -f "/home/ubuntu/e360consult/e360-main/client/index.html" ]; then
               echo "Client deployment verification failed - index.html not found"
               exit 1
             fi
