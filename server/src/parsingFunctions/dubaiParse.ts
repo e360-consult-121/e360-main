@@ -20,6 +20,9 @@ type RawDubaiData = {
     q50_whatIs?: string;
 };
 
+
+
+
 type ParsedDubaiData = {
     fullName: { first: string; last: string };
     nationality: string;
@@ -35,93 +38,35 @@ type ParsedDubaiData = {
 
     otherProfessionDetail: string | null;
     businessOwner: {
-        registeredBusiness: string;
-        annualRevenue: string;
-        relocationPlan: string;
-    } | null;
+        registeredBusiness: string | null;
+        annualRevenue: string | null;
+        relocationPlan: string | null;
+    } ;
     freelancer: {
-        incomeSource: string;
-        monthlyIncome: string;
-        requriedLicenseType: string;
-    } | null;
+        incomeSource: string | null;
+        monthlyIncome: string | null;
+        requriedLicenseType: string | null;
+    } ;
     employee: {
-        transitionPlan: string;
-        investmentCapital: string;
-    } | null;
+        transitionPlan: string | null;
+        investmentCapital: string | null;
+    } ;
     investor: {
-        investmentAmount: string;
-        industryInterest: string;
+        investmentAmount: string | null;
+        industryInterest: string | null;
         targetedIndustry: string | null;
-    } | null;
+    } ;
 };
 
 
 
 
-// function parseDubaiData(rawData) {
-//     let parsedData = {
-//         fullName: {
-//             first: rawData?.q1_fullName?.first || "",
-//             last: rawData?.q1_fullName?.last || ""
-//         },
-//         nationality: rawData?.q4_nationality || "",
-//         email: rawData?.q6_email || "",
-//         phone: rawData?.q61_fullPhone || "",
-//         profession: rawData?.q42_whichBest42 || "",
-//         mainGoal: rawData?.q62_whatsYour62 || [],
-//         budgetRange: rawData?.q52_whatBudget || "",
-//         movingToDubai: rawData?.q54_areYou54 || "",
-//         visaIssues: rawData?.q55_haveYou55 || "",
-//         additionalInfo: rawData?.q38_anythingElse || "",
-//         formId: rawData?.slug?.split("/")?.[1] || "",
-
-//         // Edge case default values
-//         otherProfessionDetail: null,  // Edge case handled here
-//         businessOwner: null,
-//         freelancer: null,
-//         employee: null,
-//         investor: null
-//     };
-
-//     let profession = parsedData.profession;
-
-//     if (profession === "Business Owner / Entrepreneur") {
-//         parsedData.businessOwner = {
-//             registeredBusiness: rawData?.q60_pleaseSpecify60 || "",
-//             annualRevenue: rawData?.q47_whatIs47 || "",
-//             relocationPlan: rawData?.q57_areYou57 || ""
-//         };
-//     } else if (profession === "Freelancer / Remote Worker") {
-//         parsedData.freelancer = {
-//             incomeSource: rawData?.q56_whatsYour || "",
-//             monthlyIncome: rawData?.q47_whatIs47 || "",
-//             requriedLicenseType: rawData?.q57_areYou57 || ""
-//         };
-//     } else if (profession === "Employee / Professional") {
-//         parsedData.employee = {
-//             transitionPlan: rawData?.q59_pleaseSpecify || "",
-//             investmentCapital: rawData?.q57_areYou57 || ""
-//         };
-//     } else if (profession === "Investor") {
-//         const industryInterest = rawData?.q58_areYou58 || "";
-
-//         parsedData.investor = {
-//             investmentAmount: rawData?.q50_whatIs || "",
-//             industryInterest: industryInterest,
-//             targetedIndustry: industryInterest === "Yes, I have a targeted industry"
-//                 ? rawData?.q9_whichBest9 || ""
-//                 : null //  Edge case handled here
-//         };
-//     } else if (profession === "Other (please specify)") {
-//         parsedData.otherProfessionDetail = rawData?.q60_pleaseSpecify60 || "";
-//     }
-
-//     return parsedData;
-// }
 
 
 export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
-    let parsedData: ParsedDubaiData = {
+    const profession = rawData?.q42_whichBest42 || "";
+
+    const parsedData: ParsedDubaiData = {
         fullName: {
             first: rawData?.q1_fullName?.first || "",
             last: rawData?.q1_fullName?.last || ""
@@ -129,7 +74,7 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
         nationality: rawData?.q4_nationality || "",
         email: rawData?.q6_email || "",
         phone: rawData?.q61_fullPhone || "",
-        profession: rawData?.q42_whichBest42 || "",
+        profession,
         mainGoal: rawData?.q62_whatsYour62 || [],
         budgetRange: rawData?.q52_whatBudget || "",
         movingToDubai: rawData?.q54_areYou54 || "",
@@ -137,44 +82,70 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
         additionalInfo: rawData?.q38_anythingElse || "",
         formId: rawData?.slug?.split("/")?.[1] || "",
 
+        // saari optional fields me \initailly null daal do 
         otherProfessionDetail: null,
-        businessOwner: null,
-        freelancer: null,
-        employee: null,
-        investor: null
+
+        businessOwner: {
+            registeredBusiness: null,
+            annualRevenue: null,
+            relocationPlan: null
+        },
+        freelancer: {
+            incomeSource: null,
+            monthlyIncome: null,
+            requriedLicenseType: null
+        },
+        employee: {
+            transitionPlan: null,
+            investmentCapital: null
+        },
+        investor: {
+            investmentAmount: null,
+            industryInterest: null,
+            targetedIndustry: null
+        }
     };
 
-    const profession = parsedData.profession;
+    // Populate respective field based on profession
+    switch (profession) {
+        case "Business Owner / Entrepreneur":
+            parsedData.businessOwner = {
+                registeredBusiness: rawData?.q60_pleaseSpecify60 || null,
+                annualRevenue: rawData?.q47_whatIs47 || null,
+                relocationPlan: rawData?.q57_areYou57 || null
+            };
+            break;
 
-    if (profession === "Business Owner / Entrepreneur") {
-        parsedData.businessOwner = {
-            registeredBusiness: rawData?.q60_pleaseSpecify60 || "",
-            annualRevenue: rawData?.q47_whatIs47 || "",
-            relocationPlan: rawData?.q57_areYou57 || ""
-        };
-    } else if (profession === "Freelancer / Remote Worker") {
-        parsedData.freelancer = {
-            incomeSource: rawData?.q56_whatsYour || "",
-            monthlyIncome: rawData?.q47_whatIs47 || "",
-            requriedLicenseType: rawData?.q57_areYou57 || ""
-        };
-    } else if (profession === "Employee / Professional") {
-        parsedData.employee = {
-            transitionPlan: rawData?.q59_pleaseSpecify || "",
-            investmentCapital: rawData?.q57_areYou57 || ""
-        };
-    } else if (profession === "Investor") {
-        const industryInterest = rawData?.q58_areYou58 || "";
+        case "Freelancer / Remote Worker":
+            parsedData.freelancer = {
+                incomeSource: rawData?.q56_whatsYour || null,
+                monthlyIncome: rawData?.q47_whatIs47 || null,
+                requriedLicenseType: rawData?.q57_areYou57 || null
+            };
+            break;
 
-        parsedData.investor = {
-            investmentAmount: rawData?.q50_whatIs || "",
-            industryInterest: industryInterest,
-            targetedIndustry: industryInterest === "Yes, I have a targeted industry"
-                ? rawData?.q9_whichBest9 || ""
-                : null
-        };
-    } else if (profession === "Other") {
-        parsedData.otherProfessionDetail = rawData?.q60_pleaseSpecify60 || "";
+        case "Employee / Professional":
+            parsedData.employee = {
+                transitionPlan: rawData?.q59_pleaseSpecify || null,
+                investmentCapital: rawData?.q57_areYou57 || null
+            };
+            break;
+
+        case "Investor":
+            const industryInterest = rawData?.q58_areYou58 || null;
+            parsedData.investor = {
+                investmentAmount: rawData?.q50_whatIs || null,
+                industryInterest,
+                targetedIndustry:
+                    industryInterest === "Yes, I have a targeted industry"
+                        ? rawData?.q9_whichBest9 || null
+                        : null
+            };
+            break;
+
+        case "Other":
+            parsedData.otherProfessionDetail = rawData?.q60_pleaseSpecify60 || null;
+            break;
     }
 
     return parsedData;

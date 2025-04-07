@@ -6,15 +6,27 @@ type RawxxxData = {
     q62_fullPhone?: string;
 
     q42_whichBest42?: string;
-    q59_pleaseSpecify?: string;
-    q47_areYou47?: string;
-    q56_whatIs?: string;
 
     q53_whatsYour53?: string;
     q52_whatBudget?: string;
     q54_areYou54?: string;
     q55_haveYou55?: string;
     q38_anythingElse?: string;
+
+    q43_doYou43 : string;
+    q44_whatsYour44 : string; // Business owner
+    q45_areYou : string;
+
+    q50_areYou50 : string;
+    q58_whichInvestment : string; //investor
+
+    q56_whatIs: string;  // HNMI
+    q47_areYou47 : string;
+
+    q60_whatIs60 : string;  // Employee
+    q61_doYou : string;
+
+    q59_pleaseSpecify : string;  //other
 
     slug?: string;
     event_id?: string;
@@ -33,7 +45,8 @@ type ParsedxxxData = {
     email: string;
     phone: string;
     profession: string;
-    otherProfessionDetail: string | null;
+
+    otherProfessionDetail: string | null; // isme null isliye doya kyuki ye bhi optional field hai (jab profession == other choose hoga , tab hi ayegi )
 
     businessOwner: {
         registeredBusiness: string | null;
@@ -71,124 +84,90 @@ type ParsedxxxData = {
 
 
 
-// const parseDominicaGrenadaForm = (rawData) => {
-//     const profession = rawData.q42_whichBest42 || "";
-
-// // Extract formId from slug (e.g., "submit/250912364956463")
-//     const formId = rawData.slug?.split("/")[1] || "";
-
-//     return {
-//         fullName: {
-//             first: rawData.q1_fullName?.first || "",
-//             last: rawData.q1_fullName?.last || ""
-//         },
-//         nationality: rawData.q4_nationality || rawData.dropdown_search || "",
-//         email: rawData.q6_email || "",
-//         phone: rawData.q62_fullPhone || "",
-
-//         profession: profession,
-
-//         // Only set this if profession is "Other"
-//         otherProfessionDetail: profession === "Other" ? (rawData.q59_pleaseSpecify || null) : null,
-
-//         businessOwner: {
-//             registeredBusiness: rawData.q47_areYou47 || null,
-//             annualRevenue: rawData.q56_whatIs || null,
-//             investmentPreference: rawData.q59_pleaseSpecify || null
-//         },
-
-//         investor: {
-//             readyToInvest: rawData.q47_areYou47 || null,
-//             investmentRoute: rawData.q59_pleaseSpecify || null
-//         },
-
-//         HNWI: {
-//             totalAssets: rawData.q56_whatIs || null,
-//             citizenshipReason: rawData.q47_areYou47 || null
-//         },
-
-//         employee: {
-//             monthlyIncome: rawData.q56_whatIs || null,
-//             isInvestmentCapitalReady: rawData.q59_pleaseSpecify || null
-//         },
-
-//         mainGoal: rawData.q53_whatsYour53 || "",
-//         budgetRange: rawData.q52_whatBudget || "",
-//         movingToApply: rawData.q54_areYou54 || "",
-//         visaIssues: rawData.q55_haveYou55 || "",
-
-//         additionalInfo: rawData.q38_anythingElse || "",
-
-//         event_id: rawData.event_id || "",
-//         timeToSubmit: rawData.timeToSubmit || 0 , 
-//         formId: formId
-//     };
-// };
-
 
 
 export const parseDomiGrenaData = (rawData: RawxxxData): ParsedxxxData => {
-    
-    const profession = rawData.q42_whichBest42 || "";
-    const formId = rawData.slug?.split("/")[1] || "";
+    const profession = rawData?.q42_whichBest42 || "";
 
-    const commonField1 = rawData.q59_pleaseSpecify || null;
-    const commonField2 = rawData.q47_areYou47 || null;
-    const commonField3 = rawData.q56_whatIs || null;
-
-    return {
+    const parsedData: ParsedxxxData = {
         fullName: {
-            first: rawData.q1_fullName?.first || "",
-            last: rawData.q1_fullName?.last || ""
+            first: rawData?.q1_fullName?.first || "",
+            last: rawData?.q1_fullName?.last || ""
         },
-        nationality: rawData.q4_nationality || rawData.dropdown_search || "",
-        email: rawData.q6_email || "",
-        phone: rawData.q62_fullPhone || "",
-        profession: profession,
-        otherProfessionDetail: profession === "Other" ? commonField1 : null,
+        nationality: rawData?.q4_nationality || rawData?.dropdown_search || "",
+        email: rawData?.q6_email || "",
+        phone: rawData?.q62_fullPhone || "",
+        profession,
+        mainGoal: rawData?.q53_whatsYour53 || "",
+        budgetRange: rawData?.q52_whatBudget || "",
+        movingToApply: rawData?.q54_areYou54 || "",
+        visaIssues: rawData?.q55_haveYou55 || "",
+        additionalInfo: rawData?.q38_anythingElse || "",
+        event_id: rawData?.event_id || "",
+        timeToSubmit: rawData?.timeToSubmit || 0,
+        formId: rawData?.slug?.split("/")?.[1] || "",
 
-        businessOwner: profession === "Business Owner" ? {
-            registeredBusiness: commonField2,
-            annualRevenue: commonField3,
-            investmentPreference: commonField1
-        } : {
+        // Optional fields set to null initially
+        otherProfessionDetail: null,
+
+        businessOwner: {
             registeredBusiness: null,
             annualRevenue: null,
             investmentPreference: null
         },
 
-        investor: profession === "Investor" ? {
-            readyToInvest: commonField2,
-            investmentRoute: commonField1
-        } : {
+        investor: {
             readyToInvest: null,
             investmentRoute: null
         },
 
-        HNWI: profession === "HNWI" ? {
-            totalAssets: commonField3,
-            citizenshipReason: commonField2
-        } : {
+        HNWI: {
             totalAssets: null,
             citizenshipReason: null
         },
 
-        employee: profession === "Employee" ? {
-            monthlyIncome: commonField3,
-            isInvestmentCapitalReady: commonField1
-        } : {
+        employee: {
             monthlyIncome: null,
             isInvestmentCapitalReady: null
-        },
-
-        mainGoal: rawData.q53_whatsYour53 || "",
-        budgetRange: rawData.q52_whatBudget || "",
-        movingToApply: rawData.q54_areYou54 || "",
-        visaIssues: rawData.q55_haveYou55 || "",
-        additionalInfo: rawData.q38_anythingElse || "",
-
-        event_id: rawData.event_id || "",
-        timeToSubmit: rawData.timeToSubmit || 0,
-        formId: formId
+        }
     };
+
+    // Populate respective field based on profession
+    switch (profession) {
+        case "Business Owner / Entrepreneur":
+            parsedData.businessOwner = {
+                registeredBusiness: rawData?.q43_doYou43 || null,
+                annualRevenue: rawData?.q44_whatsYour44 || null,
+                investmentPreference: rawData?.q45_areYou || null
+            };
+            break;
+
+        case "Investor":
+            parsedData.investor = {
+                readyToInvest: rawData?.q50_areYou50 || null,
+                investmentRoute: rawData?.q58_whichInvestment || null
+            };
+            break;
+
+        case "High-Net-Worth Individual (HNWI)":
+            parsedData.HNWI = {
+                totalAssets: rawData?.q56_whatIs || null,
+                citizenshipReason: rawData?.q47_areYou47 || null
+            };
+            break;
+
+        case "Employee / Professional":
+            parsedData.employee = {
+                monthlyIncome: rawData?.q60_whatIs60 || null,
+                isInvestmentCapitalReady: rawData?.q61_doYou || null
+            };
+            break;
+
+        case "Other":
+            parsedData.otherProfessionDetail = rawData?.q59_pleaseSpecify || null;
+            break;
+    }
+
+    return parsedData;
 };
+
