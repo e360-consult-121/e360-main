@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { AccountStatusEnum, RoleEnum } from "../types/enums/enums";
 
-// This defines a  interface IUser that extends Document (Mongoose document).
+
 export interface IUser extends Document {
   email: string;
   password: string;
@@ -51,3 +51,8 @@ const UserSchema: Schema = new Schema({
 );
 
 export const UserModel = mongoose.model<IUser>("User", UserSchema);
+
+
+// payment model needed hoga , jab session-id and all DB me save karwani hogi 
+
+// reschedulig model , may be medical rescheduling wala part isse handle kar sake (May be or not)
