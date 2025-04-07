@@ -173,7 +173,7 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
                 ? rawData?.q9_whichBest9 || ""
                 : null
         };
-    } else if (profession === "Other (please specify)") {
+    } else if (profession === "Other") {
         parsedData.otherProfessionDetail = rawData?.q60_pleaseSpecify60 || "";
     }
 
