@@ -55,7 +55,7 @@ const errorHandlerMiddleware = (
 
     err.statusCode = err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
     err.status = err.status || "error";
-
+    console.log(err);
     if (!(err instanceof AppError)) {
         err = new AppError(
             err.message || "Something went wrong, try again later",

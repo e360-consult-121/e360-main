@@ -15,12 +15,12 @@ const SidebarTab = ({
   isActive,
 }: {
   tabInfo: TAB;
-  isActive: boolean;
+  isActive: boolean | undefined;
 }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
-  // console.log(tabInfo.route.split("/")[1])
+  // console.log(tabInfo.route.split("/")[0],isActive)
   
 
   const hasChildren = tabInfo.children && tabInfo.children.length > 0;
@@ -82,11 +82,15 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
   const location = useLocation();
   // console.log(location.pathname)
 
-  
-   useEffect(() => {
-    setCurrentTab(location.pathname.split("/")[2]);
-    // console.log(currentTab)
+  useEffect(() => {
+    const normalizedPath = location.pathname.startsWith("/")
+      ? location.pathname.slice(1)
+      : location.pathname;
+
+    setCurrentTab(normalizedPath);
   }, [location.pathname]);
+  
+  
 
   return (
     <div className="w-full h-full bg-neutrals-950 py-7 px-3 flex flex-col flex-1">
@@ -106,7 +110,10 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
             <SidebarTab
               key={index}
               tabInfo={tab}
-              isActive={currentTab === tab.route.split("/")[1]}
+              isActive={
+                currentTab === tab.route ||
+                tab.children?.some((child) => currentTab === child.route)
+              }
             />
           ))}
         </div>

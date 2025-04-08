@@ -8,7 +8,10 @@ import Consultations from "./consultations/Consultations";
 import ServiceManagement from "./serviceManagement/ServiceManagement";
 import VIPConciergeService from "./vipConciergeService/VIPConciergeService";
 import ClientInformation from "./clientInformation/ClientInformation";
+import BankDetails from "./manageBankDetails/BankDetails";
 
+
+//useeffect to fetch user
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -20,6 +23,7 @@ const AdminRoutes = () => {
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/servicemanagement" element={<ServiceManagement />} />
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
+        <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/:application/:caseid" element={<ClientInformation />} />
       </Route>
     </Routes>

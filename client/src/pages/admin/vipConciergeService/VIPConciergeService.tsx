@@ -2,13 +2,14 @@ import { Typography } from "@mui/material"
 import VIPConciergeServiceTable from "./VIPConciergeServiceTable";
 
 export interface VIPConciergeService {
-    name: string;
-    requestedDate:string;
-    consultationDate: string;
-    status: "Cancelled" | "Confirmed" | "Completed";
+  caseId: string;
+  name: string;
+  consultationDate: string;
+  status: "Cancelled" | "Confirmed" | "Completed";
+  requestedDate:string
   }
 
-const dummyData = [
+const dummyData:VIPConciergeService[] = [
   { caseId: "E360-DXB-001", name: "Chijioke Nkem",requestedDate:"12 Mar 2025, 10:00 AM", consultationDate: "12 Mar 2025, 10:00 AM", status: "Cancelled" },
   { caseId: "E360-DXB-002", name: "Gang Chae",requestedDate:"12 Mar 2025, 10:00 AM", consultationDate: "12 Mar 2025, 10:00 AM", status: "Confirmed" },
   { caseId: "E360-DXB-003", name: "Danielle Everett",requestedDate:"12 Mar 2025, 10:00 AM", consultationDate: "12 Mar 2025, 10:00 AM", status: "Confirmed" },
@@ -35,8 +36,7 @@ const VIPConciergeService = () => {
       };
     
   return (
-    <div className="px-5 mt-14">
-      <Typography sx={{ fontWeight:"bold",fontSize:"18px",mb: 2 }}>Scheduled Consultation</Typography>
+    <div className="px-4">
       <VIPConciergeServiceTable  data={dummyData} onJoinNow={handleJoinNow} onReschedule={handleReschedule} />
     </div>
   )

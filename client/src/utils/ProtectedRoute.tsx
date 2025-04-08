@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, [isAuthenticated, navigate]);
 
   if (!isAuthenticated) {
-    return null; // Or a loading spinner
+    return null; 
   }
 
   return <>{children}</>;

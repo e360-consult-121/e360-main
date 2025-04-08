@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import LeadTable from "./LeadTable";
 
 // Define types for props
@@ -32,10 +32,11 @@ const LeadManagement: React.FC = () => {
     };
   
     return (
-      <div className="px-5 mt-14">
-        <Typography sx={{ fontWeight:"bold",fontSize:"18px",mb: 2 }}>Lead Management</Typography>
+      <Box sx={{
+        px:4
+      }}>
         <LeadTable data={leadData} onApprove={handleApprove} onReject={handleReject} />
-      </div>
+      </Box>
     );
   };
   

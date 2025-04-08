@@ -9,44 +9,49 @@ const tabs:TAB[] = [
     route: "admin/dashboard",
   },
   {
-    icon: "icon-park-outline:folder-block-one",
+    icon: "iconoir:multiple-pages",
     label: "Applications",
     route: "admin/applications",
     children: [
       {
         label: "Dominica Passport",
         route: "admin/dominica",
-        icon: "icon-park-outline:folder-block-one",
+        icon: "",
       },
       {
         label: "Greneda Passport",
         route: "admin/gredena",
-        icon: "icon-park-outline:folder-block-one",
+        icon: "",
       },
     ],
   },
   {
-    icon: "icon-park-outline:remind",
+    icon: "solar:user-speak-bold",
     label: "Consultations",
     route: "admin/consultations",
   },
   {
-    icon: "icon-park-outline:setting",
+    icon: "lsicon:user-crowd-outline",
     label: "Lead Management",
     route: "admin/leadmanagement",
   },
   {
-    icon: "icon-park-outline:setting",
+    icon: "vaadin:lines-list",
     label: "Service Management",
     route: "admin/servicemanagement",
   },
   {
-    icon: "icon-park-outline:setting",
+    icon: "icon-park-outline:bank",
+    label: "Manage Bank Details",
+    route: "admin/bankdetails",
+  },
+  {
+    icon: "grommet-icons:visa",
     label: "VIP Concierge Service",
     route: "admin/vipconciergeservice",
   },
   {
-    icon: "icon-park-outline:setting",
+    icon: "basil:notification-on-solid",
     label: "Notification",
     route: "admin/notification",
   },
@@ -58,6 +63,8 @@ const tabs:TAB[] = [
 ];
 
 const AdminLayout = () => {
+
+  
   return (
     <div className="h-screen flex ">
       {/* Sidebar portion */}

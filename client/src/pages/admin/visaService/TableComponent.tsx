@@ -66,6 +66,7 @@ const TableComponent: React.FC<Props> = ({ data }) => {
 
   return (
     <Paper sx={{ p: 2, boxShadow: "none" }}>
+      
       <Box 
       sx={{
         display:"flex",

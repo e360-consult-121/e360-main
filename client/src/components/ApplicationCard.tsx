@@ -1,4 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 const ApplicationCard = () => {
+
+  const navigate = useNavigate()
+
   return (
     <div className="flex flex-col w-[352px] bg-neutrals-50 rounded-4xl px-4 py-4">
       <h2 className="text-neutrals-950 font-bold mb-4">Dubai Business Setup</h2>
@@ -13,7 +18,7 @@ const ApplicationCard = () => {
         <p>23 March 2025</p>
       </div>
 
-      <button className=" mt-3 w-full bg-golden-yellow-400 text-neutrals-950 rounded-[20px] text-sm py-2">
+      <button className=" mt-3 w-full bg-golden-yellow-400 text-neutrals-950 rounded-[20px] text-sm py-2" onClick={()=>{ navigate("/E360-DXB-001")}}>
         View
       </button>
     </div>

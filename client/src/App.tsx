@@ -2,13 +2,14 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AdminRoutes from "./pages/admin/AdminRoutes";
 import CustomerRoutes from "./pages/customer/CustomerRoutes";
 import ProtectedRoute from "./utils/ProtectedRoute";
-import Login from "./pages/auth/Login";
+import AuthPage from "./pages/auth/AuthPage";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<AuthPage mode='SIGN_IN' />} />
+        <Route path="/register" element={<AuthPage mode='SIGN_UP'/>} />
 
         {/* Admin routes */}
         <Route path="/admin/*" element={

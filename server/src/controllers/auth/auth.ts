@@ -52,14 +52,14 @@ export const login = async (
   const data = req.body;
   
   if (!data.email || !data.password || !data.role)
-    throw new AppError("Fields not found", 400);
+    return next(new AppError("Fields not found", 400))
 
   const user = await UserModel.findOne({ email: data.email })
   if (!user)
-    throw new AppError("Email id not registered", 404);
+    return next(new AppError("Email id not registered", 404))
 
   if (!(await bcrypt.compare(data.password, user.password)))
-    throw new AppError("Invalid password", 403);
+    return next(new AppError("Invalid password", 403))
 
   let accessToken = generateAccessToken({ id: String(user._id), role: user.role });
   let refreshToken = generateRefreshToken({ id: String(user._id), role: user.role });
