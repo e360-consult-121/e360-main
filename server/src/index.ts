@@ -179,9 +179,9 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
 
     const newLead = new LeadModelToUse({
       ...commonFields,
-      additionalInfo ,
       leadStatus: leadStatus.INITIATED,
       timeToSubmit: Number(timeToSubmit) || 0,
+      additionalInfo ,
     });
 
     await newLead.save();
