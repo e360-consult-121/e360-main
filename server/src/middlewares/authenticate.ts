@@ -46,3 +46,12 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     res.status(401).json({ message: 'Unauthorized: Invalid token' });
   }
 };
+
+
+// for authorziation of Admin
+export const authorizeAdmin = (req: Request, res: Response, next: NextFunction): void => {
+  if (!req.admin) {
+    return next(new AppError("Access denied: Admins only", 403));
+  }
+  next();
+};

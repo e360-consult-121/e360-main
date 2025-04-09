@@ -265,3 +265,61 @@ export const DubaiApplicationModel = mongoose.model<IDubaiApplication>(
   "DubaiApplication",
   DubaiApplicationSchema
 );
+
+
+// second webhook logic
+// app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): Promise<void> => {
+//   logger.info("Webhook endpoint hit");
+//   logger.info("Raw incoming data: " + JSON.stringify(req.body, null, 2));
+
+//   const { formID, rawRequest } = req.body;
+
+//   if (!rawRequest || typeof rawRequest !== "string") {
+//     logger.error("rawRequest is missing or not a string");
+//     res.status(400).json({ status: "error", message: "Invalid or missing rawRequest" });
+//     return;
+//   }
+
+//   let formData;
+//   try {
+//     formData = JSON.parse(rawRequest);
+//   } catch (error: any) {
+//     logger.error(`Failed to parse rawRequest: ${error.message}`);
+//     res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
+//     return;
+//   }
+
+//   const parser = FORM_ID_MAP[formID];
+//   const getPriority = PRIORITY_MAP[formID];
+
+//   if (!parser || !getPriority) {
+//     logger.warn(`No parser or priority function found for formID: ${formID}`);
+//     res.status(400).json({ status: "error", message: "Unrecognized formID" });
+//     return;
+//   }
+
+//   const parsedData = parser(formData);
+//   logger.info(`Parsed data: ${JSON.stringify(parsedData, null, 2)}`);
+
+//   const priority = getPriority(parsedData);
+//   logger.info(`Calculated priority: ${priority}`);
+
+//   // Construct the lead data
+//   const leadData = {
+//     ...parsedData,
+//     priority,
+//   };
+
+//   try {
+//     const newLead = new LeadModel(leadData); // Automatically uses discriminator if needed
+//     await newLead.save();
+//     logger.info(`Lead saved successfully with ID: ${newLead._id}`);
+//     res.status(201).json({ status: "success", message: "Lead created", data: newLead });
+//   } catch (error: any) {
+//     logger.error(`Error saving lead: ${error.message}`);
+//     res.status(500).json({ status: "error", message: "Failed to save lead" });
+//   }
+// });
+
+
+

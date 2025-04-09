@@ -184,3 +184,60 @@ export const PortugalFormModel = mongoose.model<IPortugalForm>("PortugalForm", P
 
 
 
+
+
+// first webhook endpoint 
+// app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void => {
+//   // logger.info("Webhook endpoint hit");
+//   // raw data 
+//   // logger.info("Raw incoming data: " + JSON.stringify(req.body, null, 2));
+
+//   const { formID, rawRequest } = req.body;
+//   // logger.info(`Received formID: ${formID}`);
+//   // logger.info(`Received rawRequest: ${rawRequest}`);
+
+//   // Check if rawRequest exists and is a string
+//   if (!rawRequest || typeof rawRequest !== "string") {
+//     logger.error("rawRequest is missing or not a string");
+//     res.status(400).json({ status: "error", message: "Invalid or missing rawRequest" });
+//     return;
+//   }
+
+//   let formData;
+//   try {
+//     // Parse the rawRequest string into a JSON object
+//     formData = JSON.parse(rawRequest);
+//     logger.info("Parsed rawRequest successfully");
+//   } catch (error: any) {
+//     logger.error(`Failed to parse rawRequest: ${error.message}`);
+//     res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
+//     return;
+//   }
+
+//   // Structure the webhook data with meaningful fields
+//   const webhookData = {
+//     formId: formID,
+//     submissionData: {
+//       fullName: formData.q1_fullName || {},
+//       nationality: formData.q4_nationality || "",
+//       email: formData.q6_email || "",
+//       phone: formData.q61_fullPhone || "",
+//       purpose: formData.q62_whatsYour62 || [],
+//       budget: formData.q52_whatBudget || "",
+//       considering: formData.q54_areYou54 || "",
+//       criminalRecord: formData.q55_haveYou55 || "",
+//       additionalInfo: formData.q38_anythingElse || "",
+//       submitSource: formData.submitSource || "",
+//       timeToSubmit: formData.timeToSubmit || "",
+//       eventId: formData.event_id || "",
+//     },
+//   };
+
+//   // Log the structured data
+//   logger.info("Structured webhook data: " + JSON.stringify(webhookData, null, 2));
+
+//   // Send success response
+//   res.json({ status: "success" });
+//   logger.info("Response sent successfully");
+// });
+
