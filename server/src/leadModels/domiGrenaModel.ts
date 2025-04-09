@@ -102,7 +102,7 @@ export interface ILeadDomiGrena extends ILead {
     priority: leadPriority;
 
     // event_id: string;
-    timeToSubmit: number;
+
   };
 }
 
@@ -244,7 +244,6 @@ const LeadDomiGrenaSchema = new Schema<ILeadDomiGrena>({
         required: true, // or false, based on your requirement
       },
       // event_id: { type: String, required: true },
-      timeToSubmit: { type: Number, required: true }
   }
 });
 

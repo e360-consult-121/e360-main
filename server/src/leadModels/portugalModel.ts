@@ -45,7 +45,7 @@ export interface ILeadPortugal extends ILead {
       
       priority: leadPriority; 
       // event_id: string;
-      timeToSubmit: number;
+      
     };
 }
 
@@ -153,7 +153,7 @@ const LeadPortugalSchema = new Schema<ILeadPortugal>({
     
 
       // event_id: { type: String, required: true },
-      timeToSubmit: { type: Number, required: true }
+      
     }
 });
   

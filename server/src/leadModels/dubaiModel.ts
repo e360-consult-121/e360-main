@@ -95,7 +95,7 @@ export interface ILeadDubai extends ILead {
     
     priority: leadPriority;
     // event_id: string;
-    timeToSubmit: number;
+
 
   };
 }
@@ -262,7 +262,7 @@ const LeadDubaiSchema = new Schema<ILeadDubai>({
       required: true, // or false, based on your requirement
     },
     // event_id: { type: String, required: true },
-    timeToSubmit: { type: Number, required: true }
+
 
   },
 });

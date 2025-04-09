@@ -13,6 +13,8 @@ export interface ILead extends Document {
 
   leadStatus: leadStatus;
 
+  timeToSubmit: number;
+
   additionalInfo?: Record<string, any>;
 }
 
@@ -33,6 +35,8 @@ const LeadSchema = new Schema<ILead>({
     enum: Object.values(leadStatus),
     default: leadStatus.INITIATED,
   },
+
+  timeToSubmit: { type: Number, required: true },
 
   additionalInfo: {
     type: Schema.Types.Mixed,

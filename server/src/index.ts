@@ -136,11 +136,12 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
 
   // Step 3: Extract common + additional fields
   const {
+    formId,
     fullName,
     email,
     phone,
     nationality,
-    formId,
+    timeToSubmit,
     ...rest
   } = parsedData;
 
@@ -179,7 +180,8 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
     const newLead = new LeadModelToUse({
       ...commonFields,
       additionalInfo ,
-      leadStatus: leadStatus.INITIATED
+      leadStatus: leadStatus.INITIATED,
+      timeToSubmit: Number(timeToSubmit) || 0,
     });
 
     await newLead.save();
