@@ -7,9 +7,6 @@ import * as leadControllers from "../../../controllers/Leads/leadController";
 const router = Router();
 
 router.get("/fetchAllLeads", authenticate , authorizeAdmin , asyncHandler(leadControllers.getAllLeads));
-// router.post("/add-visaType-steps", authenticate, asyncHandler(visaTypeController.addStepToVisaType));
-// router.post("/create-visaType-requirement", authenticate, asyncHandler(visaTypeController.createRequirementAndPushToVisaType));
-
-
-
+router.get("/fetchParticularLead", authenticate , authorizeAdmin , asyncHandler(leadControllers.getParticularLeadInfo));
+router.post("/:id/rejectLead", authenticate , authorizeAdmin , asyncHandler(leadControllers.rejectLead));
 export default router;
