@@ -12,10 +12,19 @@ import cookieParser from "cookie-parser";
 import logger from "./utils/logger";
 import bodyParser from "body-parser";
 import multer from "multer";
-
+// leadMOdel 
+import { LeadModel } from "./leadModels/leadModel";
+import { LeadDomiGrenaModel } from "./leadModels/domiGrenaModel";
+import { LeadPortugalModel } from "./leadModels/portugalModel";
+import { LeadDubaiModel } from "./leadModels/dubaiModel";
+// priority enum
+import {leadPriority , leadStatus} from "./types/enums/enums";
+// import parsing/ mapping function
 import { parseDomiGrenaData } from "./parsingFunctions/domiGrenaParse"
 import { parseDubaiData } from "./parsingFunctions/dubaiParse"
 import { parsePortugalData } from "./parsingFunctions/portugalParse"
+// import priority functions 
+import {getPortugalPriority , getDubaiPriority , getDomiGrenaPriority} from "./utils/priority"
 
 dotenv.config();
 
@@ -65,70 +74,24 @@ app.get("/health", (req: Request, res: Response): void => {
 });
 
 
-// Webhook endpoint
-// app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void => {
-//   // logger.info("Webhook endpoint hit");
-//   // raw data 
-//   // logger.info("Raw incoming data: " + JSON.stringify(req.body, null, 2));
-
-//   const { formID, rawRequest } = req.body;
-//   // logger.info(`Received formID: ${formID}`);
-//   // logger.info(`Received rawRequest: ${rawRequest}`);
-
-//   // Check if rawRequest exists and is a string
-//   if (!rawRequest || typeof rawRequest !== "string") {
-//     logger.error("rawRequest is missing or not a string");
-//     res.status(400).json({ status: "error", message: "Invalid or missing rawRequest" });
-//     return;
-//   }
-
-//   let formData;
-//   try {
-//     // Parse the rawRequest string into a JSON object
-//     formData = JSON.parse(rawRequest);
-//     logger.info("Parsed rawRequest successfully");
-//   } catch (error: any) {
-//     logger.error(`Failed to parse rawRequest: ${error.message}`);
-//     res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
-//     return;
-//   }
-
-//   // Structure the webhook data with meaningful fields
-//   const webhookData = {
-//     formId: formID,
-//     submissionData: {
-//       fullName: formData.q1_fullName || {},
-//       nationality: formData.q4_nationality || "",
-//       email: formData.q6_email || "",
-//       phone: formData.q61_fullPhone || "",
-//       purpose: formData.q62_whatsYour62 || [],
-//       budget: formData.q52_whatBudget || "",
-//       considering: formData.q54_areYou54 || "",
-//       criminalRecord: formData.q55_haveYou55 || "",
-//       additionalInfo: formData.q38_anythingElse || "",
-//       submitSource: formData.submitSource || "",
-//       timeToSubmit: formData.timeToSubmit || "",
-//       eventId: formData.event_id || "",
-//     },
-//   };
-
-//   // Log the structured data
-//   logger.info("Structured webhook data: " + JSON.stringify(webhookData, null, 2));
-
-//   // Send success response
-//   res.json({ status: "success" });
-//   logger.info("Response sent successfully");
-// });
-
-
 
 const FORM_ID_MAP: Record<string, (data: any) => any> = {
   "250912382847462": parsePortugalData,
   "250901425096454": parseDubaiData,
   "250912364956463": parseDomiGrenaData,
 };
-//webhook
-app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void => {
+
+
+const PRIORITY_MAP: Record<string, (data: any) => leadPriority> = {
+  "250912382847462": getPortugalPriority,
+  "250901425096454": getDubaiPriority,
+  "250912364956463": getDomiGrenaPriority,
+};
+
+
+// webhook endpoint
+app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): Promise<void> => {
+  
   logger.info("Webhook endpoint hit");
   logger.info("Raw incoming data: " + JSON.stringify(req.body, null, 2));
 
@@ -136,8 +99,8 @@ app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void =>
 
   if (!rawRequest || typeof rawRequest !== "string") {
     logger.error("rawRequest is missing or not a string");
-    res.status(400).json({ status: "error", message: "Invalid or missing rawRequest" });
-    return;
+     res.status(400).json({ status: "error", message: "Invalid or missing rawRequest" });
+     return;
   }
 
   let formData;
@@ -145,23 +108,94 @@ app.post("/api/v1/webhook", upload.any(), (req: Request, res: Response): void =>
     formData = JSON.parse(rawRequest);
   } catch (error: any) {
     logger.error(`Failed to parse rawRequest: ${error.message}`);
-    res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
-    return;
+     res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
+     return;
   }
-// parseer function
+
+  // Step 1: Parse the form data
   const parser = FORM_ID_MAP[formID];
   if (!parser) {
     logger.warn(`No parser found for formID: ${formID}`);
-    res.status(400).json({ status: "error", message: "Unrecognized formID" });
-    return;
+     res.status(400).json({ status: "error", message: "Unrecognized formID" });
+     return;
   }
 
-  // Call the relevant parser function
   const parsedData = parser(formData);
   logger.info(`Parsed data for formID ${formID}: ${JSON.stringify(parsedData, null, 2)}`);
 
-  res.status(200).json({ status: "success", message: "Webhook data parsed successfully" });
+  // Step 2: Get priority from form-specific priority function
+  const priorityFn = PRIORITY_MAP[formID];
+  if (!priorityFn) {
+    logger.warn(`No priority function found for formID: ${formID}`);
+     res.status(400).json({ status: "error", message: "Priority function not defined" });
+     return;
+  }
+
+  const priority = priorityFn(parsedData);
+  logger.info(`Calculated priority: ${priority}`);
+
+  // Step 3: Extract common + additional fields
+  const {
+    formId,
+    fullName,
+    email,
+    phone,
+    nationality,
+    timeToSubmit,
+    ...rest
+  } = parsedData;
+
+  const commonFields = {
+    formId,
+    fullName,
+    email,
+    phone,
+    nationality
+  };
+
+  const additionalInfo = {
+    ...rest,
+    priority
+  };
+
+  // Step 4: Create lead (discriminator model will handle the right schema)
+  try {
+    let LeadModelToUse;
+
+    switch (formID) {
+      case "250912382847462":
+        LeadModelToUse = LeadPortugalModel;
+        break;
+      case "250901425096454":
+        LeadModelToUse = LeadDubaiModel;
+        break;
+      case "250912364956463":
+        LeadModelToUse = LeadDomiGrenaModel;
+        break;
+      default:
+         res.status(400).json({ status: "error", message: "Unsupported formID" });
+         return;
+    }
+
+    const newLead = new LeadModelToUse({
+      ...commonFields,
+      leadStatus: leadStatus.INITIATED,
+      timeToSubmit: Number(timeToSubmit) || 0,
+      additionalInfo ,
+    });
+
+    await newLead.save();
+
+    logger.info("Lead saved successfully");
+     res.status(200).json({ status: "success", message: "Lead saved to DB" });
+     return;
+  } catch (error: any) {
+    logger.error("Error saving lead: " + error.message);
+     res.status(500).json({ status: "error", message: "Failed to save lead" });
+     return;
+  }
 });
+
 
 
 

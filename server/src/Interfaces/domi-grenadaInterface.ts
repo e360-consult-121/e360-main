@@ -70,7 +70,7 @@ export interface IDominicaGrenadaForm extends Document {
 
 
 
-
+// This is model/schema
 const DominicaGrenadaSchema: Schema = new mongoose.Schema({
     formId: { type: String, required: true },
 

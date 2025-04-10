@@ -63,7 +63,7 @@ type ParsedPortugalData = {
     stayDuration: string ;
     dependents: string ;
 
-    additionalInfo: string ;
+    extraInfo: string ;
 
     event_id: string;
     timeToSubmit: number;
@@ -114,7 +114,7 @@ export const parsePortugalData = (rawData: RawPortugalData): ParsedPortugalData 
         stayDuration: rawData?.q70_howMany || "" ,
         dependents: rawData?.q64_howMany64 || "",
 
-        additionalInfo: rawData?.q38_anythingElse || "",
+        extraInfo: rawData?.q38_anythingElse || "",
 
         event_id: rawData?.event_id || "",
         timeToSubmit: rawData?.timeToSubmit || 0

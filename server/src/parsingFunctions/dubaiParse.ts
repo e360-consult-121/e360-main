@@ -24,6 +24,7 @@ type RawDubaiData = {
 
 
 type ParsedDubaiData = {
+    formId: string;
     fullName: { first: string; last: string };
     nationality: string;
     email: string;
@@ -33,8 +34,8 @@ type ParsedDubaiData = {
     budgetRange: string;
     movingToDubai: string;
     visaIssues: string;
-    additionalInfo: string;
-    formId: string;
+    extraInfo: string;
+    
 
     otherProfessionDetail: string | null;
     businessOwner: {
@@ -67,6 +68,9 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
     const profession = rawData?.q42_whichBest42 || "";
 
     const parsedData: ParsedDubaiData = {
+
+        formId: rawData?.slug?.split("/")?.[1] || "",
+        
         fullName: {
             first: rawData?.q1_fullName?.first || "",
             last: rawData?.q1_fullName?.last || ""
@@ -79,8 +83,8 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
         budgetRange: rawData?.q52_whatBudget || "",
         movingToDubai: rawData?.q54_areYou54 || "",
         visaIssues: rawData?.q55_haveYou55 || "",
-        additionalInfo: rawData?.q38_anythingElse || "",
-        formId: rawData?.slug?.split("/")?.[1] || "",
+        extraInfo: rawData?.q38_anythingElse || "",
+        
 
         // saari optional fields me \initailly null daal do 
         otherProfessionDetail: null,

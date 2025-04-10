@@ -37,6 +37,8 @@ type RawxxxData = {
 
 // Final structured parsed data
 type ParsedxxxData = {
+    formId: string;
+
     fullName: {
         first: string;
         last: string;
@@ -73,11 +75,11 @@ type ParsedxxxData = {
     budgetRange: string;
     movingToApply: string;
     visaIssues: string;
-    additionalInfo: string;
+    extraInfo: string;
 
     event_id: string;
     timeToSubmit: number;
-    formId: string;
+    
 };
 
 
@@ -90,6 +92,9 @@ export const parseDomiGrenaData = (rawData: RawxxxData): ParsedxxxData => {
     const profession = rawData?.q42_whichBest42 || "";
 
     const parsedData: ParsedxxxData = {
+
+        formId: rawData?.slug?.split("/")?.[1] || "",
+        
         fullName: {
             first: rawData?.q1_fullName?.first || "",
             last: rawData?.q1_fullName?.last || ""
@@ -102,10 +107,10 @@ export const parseDomiGrenaData = (rawData: RawxxxData): ParsedxxxData => {
         budgetRange: rawData?.q52_whatBudget || "",
         movingToApply: rawData?.q54_areYou54 || "",
         visaIssues: rawData?.q55_haveYou55 || "",
-        additionalInfo: rawData?.q38_anythingElse || "",
+        extraInfo: rawData?.q38_anythingElse || "",
         event_id: rawData?.event_id || "",
         timeToSubmit: rawData?.timeToSubmit || 0,
-        formId: rawData?.slug?.split("/")?.[1] || "",
+        
 
         // Optional fields set to null initially
         otherProfessionDetail: null,

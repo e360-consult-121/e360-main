@@ -73,3 +73,31 @@ export enum StepTypeEnum {
   DELIVERY = "DELIVERY",
   GENERAL = "GENERAL"
 }
+
+
+export enum leadPriority {
+  HIGH = "HIGH",
+  LOW = "LOW",
+  MEDIUM = "MEDIUM"  
+}
+
+export enum leadStatus {
+  INITIATED = "INITIATED",
+  CONSULTATIONLINKSENT = "CONSULTATIONLINKSENT",
+  CONSULTATIONSCHEDULED = "CONSULTATIONSCHEDULED" ,
+  CONSULTATIONDONE = "CONSULTATIONDONE" ,
+  PAYMENTLINKSENT = "PAYMENTLINKSENT",
+  PAYMENTDONE = "PAYMENTDONE" ,
+  REJECTED = "REJECTED"
+}
+
+export enum consultationStatus {
+  SCHEDULED = "SCHEDULED",
+  COMPLETED = "COMPLETED",
+}
+
+export enum paymentStatus {
+  PENDING = "PENDING",
+  PAID = "PAID",
+  FAILED = "FAILED",
+}
