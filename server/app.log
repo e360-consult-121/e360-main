@@ -50,3 +50,6 @@
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/auth/register\",\"status\":\"500\",\"responseTime\":\"1202.742\"}","timestamp":"2025-04-04T11:47:49.054Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/register\",\"status\":\"201\",\"responseTime\":\"1176.728\"}","timestamp":"2025-04-04T11:51:05.475Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1135.306\"}","timestamp":"2025-04-04T11:55:39.481Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/\",\"status\":\"500\",\"responseTime\":\"142.097\"}","timestamp":"2025-04-10T19:09:09.853Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.ico\",\"status\":\"500\",\"responseTime\":\"25.261\"}","timestamp":"2025-04-10T19:09:10.635Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/leads/fetchAllLeads\",\"status\":\"500\",\"responseTime\":\"12.318\"}","timestamp":"2025-04-10T19:12:22.960Z"}

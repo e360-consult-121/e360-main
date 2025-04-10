@@ -16,7 +16,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
 
-    const { leadId, amount } = req.body;
+    const  leadId  = req.params.leadId;
+    const {  amount } = req.body;
   
     const lead = await LeadModel.findById(leadId);
     if (!lead) {

@@ -6,7 +6,7 @@ import * as paymentControllers from "../../../controllers/Leads/paymentControlle
 
 const router = Router();
 
-router.post("/sendPaymentLink", authenticate , authorizeAdmin , asyncHandler(paymentControllers.sendPaymentLink));
+router.post("/:leadId/sendPaymentLink", authenticate , authorizeAdmin , asyncHandler(paymentControllers.sendPaymentLink));
 router.post("/webhook/stripe", asyncHandler(paymentControllers.stripeWebhook));
 
 export default router;

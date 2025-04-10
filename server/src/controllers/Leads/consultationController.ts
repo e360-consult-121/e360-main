@@ -19,7 +19,7 @@ export const getAllConsultations = async (req: Request, res: Response) => {
 // send consultation link
 export const sendConsultationLink = async (req: Request, res: Response) => {
 
-  const leadId = req.params.id;
+  const leadId = req.params.leadId;
 
   const lead = await LeadModel.findById(leadId);
 
@@ -114,7 +114,8 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
 
 // Mark consultation as completed 
 export const markConsultationAsCompleted = async (req: Request, res: Response) => {
-  const { consultationId } = req.params;
+
+  const  consultationId  = req.params.consultationId;
 
   // 1. Update consultation status
   const updatedConsultation = await ConsultationModel.findByIdAndUpdate(

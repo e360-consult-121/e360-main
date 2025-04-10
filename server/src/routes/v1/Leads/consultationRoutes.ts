@@ -7,7 +7,7 @@ import * as consultationControllers from "../../../controllers/Leads/consultatio
 const router = Router();
 
 router.get("/fetchAllConsultations", authenticate , authorizeAdmin , asyncHandler(consultationControllers.getAllConsultations));
-router.post("/:id/sendConsultationLink", authenticate , authorizeAdmin , asyncHandler(consultationControllers.sendConsultationLink));
-
+router.post("/:leadId/sendConsultationLink", authenticate , authorizeAdmin , asyncHandler(consultationControllers.sendConsultationLink));
+router.post("/:consultationId/markConsultationAsCompleted", authenticate , authorizeAdmin , asyncHandler(consultationControllers.sendConsultationLink));
 router.post("/webhook/calendly", asyncHandler(consultationControllers.calendlyWebhook));
 export default router;
