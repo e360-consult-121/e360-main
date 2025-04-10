@@ -50,8 +50,8 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            sudo rm -rf /home/ubuntu/e360consult/server
-            mkdir -p /home/ubuntu/e360consult/server
+            sudo rm -rf /home/ubuntu/e360consult/e360-main/server
+            mkdir -p /home/ubuntu/e360consult/e360-main/server
 
       - name: Deploy Server Files
         uses: appleboy/scp-action@v0.1.7
@@ -60,7 +60,7 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           source: "server/dist/*, server/package*.json, server/.env"
-          target: "/home/ubuntu/e360consult/server/"
+          target: "/home/ubuntu/e360consult/e360-main/server/"
           strip_components: 1
 
       - name: Install Server Dependencies on EC2
@@ -70,9 +70,9 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/e360consult/server
+            cd /home/ubuntu/e360consult/e360-main/server
             npm ci --production
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/server
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/server
 
       - name: Restart PM2 Application
         uses: appleboy/ssh-action@v0.1.7
@@ -81,7 +81,7 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/e360consult
+            cd /home/ubuntu/e360consult/e360-main/
             if [ ! -f "ecosystem.config.js" ]; then
               echo "Creating PM2 ecosystem config file"
               echo 'module.exports = {

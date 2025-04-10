@@ -6,7 +6,7 @@ export const dashboardApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
       getApplications: build.query({
         query: () => ({
-          url: "/application",
+          url: "/user/visaapplication/application",
           method: "GET",
         }),
       }) 

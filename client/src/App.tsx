@@ -8,15 +8,18 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<AuthPage mode='SIGN_IN' />} />
-        <Route path="/register" element={<AuthPage mode='SIGN_UP'/>} />
+        <Route path="/login" element={<AuthPage mode="SIGN_IN" />} />
+        <Route path="/register" element={<AuthPage mode="SIGN_UP" />} />
 
         {/* Admin routes */}
-        <Route path="/admin/*" element={
-          <ProtectedRoute>
-            <AdminRoutes />
-          </ProtectedRoute>
-          } />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute>
+              <AdminRoutes />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected Customer routes */}
         <Route

@@ -2,10 +2,10 @@ import globeAnim from "../../../assets/animations/globe-anim.gif";
 import logo from "../../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../authApi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../app/store";
 import { setAuth } from "../authSlice";
 import { Roles } from "../authTypes";
@@ -17,9 +17,22 @@ const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
+    const { user, isAuthenticated } = useSelector((state: any) => state.auth);
+  
   const [login, { isLoading }] = useLoginMutation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
+
+  useEffect(()=>{
+    if(user && isAuthenticated){
+       navigate("/dashboard")
+    }
+    else{
+      navigate("/login")
+    }
+
+  },[])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

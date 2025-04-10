@@ -60,9 +60,16 @@ export enum StepStatusEnum {
   REJECTED = "REJECTED", 
 }
 
-export enum QuestionStatusEnum{
+export enum visaApplicationReqStatusEnum{
   NOT_UPLOADED="NOT_UPLOADED",
   UPLOADED ="UPLOADED",
   VERIFIED="VERIFIED",  // Mark as verified
   RE_UPLOAD="RE_UPLOAD",
+}
+
+export enum StepTypeEnum {
+  MEDICAL = "MEDICAL",
+  BANK = "BANK",
+  DELIVERY = "DELIVERY",
+  GENERAL = "GENERAL"
 }

@@ -1,12 +1,17 @@
 import { Router } from "express";
 import { authenticate } from "../../../middlewares/authenticate";
 import asyncHandler from "../../../utils/asyncHandler";
-import * as visaApplicationController from "../../../controllers/user/visaApplication";
+import * as visaApplicationController from "../../../controllers/user/visaApplication"
+// import { authenticate } from "../../../middlewares/authenticate";
+// import asyncHandler from "../../../utils/asyncHandler";
+// import * as visaApplicationController from "../../../controllers/user/visaApplication";
 
 
 const router = Router();
 
-router.post("/create-visaApplication", authenticate, asyncHandler(visaApplicationController.createVisaApplication));
+router.route("/application").get(authenticate,asyncHandler(visaApplicationController.getAllApplications))
+
+// router.post("/create-visaApplication", authenticate, asyncHandler(visaApplicationController.createVisaApplication));
 // router.post("/add-visaType-steps", authenticate, asyncHandler(visaTypeController.addStepToVisaType));
 // router.post("/create-visaType-requirement", authenticate, asyncHandler(visaTypeController.createRequirementAndPushToVisaType));
 

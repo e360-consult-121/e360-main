@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./Login";
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./dashboard/Dashboard";
@@ -10,9 +10,9 @@ import VIPConciergeService from "./vipConciergeService/VIPConciergeService";
 import ClientInformation from "./clientInformation/ClientInformation";
 import BankDetails from "./manageBankDetails/BankDetails";
 
-
 //useeffect to fetch user
 const AdminRoutes = () => {
+
   return (
     <Routes>
         <Route path="/login" element={<Login />} />

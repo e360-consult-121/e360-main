@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import logoMark from "../assets/logomark.png";
+import { useLogoutMutation } from "../features/auth/authApi";
 
 export type TAB = {
   label: string;
@@ -81,6 +82,18 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
   const [currentTab, setCurrentTab] = useState<string>("dashboard");
   const location = useLocation();
   // console.log(location.pathname)
+  const navigate = useNavigate()
+
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logout(undefined).unwrap(); 
+      navigate("/login"); 
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
   useEffect(() => {
     const normalizedPath = location.pathname.startsWith("/")
@@ -123,7 +136,7 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
           <div className="w-full flex items-center justify-between text-red-500 cursor-pointer">
             <div className="flex items-center space-x-4">
               <Icon icon="icon-park-outline:logout" width="20" height="20" />
-              <p className="text-sm">Logout</p>
+              <p className="text-sm" onClick={handleLogout}>Logout</p>
             </div>
 
             <Icon

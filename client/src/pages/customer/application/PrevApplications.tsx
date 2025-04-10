@@ -1,4 +1,4 @@
-import ApplicationCard from "../../../components/ApplicationCard";
+import ApplicationCard from "../../../features/customer/dashboard/components/ApplicationCard";
 
 const PrevApplications = () => {
   return (

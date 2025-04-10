@@ -26,6 +26,7 @@ const tabs: TAB[] = [
 ];
 
 const CustomerLayout = () => {
+
   return (
     <div className="h-screen flex flex-1 overflow-hidden">
       {/* Sidebar portion */}

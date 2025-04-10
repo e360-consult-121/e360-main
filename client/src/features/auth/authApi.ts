@@ -47,7 +47,21 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    fetchUser: build.query({
+      query: () => ({
+        url: '/auth/fetch-user',
+        method: 'GET',
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setAuth(data)); 
+        } catch {
+         
+        }
+      },
+    }),
   }),
 });
 
-export const { useLoginMutation, useLogoutMutation, useRegisterMutation } = authApi;
+export const { useLoginMutation, useLogoutMutation, useRegisterMutation ,useFetchUserQuery } = authApi;

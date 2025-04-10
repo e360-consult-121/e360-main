@@ -2,7 +2,7 @@ import FileUpload from "./FileUpload";
 
 const UploadComponent = ({ d ,phase}: { d: any,phase:string }) => {
   const type = d.requirementType;
-  console.log(d);
+  // console.log(d);
  
     if(type === "IMAGE" || type === "PDF"){
       return <FileUpload

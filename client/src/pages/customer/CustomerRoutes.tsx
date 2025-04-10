@@ -7,6 +7,8 @@ import Settings from "./settings/Settings";
 import ApplicationMain from "./dashboard/ApplicationMain";
 
 const CustomerRoutes = () => {
+
+
   return (
     <Routes>
       <Route element={<CustomerLayout />}>
@@ -14,7 +16,7 @@ const CustomerRoutes = () => {
         <Route path="/applications" element={<PrevApplications />} />
         <Route path="/notification" element={<Notification />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/dashboard/:caseId" element={<ApplicationMain />} />
+        <Route path="/application/:caseId" element={<ApplicationMain />} />
       </Route>
     </Routes>
   );
