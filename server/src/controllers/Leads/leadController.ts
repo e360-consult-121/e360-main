@@ -33,7 +33,8 @@ export const getAllLeads = async (req: Request, res: Response) => {
 
 
 export const getParticularLeadInfo = async (req: Request, res: Response) => {
-  const { leadId } = req.body;
+
+  const  leadId  = req.params.leadId;
 
   if (!leadId) {
     return res.status(400).json({ message: "leadId is required" });
@@ -82,6 +83,7 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
       leadStatus: lead.leadStatus,
 
       consultationInfo: {
+        // consultationId : uidfhiwuh , // sahi karna hai isko 
         meetTime: consultation?.formattedDate || null,
         status: consultation?.status || null,
         joinUrl: consultation?.joinUrl || null,
@@ -107,7 +109,8 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
 
 // reject lead
 export const rejectLead = async (req: Request, res: Response) => {
-  const { leadId } = req.params;
+
+  const  leadId  = req.params.leadId;
 
   const updatedLead = await LeadModel.findByIdAndUpdate(
     leadId,

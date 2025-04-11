@@ -7,6 +7,6 @@ import * as leadControllers from "../../../controllers/Leads/leadController";
 const router = Router();
 
 router.get("/fetchAllLeads", authenticate , authorizeAdmin , asyncHandler(leadControllers.getAllLeads));
-router.get("/fetchParticularLead", authenticate , authorizeAdmin , asyncHandler(leadControllers.getParticularLeadInfo));
-router.post("/:id/rejectLead", authenticate , authorizeAdmin , asyncHandler(leadControllers.rejectLead));
+router.get("/:leadId/fetchParticularLead", authenticate , authorizeAdmin , asyncHandler(leadControllers.getParticularLeadInfo));
+router.post("/:leadId/rejectLead", authenticate , authorizeAdmin , asyncHandler(leadControllers.rejectLead));
 export default router;
