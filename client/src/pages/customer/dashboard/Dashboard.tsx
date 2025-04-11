@@ -1,6 +1,7 @@
 import CustomTable from "../../../components/CustomTable";
 import ApplicationCard from "../../../features/customer/dashboard/components/ApplicationCard";
 import { useGetApplicationsQuery } from "../../../features/customer/dashboard/dashboardApi";
+import { formatDate } from "../../../utils/FormateDate";
 
 const Dashboard = () => {
   const { data, isLoading, isError } = useGetApplicationsQuery(undefined);
@@ -25,7 +26,7 @@ const Dashboard = () => {
                 key={application._id}
                 caseId={application._id}
                 status={application.visaApplicationStatus}
-                submissionDate={"23 March 2025"} 
+                submissionDate={formatDate(application.createdAt)} 
                 title={application.visaTypeId?.visaType || "Unknown Visa"}
               />
             ))

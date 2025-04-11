@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../authApi";
+import { useFetchUserQuery, useLoginMutation } from "../authApi";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../app/store";
 import { setAuth } from "../authSlice";
@@ -12,27 +12,31 @@ import { Roles } from "../authTypes";
 import { Link, Typography, CircularProgress } from "@mui/material";
 
 const Login = () => {
+
+
+  //  const navigate = useNavigate();
+    // const dispatch = useDispatch();
+    // const { user, isAuthenticated } = useSelector((state: any) => state.auth);
+  
+  const { data, isSuccess, isError } = useFetchUserQuery(undefined);
   const [isRememberMe, setIsRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-    const { user, isAuthenticated } = useSelector((state: any) => state.auth);
-  
   const [login, { isLoading }] = useLoginMutation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-
-  useEffect(()=>{
-    if(user && isAuthenticated){
-       navigate("/dashboard")
+  useEffect(() => {
+     if ((isSuccess === true) ) {
+     dispatch(setAuth(data));
+     navigate("/dashboard")
     }
-    else{
-      navigate("/login")
+    else {
+      navigate("/login");
     }
-
-  },[])
+  }, [isError,navigate,isSuccess, data, dispatch]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

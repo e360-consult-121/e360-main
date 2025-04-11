@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import logoMark from "../assets/logomark.png";
 import { useLogoutMutation } from "../features/auth/authApi";
+import { useDispatch } from "react-redux";
+import { clearAuth } from "../features/auth/authSlice";
 
 export type TAB = {
   label: string;
@@ -85,11 +87,12 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
   const navigate = useNavigate()
 
   const [logout] = useLogoutMutation();
-
   const handleLogout = async () => {
     try {
       await logout(undefined).unwrap(); 
-      navigate("/login"); 
+      window.location.reload()
+      navigate("/login");
+
     } catch (err) {
       console.error("Logout failed:", err);
     }
