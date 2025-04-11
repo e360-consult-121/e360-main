@@ -53,3 +53,5 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/\",\"status\":\"500\",\"responseTime\":\"142.097\"}","timestamp":"2025-04-10T19:09:09.853Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.ico\",\"status\":\"500\",\"responseTime\":\"25.261\"}","timestamp":"2025-04-10T19:09:10.635Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/leads/fetchAllLeads\",\"status\":\"500\",\"responseTime\":\"12.318\"}","timestamp":"2025-04-10T19:12:22.960Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"401\",\"responseTime\":\"62.811\"}","timestamp":"2025-04-11T08:18:05.725Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/:leadId/fetchParticularLead\",\"status\":\"401\",\"responseTime\":\"13.314\"}","timestamp":"2025-04-11T08:20:45.138Z"}
