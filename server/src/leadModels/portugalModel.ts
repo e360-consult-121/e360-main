@@ -92,7 +92,7 @@ const LeadPortugalSchema = new Schema<ILeadPortugal>({
         },
         industryInterest: {
           type: String,
-          enum: ["Yes, I have targeted industry", "No, I am open to profitable options"],
+          enum: ["Yes, I have a targeted industry", "No, I am open to profitable options"],
           default: null
         },
         targetedIndustry: { type: String, default: null }
