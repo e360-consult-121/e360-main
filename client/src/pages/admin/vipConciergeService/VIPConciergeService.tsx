@@ -1,4 +1,3 @@
-import { Typography } from "@mui/material"
 import VIPConciergeServiceTable from "./VIPConciergeServiceTable";
 
 export interface VIPConciergeService {

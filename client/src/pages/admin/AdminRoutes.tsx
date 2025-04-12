@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Login from "./Login";
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./dashboard/Dashboard";
@@ -24,7 +24,7 @@ const AdminRoutes = () => {
         <Route path="/servicemanagement" element={<ServiceManagement />} />
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
         <Route path="/bankdetails" element={<BankDetails />} />
-        <Route path="/:application/:caseid" element={<ClientInformation />} />
+        <Route path="/consultation/:leadid" element={<ClientInformation />} />
       </Route>
     </Routes>
   );

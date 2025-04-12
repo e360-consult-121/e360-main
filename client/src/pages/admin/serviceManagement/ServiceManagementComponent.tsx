@@ -3,7 +3,6 @@ import {
   Switch,
   Typography,
   Box,
-  FormControlLabel,
   Divider,
 } from "@mui/material";
 import { ServiceCategory } from "./ServiceManagement";

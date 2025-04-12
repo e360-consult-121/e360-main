@@ -6,21 +6,27 @@ import {
   Box,
   MenuItem
 } from "@mui/material";
-import { Lead } from "./LeadManagement";
+import { AllLeads } from "../../../features/admin/leadManagement/leadManagementTypes";
+import { formatDate } from "../../../utils/FormateDate";
+import { useNavigate } from "react-router-dom";
 
 interface LeadTableProps {
-  data: Lead[];
-  onApprove: (lead: Lead) => void;
-  onReject: (lead: Lead) => void;
+  data: AllLeads[];
 }
 
-const LeadTable: React.FC<LeadTableProps> = ({ data, onApprove, onReject }) => {
+const LeadTable: React.FC<LeadTableProps> = ({ data }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [sortOrder, setSortOrder] = useState("Newest First");
+  const navigate = useNavigate()
+
+  const handleNavigation = (row: AllLeads) => {
+    // console.log(row)
+    navigate(`/admin/consultation/${row._id}`);
+  };
 
   // Handle page change
-  const handleChangePage = (event: any, newPage: number) => {
+  const handleChangePage = (_event: any, newPage: number) => {
     setPage(newPage);
   };
 
@@ -39,9 +45,9 @@ const LeadTable: React.FC<LeadTableProps> = ({ data, onApprove, onReject }) => {
   // Sort data based on the selected order
   const sortedData = [...data].sort((a, b) => {
     if (sortOrder === "Oldest First") {
-      return new Date(a.submissionDate).getTime() - new Date(b.submissionDate).getTime();
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     } else {
-      return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
   });
 
@@ -83,20 +89,22 @@ const LeadTable: React.FC<LeadTableProps> = ({ data, onApprove, onReject }) => {
           <TableBody>
             {sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((lead, index) => (
               <TableRow key={index}>
-                <TableCell sx={{ borderBottom: "none" }}>{lead.caseId}</TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>{lead.name}</TableCell>
+                <TableCell sx={{ borderBottom: "none" }}>{lead._id}</TableCell>
+                <TableCell sx={{ borderBottom: "none" }}>{lead.fullName.first + lead.fullName.last}</TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>{lead.email}</TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>{lead.phone}</TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>{lead.submissionDate}</TableCell>
+                <TableCell sx={{ borderBottom: "none" }}>{formatDate(lead.createdAt)}</TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>
                   <Typography 
-                    sx={{ color: lead.priority === "High" ? "red" : lead.priority === "Medium" ? "orange" : "green" }}
+                    sx={{ color: lead?.additionalInfo?.priority === "HIGH" ? "red" : lead?.additionalInfo?.priority === "MEDIUM" ? "orange" : "green" }}
                   >
-                    {lead.priority}
+                    {lead?.additionalInfo?.priority?.toLowerCase().replace(/^./, (c:any) => c.toUpperCase())}
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>
-                  <Button sx={{ color: "blue", textTransform: "none" }}>View</Button>
+                  <Button sx={{ color: "black", textTransform: "none" }}
+                  onClick={()=> handleNavigation(lead)}
+                  >View &gt;</Button>
                 </TableCell>
               </TableRow>
             ))}

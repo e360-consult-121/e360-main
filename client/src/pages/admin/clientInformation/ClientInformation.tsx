@@ -1,11 +1,30 @@
-import { Typography, Card, CardContent, Box } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { Typography, Card, CardContent, Box, CircularProgress } from "@mui/material";
 import ClientConsultation from "./ClientConsultation";
-
+import { useParams } from "react-router-dom";
+import { useFetchParticularLeadQuery } from "../../../features/admin/leadManagement/leadManagementApi";
+import { useEffect, useState } from "react";
+import { ClientInfoType } from "../../../features/admin/leadManagement/leadManagementTypes";
 
 const ClientInformation= () => {
-  const location = useLocation();
-  const clientInfo = location.state?.row;
+
+  const { leadid } = useParams();
+  const { data, isLoading, isError } = useFetchParticularLeadQuery(leadid);
+  const [clientInfo,setClientInfo] = useState<ClientInfoType>();
+
+  useEffect(() => {
+    if (data && !isLoading && !isError) {
+      // console.log(data.data)
+      setClientInfo(data.data);
+    }
+  }, [data, isLoading, isError]);
+
+  if (isLoading) {
+    return <CircularProgress />;
+  }
+
+  if (isError || !data) {
+    return <Typography color="error">Failed to load lead data.</Typography>;
+  }
   
   return (
     <>
@@ -30,24 +49,29 @@ const ClientInformation= () => {
         sx={{
           display:"flex",
           alignItems:"center",
-          justifyContent:"space-between"
+          justifyContent:"space-between",
         }}
         >
           <Box>
-          <Typography>Name: {clientInfo.name}</Typography>
-          <Typography>Email: {clientInfo.email}</Typography>
-          <Typography>Applied for: Dominica Passport</Typography>
+          <Typography>Name: {clientInfo?.leadInfo?.name}</Typography>
+          <Typography>Applied for: <strong>{clientInfo?.leadInfo?.appliedFor}</strong></Typography>
+          <Typography>Email: {clientInfo?.leadInfo?.email}</Typography>
           </Box>
 
           <Box>
-          <Typography>Case ID: {clientInfo.CaseID}</Typography>
-          <Typography>Number: {clientInfo.phone}</Typography>
-          <Typography>Payment Status: </Typography>
+          <Typography>Case ID: {clientInfo?.leadInfo?.caseId}</Typography>
+          <Typography>Number: {clientInfo?.leadInfo?.phone}</Typography>
+          <Typography>Payment Status: {clientInfo?.paymentInfo?.status}</Typography>
           </Box>
         </Box>
       </CardContent>
     </Card>
-    <ClientConsultation/>
+    <ClientConsultation 
+    consultationInfo = {clientInfo?.consultationInfo}
+    paymentInfo={clientInfo?.paymentInfo}
+    eligibilityForm={clientInfo?.eligibilityForm}
+    formSubmisionDate={clientInfo?.createdAt || ""}
+    />
     </>
   );
 };

@@ -9,9 +9,9 @@ import { sendEmail } from "../../utils/sendEmail";
 
 
 // instance of Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2025-03-31.basil', // new Basil SDK version (version compatability issue aa sakte hai)
-});
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+//   apiVersion: '2025-03-31.basil', // new Basil SDK version (version compatability issue aa sakte hai)
+// });
 
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
@@ -27,45 +27,45 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
 
     // logic for creating paymentLink
     // 1. Create a product (optional — can be reused)
-    const product = await stripe.products.create({
-      name: `Visa Consultation for ${lead.fullName.first} ${lead.fullName.last}`,
-    });
+    // const product = await stripe.products.create({
+    //   name: `Visa Consultation for ${lead.fullName.first} ${lead.fullName.last}`,
+    // });
     
     // 2. Create a price for that product
-    const price = await stripe.prices.create({
-      unit_amount: amount * 100, // amount in paisa
-      currency: "inr",
-      product: product.id,
-    });
+    // const price = await stripe.prices.create({
+      // unit_amount: amount * 100, // amount in paisa
+      // currency: "inr",
+      // product: product.id,
+    // });
     
     // 3. Create the payment link using the price ID
-    const paymentLink = await stripe.paymentLinks.create({
-      line_items: [
-        {
-          price: price.id, //  this is now a string, as required
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        leadId: leadId,
-        email: lead.email,
-      },
-    });
+    // const paymentLink = await stripe.paymentLinks.create({
+    //   line_items: [
+    //     {
+    //       price: price.id, //  this is now a string, as required
+    //       quantity: 1,
+    //     },
+    //   ],
+    //   metadata: {
+    //     leadId: leadId,
+    //     email: lead.email,
+    //   },
+    // });
 
-    const html = `
-    <p>Hi ${lead.fullName.first},</p>
-    <p>Please complete the payment to start your visa application:</p>
-    <a href="${paymentLink.url}" target="_blank">${paymentLink.url}</a>
-    <p>If you've already paid, please ignore this.</p>
-    `;
+    // const html = `
+    // <p>Hi ${lead.fullName.first},</p>
+    // <p>Please complete the payment to start your visa application:</p>
+    // <a href="${paymentLink.url}" target="_blank">${paymentLink.url}</a>
+    // <p>If you've already paid, please ignore this.</p>
+    // `;
   
-    await sendEmail({
-      to: lead.email,
-      subject: "Complete Your Payment to start your VisaApplication",
-      html,
-    });
+    // await sendEmail({
+    //   to: lead.email,
+    //   subject: "Complete Your Payment to start your VisaApplication",
+    //   html,
+    // });
   
-    res.status(200).json({ success: true, url: paymentLink.url });
+    // res.status(200).json({ success: true, url: paymentLink.url });
 };
 
 

@@ -1,4 +1,3 @@
-import ApplicationCard from "../../../features/customer/dashboard/components/ApplicationCard";
 
 const PrevApplications = () => {
   return (
@@ -14,12 +13,6 @@ const PrevApplications = () => {
         </div>
 
         <div className="mt-5 flex flex-wrap gap-4">
-          <ApplicationCard />
-          <ApplicationCard />
-          <ApplicationCard />
-          <ApplicationCard />
-          <ApplicationCard />
-          <ApplicationCard />
         </div>
       </div>
     </div>

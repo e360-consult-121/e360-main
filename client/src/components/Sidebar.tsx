@@ -3,8 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import logoMark from "../assets/logomark.png";
 import { useLogoutMutation } from "../features/auth/authApi";
-import { useDispatch } from "react-redux";
-import { clearAuth } from "../features/auth/authSlice";
 
 export type TAB = {
   label: string;

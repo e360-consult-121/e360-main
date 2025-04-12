@@ -3,6 +3,7 @@ import { useState } from "react";
 import ClientEligibilityForm from "./ClientEligibilityForm";
 import Consultations from "./Consultations";
 import PaymentAndInvoiceManagement from "./PaymentAndInvoiceManagement";
+import { ConsultationInfoTypes, EligibilityFormTypes, PaymentInfoTypes } from "../../../features/admin/clientInformation/clientInformationTypes";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -33,67 +34,73 @@ function a11yProps(index: number) {
     };
   }
 
-const ClientConsultation = () => {
-  const [value, setValue] = useState(0);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
-  return (
-    <Box sx={{ px: 5, mt: 5, width: "100%" }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        TabIndicatorProps={{ style: { backgroundColor: "black" } }} 
-      >
-        <Tab
-          label="Client Eligibility Form"
-          sx={{
-            textTransform:"none",
-            fontSize:"16px",
-            fontWeight:"bold",
-            color: "gray", 
-            "&.Mui-selected": { color: "black", }, 
-          }}
-          {...a11yProps(0)}
-        />
-        <Tab
-          label="Consultations"
-          sx={{
-            textTransform:"none",
-            fontSize:"16px",
-            fontWeight:"bold",
-            color: "gray",
-            "&.Mui-selected": { color: "black" },
-          }}
-          {...a11yProps(1)}
-        />
-        <Tab
-          label="Payment & Invoice Management"
-          sx={{
-            textTransform:"none",
-            fontSize:"16px",
-            fontWeight:"bold",
-            color: "gray",
-            "&.Mui-selected": { color: "black" },
-          }}
-          {...a11yProps(2)}
-        />
-      </Tabs>
+  const ClientConsultation = ({
+    consultationInfo,
+    paymentInfo,
+    eligibilityForm,
+    formSubmisionDate
+  }: {
+    consultationInfo: ConsultationInfoTypes;
+    paymentInfo: PaymentInfoTypes;
+    eligibilityForm: EligibilityFormTypes;
+    formSubmisionDate:string
+  }) => {
+    const tabs = [
+      {
+        label: "Client Eligibility Form",
+        content: <ClientEligibilityForm formSubmisionDate={formSubmisionDate} eligibilityForm={eligibilityForm} />,
+        show: eligibilityForm != null,
+      },
+      {
+        label: "Consultations",
+        content: <Consultations consultationInfo={consultationInfo} />,
+        show: consultationInfo != null,
+      },
+      {
+        label: "Payment & Invoice Management",
+        content: <PaymentAndInvoiceManagement paymentInfo={paymentInfo} />,
+        show: paymentInfo != null,
+      },
+    ].filter(tab => tab.show); // Only include tabs with valid data
+  
+    const [value, setValue] = useState(0);
+  
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+      setValue(newValue);
+    };
+  
+    return (
+      <Box sx={{ px: 5, mt: 5, width: "100%" }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            TabIndicatorProps={{ style: { backgroundColor: "black" } }}
+          >
+            {tabs.map((tab, index) => (
+              <Tab
+                key={index}
+                label={tab.label}
+                sx={{
+                  textTransform: "none",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  color: "gray",
+                  "&.Mui-selected": { color: "black" },
+                }}
+                {...a11yProps(index)}
+              />
+            ))}
+          </Tabs>
+        </Box>
+        {tabs.map((tab, index) => (
+          <CustomTabPanel key={index} value={value} index={index}>
+            {tab.content}
+          </CustomTabPanel>
+        ))}
       </Box>
-      <CustomTabPanel value={value} index={0}>
-        <ClientEligibilityForm/>
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        <Consultations/>
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
-        <PaymentAndInvoiceManagement/>
-      </CustomTabPanel>
-    </Box>
-  );
-};
+    );
+  };
+  
 
 export default ClientConsultation;

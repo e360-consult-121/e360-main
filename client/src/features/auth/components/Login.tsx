@@ -5,7 +5,7 @@ import Toggle from "../../../components/Toggle";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFetchUserQuery, useLoginMutation } from "../authApi";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../app/store";
 import { setAuth } from "../authSlice";
 import { Roles } from "../authTypes";
