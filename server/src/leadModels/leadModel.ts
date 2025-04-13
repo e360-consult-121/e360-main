@@ -13,9 +13,13 @@ export interface ILead extends Document {
 
   leadStatus: leadStatus;
 
-  timeToSubmit: number;
+  // timeToSubmit: Date;
 
   additionalInfo?: Record<string, any>;
+  reasonOfRejection?: string | null;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 
@@ -36,12 +40,18 @@ const LeadSchema = new Schema<ILead>({
     default: leadStatus.INITIATED,
   },
 
-  timeToSubmit: { type: Number, required: true },
+  // timeToSubmit: { type: Date, required: true },
 
   additionalInfo: {
     type: Schema.Types.Mixed,
     default: {},
   },
+
+  reasonOfRejection: {
+    type: String,
+    default : null 
+  }
+
 }, { timestamps: true });
 
 export const LeadModel = model<ILead>("Lead", LeadSchema);

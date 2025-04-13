@@ -21,7 +21,7 @@ type RawPortugalData = {
     q47_areYou47? : string;
     q56_whatIs? : string;
     event_id?: string;
-    timeToSubmit?: number;
+    // timeToSubmit?: number;
 };
 
 type ParsedPortugalData = {
@@ -66,7 +66,7 @@ type ParsedPortugalData = {
     extraInfo: string ;
 
     event_id: string;
-    timeToSubmit: number;
+    // timeToSubmit: number;
 };
 
 
@@ -117,7 +117,7 @@ export const parsePortugalData = (rawData: RawPortugalData): ParsedPortugalData 
         extraInfo: rawData?.q38_anythingElse || "",
 
         event_id: rawData?.event_id || "",
-        timeToSubmit: rawData?.timeToSubmit || 0
+        // timeToSubmit: rawData?.timeToSubmit || 0
     };
 
     // Populate profession-specific fields

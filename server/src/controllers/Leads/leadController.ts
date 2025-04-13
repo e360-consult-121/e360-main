@@ -54,6 +54,15 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
     const serial = leadId.toString().slice(-4).toUpperCase(); // get last 4 chars of ObjectId
     const caseId = `${prefix}-${visaCode}-${serial}`;
 
+    // now handel the appliedFor field -->> 
+    const formIdToVisaType: Record<string, string> = {
+      "250901425096454": "Dubai",
+      "250912382847462": "Portugal",
+      "250912364956463": "DomiGrena",
+    };
+
+    const visaType = formIdToVisaType[lead.formId] || "Unknown";
+
 
     // Convert Mongoose doc to plain JS object
     const plainLead = lead.toObject();
@@ -76,7 +85,8 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
         name: `${lead.fullName.first} ${lead.fullName.last}`,
         email: lead.email,
         phone: lead.phone,
-        appliedFor: lead.nationality, // isko sahi se handle karna hai 
+        appliedFor: visaType, // isko sahi se handle karna hai 
+        submissionDate : lead.createdAt,
         caseId,
       },
 
@@ -111,10 +121,20 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
 export const rejectLead = async (req: Request, res: Response) => {
 
   const  leadId  = req.params.leadId;
+  const { reasonOfRejection } = req.body;
+
+
+  if (typeof reasonOfRejection !== 'string') {
+    res.status(400);
+    throw new Error("reasonOfRejection is required and must be a string");
+  }
 
   const updatedLead = await LeadModel.findByIdAndUpdate(
     leadId,
-    { leadStatus: leadStatus.REJECTED },
+    { 
+      leadStatus: leadStatus.REJECTED,
+      reasonOfRejection : reasonOfRejection,
+    },
     { new: true }
   );
 

@@ -23,7 +23,6 @@ export interface ILeadDomiGrena extends ILead {
       | "Employee / Professional"
       | "Other";
 
-    otherProfessionDetail?: string;
 
     businessOwner?: {
       registeredBusiness?:
@@ -78,6 +77,10 @@ export interface ILeadDomiGrena extends ILead {
         | "No, I do not have the funds";
     };
 
+    other? : {
+      otherProfessionDetail ? : String ;
+    }
+
     mainGoal:
       | "Securing second citizenship for travel/business opportunities"
       | "Exploring residency options instead";
@@ -126,7 +129,6 @@ const LeadDomiGrenaSchema = new Schema<ILeadDomiGrena>({
         required: true
       },
 
-      otherProfessionDetail: { type: String, default: null },
 
       businessOwner: {
         registeredBusiness: {
@@ -202,6 +204,13 @@ const LeadDomiGrenaSchema = new Schema<ILeadDomiGrena>({
             "No, I do not have the funds"
           ],
           default: null
+        }
+      },
+
+      other : {
+        otherProfessionDetail : {
+          type : String , 
+          default : null
         }
       },
 

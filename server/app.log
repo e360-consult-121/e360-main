@@ -89,3 +89,4 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"401\",\"responseTime\":\"62.811\"}","timestamp":"2025-04-11T08:18:05.725Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/:leadId/fetchParticularLead\",\"status\":\"401\",\"responseTime\":\"13.314\"}","timestamp":"2025-04-11T08:20:45.138Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"401\",\"responseTime\":\"84.290\"}","timestamp":"2025-04-11T08:45:55.377Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/67f95902ca9add97289447a0/fetchParticularLead\",\"status\":\"401\",\"responseTime\":\"380.244\"}","timestamp":"2025-04-12T18:20:55.257Z"}

@@ -1,21 +1,4 @@
-// const paymentLink = await stripe.paymentLinks.create({
-//     line_items: [
-//       {
-//         price_data: {
-//           currency: 'inr',
-//           product_data: {
-//             name: 'Visa Consultation Fee',
-//           },
-//           unit_amount: 100000, // ₹1000 in paise
-//         },
-//         quantity: 1,
-//       },
-//     ],
-//     metadata: {
-//       leadId: 'abc123', // for tracking
-//       userEmail: 'user@example.com',
-//     },
-//   });
+
   
 
 // this event will be used in stripe 
@@ -47,7 +30,14 @@
 
 
 // Use success_url and cancel_url in the payment link if you switch to checkout.sessions.create for more control
-  
+
+
+// Things you need -->>
+// Secret key
+// Webhook secret (from Stripe dashboard)
+
+
+
 import mongoose, { Document, Schema } from 'mongoose';
 import {LeadModel } from "./leadModel";
 import { paymentStatus } from "../types/enums/enums";
@@ -81,7 +71,7 @@ const PaymentSchema = new Schema<IPayment>(
     name: { type: String, required: true },
     email: { type: String, required: true },
     amount: { type: Number, required: true },
-    currency: { type: String },
+    currency: { type: String ,required: true },
     payment_method: { type: String },
 
     status: {
@@ -92,7 +82,7 @@ const PaymentSchema = new Schema<IPayment>(
 
     payment_link: { type: String, required: true },
     invoice_url: { type: String },
-    payment_intent_id: { type: String, required: true },
+    payment_intent_id: { type: String},
   },
 );
 

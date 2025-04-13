@@ -13,7 +13,6 @@ export interface ILeadDubai extends ILead {
       | "Investor"
       | "Other (please specify)";
     
-    otherProfessionDetail?: string;
 
     businessOwner?: {
       registeredBusiness?: 
@@ -66,6 +65,10 @@ export interface ILeadDubai extends ILead {
         | "No, I am open to profitable options";
       targetedIndustry?: string;
     };
+
+    other? : {
+      otherProfessionDetail ? : String ;
+    }
 
     mainGoal?: (
       | "Expanding my business internationally"
@@ -121,7 +124,7 @@ const LeadDubaiSchema = new Schema<ILeadDubai>({
         "Other (please specify)",
       ],
     },
-    otherProfessionDetail: String,
+
 
     businessOwner: {
       registeredBusiness: {
@@ -213,6 +216,13 @@ const LeadDubaiSchema = new Schema<ILeadDubai>({
         ],
       },
       targetedIndustry: String,
+    },
+
+    other : {
+      otherProfessionDetail : {
+        type : String , 
+        default : null
+      }
     },
 
     mainGoal: {

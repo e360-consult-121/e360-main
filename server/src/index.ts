@@ -141,7 +141,6 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
     email,
     phone,
     nationality,
-    timeToSubmit,
     ...rest
   } = parsedData;
 
@@ -180,7 +179,6 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
     const newLead = new LeadModelToUse({
       ...commonFields,
       leadStatus: leadStatus.INITIATED,
-      timeToSubmit: Number(timeToSubmit) || 0,
       additionalInfo ,
     });
 
