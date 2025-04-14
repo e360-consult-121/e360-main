@@ -116,3 +116,4 @@
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fc0c385400988465b1d722/sendConsultationLink\",\"status\":\"401\",\"responseTime\":\"68.087\"}","timestamp":"2025-04-14T10:43:55.275Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1513.558\"}","timestamp":"2025-04-14T10:44:32.555Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fc0c385400988465b1d722/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"479.096\"}","timestamp":"2025-04-14T10:45:05.462Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"254.767\"}","timestamp":"2025-04-14T11:19:37.360Z"}

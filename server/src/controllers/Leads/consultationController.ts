@@ -115,7 +115,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       hour12: true,
     });
 
-    await ConsultationModel.create({
+    let newConsultation = await ConsultationModel.create({
       Name: name,
       Email: email,
       calendlyEventUrl,
@@ -127,8 +127,14 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       caseId: lead.caseId,
     });
 
+    console.log(`this is you created consultation :${newConsultation} `)
+
+    
+
     lead.leadStatus = leadStatus.CONSULTATIONSCHEDULED;
     await lead.save();
+
+    console.log(`your leadStatus updated succeessfully : ${lead.leadStatus}`)
 
     return res.status(200).json({ message: "Consultation created and lead updated" });
   }
