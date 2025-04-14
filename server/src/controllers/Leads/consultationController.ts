@@ -30,7 +30,7 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   }
 
   // const calendlyLink = process.env.CALENDLY_LINK;
-  const calendlyLink = `${process.env.CALENDLY_LINK}?leadId=${leadId}`;
+  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
 
   const html = `
     <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
@@ -68,7 +68,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   const calendlyEvent = req.body.event;
   const payload = req.body.payload;
 
-  const leadId = payload?.tracking?.leadId; // if you're setting leadId in Calendly tracking parameters
+  const leadId = payload?.tracking?.utm_campaign; // if you're setting leadId in Calendly tracking parameters
   const email = payload?.email;
   const name = payload?.name;
   const calendlyEventUrl = payload?.uri;
@@ -84,11 +84,13 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   console.log(`Event URL: ${calendlyEventUrl}`);
 
   if (!leadId) {
+    console.log(`Actually leadId is not present , so we can't proceed further and returning`);
     return res.status(400).json({ message: "Missing leadId in tracking data" });
   }
 
   const lead = await LeadModel.findById(leadId);
   if (!lead) {
+    console.log(`lead is not not present for this leadId : ${leadId}`)
     return res.status(404).json({ message: "Lead not found" });
   }
 
@@ -99,7 +101,8 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       },
     });
 
-    const joinUrl = eventRes.data?.resource?.location?.join_url || "";
+    // const joinUrl = eventRes.data?.resource?.location?.join_url || "";
+    const joinUrl = payload?.scheduled_event?.location.join_url || "";
 
     const consultationDate = new Date(startTime);
     const formattedDate = consultationDate.toLocaleString("en-US", {
@@ -120,7 +123,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       endTime,
       joinUrl,
       formattedDate,
-      lead: lead._id,
+      lead: leadId,
       caseId: lead.caseId,
     });
 
