@@ -55,12 +55,12 @@ const LeadSchema = new Schema<ILead>({
   caseId: {
     type: String,
     unique: true,
-    required : true ,
+    // required : true ,
   }
 
 }, { timestamps: true });
 
-export const LeadModel = model<ILead>("Lead", LeadSchema);
+
 
 
 
@@ -76,3 +76,5 @@ LeadSchema.pre("save", async function (next) {
 
   next();
 });
+
+export const LeadModel = model<ILead>("Lead", LeadSchema);

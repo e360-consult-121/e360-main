@@ -83,12 +83,18 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   console.log(`End Time: ${endTime}`);
   console.log(`Event URL: ${calendlyEventUrl}`);
 
+  
+
   if (!leadId) {
     console.log(`Actually leadId is not present , so we can't proceed further and returning`);
     return res.status(400).json({ message: "Missing leadId in tracking data" });
   }
 
   const lead = await LeadModel.findById(leadId);
+
+  const caseId = lead?.caseId;
+  console.log
+  console.log(`this is your caseId : ${caseId}`);
   if (!lead) {
     console.log(`lead is not not present for this leadId : ${leadId}`)
     return res.status(404).json({ message: "Lead not found" });
