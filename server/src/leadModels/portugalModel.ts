@@ -6,7 +6,8 @@ import {leadPriority} from "../types/enums/enums";
 export interface ILeadPortugal extends ILead {
     additionalInfo: {
       profession?: "Business Owner" | "Remote Worker" | "Investor" | "Retired / Pensioner";
-  
+
+      // iska null wala flow change nahi kar payenge , kyuki payment wali complete chiz is per hi depend karegi....
       businessOwner?: {
         annualRevenue?: "Less than €50,000" | "€50,000 – €150,000" | "€150,000 – €500,000" | "€500,000+";
         isOneLakhInvestmentAvailable?: "Yes" | "No" | "Not sure";

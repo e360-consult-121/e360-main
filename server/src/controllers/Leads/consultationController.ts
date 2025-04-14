@@ -11,6 +11,7 @@ import { sendEmail } from "../../utils/sendEmail";
 // get all consultations
 // pagination bhi lagana hai 
 export const getAllConsultations = async (req: Request, res: Response) => {
+  // isme ab caseId bhi ja rahi hai 
     const consultations = await ConsultationModel.find();
     res.status(200).json({ consultations });
 };
@@ -38,18 +39,25 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
     <p>Regards,<br/>Visa Team</p>
   `;
 
-  await sendEmail({
-    to: lead.email,
-    subject: "Schedule Your Visa Consultation",
-    html,
-  });
+  // await sendEmail({
+  //   to: lead.email,
+  //   subject: "Schedule Your Visa Consultation",
+  //   html,
+  // });
+
+   console.log(`this is your calendly urllll : ${calendlyLink}`);
 
   // Update lead status
-  lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
-  await lead.save();
+  // lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
+  // await lead.save();
 
-  res.status(200).json({ message: "Consultation link sent successfully" });
+  res.status(200).json({ message: "Consultation link sent successfully" ,calendlyLink });
 };
+
+
+
+
+
 
 
 // calendly webhook
@@ -101,6 +109,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     joinUrl, // optional if you're getting this elsewhere
     formattedDate,
     lead: lead._id,
+    caseId : lead.caseId , // directly caseId isme hi store karwa diya ....
   });
 
   lead.leadStatus = leadStatus.CONSULTATIONSCHEDULED;
@@ -108,6 +117,11 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
 
   res.status(200).json({ message: "Consultation saved and lead updated" });
 };
+
+
+
+
+
 
 
 

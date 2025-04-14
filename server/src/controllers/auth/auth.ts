@@ -37,9 +37,22 @@ export const registerUser = async (
 
   if (!user) throw new AppError("User not created", 500);
 
+  let accessToken = generateAccessToken({
+    id: String(user._id),
+    role: user.role,
+  });
+  let refreshToken = generateRefreshToken({
+    id: String(user._id),
+    role: user.role,
+  });
+
+  // Store the refresh token in user document (Optional)
+  // await UserModel.findByIdAndUpdate(user._id, { refreshToken });
+
   return res.status(201).json({
     success: true,
     message: `User created successfuly with role of ${data.role}`,
+    accessToken,
   });
 };
 
@@ -88,6 +101,7 @@ export const login = async (
   return res.status(200).json({
     success: true,
     message: "Login successfully",
+    accessToken,
   });
 };
 

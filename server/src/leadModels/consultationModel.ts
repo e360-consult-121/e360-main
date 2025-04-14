@@ -16,6 +16,8 @@ export interface IConsultation extends Document {
   formattedDate?: string;
 
   leadId: Types.ObjectId; // Reference to LeadModel
+
+  caseId?: string;
 }
 
 // Define the schema
@@ -38,6 +40,12 @@ const ConsultationSchema: Schema = new Schema<IConsultation>({
     ref: LeadModel.modelName,
     required: true,
   },
+
+  caseId: {
+    type: String,
+    unique: true,
+    required : true ,
+  }
 });
 
 export const ConsultationModel = model<IConsultation>("Consultation", ConsultationSchema);
