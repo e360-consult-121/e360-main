@@ -92,7 +92,7 @@ const VIPConciergeServiceTable: React.FC<TableProps> = ({ data, onJoinNow, onRes
           <TableHead>
             <TableRow>
               {["Name", "Requested Date", "Consultation Date", "Status", "Action"].map((header) => (
-                <TableCell key={header} sx={{ fontWeight: "bold", color: "#8D8883" }}>
+                <TableCell key={header} sx={{ color: "#8D8883" }}>
                   {header}
                 </TableCell>
               ))}

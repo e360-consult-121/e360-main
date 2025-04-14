@@ -107,7 +107,7 @@ const ConsultationsTable: React.FC<TableProps> = ({
           <TableHead>
             <TableRow>
               {["Case ID", "Name", "Consultation Date", "Status", "Action"].map((header) => (
-                <TableCell key={header} sx={{ fontWeight: "bold", color: "#8D8883" }}>
+                <TableCell key={header} sx={{ color: "#8D8883" }}>
                   {header}
                 </TableCell>
               ))}

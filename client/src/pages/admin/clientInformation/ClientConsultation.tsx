@@ -61,7 +61,7 @@ function a11yProps(index: number) {
         content: <PaymentAndInvoiceManagement paymentInfo={paymentInfo} />,
         show: paymentInfo != null,
       },
-    ].filter(tab => tab.show); // Only include tabs with valid data
+    ].filter(tab => tab.show);
   
     const [value, setValue] = useState(0);
   
