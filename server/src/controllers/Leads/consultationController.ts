@@ -93,8 +93,9 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   const lead = await LeadModel.findById(leadId);
 
   const caseId = lead?.caseId;
-  console.log
   console.log(`this is your caseId : ${caseId}`);
+
+
   if (!lead) {
     console.log(`lead is not not present for this leadId : ${leadId}`)
     return res.status(404).json({ message: "Lead not found" });
@@ -129,7 +130,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       endTime,
       joinUrl,
       formattedDate,
-      lead: leadId,
+      leadId: leadId,
       caseId: lead.caseId,
     });
 
