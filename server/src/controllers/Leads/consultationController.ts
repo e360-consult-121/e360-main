@@ -63,13 +63,27 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
 // calendly webhook
 export const calendlyWebhook = async (req: Request, res: Response) => {
 
+  console.log(` [Webhook Triggered] Calendly webhook hit at ${new Date().toISOString()}`);
+  console.log(` Raw request body:`, JSON.stringify(req.body, null, 2));
+
+  const calendlyEvent = req.body.event;
   const payload = req.body.payload;
   const leadId = payload?.tracking?.leadId;
   const email = payload?.invitee?.email;
   const name = payload?.invitee?.name;
   const calendlyEventUrl = payload?.event?.uri || payload?.invitee?.scheduled_event;
   const startTime = payload?.event?.start_time;
-  const endTime = payload?.event?.end_time;
+  const endTime = payload?.event?.end_time; 
+
+  // now print that data -->> 
+  console.log(` Event Type: ${calendlyEvent}`);
+  console.log(` Lead ID from tracking: ${leadId}`);
+  console.log(` Invitee Email: ${email}`);
+  console.log(` Invitee Name: ${name}`);
+  console.log(` Start Time: ${startTime}`);
+  console.log(` End Time: ${endTime}`);
+  console.log(` Event URL: ${calendlyEventUrl}`);
+
 
   if (!leadId) {
     return res.status(400).json({ message: "Missing leadId in tracking data" });
@@ -80,43 +94,68 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "Lead not found" });
   }
 
-  // Fetch the scheduled event details to get join_url
-  const eventRes = await axios.get(calendlyEventUrl, {
-    headers: {
-      Authorization: `Bearer ${process.env.CALENDLY_API_KEY}`,
-    },
-  });
+  //  If Meeting Scheduled
+  if (calendlyEvent === "invitee.created") {
+    const eventRes = await axios.get(calendlyEventUrl, {
+      headers: {
+        Authorization: `Bearer ${process.env.CALENDLY_API_KEY}`,
+      },
+    });
 
-  const joinUrl = eventRes.data?.resource?.location?.join_url || "";
+    const joinUrl = eventRes.data?.resource?.location?.join_url || "";
 
-  const consultationDate = new Date(startTime);
-  const formattedDate = consultationDate.toLocaleString("en-US", {
-    timeZone: "Asia/Kolkata", // change as needed
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+    const consultationDate = new Date(startTime);
+    const formattedDate = consultationDate.toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
 
-  await ConsultationModel.create({
-    Name: name,
-    Email: email,
-    calendlyEventUrl,
-    startTime,
-    endTime,
-    joinUrl, // optional if you're getting this elsewhere
-    formattedDate,
-    lead: lead._id,
-    caseId : lead.caseId , // directly caseId isme hi store karwa diya ....
-  });
+    await ConsultationModel.create({
+      Name: name,
+      Email: email,
+      calendlyEventUrl,
+      startTime,
+      endTime,
+      joinUrl,
+      formattedDate,
+      lead: lead._id,
+      caseId: lead.caseId,
+    });
 
-  lead.leadStatus = leadStatus.CONSULTATIONSCHEDULED;
-  await lead.save();
+    lead.leadStatus = leadStatus.CONSULTATIONSCHEDULED;
+    await lead.save();
 
-  res.status(200).json({ message: "Consultation saved and lead updated" });
+    return res.status(200).json({ message: "Consultation created and lead updated" });
+  }
+
+  //  If Meeting Cancelled
+  else if (calendlyEvent === "invitee.canceled") {
+    // Option 1: Find consultation using calendlyEventUrl and delete it
+    const consultation = await ConsultationModel.findOne({ calendlyEventUrl });
+
+    if (consultation) {
+      await ConsultationModel.deleteOne({ calendlyEventUrl }); // Deleting the consultation document
+    }
+
+    // Optionally update lead status also
+    // lead.leadStatus = leadStatus.CONSULTATIONCANCELLED || "PENDING";
+    // await lead.save();
+
+    return res.status(200).json({ message: "Consultation cancelled and lead updated" });
+  }
+
+  //  For any other events (future proofing)
+  else {
+    console.log("Unhandled Calendly event:", calendlyEvent);
+    return res.status(200).json({ message: "Unhandled event received" });
+  }
 };
+
 
 
 

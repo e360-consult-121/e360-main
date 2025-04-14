@@ -20,7 +20,8 @@ export interface IConsultation extends Document {
   caseId?: string;
 }
 
-// Define the schema
+//  Ek leadId ke corresponding multiple consultations ho sakti hai ....
+// fir toh isme caseId wala part bhi problem karga ...
 const ConsultationSchema: Schema = new Schema<IConsultation>({
   Name: { type: String, required: true },
   Email: { type: String, required: true },

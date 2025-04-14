@@ -113,3 +113,6 @@
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/payment/67fc0c385400988465b1d722/sendPaymentLink\",\"status\":\"500\",\"responseTime\":\"150.037\"}","timestamp":"2025-04-14T07:38:41.192Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/payment/67fc0c385400988465b1d722/sendPaymentLink\",\"status\":\"200\",\"responseTime\":\"3951.604\"}","timestamp":"2025-04-14T07:41:56.507Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fc0c385400988465b1d722/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"182.735\"}","timestamp":"2025-04-14T07:53:36.591Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fc0c385400988465b1d722/sendConsultationLink\",\"status\":\"401\",\"responseTime\":\"68.087\"}","timestamp":"2025-04-14T10:43:55.275Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1513.558\"}","timestamp":"2025-04-14T10:44:32.555Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fc0c385400988465b1d722/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"479.096\"}","timestamp":"2025-04-14T10:45:05.462Z"}
