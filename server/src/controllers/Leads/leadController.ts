@@ -12,7 +12,7 @@ import { leadStatus } from "../../types/enums/enums";
 export const getAllLeads = async (req: Request, res: Response) => {
     const leads = await LeadModel.find();
     res.status(200).json({ leads });
-  };
+};
 
 
 // export const getParticularLeadInfo = async (req: Request, res: Response) => {
@@ -33,7 +33,7 @@ export const getAllLeads = async (req: Request, res: Response) => {
 
 
 export const getParticularLeadInfo = async (req: Request, res: Response) => {
-
+// iske input ko caseId kar sakte hai 
   const  leadId  = req.params.leadId;
 
   if (!leadId) {
@@ -48,11 +48,14 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
   const consultation = await ConsultationModel.findOne({ leadId });
   const payment = await PaymentModel.findOne({ leadId });
 
-    // Generate static formatted case ID: E360-DXB-XXXX
-    const prefix = "E360";
-    const visaCode = "DXB"; // fixed for now
-    const serial = leadId.toString().slice(-4).toUpperCase(); // get last 4 chars of ObjectId
-    const caseId = `${prefix}-${visaCode}-${serial}`;
+    // now handel the appliedFor field -->> 
+    const formIdToVisaType: Record<string, string> = {
+      "250901425096454": "Dubai",
+      "250912382847462": "Portugal",
+      "250912364956463": "DomiGrena",
+    };
+
+    const visaType = formIdToVisaType[lead.formId] || "Unknown";
 
 
     // Convert Mongoose doc to plain JS object
@@ -76,24 +79,31 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
         name: `${lead.fullName.first} ${lead.fullName.last}`,
         email: lead.email,
         phone: lead.phone,
-        appliedFor: lead.nationality, // isko sahi se handle karna hai 
-        caseId,
+        appliedFor: visaType, // isko sahi se handle karna hai 
+        createdAt : lead.createdAt,
+        caseId : lead.caseId
       },
 
       leadStatus: lead.leadStatus,
 
-      consultationInfo: {
-        // consultationId : uidfhiwuh , // sahi karna hai isko 
-        meetTime: consultation?.formattedDate || null,
-        status: consultation?.status || null,
-        joinUrl: consultation?.joinUrl || null,
-      },
+      consultationInfo: consultation
+      ? {
+          consultationId: consultation._id,
+          meetTime: consultation.formattedDate,
+          status: consultation.status,
+          joinUrl: consultation.joinUrl,
+        }
+      : null, 
 
-      paymentInfo: {
-        status: payment?.status || null,
-        method: payment?.payment_method || null,
-        invoice: payment?.invoice_url || null,
-      },
+      paymentInfo: payment
+      ? {
+          status: payment.status,
+          method: payment.payment_method,
+          invoice: payment.invoice_url,
+        }
+      : null, 
+
+
       eligibilityForm : {
         fullName,
         nationality,
@@ -109,12 +119,22 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
 
 // reject lead
 export const rejectLead = async (req: Request, res: Response) => {
-
+// iske input ko bhi caseId kar sakye hai 
   const  leadId  = req.params.leadId;
+  const { reasonOfRejection } = req.body;
+
+
+  if (typeof reasonOfRejection !== 'string') {
+    res.status(400);
+    throw new Error("reasonOfRejection is required and must be a string");
+  }
 
   const updatedLead = await LeadModel.findByIdAndUpdate(
     leadId,
-    { leadStatus: leadStatus.REJECTED },
+    { 
+      leadStatus: leadStatus.REJECTED,
+      reasonOfRejection : reasonOfRejection,
+    },
     { new: true }
   );
 

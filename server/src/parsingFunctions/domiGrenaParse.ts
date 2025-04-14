@@ -30,7 +30,7 @@ type RawxxxData = {
 
     slug?: string;
     event_id?: string;
-    timeToSubmit?: number;
+    // timeToSubmit?: number;
 };
 
 
@@ -48,7 +48,7 @@ type ParsedxxxData = {
     phone: string;
     profession: string;
 
-    otherProfessionDetail: string | null; // isme null isliye doya kyuki ye bhi optional field hai (jab profession == other choose hoga , tab hi ayegi )
+    // isme null isliye doya kyuki ye bhi optional field hai (jab profession == other choose hoga , tab hi ayegi )
 
     businessOwner: {
         registeredBusiness: string | null;
@@ -71,6 +71,10 @@ type ParsedxxxData = {
         isInvestmentCapitalReady: string | null;
     };
 
+    other : {
+        otherProfessionDetail: string | null;
+    };
+
     mainGoal: string;
     budgetRange: string;
     movingToApply: string;
@@ -78,7 +82,7 @@ type ParsedxxxData = {
     extraInfo: string;
 
     event_id: string;
-    timeToSubmit: number;
+    // timeToSubmit: number;
     
 };
 
@@ -109,11 +113,10 @@ export const parseDomiGrenaData = (rawData: RawxxxData): ParsedxxxData => {
         visaIssues: rawData?.q55_haveYou55 || "",
         extraInfo: rawData?.q38_anythingElse || "",
         event_id: rawData?.event_id || "",
-        timeToSubmit: rawData?.timeToSubmit || 0,
+        // timeToSubmit: rawData?.timeToSubmit || 0,
         
 
         // Optional fields set to null initially
-        otherProfessionDetail: null,
 
         businessOwner: {
             registeredBusiness: null,
@@ -134,7 +137,11 @@ export const parseDomiGrenaData = (rawData: RawxxxData): ParsedxxxData => {
         employee: {
             monthlyIncome: null,
             isInvestmentCapitalReady: null
-        }
+        } , 
+
+        other : {
+            otherProfessionDetail: null,
+        },
     };
 
     // Populate respective field based on profession
@@ -166,10 +173,12 @@ export const parseDomiGrenaData = (rawData: RawxxxData): ParsedxxxData => {
                 monthlyIncome: rawData?.q60_whatIs60 || null,
                 isInvestmentCapitalReady: rawData?.q61_doYou || null
             };
-            break;
+            break;  
 
         case "Other":
-            parsedData.otherProfessionDetail = rawData?.q59_pleaseSpecify || null;
+            parsedData.other = {
+                otherProfessionDetail : rawData?.q59_pleaseSpecify || null,
+            };
             break;
     }
 

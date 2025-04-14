@@ -36,8 +36,6 @@ type ParsedDubaiData = {
     visaIssues: string;
     extraInfo: string;
     
-
-    otherProfessionDetail: string | null;
     businessOwner: {
         registeredBusiness: string | null;
         annualRevenue: string | null;
@@ -57,6 +55,9 @@ type ParsedDubaiData = {
         industryInterest: string | null;
         targetedIndustry: string | null;
     } ;
+    other : {
+        otherProfessionDetail: string | null;
+    };
 };
 
 
@@ -87,8 +88,6 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
         
 
         // saari optional fields me \initailly null daal do 
-        otherProfessionDetail: null,
-
         businessOwner: {
             registeredBusiness: null,
             annualRevenue: null,
@@ -107,7 +106,10 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
             investmentAmount: null,
             industryInterest: null,
             targetedIndustry: null
-        }
+        },
+        other : {
+            otherProfessionDetail: null
+        },
     };
 
     // Populate respective field based on profession
@@ -147,8 +149,10 @@ export function parseDubaiData(rawData: RawDubaiData): ParsedDubaiData {
             };
             break;
 
-        case "Other":
-            parsedData.otherProfessionDetail = rawData?.q60_pleaseSpecify60 || null;
+        case "Other (please specify)":
+            parsedData.other = {
+                otherProfessionDetail : rawData?.q60_pleaseSpecify60 || null,
+            };
             break;
     }
 

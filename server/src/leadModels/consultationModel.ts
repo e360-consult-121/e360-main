@@ -16,9 +16,12 @@ export interface IConsultation extends Document {
   formattedDate?: string;
 
   leadId: Types.ObjectId; // Reference to LeadModel
+
+  caseId?: string;
 }
 
-// Define the schema
+//  Ek leadId ke corresponding multiple consultations ho sakti hai ....
+// fir toh isme caseId wala part bhi problem karga ...
 const ConsultationSchema: Schema = new Schema<IConsultation>({
   Name: { type: String, required: true },
   Email: { type: String, required: true },
@@ -38,6 +41,12 @@ const ConsultationSchema: Schema = new Schema<IConsultation>({
     ref: LeadModel.modelName,
     required: true,
   },
+
+  caseId: {
+    type: String,
+    unique: true,
+    required : true ,
+  }
 });
 
 export const ConsultationModel = model<IConsultation>("Consultation", ConsultationSchema);

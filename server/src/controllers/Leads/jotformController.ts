@@ -85,7 +85,6 @@
 //     email,
 //     phone,
 //     nationality,
-//     timeToSubmit,
 //     ...rest
 //   } = parsedData;
 
@@ -124,7 +123,6 @@
 //     const newLead = new LeadModelToUse({
 //       ...commonFields,
 //       leadStatus: leadStatus.INITIATED,
-//       timeToSubmit: Number(timeToSubmit) || 0,
 //       additionalInfo ,
 //     });
 
