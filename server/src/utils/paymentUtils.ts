@@ -54,6 +54,81 @@ export async function createPaymentLink(
 
 
 
+
+
+export async function createPaymentSession(
+  leadId: string | Types.ObjectId,
+  amount: number,
+  currency: string
+): Promise<string> {
+
+  // 1. Fetch lead document
+  const lead = await LeadModel.findById(leadId).lean();
+  if (!lead) {
+    throw new Error(`Lead with ID ${leadId} not found.`);
+  }
+
+  // 2. Create Checkout Session
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    mode: 'payment',
+
+    line_items: [
+      {
+        price_data: {
+          currency,
+          unit_amount: amount * 100, // amount in paisa
+          product_data: {
+            name: `Visa Consultation for ${lead.fullName.first} ${lead.fullName.last}`,
+          },
+        },
+        quantity: 1,
+      },
+    ],
+
+    // 3. URLs after success or cancel
+    // success_url: 'https://yourdomain.com/payment-success?session_id={CHECKOUT_SESSION_ID}',
+    success_url : "https://staging.e360consult.com",
+    cancel_url: 'https://staging.e360consult.com',
+
+    // 4. Metadata you want to receive back in webhook
+    payment_intent_data: {
+      metadata: {
+        leadId: lead._id.toString(),
+        email: lead.email,
+      },
+    },
+
+    // Optional: Add to session metadata too
+    metadata: {
+      leadId: lead._id.toString(),
+      email: lead.email,
+    },
+  });
+
+  console.log('Checkout Session URL:', session.url);
+  return session.url!;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // const paymentLink = await stripe.paymentLinks.create({
 //   line_items: [
 //     {

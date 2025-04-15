@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
-import {createPaymentLink} from "../../utils/paymentUtils"
+import {createPaymentLink ,createPaymentSession } from "../../utils/paymentUtils"
 import { LeadModel } from "../../leadModels/leadModel";
 import {PaymentModel} from "../../leadModels/paymentModel"
 import { leadStatus } from "../../types/enums/enums";
@@ -26,7 +26,7 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     }
   
     // 2. Create payment link using utility function
-    const paymentUrl = await createPaymentLink(leadId, amount, currency);
+    const paymentUrl = await createPaymentSession(leadId, amount, currency);
   
     // 3. Send email to the user
     const html = `
@@ -81,7 +81,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   console.log("payment Webhook hit!");
 
   //  Log raw buffer data as string
-  console.log("📦 Raw Stripe Webhook Body:", req.body.toString());
+  // console.log(" Raw Stripe Webhook Body:", req.body.toString()); 
 
   const sig = req.headers['stripe-signature'] as string;
 
@@ -90,12 +90,13 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
      res.sendStatus(400);
      return;
   }
-
+  
+  // signature use karke event bana lete hai -----
   let event : Stripe.Event;
-
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
-    console.log(" Stripe event constructed successfully:", event.type);
+    // console.log(" Stripe event constructed successfully:", event.type);
+    console.log(" Stripe event constructed successfully");
   } catch (err) {
     console.error(" Webhook signature verification failed:", err);
      res.sendStatus(400);
@@ -105,89 +106,88 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   // SUCCESS
   if (event.type === 'payment_intent.succeeded') {
     console.log(" Payment succeeded event received");
-
+    // .....*******....
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    console.log(" PaymentIntent:", JSON.stringify(paymentIntent, null, 2));
+    console.log(`payment intent fetched , sahi ya galat , nahi pata .....`)
+    console.log("so this is your PaymentIntent:", JSON.stringify(paymentIntent, null, 2)); // isko comment kar sakte hai 
 
 
-
-
-
-
-    const leadId = paymentIntent.metadata?.leadId;  // undefined
-    if (!leadId) {
-      console.error(" leadId missing in metadata");
-       res.sendStatus(400);
-       return;
-    }
-    console.log(" leadId from metadata:", leadId);
+    // const leadId = paymentIntent.metadata?.leadId;  // undefined
+    // if (!leadId) {
+    //   console.error(" leadId missing in metadata");
+    //    res.sendStatus(400);
+    //    return;
+    // }
+    // console.log(" leadId from metadata:", leadId);
 
 
     // 🔍 Get charge details from latest_charge
-    let invoice_url:string|null=null;
-    let payment_method: string | undefined;
+    // let invoice_url:string|null=null;
+    // let payment_method: string | undefined;
+
+    // isko nhi check karna baaki hai 
+    // if (paymentIntent.latest_charge) {
+    //   const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);  // right -->> paymentIntent ke ander latestCharge
+    //   invoice_url = charge.receipt_url ?? null;
+    //   payment_method = charge.payment_method_details?.type;
+    // }
 
 
-    if (paymentIntent.latest_charge) {
-      const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
-      invoice_url = charge.receipt_url ?? null;
-      payment_method = charge.payment_method_details?.type;
-    }
 
+    // const paymentData = {
+    //   payment_intent_id: paymentIntent.id,
+    //   amount: paymentIntent.amount_received / 100,
+    //   currency: paymentIntent.currency,
+    //   status: paymentStatus.PAID,
+    //   payment_method ,  // undefined
+    //   invoice_url, // undefined
+    // };
+    // console.log(" Payment data prepared:", paymentData);
 
-
-    const paymentData = {
-      payment_intent_id: paymentIntent.id,
-      amount: paymentIntent.amount_received / 100,
-      currency: paymentIntent.currency,
-      status: paymentStatus.PAID,
-      payment_method ,  // undefined
-      invoice_url, // undefined
-    };
-    console.log(" Payment data prepared:", paymentData);
-
-    const payment = await PaymentModel.findOne({ leadId });
-    if (payment) {
-      console.log(" Found existing payment, updating...");
-      payment.status = paymentData.status;
-      payment.payment_method = paymentData.payment_method;
-      payment.invoice_url = paymentData.invoice_url;
-      payment.payment_intent_id = paymentData.payment_intent_id;
-      await payment.save();
-      console.log(" Payment updated for lead:", leadId);
-    } else {
-      console.warn(" No existing payment record found for lead:", leadId);
-    }
+    // const payment = await PaymentModel.findOne({ leadId });
+    // if (payment) {
+    //   console.log(" Found existing payment, updating...");
+    //   payment.status = paymentData.status;
+    //   payment.payment_method = paymentData.payment_method;
+    //   payment.invoice_url = paymentData.invoice_url;
+    //   payment.payment_intent_id = paymentData.payment_intent_id;
+    //   await payment.save();
+    //   console.log(" Payment updated for lead:", leadId);
+    // }
+    // else {
+    //   console.warn(" No existing payment record found for lead:", leadId);
+    // }
   }
 
   // FAILURE
-  else if (event.type === 'payment_intent.payment_failed') {
-    console.log(" Payment failed event received");
+  // else if (event.type === 'payment_intent.payment_failed') {
+  //   console.log(" Payment failed event received");
 
-    const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    console.log(" Failed PaymentIntent:", JSON.stringify(paymentIntent, null, 2));
+  //   const paymentIntent = event.data.object as Stripe.PaymentIntent;
+  //   console.log(" Failed PaymentIntent:", JSON.stringify(paymentIntent, null, 2));
 
-    const leadId = paymentIntent.metadata?.leadId;
-    if (!leadId) {
-      console.error(" leadId missing in metadata");
-       res.sendStatus(400);
-       return;
-    }
-    console.log(" leadId from metadata:", leadId);
+  //   const leadId = paymentIntent.metadata?.leadId;
+  //   if (!leadId) {
+  //     console.error(" leadId missing in metadata");
+  //      res.sendStatus(400);
+  //      return;
+  //   }
+  //   console.log(" leadId from metadata:", leadId);
 
-    const payment = await PaymentModel.findOne({ leadId });
-    if (payment) {
-      console.log(" Found payment, marking as FAILED");
-      payment.status = paymentStatus.FAILED;
-      payment.payment_intent_id = paymentIntent.id;
-      await payment.save();
-      console.log(" Payment marked as FAILED for lead:", leadId);
-    } else {
-      console.warn(" No payment record found to mark as failed for lead:", leadId);
-    }
-  } else {
-    console.log(" Ignored event type:", event.type);
-  }
+  //   const payment = await PaymentModel.findOne({ leadId });
+  //   if (payment) {
+  //     console.log(" Found payment, marking as FAILED");
+  //     payment.status = paymentStatus.FAILED;
+  //     payment.payment_intent_id = paymentIntent.id;
+  //     await payment.save();
+  //     console.log(" Payment marked as FAILED for lead:", leadId);
+  //   } else {
+  //     console.warn(" No payment record found to mark as failed for lead:", leadId);
+  //   }
+  // }
+  // else {
+  //   console.log(" Ignored event type:", event.type);
+  // }
 
   res.sendStatus(200);
   return;
