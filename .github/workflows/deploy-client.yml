@@ -48,9 +48,8 @@ jobs:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
-          source: "client/dist/*"
+          source: "client/dist"
           target: "/home/ubuntu/e360consult/e360-main/client"
-          strip_components: 2
 
       - name: Set Permissions and Verify Deployment
         uses: appleboy/ssh-action@v0.1.7
