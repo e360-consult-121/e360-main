@@ -75,7 +75,12 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
 // // stripe webhook
 export const handleStripeWebhook = async (req: Request, res: Response) => {
+
+
   console.log("payment Webhook hit!");
+
+  // ✅ Log raw buffer data as string
+  console.log("📦 Raw Stripe Webhook Body:", req.body.toString());
 
   const sig = req.headers['stripe-signature'] as string;
 
