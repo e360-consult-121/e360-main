@@ -50,7 +50,7 @@ export async function createPaymentLink(
   
     console.log('Payment Link:', paymentLink.url);
     return paymentLink.url;
-  }
+}
 
 
 

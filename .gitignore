@@ -9,3 +9,6 @@ client/dist
 # Enviroment variables
 client/.env
 server/.env
+
+
+server/app.log

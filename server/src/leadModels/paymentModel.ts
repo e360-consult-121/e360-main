@@ -71,7 +71,11 @@ const PaymentSchema = new Schema<IPayment>(
     name: { type: String, required: true },
     email: { type: String, required: true },
     amount: { type: Number, required: true },
-    currency: { type: String ,required: true },
+    currency: { type: String ,
+      enum: ['inr', 'usd', 'eur'],
+      required: true
+    },
+      
     payment_method: { type: String },
 
     status: {

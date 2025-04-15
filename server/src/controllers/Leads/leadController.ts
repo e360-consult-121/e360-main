@@ -12,7 +12,7 @@ import { leadStatus } from "../../types/enums/enums";
 export const getAllLeads = async (req: Request, res: Response) => {
     const leads = await LeadModel.find();
     res.status(200).json({ leads });
-  };
+};
 
 
 // export const getParticularLeadInfo = async (req: Request, res: Response) => {
@@ -33,7 +33,7 @@ export const getAllLeads = async (req: Request, res: Response) => {
 
 
 export const getParticularLeadInfo = async (req: Request, res: Response) => {
-
+// iske input ko caseId kar sakte hai 
   const  leadId  = req.params.leadId;
 
   if (!leadId) {
@@ -47,12 +47,6 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
 
   const consultation = await ConsultationModel.findOne({ leadId });
   const payment = await PaymentModel.findOne({ leadId });
-
-    // Generate static formatted case ID: E360-DXB-XXXX
-    const prefix = "E360";
-    const visaCode = "DXB"; // fixed for now
-    const serial = leadId.toString().slice(-4).toUpperCase(); // get last 4 chars of ObjectId
-    const caseId = `${prefix}-${visaCode}-${serial}`;
 
     // now handel the appliedFor field -->> 
     const formIdToVisaType: Record<string, string> = {
@@ -86,24 +80,30 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
         email: lead.email,
         phone: lead.phone,
         appliedFor: visaType, // isko sahi se handle karna hai 
-        submissionDate : lead.createdAt,
-        caseId,
+        createdAt : lead.createdAt,
+        caseId : lead.caseId
       },
 
       leadStatus: lead.leadStatus,
 
-      consultationInfo: {
-        // consultationId : uidfhiwuh , // sahi karna hai isko 
-        meetTime: consultation?.formattedDate || null,
-        status: consultation?.status || null,
-        joinUrl: consultation?.joinUrl || null,
-      },
+      consultationInfo: consultation
+      ? {
+          consultationId: consultation._id,
+          meetTime: consultation.formattedDate,
+          status: consultation.status,
+          joinUrl: consultation.joinUrl,
+        }
+      : null, 
 
-      paymentInfo: {
-        status: payment?.status || null,
-        method: payment?.payment_method || null,
-        invoice: payment?.invoice_url || null,
-      },
+      paymentInfo: payment
+      ? {
+          status: payment.status,
+          method: payment.payment_method,
+          invoice: payment.invoice_url,
+        }
+      : null, 
+
+
       eligibilityForm : {
         fullName,
         nationality,
@@ -119,7 +119,7 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
 
 // reject lead
 export const rejectLead = async (req: Request, res: Response) => {
-
+// iske input ko bhi caseId kar sakye hai 
   const  leadId  = req.params.leadId;
   const { reasonOfRejection } = req.body;
 

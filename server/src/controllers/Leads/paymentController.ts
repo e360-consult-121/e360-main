@@ -35,27 +35,29 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
       <a href="${paymentUrl}" target="_blank">${paymentUrl}</a>
       <p>If you've already paid, please ignore this.</p>
     `;
+
+    console.log(`this is your link for do paymentttt : ${paymentUrl}`);
   
-    await sendEmail({
-      to: lead.email,
-      subject: "Complete Your Payment to start your Visa Application",
-      html,
-    });
+    // await sendEmail({
+    //   to: lead.email,
+    //   subject: "Complete Your Payment to start your Visa Application",
+    //   html,
+    // });
 
     // save payemnt details in DB
-    const payment = new PaymentModel({
-      leadId: lead._id,
-      name: lead.fullName.first, 
-      email: lead.email,
-      amount,
-      currency,
-      payment_link: paymentUrl,
-      status: 'PENDING', // As the payment link is generated, it is pending for now
-    });
+    // const payment = new PaymentModel({
+    //   leadId: lead._id,
+    //   name: lead.fullName.first, 
+    //   email: lead.email,
+    //   amount,
+    //   currency,
+    //   payment_link: paymentUrl,
+    //   status: 'PENDING', 
+    // });
 
-    await payment.save();
+    // await payment.save();
   
-    res.status(200).json({ success: true, url: paymentUrl });
+    res.status(200).json({ success: true, url: paymentUrl , meassage : 'payment link successfully sent ' });
 };
 
 

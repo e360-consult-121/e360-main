@@ -20,6 +20,8 @@ export interface ILead extends Document {
 
   createdAt?: Date;
   updatedAt?: Date;
+
+  caseId?: string;
 }
 
 
@@ -40,8 +42,6 @@ const LeadSchema = new Schema<ILead>({
     default: leadStatus.INITIATED,
   },
 
-  // timeToSubmit: { type: Date, required: true },
-
   additionalInfo: {
     type: Schema.Types.Mixed,
     default: {},
@@ -50,8 +50,31 @@ const LeadSchema = new Schema<ILead>({
   reasonOfRejection: {
     type: String,
     default : null 
+  } , 
+
+  caseId: {
+    type: String,
+    unique: true,
+    // required : true ,
   }
 
 }, { timestamps: true });
+
+
+
+
+
+LeadSchema.pre("save", async function (next) {
+  const lead = this as ILead;
+
+  // Only generate caseId if it's a new document
+  if (lead.isNew) {
+    const count = await LeadModel.countDocuments();
+    const caseNumber = String(count + 1).padStart(4, "0");    // 0001, 0002, etc.
+    lead.caseId = `E360-DXB-${caseNumber}`;
+  }
+
+  next();
+});
 
 export const LeadModel = model<ILead>("Lead", LeadSchema);
