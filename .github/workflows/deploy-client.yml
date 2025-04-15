@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           source: "client/dist/"
-          target: "/home/ubuntu/e360consult/e360-main/"
+          target: "/home/ubuntu/e360consult/e360-main/client"
           strip_components: 1
 
       - name: Set Permissions and Verify Deployment
