@@ -1,4 +1,3 @@
-# .github/workflows/deploy-client.yml
 name: Deploy Client to AWS EC2
 
 on:
@@ -48,9 +47,9 @@ jobs:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
-          source: "client/dist/*"
+          source: "client/dist/"
           target: "/home/ubuntu/e360consult/e360-main/client"
-          strip_components: 2
+          strip_components: 1
 
       - name: Set Permissions and Verify Deployment
         uses: appleboy/ssh-action@v0.1.7
@@ -60,8 +59,8 @@ jobs:
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
             sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/client
-            if [ ! -f "/home/ubuntu/e360consult/e360-main/client/index.html" ]; then
-              echo "Client deployment verification failed - index.html not found"
+            if [ ! -f "/home/ubuntu/e360consult/e360-main/client/dist/index.html" ]; then
+              echo "Client deployment verification failed - index.html not found in dist folder"
               exit 1
             fi
             echo "Client deployment completed successfully"
