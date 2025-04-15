@@ -128,7 +128,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
     // isko nhi check karna baaki hai 
     if (paymentIntent.latest_charge) {
       const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);  // right -->> paymentIntent ke ander latestCharge
-      console.log(`okay finally this is your charge -->> ${charge}`);
+      console.log(`okay finally this is your charge -->> ${JSON.stringify(charge, null, 2)}`);
       invoice_url = charge.receipt_url ?? null;
       payment_method = charge.payment_method_details?.type;
     }
