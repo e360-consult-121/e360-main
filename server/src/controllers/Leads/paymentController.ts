@@ -74,7 +74,7 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
 
 // // stripe webhook
-export const handleStripeWebhook = async (req: Request, res: Response) => {
+export const stripeWebhookHandler = async (req: Request, res: Response) => {
 
 
   console.log("payment Webhook hit!");
@@ -86,17 +86,18 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
 
   if (!sig) {
     console.error(" Stripe signature missing in headers");
-    return res.sendStatus(400);
+     res.sendStatus(400);
   }
 
-  let event: Stripe.Event;
+  let event : Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
     console.log(" Stripe event constructed successfully:", event.type);
   } catch (err) {
     console.error(" Webhook signature verification failed:", err);
-    return res.sendStatus(400);
+     res.sendStatus(400);
+     return;
   }
 
   // SUCCESS
@@ -109,7 +110,7 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
     const leadId = paymentIntent.metadata?.leadId;
     if (!leadId) {
       console.error(" leadId missing in metadata");
-      return res.sendStatus(400);
+       res.sendStatus(400);
     }
     console.log(" leadId from metadata:", leadId);
 
@@ -147,7 +148,7 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
     const leadId = paymentIntent.metadata?.leadId;
     if (!leadId) {
       console.error(" leadId missing in metadata");
-      return res.sendStatus(400);
+       res.sendStatus(400);
     }
     console.log(" leadId from metadata:", leadId);
 

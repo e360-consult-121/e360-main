@@ -12,6 +12,8 @@ import cookieParser from "cookie-parser";
 import logger from "./utils/logger";
 import bodyParser from "body-parser";
 import multer from "multer";
+import { stripeWebhookHandler } from "./controllers/Leads/paymentController";
+import asyncHandler from "./utils/asyncHandler";
 // leadMOdel 
 import { LeadModel } from "./leadModels/leadModel";
 import { LeadDomiGrenaModel } from "./leadModels/domiGrenaModel";
@@ -60,6 +62,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
+
+// register stripe webhook route  before bodyparser middleware
+app.post(
+  "/api/v1/admin/payment/webhook/stripe",
+  express.raw({ type: "application/json" }),
+  asyncHandler(stripeWebhookHandler)
+);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
