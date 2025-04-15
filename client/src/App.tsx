@@ -4,6 +4,7 @@ import CustomerRoutes from "./pages/customer/CustomerRoutes";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import AuthPage from "./pages/auth/AuthPage";
 
+
 const App = () => {
   return (
     <BrowserRouter>
