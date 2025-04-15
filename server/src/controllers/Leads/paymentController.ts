@@ -45,17 +45,18 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     // });
 
     // save payemnt details in DB
-    // const payment = new PaymentModel({
-    //   leadId: lead._id,
-    //   name: lead.fullName.first, 
-    //   email: lead.email,
-    //   amount,
-    //   currency,
-    //   payment_link: paymentUrl,
-    //   status: 'PENDING', 
-    // });
+    const payment = new PaymentModel({
+      leadId: lead._id,
+      name: lead.fullName.first, 
+      email: lead.email,
+      amount,
+      currency,
+      payment_link: paymentUrl,
+      status: 'PENDING',
+       
+    });
 
-    // await payment.save();
+    await payment.save();
   
     res.status(200).json({ success: true, url: paymentUrl , meassage : 'payment link successfully sent ' });
 };
@@ -79,7 +80,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
 
   console.log("payment Webhook hit!");
 
-  // ✅ Log raw buffer data as string
+  //  Log raw buffer data as string
   console.log("📦 Raw Stripe Webhook Body:", req.body.toString());
 
   const sig = req.headers['stripe-signature'] as string;
@@ -87,6 +88,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   if (!sig) {
     console.error(" Stripe signature missing in headers");
      res.sendStatus(400);
+     return;
   }
 
   let event : Stripe.Event;
@@ -107,20 +109,40 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
     console.log(" PaymentIntent:", JSON.stringify(paymentIntent, null, 2));
 
-    const leadId = paymentIntent.metadata?.leadId;
+
+
+
+
+
+    const leadId = paymentIntent.metadata?.leadId;  // undefined
     if (!leadId) {
       console.error(" leadId missing in metadata");
        res.sendStatus(400);
+       return;
     }
     console.log(" leadId from metadata:", leadId);
+
+
+    // 🔍 Get charge details from latest_charge
+    let invoice_url:string|null=null;
+    let payment_method: string | undefined;
+
+
+    if (paymentIntent.latest_charge) {
+      const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
+      invoice_url = charge.receipt_url ?? null;
+      payment_method = charge.payment_method_details?.type;
+    }
+
+
 
     const paymentData = {
       payment_intent_id: paymentIntent.id,
       amount: paymentIntent.amount_received / 100,
       currency: paymentIntent.currency,
       status: paymentStatus.PAID,
-      payment_method: (paymentIntent as any).charges?.data[0]?.payment_method_details?.type,
-      invoice_url: (paymentIntent as any).charges?.data[0]?.receipt_url,
+      payment_method ,  // undefined
+      invoice_url, // undefined
     };
     console.log(" Payment data prepared:", paymentData);
 
@@ -149,6 +171,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
     if (!leadId) {
       console.error(" leadId missing in metadata");
        res.sendStatus(400);
+       return;
     }
     console.log(" leadId from metadata:", leadId);
 
@@ -167,6 +190,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   }
 
   res.sendStatus(200);
+  return;
 };
 
 

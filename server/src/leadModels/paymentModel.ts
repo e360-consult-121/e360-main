@@ -54,7 +54,7 @@ export interface IPayment extends Document {
   status: paymentStatus;
 
   payment_link: string;
-  invoice_url?: string;
+  invoice_url: string | null;
   payment_intent_id: string;
 
 
@@ -85,7 +85,7 @@ const PaymentSchema = new Schema<IPayment>(
       },
 
     payment_link: { type: String, required: true },
-    invoice_url: { type: String },
+    invoice_url: { type: String  , default : null},
     payment_intent_id: { type: String},
   },
 );
