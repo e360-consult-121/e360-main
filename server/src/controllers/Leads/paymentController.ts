@@ -109,7 +109,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
     // .....*******....
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
     console.log(`payment intent fetched , sahi ya galat , nahi pata .....`)
-    console.log("so this is your PaymentIntent:", JSON.stringify(paymentIntent, null, 2)); // isko comment kar sakte hai 
+    // console.log("so this is your PaymentIntent:", JSON.stringify(paymentIntent, null, 2)); // isko comment kar sakte hai 
 
 
     // const leadId = paymentIntent.metadata?.leadId;  // undefined
@@ -122,15 +122,16 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
 
 
     // 🔍 Get charge details from latest_charge
-    // let invoice_url:string|null=null;
-    // let payment_method: string | undefined;
+    let invoice_url:string|null=null;
+    let payment_method: string | undefined;
 
     // isko nhi check karna baaki hai 
-    // if (paymentIntent.latest_charge) {
-    //   const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);  // right -->> paymentIntent ke ander latestCharge
-    //   invoice_url = charge.receipt_url ?? null;
-    //   payment_method = charge.payment_method_details?.type;
-    // }
+    if (paymentIntent.latest_charge) {
+      const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);  // right -->> paymentIntent ke ander latestCharge
+      console.log(`okay finally this is your charge -->> ${charge}`);
+      invoice_url = charge.receipt_url ?? null;
+      payment_method = charge.payment_method_details?.type;
+    }
 
 
 
