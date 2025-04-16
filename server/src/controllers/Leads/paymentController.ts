@@ -49,7 +49,7 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
       leadId: lead._id,
       name: lead.fullName.first, 
       email: lead.email,
-      payment_link: paymentUrl,
+      paymentLink: paymentUrl,
       status: paymentStatus.LINKSENT
        
     });
