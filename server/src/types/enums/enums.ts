@@ -97,7 +97,10 @@ export enum consultationStatus {
 }
 
 export enum paymentStatus {
+  LINKSENT = "LINKSENT",
   PENDING = "PENDING",
   PAID = "PAID",
   FAILED = "FAILED",
+  SESSIONEXPIRED = "SESSIONEXPIRED"
 }
+
