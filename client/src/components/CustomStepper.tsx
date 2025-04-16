@@ -67,7 +67,7 @@ const CustomStepper = ({
           </div>
         ))}
       </div>
-      <div className="w-full text-center mt-28">
+      {/* <div className="w-full text-center mt-28">
         {stepStatus === "IN_PROGRESS" ? (
           <h2 className="text-neutrals-950">
             To begin your {visaType}, please upload the required documents.
@@ -80,7 +80,7 @@ const CustomStepper = ({
         ) : (
           <></>
         )}
-      </div>
+      </div> */}
     </>
   );
 };

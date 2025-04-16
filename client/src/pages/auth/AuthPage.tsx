@@ -17,7 +17,7 @@ const AuthPage = ({ mode }: { mode: "SIGN_IN" | "SIGN_UP" }) => {
 
   useEffect(() => {
       if (user?.role === Roles.USER) {
-        navigate("/user");
+        navigate("/dashboard");
       }
       if (user?.role === Roles.ADMIN) {
         navigate("/admin/dasboard");

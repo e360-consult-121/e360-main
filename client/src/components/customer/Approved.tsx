@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 
-const Submitted = () => {
+const Approved = () => {
   return (
     <div className="flex flex-col items-center justify-center text-center">
       {/* Verified Icon Container */}
@@ -35,4 +35,4 @@ const Submitted = () => {
   );
 };
 
-export default Submitted;
+export default Approved;

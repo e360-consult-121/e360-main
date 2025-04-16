@@ -1,5 +1,4 @@
-import { Route, Routes } from "react-router-dom";
-import Login from "./Login";
+import { Route, Routes, Navigate } from "react-router-dom";
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./dashboard/Dashboard";
 import VisaService from "./visaService/VisaService";
@@ -9,13 +8,12 @@ import ServiceManagement from "./serviceManagement/ServiceManagement";
 import VIPConciergeService from "./vipConciergeService/VIPConciergeService";
 import ClientInformation from "./clientInformation/ClientInformation";
 import BankDetails from "./manageBankDetails/BankDetails";
+import AdminLogin from "./AdminLogin";
 
-//useeffect to fetch user
 const AdminRoutes = () => {
-
   return (
     <Routes>
-        <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<AdminLogin />} />
       <Route element={<AdminLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/:applications" element={<VisaService />} />
@@ -26,6 +24,7 @@ const AdminRoutes = () => {
         <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/consultation/:leadid" element={<ClientInformation />} />
       </Route>
+      <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );
 };

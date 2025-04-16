@@ -70,7 +70,7 @@ const ClientInformation= () => {
     consultationInfo = {clientInfo?.consultationInfo}
     paymentInfo={clientInfo?.paymentInfo}
     eligibilityForm={clientInfo?.eligibilityForm}
-    formSubmisionDate={clientInfo?.createdAt || ""}
+    formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
     />
     </>
   );

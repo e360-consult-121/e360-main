@@ -41,6 +41,7 @@ export interface ClientInfoType  {
     phone: string;
     appliedFor: string;
     caseId: string;
+    createdAt:string
   };
   leadStatus: string;
   consultationInfo: {
@@ -65,5 +66,5 @@ export interface ClientInfoType  {
       city: string;
     };
   };
-  createdAt:string
+  
 };

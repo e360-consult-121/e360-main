@@ -3,6 +3,7 @@ import AdminRoutes from "./pages/admin/AdminRoutes";
 import CustomerRoutes from "./pages/customer/CustomerRoutes";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import AuthPage from "./pages/auth/AuthPage";
+import AdminLogin from "./pages/admin/AdminLogin"
 
 const App = () => {
   return (
@@ -10,6 +11,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<AuthPage mode="SIGN_IN" />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/register" element={<AuthPage mode="SIGN_UP" />} />
 
         {/* Admin routes */}

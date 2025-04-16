@@ -107,7 +107,7 @@ const ApplicationMain = () => {
         />
 
         {/* Main Content based on phase and src */}
-        <StepPhase phase={data.stepStatus} requirementData={data.requirements} />
+        <StepPhase stepType={data.stepType}  phase={data.stepStatus} requirementData={data.requirements} />
 
         <div className="flex justify-start mt-10 mx-2">
           {data.stepStatus !== "APPROVED" && (

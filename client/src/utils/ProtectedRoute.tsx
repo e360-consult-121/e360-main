@@ -23,8 +23,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) return <div>Loading...</div>;
 
-  // if (!user && !isAuthenticated) return null;
-
   return <>{children}</>;
 };
 
