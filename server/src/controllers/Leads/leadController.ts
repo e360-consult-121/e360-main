@@ -98,8 +98,8 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
       paymentInfo: payment
       ? {
           status: payment.status,
-          method: payment.payment_method,
-          invoice: payment.invoice_url,
+          method: payment.paymentMethod,
+          invoice: payment.invoiceUrl,
         }
       : null, 
 

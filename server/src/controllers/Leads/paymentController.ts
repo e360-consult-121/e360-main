@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
-import {createPaymentLink} from "../../utils/paymentUtils"
+import {createPaymentLink ,createPaymentSession } from "../../utils/paymentUtils"
 import { LeadModel } from "../../leadModels/leadModel";
 import {PaymentModel} from "../../leadModels/paymentModel"
 import { leadStatus } from "../../types/enums/enums";
@@ -26,7 +26,7 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     }
   
     // 2. Create payment link using utility function
-    const paymentUrl = await createPaymentLink(leadId, amount, currency);
+    const paymentUrl = await createPaymentSession(leadId, amount, currency);
   
     // 3. Send email to the user
     const html = `
@@ -45,17 +45,16 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     // });
 
     // save payemnt details in DB
-    // const payment = new PaymentModel({
-    //   leadId: lead._id,
-    //   name: lead.fullName.first, 
-    //   email: lead.email,
-    //   amount,
-    //   currency,
-    //   payment_link: paymentUrl,
-    //   status: 'PENDING', 
-    // });
+    const payment = new PaymentModel({
+      leadId: lead._id,
+      name: lead.fullName.first, 
+      email: lead.email,
+      paymentLink: paymentUrl,
+      status: paymentStatus.LINKSENT
+       
+    });
 
-    // await payment.save();
+    await payment.save();
   
     res.status(200).json({ success: true, url: paymentUrl , meassage : 'payment link successfully sent ' });
 };
@@ -68,82 +67,128 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
 
 
 
+
+
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
 
 // // stripe webhook
-export const handleStripeWebhook = async (req: Request, res: Response) => {
+export const stripeWebhookHandler = async (req: Request, res: Response) => {
+
+  console.log("payment Webhook hit!");
 
   const sig = req.headers['stripe-signature'] as string;
 
-  let event: Stripe.Event;
-
+  if (!sig) {
+    console.error(" Stripe signature missing in headers");
+     res.sendStatus(400);
+     return;
+  }
+  
+  // signature use karke event bana lete hai -----
+  let event : Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err);
-    return res.sendStatus(400);
+    console.log(" Stripe event constructed successfully");
+  }
+  catch (err) {
+    console.error(" Webhook signature verification failed:", err);
+     res.sendStatus(400);
+     return;
   }
 
-  // SUCCESS
-  if (event.type === 'payment_intent.succeeded') {
 
+//  PaymentIntent , leadId , sessionId
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    
-    const leadId = paymentIntent.metadata?.leadId;
+    // console.log("so this is your PaymentIntent:", JSON.stringify(paymentIntent, null, 2));  
 
+    const leadId = paymentIntent.metadata?.leadId;  // undefined
     if (!leadId) {
-      console.log('leadId missing in metadata');
-      return res.sendStatus(400);
+      console.error(" leadId missing in metadata");
+       res.sendStatus(400);
+       return;
     }
+    console.log(" leadId from metadata:", leadId);
 
-    const paymentData = {
-      payment_intent_id: paymentIntent.id,
-      amount: paymentIntent.amount_received / 100,
-      currency: paymentIntent.currency,
-      status: paymentStatus.PAID,
-      payment_method: (paymentIntent as any).charges?.data[0]?.payment_method_details?.type,
-      invoice_url: (paymentIntent as any).charges?.data[0]?.receipt_url,
-    };
+    // Fetch the sessionId 
+    // let checkoutSessionId: string | null = null;
+    // try {
+    //   const sessions = await stripe.checkout.sessions.list({
+    //     payment_intent: paymentIntent.id,
+    //   });
+    //   const session = sessions.data[0];
+    //   if (session) {
+    //     checkoutSessionId = session.id;
+    //     console.log("Checkout Session ID:", checkoutSessionId);
+    //   }
+    // } catch (err) {
+    //   console.error("Error fetching checkout session:", err);
+    //   res.sendStatus(500); // or 200 if you want Stripe not to retry
+    //   return;
+    // }
+
 
     const payment = await PaymentModel.findOne({ leadId });
-
     if (payment) {
-      payment.status = paymentData.status;
-      payment.payment_method = paymentData.payment_method;
-      payment.invoice_url = paymentData.invoice_url;
-      payment.payment_intent_id = paymentData.payment_intent_id;
+      payment.amount          =   paymentIntent.amount_received / 100 ,
+      payment.currency        =   paymentIntent.currency ,
+      payment.paymentIntentId =   paymentIntent.id ,
+      // payment.sessionId       =   checkoutSessionId ?? null;
       await payment.save();
-      console.log(' Payment updated for lead:', leadId);
-    } else {
-      console.log(' No existing payment record found for lead:', leadId);
     }
-  }
-
-  // FAILURE
-  else if (event.type === 'payment_intent.payment_failed') {
-    const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    const leadId = paymentIntent.metadata?.leadId;
-
-    if (!leadId) {
-      console.log('leadId missing in metadata');
-      return res.sendStatus(400);
+    else {
+      console.warn(" No existing payment record found for lead:", leadId);
     }
 
-    const payment = await PaymentModel.findOne({ leadId });
+// SUCCESS case ....***......
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        {
+          let invoiceUrl: string | null = null;
+          let paymentMethod: string | null = null;
 
-    if (payment) {
-      payment.status = paymentStatus.FAILED;
-      payment.payment_intent_id = paymentIntent.id;
-      await payment.save();
-      console.log(' Payment failed for lead:', leadId);
-    } else {
-      console.log(' No payment record found to mark as failed for lead:', leadId);
+          if (paymentIntent.latest_charge) {
+            try {
+              const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
+              invoiceUrl = charge.receipt_url ?? null;
+              paymentMethod = charge.payment_method_details?.type ?? null;
+            } catch (err) {
+              console.error("Failed to retrieve charge:", err);
+            }
+          }
+
+          if (payment) {
+            payment.status = paymentStatus.PAID;
+            payment.invoiceUrl = invoiceUrl;
+            payment.paymentMethod = paymentMethod;
+            await payment.save();
+          }
+        }
+        break;
+
+      case 'payment_intent.payment_failed':
+        {
+          if (payment) {
+            payment.status = paymentStatus.FAILED;
+            payment.invoiceUrl = null;
+            payment.paymentMethod = null;
+            await payment.save();
+          }
+        }
+        break;
+
+      default:
+        console.log(" Ignored event type:", event.type);
     }
-  }
+
+  
+
+
 
   res.sendStatus(200);
+  return;
 };
+
 
 
 // Note: (webhook-secret -->> used in webhook ) milta hai jab tu webhook create karta hai Stripe dashboard me.

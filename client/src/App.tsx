@@ -5,6 +5,7 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 import AuthPage from "./pages/auth/AuthPage";
 import AdminLogin from "./pages/admin/AdminLogin"
 
+
 const App = () => {
   return (
     <BrowserRouter>
