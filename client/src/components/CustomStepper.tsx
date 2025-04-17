@@ -15,7 +15,7 @@ const CustomStepper = ({
   caseId,
   stepsCount,
   currentStepName,
-  stepStatus,
+  // stepStatus,
 }: CustomStepperProps) => {
   return (
     <>

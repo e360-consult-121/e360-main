@@ -760,3 +760,6 @@
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fd1729716d6c73d85d00d3/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"328.258\"}","timestamp":"2025-04-17T09:46:25.984Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fd1729716d6c73d85d00d3/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"314.447\"}","timestamp":"2025-04-17T10:25:16.219Z"}
 >>>>>>> Stashed changes
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"304\",\"responseTime\":\"11.311\"}","timestamp":"2025-04-17T11:06:55.127Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"304\",\"responseTime\":\"55.128\"}","timestamp":"2025-04-17T11:06:58.169Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/67fd1729716d6c73d85d00d3/fetchParticularLead\",\"status\":\"200\",\"responseTime\":\"90.923\"}","timestamp":"2025-04-17T11:10:17.931Z"}
