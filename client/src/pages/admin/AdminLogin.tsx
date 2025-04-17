@@ -11,7 +11,7 @@ import { Roles } from "../../features/auth/authTypes";
 import { useFetchUserQuery, useLoginMutation } from "../../features/auth/authApi";
 import Toggle from "../../components/Toggle";
 
-const Login = () => {
+const AdminLogin = () => {
 
 
   //  const navigate = useNavigate();
@@ -31,7 +31,7 @@ const Login = () => {
   useEffect(() => {
      if ((isSuccess === true) ) {
      dispatch(setAuth(data));
-     navigate("/dashboard")
+     navigate("/admin/dashboard")
     }
     else {
       navigate("/admin/login");
@@ -153,4 +153,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;

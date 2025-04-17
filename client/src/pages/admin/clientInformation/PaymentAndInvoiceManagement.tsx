@@ -33,12 +33,17 @@ const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfo
       if(amount === "0" && currency === undefined) {
         throw new Error("Need amount and currency")
       }
-      const data = {
-        currencyType:currency,
+      const body = {
+        currency:currency,
         amount:amount
       }
-      await sendPaymentLink({leadid,data}).unwrap()
-      alert("paymentlink sent");
+      const data = await sendPaymentLink({leadid:leadid,body}).unwrap()
+      if(data.success === true){
+        alert("Paymentlink sent");
+      }
+      else{
+        alert("Somthing went wrong")
+      }
     } catch (error) {
       console.log(error)
     }finally{
@@ -50,7 +55,7 @@ const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfo
     <div>
       <Typography>Payment Method : {paymentInfo?.method}</Typography>
 
-      {paymentInfo?.status === "Paid" ? (
+      {paymentInfo?.status === "PAID" ? (
         <Box>
           <img src={Invoice_Image} className="my-3" />
           <Typography sx={{ mt: 2 }}>
@@ -100,9 +105,9 @@ const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfo
                   label="Currency"
                   onChange={(e) => setCurrency(e.target.value)}
                 >
-                  <MenuItem value="₹">₹</MenuItem>
-                  <MenuItem value="$">$</MenuItem>
-                  <MenuItem value="€">€</MenuItem>
+                  <MenuItem value="inr">₹</MenuItem>
+                  <MenuItem value="usd">$</MenuItem>
+                  <MenuItem value="eur">€</MenuItem>
                 </Select>
               </FormControl>
 

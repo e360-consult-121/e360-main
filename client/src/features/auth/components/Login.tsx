@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../app/store";
 import { setAuth } from "../authSlice";
 import { Roles } from "../authTypes";
-import { Link, Typography, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 const Login = () => {
 
@@ -149,7 +149,7 @@ const Login = () => {
           </button>
 
           {/* Sign Up Link */}
-          <Typography
+          {/* <Typography
             variant="body2"
             textAlign="center"
             sx={{ mt: 2, color: "textSecondary" }}
@@ -165,7 +165,7 @@ const Login = () => {
             >
               Sign Up
             </Link>
-          </Typography>
+          </Typography> */}
         </div>
       </div>
     </div>

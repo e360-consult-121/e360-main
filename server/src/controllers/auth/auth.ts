@@ -146,7 +146,9 @@ export const logout = async (
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
+
   const refreshToken = req.cookies.refreshToken;
+  console.log(refreshToken)
   if (!refreshToken) {
     return next(new AppError("Refresh token is required", 400));
   }
@@ -291,12 +293,21 @@ export const resetPassword = async (
 };
 
 export const fetchUser = async (req: Request, res: Response) => {
-  if (req.admin || req.user) {
+  if (req.admin) {
     return res.status(200).json({
       success: true,
       message: "Login successfully",
+      role:req?.admin?.role
     });
   }
+  else if(req.user) {
+    return res.status(200).json({
+      success: true,
+      message: "Login successfully",
+      role:req?.user?.role
+    });
+  }
+  
 
   return res.status(401).json({
     success: false,

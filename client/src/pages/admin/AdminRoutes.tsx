@@ -11,6 +11,8 @@ import BankDetails from "./manageBankDetails/BankDetails";
 import AdminLogin from "./AdminLogin";
 
 const AdminRoutes = () => {
+
+  
   return (
     <Routes>
       <Route path="/login" element={<AdminLogin />} />
@@ -24,7 +26,7 @@ const AdminRoutes = () => {
         <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/consultation/:leadid" element={<ClientInformation />} />
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" />} />
+      <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>
   );
 };

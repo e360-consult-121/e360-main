@@ -15,9 +15,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (isError) {
       navigate("/login");
     }
-    else if ((isSuccess && data?.data) ) {
-     dispatch(setAuth(data));
-     navigate("/dashboard");
+    else if (isSuccess ) {
+      if(data.role === "ADMIN"){
+        dispatch(setAuth(data));
+        navigate("/admin/dashboard");
+      }
+      else if (data.role === "USER"){
+        dispatch(setAuth(data));
+        navigate("/dashboard");
+      }
     }
   }, [isError,navigate,isSuccess, data, dispatch]);
 

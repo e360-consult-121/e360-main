@@ -4,10 +4,10 @@ import { baseApi } from "../../../app/api";
 export const clientInformationApi = baseApi.injectEndpoints({
     endpoints:(build) => ({
     sendPaymentLink: build.mutation({
-        query:({leadId,data})=>({
-            url:`/payment/${leadId}/sendPaymentLink`,
+        query:({leadid,body })=>({
+            url:`/admin/payment/${leadid}/sendPaymentLink`,
             method:"POST",
-            data:data
+            data:body 
         })
     })
     

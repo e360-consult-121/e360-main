@@ -90,7 +90,6 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
       await logout(undefined).unwrap(); 
       window.location.reload()
       navigate("/login");
-
     } catch (err) {
       console.error("Logout failed:", err);
     }

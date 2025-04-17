@@ -56,8 +56,13 @@ const ClientEligibilityForm = ({
   const handleSendConsultation = async() => {
     try {
       if (leadid === undefined) return console.log("LeadId absent")
-      await sendConsultationLink(leadid).unwrap();
-      alert("done") 
+      const data = await sendConsultationLink(leadid).unwrap();
+      if(data.message !== undefined){
+        alert("done")
+      }
+      else{
+        alert("Error somthing wentwrong try again")
+      }
     } catch (error) {
       console.error("Failed to send consultation link", error);
     }
@@ -66,8 +71,16 @@ const ClientEligibilityForm = ({
   const handleRejectSubmit = async() => {
     try {
       if (leadid === undefined) return console.log("LeadId absent")
-      await rejectParticularLead({leadid,remarks}).unwrap()
-      alert("rejected")
+      const body = {
+        reasonOfRejection:remarks
+      }
+      const data = await rejectParticularLead({leadid:leadid,body}).unwrap()
+      if(data.message !== undefined){
+        alert("Rejected")
+      }
+      else{
+        alert("Error somthing wentwrong try again")
+      }
     } catch (error) {
       console.error("Failed to send consultation link", error); 
     } 
@@ -76,44 +89,127 @@ const ClientEligibilityForm = ({
     }
   };
 
-  const formatLabel = (text: string) =>
-    text
-      .replace(/([A-Z])/g, " $1")
-      .replace(/^./, (str) => str.toUpperCase());
+  const formatLabel = (label: string) =>
+  label
+    .replace(/([A-Z])/g, " $1")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 
-  const renderFields = (data: any, sectionTitle: string | null = null) => {
-    
-    //check for null fields if yes then don't show that
+  // const renderFields = (
+  //   data: any,
+  //   sectionTitle: string | null = null,
+  //   isNested = false
+  // ) => {
+  //   if (isEmptyOrNullObject(data)) return null;
+  
+  //   const fields = Object.entries(data).filter(
+  //     ([_, value]) =>
+  //       value !== null &&
+  //       value !== undefined &&
+  //       (typeof value === "object"
+  //         ? !isEmptyOrNullObject(value)
+  //         : value !== "")
+  //   );
+  
+  //   return (
+  //     <Box sx={{ mb: 3 }} key={sectionTitle}>
+  //       {/* Show title only if it's not "additionalInfo" */}
+  //       {sectionTitle && sectionTitle !== "additionalInfo" && (
+  //         <>
+  //         <Typography
+  //           fontWeight="bold"
+  //           variant={isNested ? "subtitle1" : "h6"}
+  //           sx={{ mb: 1 }}
+  //         >
+  //           {formatLabel(sectionTitle)}
+  //         </Typography>
+  //         </>
+  //       )}
+  
+  //       {fields.map(([key, value]) => {
+  //         if (typeof value === "object" && !Array.isArray(value)) {
+  //           return renderFields(value, key, true);
+  //         } else if (Array.isArray(value)) {
+  //           return (
+  //             <Typography key={key} mb={1}>
+  //               <strong>{formatLabel(key)}:</strong> {value.join(", ")}
+  //             </Typography>
+  //           );
+  //         } else {
+  //           return (
+  //             <Typography key={key} mb={1}>
+  //               <strong>{formatLabel(key)}:</strong> {value?.toString()}
+  //             </Typography>
+  //           );
+  //         }
+  //       })}
+  //     </Box>
+  //   );
+  // };
+
+  const renderFields = (
+    data: any,
+    sectionTitle: string | null = null,
+    isNested = false
+  ) => {
     if (isEmptyOrNullObject(data)) return null;
-
+  
+    const fields = Object.entries(data).filter(
+      ([_, value]) =>
+        value !== null &&
+        value !== undefined &&
+        (typeof value === "object"
+          ? !isEmptyOrNullObject(value)
+          : value !== "")
+    );
+  
     return (
       <Box sx={{ mb: 3 }} key={sectionTitle}>
-        {sectionTitle && (
-          <Typography fontWeight="bold" variant="h6" sx={{ mb: 2 }}>
+        {/* Section title (no left margin) */}
+        {sectionTitle && sectionTitle !== "additionalInfo" && (
+          <Typography
+            fontWeight="bold"
+            variant={isNested ? "subtitle1" : "h6"}
+            sx={{ mb: 1 }}
+          >
             {formatLabel(sectionTitle)}
           </Typography>
         )}
-        {Object.entries(data || {}).map(([key, value]) => {
-          if (typeof value === "object" && value !== null) {
-            return renderFields(value, key);
-          } else {
-            return (
-              <TextField
-                key={key}
-                label={formatLabel(key)}
-                value={value ?? "—"}
-                fullWidth
-                disabled
-                multiline={String(value).length > 50}
-                sx={{ mb: 2 }}
-              />
-            );
-          }
-        })}
+  
+        {/* Children (indented only if nested and not under additionalInfo) */}
+        <Box
+          sx={{
+            ml:
+              isNested && sectionTitle !== "additionalInfo"
+                ? 3
+                : 0,
+          }}
+        >
+          {fields.map(([key, value]) => {
+            if (typeof value === "object" && !Array.isArray(value)) {
+              return renderFields(value, key, true);
+            } else if (Array.isArray(value)) {
+              return (
+                <Typography key={key} mb={1}>
+                  <strong>{formatLabel(key)}:</strong> {value.join(", ")}
+                </Typography>
+              );
+            } else {
+              return (
+                <Typography key={key} mb={1}>
+                  <strong>{formatLabel(key)}:</strong> {value?.toString()}
+                </Typography>
+              );
+            }
+          })}
+        </Box>
       </Box>
     );
   };
-
+  
+  
+  
+  
   return (
     <div>
       <Typography sx={{ my: 1 }}>

@@ -7,8 +7,6 @@ import { ConsultationInfoTypes } from "../../../features/admin/clientInformation
 const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInfoTypes }) => {
 
   // const {leadid} = useParams();
-  // const { status, meetTime, joinUrl } = consultationInfo;
-
   // const [markConsultationAsCompleted] = useMarkConsultationAsCompletedMutation();
 
   const handleMarkComplete = async()=>{
@@ -58,8 +56,8 @@ const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInf
       </Box>
 
       {/* Buttons */}
-      {status === "Scheduled" && (
-        <a href={consultationInfo?.joinUrl}>
+      {consultationInfo?.status === "SCHEDULED" && (
+        <a href={consultationInfo?.joinUrl} target="_blank">
           <Button
             fullWidth
             sx={{

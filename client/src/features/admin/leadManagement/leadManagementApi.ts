@@ -16,13 +16,11 @@ export const leadManagementApi = baseApi.injectEndpoints({
       }),
     }),
     rejectParticularLead: build.mutation({
-      query: (leadId) => {
-        console.log("Rejecting Lead ID:", leadId); // 👈 logs leadId when mutation is triggered
-        return {
-          url: `/admin/leads/${leadId}/rejectLead`,
+      query: ({leadid ,body }) => (
+         { url: `/admin/leads/${leadid}/rejectLead`,
           method: "POST",
-        };
-      },
+          data:body}
+      )
     }),
   })
 })
