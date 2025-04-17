@@ -63,7 +63,7 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
 // calendly webhook
 export const calendlyWebhook = async (req: Request, res: Response) => {
   console.log(`[Webhook Triggered] Calendly webhook hit at ${new Date().toISOString()}`);
-  // console.log(`Raw request body:`, JSON.stringify(req.body, null, 2));
+  console.log(`Raw request body:`, JSON.stringify(req.body, null, 2));
 
    
 
