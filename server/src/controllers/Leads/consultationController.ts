@@ -30,8 +30,8 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   }
 
   // const calendlyLink = process.env.CALENDLY_LINK;
-  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
-
+  // const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
+  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}?utm_source=EEE360` ;
   const html = `
     <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
     <p>You have been marked as high-priority. Please schedule your visa consultation using the link below:</p>
@@ -65,42 +65,51 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   console.log(`[Webhook Triggered] Calendly webhook hit at ${new Date().toISOString()}`);
   console.log(`Raw request body:`, JSON.stringify(req.body, null, 2));
 
+   
+
   const calendlyEvent = req.body.event;
   const payload = req.body.payload;
 
+  const source = payload?.tracking?.utm_source || "";
+
+  console.log(`this is our sourece : ${source}`)
+
   const leadId = payload?.tracking?.utm_campaign; // if you're setting leadId in Calendly tracking parameters
-  const email = payload?.email;
-  const name = payload?.name;
+
+  // const email = payload?.email;
+  // const name = payload?.name;
   const calendlyEventUrl = payload?.uri;
   const startTime = payload?.scheduled_event?.start_time;
-  const endTime = payload?.scheduled_event?.end_time;
+  // const endTime = payload?.scheduled_event?.end_time;
 
-  console.log(`Event Type: ${calendlyEvent}`);
-  console.log(`Lead ID from tracking: ${leadId}`);
-  console.log(`Invitee Email: ${email}`);
-  console.log(`Invitee Name: ${name}`);
-  console.log(`Start Time: ${startTime}`);
-  console.log(`End Time: ${endTime}`);
-  console.log(`Event URL: ${calendlyEventUrl}`);
 
-  
+  // ✅ Proceed only if source is EEE360
+  if (source !== "EEE360") {
+    console.log(`Webhook source is not EEE360. Ignoring this event.`);
+    res.status(200).json({ message: "Webhook source is not EEE360, skipping." });  // res status ko change karna hai
+    return;
+  }
+
 
   if (!leadId) {
-    console.log(`Actually leadId is not present , so we can't proceed further and returning`);
-    return res.status(400).json({ message: "Missing leadId in tracking data" });
+    console.log(`Actually leadId is not present in meta data , so we can't proceed further and returning`);
+     res.status(400).json({ message: "Missing leadId in tracking data" });
+     return;
   }
 
   const lead = await LeadModel.findById(leadId);
 
-  const caseId = lead?.caseId;
-  console.log(`this is your caseId : ${caseId}`);
+  // const caseId = lead?.caseId;
+  // console.log(`this is your caseId : ${caseId}`);
 
 
   if (!lead) {
     console.log(`lead is not not present for this leadId : ${leadId}`)
-    return res.status(404).json({ message: "Lead not found" });
+     res.status(404).json({ message: "Lead not found" });
+     return;
   }
 
+// case - 1
   if (calendlyEvent === "invitee.created") {
     const eventRes = await axios.get(payload.scheduled_event.uri, {
       headers: {
@@ -123,15 +132,15 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     });
 
     const newConsultation = await ConsultationModel.create({
-      Name: name,
-      Email: email,
-      calendlyEventUrl,
-      startTime,
-      endTime,
+      name: payload?.name,
+      email: payload?.email,
+      calendlyEventUrl : payload?.uri ,
+      startTime : payload?.scheduled_event?.start_time,
+      endTime :  payload?.scheduled_event?.end_time ,
       joinUrl,
       formattedDate,
       leadId: leadId,
-      caseId: lead.caseId,
+      // caseId: lead.caseId,
     });
 
     console.log(`Consultation created: ${JSON.stringify(newConsultation, null, 2)}`);
@@ -141,7 +150,8 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
 
     console.log(`Lead status updated successfully: ${lead.leadStatus}`);
 
-    return res.status(200).json({ message: "Consultation created and lead updated" });
+    res.status(200).json({ message: "Consultation created and lead updated" });
+    return;
   } 
   
   else if (calendlyEvent === "invitee.canceled") {
@@ -156,7 +166,8 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     // lead.leadStatus = leadStatus.CONSULTATIONCANCELLED || "PENDING";
     // await lead.save();
 
-    return res.status(200).json({ message: "Consultation cancelled and lead updated" });
+     res.status(200).json({ message: "Consultation cancelled and lead updated" });
+     return;
   }
 
   // Unhandled or future events

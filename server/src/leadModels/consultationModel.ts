@@ -4,8 +4,8 @@ import { consultationStatus } from "../types/enums/enums";
 
 // Define the interface
 export interface IConsultation extends Document {
-  Name: string;
-  Email: string;
+  name: string;
+  email: string;
 
   status: consultationStatus;
   
@@ -17,14 +17,14 @@ export interface IConsultation extends Document {
 
   leadId: Types.ObjectId; // Reference to LeadModel
 
-  caseId?: string;
+  // caseId?: string;
 }
 
 //  Ek leadId ke corresponding multiple consultations ho sakti hai ....
 // fir toh isme caseId wala part bhi problem karga ...
 const ConsultationSchema: Schema = new Schema<IConsultation>({
-  Name: { type: String, required: true },
-  Email: { type: String, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
   status: {
     type: String,
     enum: Object.values(consultationStatus),
@@ -42,11 +42,12 @@ const ConsultationSchema: Schema = new Schema<IConsultation>({
     required: true,
   },
 
-  caseId: {
-    type: String,
-    unique: true,
-    required : true ,
-  }
+  // caseId: {
+  //   type: String,
+  //   unique: true,
+  //   required : true ,
+  // }
+  
 });
 
 export const ConsultationModel = model<IConsultation>("Consultation", ConsultationSchema);
