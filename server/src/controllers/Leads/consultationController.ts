@@ -30,8 +30,8 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   }
 
   // const calendlyLink = process.env.CALENDLY_LINK;
-  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}?utm_source = EEE360`;
-
+  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
+  // const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}?utm_source = EEE360` ;
   const html = `
     <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
     <p>You have been marked as high-priority. Please schedule your visa consultation using the link below:</p>
@@ -70,7 +70,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   const calendlyEvent = req.body.event;
   const payload = req.body.payload;
 
-  const source = payload?.tracking?.utm_source;
+  // const source = payload?.tracking?.utm_source;
 
   const leadId = payload?.tracking?.utm_campaign; // if you're setting leadId in Calendly tracking parameters
 
@@ -82,11 +82,11 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
 
 
   // ✅ Proceed only if source is EEE360
-  if (source !== "EEE360") {
-    console.log(`Webhook source is not EEE360. Ignoring this event.`);
-    res.status(200).json({ message: "Webhook source is not EEE360, skipping." });  // res status ko change karna hai
-    return;
-  }
+  // if (source !== "EEE360") {
+  //   console.log(`Webhook source is not EEE360. Ignoring this event.`);
+  //   res.status(200).json({ message: "Webhook source is not EEE360, skipping." });  // res status ko change karna hai
+  //   return;
+  // }
 
 
   if (!leadId) {
