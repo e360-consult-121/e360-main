@@ -31,7 +31,7 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
 
   // const calendlyLink = process.env.CALENDLY_LINK;
   // const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
-  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}?utm_source = EEE360` ;
+  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}?utm_source=EEE360` ;
   const html = `
     <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
     <p>You have been marked as high-priority. Please schedule your visa consultation using the link below:</p>
@@ -70,7 +70,9 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   const calendlyEvent = req.body.event;
   const payload = req.body.payload;
 
-  const source = payload?.tracking?.utm_source;
+  const source = payload?.tracking?.utm_source || "";
+
+  console.log(`this is our sourece : ${source}`)
 
   const leadId = payload?.tracking?.utm_campaign; // if you're setting leadId in Calendly tracking parameters
 
