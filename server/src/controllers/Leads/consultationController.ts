@@ -45,11 +45,18 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   //   html,
   // });
 
+  await sendEmail({
+    to: lead.email,
+    subject: "Schedule Your Visa Consultation",
+    html,
+  });
+
+
    console.log(`this is your calendly urllll : ${calendlyLink}`);
 
   // Update lead status
-  // lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
-  // await lead.save();
+  lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
+  await lead.save();
 
   res.status(200).json({ message: "Consultation link sent successfully" ,calendlyLink });
 };
