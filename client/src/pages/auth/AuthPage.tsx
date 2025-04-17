@@ -20,7 +20,7 @@ const AuthPage = ({ mode }: { mode: "SIGN_IN" | "SIGN_UP" }) => {
         navigate("/dashboard");
       }
       if (user?.role === Roles.ADMIN) {
-        navigate("/admin/dasboard");
+        navigate("/admin/dashboard");
       }
   }, [isAuthenticated, user]);
 

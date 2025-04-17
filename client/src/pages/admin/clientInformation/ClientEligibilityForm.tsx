@@ -28,9 +28,11 @@ const isEmptyOrNullObject = (obj: any): boolean => {
 };
 
 const ClientEligibilityForm = ({
+  leadStatus,
   formSubmisionDate,
   eligibilityForm,
 }: {
+  leadStatus:string
   formSubmisionDate:string,
   eligibilityForm: EligibilityFormTypes;
 }) => {
@@ -232,7 +234,7 @@ const ClientEligibilityForm = ({
       </Typography>
 
       {/* Buttons */}
-      <Box sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2 }}>
+      {leadStatus !== "REJECTED" ? <Box sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2 }}>
         <Button
           onClick={handleSendConsultation}
           variant="contained"
@@ -259,7 +261,9 @@ const ClientEligibilityForm = ({
         >
           Reject Application
         </Button>
-      </Box>
+      </Box>:<Typography>
+        This lead is rejected 
+        </Typography>}
 
       {/* ===== FORM MODAL ===== */}
       <Dialog

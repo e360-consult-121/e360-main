@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import dayjs from "dayjs"; 
+import dayjs from "dayjs";
 import {
   Table,
   TableBody,
@@ -17,18 +17,18 @@ import {
   InputLabel,
   Box,
 } from "@mui/material";
-import { ConsultationType } from "./Consultations";
+import { AllConsultationsTypes } from "../../../features/admin/consultations/consultationTypes";
 
 interface TableProps {
-  data: ConsultationType[];
-  onJoinNow: (consultation: ConsultationType) => void;
-  onReschedule: (consultation: ConsultationType) => void;
+  data: AllConsultationsTypes[] | undefined;
+  onJoinNow?: (consultation: AllConsultationsTypes) => void;
+  onReschedule?: (consultation: AllConsultationsTypes) => void;
 }
 
 const ConsultationsTable: React.FC<TableProps> = ({
   data,
-  onJoinNow,
-  onReschedule,
+  // onJoinNow,
+  // onReschedule,
 }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -57,23 +57,22 @@ const ConsultationsTable: React.FC<TableProps> = ({
     setPage(0);
   };
 
-  // Filtering Data
   const filteredData = data
-    .filter((item) => {
+    ?.filter((item) => {
       if (statusFilter === "All") return true;
       return item.status === statusFilter;
     })
     .filter((item) => {
-      const consultationDate = dayjs(item.consultationDate).format("YYYY-MM-DD");
+      const consultationDate = dayjs(item?.startTime).format("YYYY-MM-DD");
       if (dateFilter === "All") return true;
       if (dateFilter === "Today") return consultationDate === today;
       if (dateFilter === "Yesterday") return consultationDate === yesterday;
       return false;
-    });
+    }) || [];
 
   return (
     <Paper sx={{ p: 2, boxShadow: "none" }}>
-      {/* Filter Section */}
+      {/* Filters */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
           Scheduled Consultations
@@ -93,9 +92,9 @@ const ConsultationsTable: React.FC<TableProps> = ({
             <InputLabel>Status</InputLabel>
             <Select value={statusFilter} onChange={handleStatusFilterChange} label="Status">
               <MenuItem value="All">All</MenuItem>
-              <MenuItem value="Confirmed">Confirmed</MenuItem>
-              <MenuItem value="Cancelled">Cancelled</MenuItem>
-              <MenuItem value="Completed">Completed</MenuItem>
+              <MenuItem value="SCHEDULED">Scheduled</MenuItem>
+              <MenuItem value="COMPLETED">Completed</MenuItem>
+              <MenuItem value="CANCELLED">Cancelled</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -106,7 +105,7 @@ const ConsultationsTable: React.FC<TableProps> = ({
         <Table>
           <TableHead>
             <TableRow>
-              {["Case ID", "Name", "Consultation Date", "Status", "Action"].map((header) => (
+              {["Case ID", "Name", "Date & Time", "Status", "Action"].map((header) => (
                 <TableCell key={header} sx={{ color: "#8D8883" }}>
                   {header}
                 </TableCell>
@@ -114,36 +113,48 @@ const ConsultationsTable: React.FC<TableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((consultation, index) => (
-              <TableRow key={index}>
-                <TableCell sx={{ borderBottom: "none" }}>{consultation.caseId}</TableCell>
+            {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((consultation) => (
+              <TableRow key={consultation._id}>
+                <TableCell sx={{ borderBottom: "none" }}>{consultation._id}</TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>{consultation.name}</TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>{dayjs(consultation.consultationDate).format("YYYY-MM-DD")}</TableCell>
+                <TableCell sx={{ borderBottom: "none" }}>
+                  {dayjs(consultation.startTime).format("MMM D, YYYY h:mm A")}
+                </TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>
                   <Typography
                     sx={{
                       color:
-                        consultation.status === "Cancelled"
-                          ? "red"
-                          : consultation.status === "Confirmed"
-                          ? "orange"
-                          : "green",
+                        consultation.status === "CANCELLED"
+                          ? "#F54337"
+                          : consultation.status === "SCHEDULED"
+                          ? "#F6C328"
+                          : "#64AF64",
                     }}
                   >
-                    {consultation.status}
+                    {consultation.status.charAt(0).toUpperCase() + consultation.status.slice(1).toLowerCase()}
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>
-                  {consultation.status === "Cancelled" ? (
-                    <Button sx={{ color: "gray", textTransform: "none" }} onClick={() => onReschedule(consultation)}>
+                  {consultation.status === "CANCELLED" ? (
+                    <Button variant="outlined" sx={{ textTransform: "none",borderColor:"black",borderRadius:"15px" }}>
                       Reschedule
                     </Button>
-                  ) : consultation.status === "Confirmed" ? (
-                    <Button sx={{ backgroundColor: "#FFC107", color: "black", textTransform: "none" }} onClick={() => onJoinNow(consultation)}>
+                  ) : consultation.status === "SCHEDULED" ? (
+                    <a href={consultation?.joinUrl} target="_blank">
+                    <Button
+                      sx={{ backgroundColor: "#F6C328", color: "black", textTransform: "none",borderRadius:"15px" }}
+                    >
                       Join Now
                     </Button>
+                    </a>
                   ) : null}
-                  <Button sx={{ color: "blue", textTransform: "none", marginLeft: "10px" }}>View</Button>
+                  {/* <Button
+                    sx={{ color: "black", textTransform: "none", marginLeft: "10px" }}
+                    href={consultation.calendlyEventUrl}
+                    target="_blank"
+                  >
+                    View &gt;
+                  </Button> */}
                 </TableCell>
               </TableRow>
             ))}

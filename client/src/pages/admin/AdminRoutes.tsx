@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./dashboard/Dashboard";
 import VisaService from "./visaService/VisaService";
@@ -9,9 +9,19 @@ import VIPConciergeService from "./vipConciergeService/VIPConciergeService";
 import ClientInformation from "./clientInformation/ClientInformation";
 import BankDetails from "./manageBankDetails/BankDetails";
 import AdminLogin from "./AdminLogin";
+import { useFetchUserQuery } from "../../features/auth/authApi";
+import { useEffect } from "react";
 
 const AdminRoutes = () => {
 
+  const navigate = useNavigate();
+  const { data, isSuccess, isError } = useFetchUserQuery(undefined);  
+
+   useEffect(() => {
+      if (isError) {
+        navigate("/admin/login");
+      }
+    }, [isError,navigate,isSuccess, data]);
   
   return (
     <Routes>

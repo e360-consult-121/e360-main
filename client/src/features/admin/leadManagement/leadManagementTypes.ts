@@ -45,6 +45,7 @@ export interface ClientInfoType  {
   };
   leadStatus: string;
   consultationInfo: {
+    consultationId:string,
     meetTime: string;
     status: string;
     joinUrl: string;

@@ -1,4 +1,5 @@
 export type  ConsultationInfoTypes = {
+    consultationId:string,
     meetTime : string,
     joinUrl: string,
     status:string

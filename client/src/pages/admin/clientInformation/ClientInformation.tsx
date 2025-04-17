@@ -27,7 +27,19 @@ const ClientInformation = () => {
   }, [data, isLoading, isError]);
 
   if (isLoading) {
-    return <CircularProgress />;
+    return( 
+      <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <CircularProgress />
+    </Box>
+    )
+    
   }
 
   if (isError || !data) {
@@ -61,6 +73,9 @@ const ClientInformation = () => {
               <span className="text-[#F6C328]"> ● </span>
               {clientInfo?.leadStatus === leadStatus.INITIATED
                 ? "Eligibility Form Under Review"
+                : clientInfo?.leadStatus === leadStatus.CONSULTATIONLINKSENT ||
+                  clientInfo?.leadStatus === leadStatus.CONSULTATIONSCHEDULED
+                ? "Consultation Pending"
                 : clientInfo?.leadStatus === leadStatus.CONSULTATIONDONE ||
                   clientInfo?.leadStatus === leadStatus.PAYMENTLINKSENT
                 ? "Payment Pending"
@@ -68,7 +83,7 @@ const ClientInformation = () => {
                 ? "Payment Completed"
                 : clientInfo?.leadStatus === leadStatus.REJECTED
                 ? "Rejected"
-                : "Eligibility Form Under Review"}
+                : ""}
             </Typography>
           </Box>
 
@@ -106,6 +121,7 @@ const ClientInformation = () => {
         </CardContent>
       </Card>
       <ClientConsultation
+        leadStatus={clientInfo?.leadStatus || ""}
         consultationInfo={clientInfo?.consultationInfo}
         paymentInfo={clientInfo?.paymentInfo}
         eligibilityForm={clientInfo?.eligibilityForm}

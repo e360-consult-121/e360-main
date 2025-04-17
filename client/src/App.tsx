@@ -13,15 +13,14 @@ const App = () => {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<AuthPage mode="SIGN_IN" />} />
         <Route path="/admin/login" element={<AdminLogin />} />
-        {/* <Route path="/register" element={<AuthPage mode="SIGN_UP" />} /> */}
 
         {/* Admin routes */}
         <Route
           path="/admin/*"
           element={
-            //<ProtectedRoute>
+            <ProtectedRoute>
               <AdminRoutes />
-            //</ProtectedRoute>
+            </ProtectedRoute>
           }
         />
 

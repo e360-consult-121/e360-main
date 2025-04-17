@@ -18,7 +18,7 @@ import { PaymentInfoTypes } from "../../../features/admin/clientInformation/clie
 import { useSendPaymentLinkMutation } from "../../../features/admin/clientInformation/clientInformationApi";
 import { useParams } from "react-router-dom";
 
-const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfoTypes }) => {
+const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfoTypes}) => {
   const {leadid} = useParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [amount, setAmount] = useState("100");
@@ -27,9 +27,7 @@ const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfo
   const [sendPaymentLink] = useSendPaymentLinkMutation();
 
   const handleSendPaymentLink = async() => {
-
     try {
-
       if(amount === "0" && currency === undefined) {
         throw new Error("Need amount and currency")
       }
@@ -52,6 +50,7 @@ const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfo
   };
 
   return (
+
     <div>
       <Typography>Payment Method : {paymentInfo?.method}</Typography>
 

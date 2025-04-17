@@ -1,21 +1,36 @@
 import { Box, Typography, Button, Card, Chip } from "@mui/material";
-import { formatDate, formatTime } from "../../../utils/FormateDate";
 import { ConsultationInfoTypes } from "../../../features/admin/clientInformation/clientInformationTypes";
 // import { useParams } from "react-router-dom";
-// import { useMarkConsultationAsCompletedMutation } from "../../../features/admin/consultations/consultationApi";
+import { useMarkConsultationAsCompletedMutation } from "../../../features/admin/consultations/consultationApi";
+
+function parseDateString(dateTimeStr:string) {
+  const [datePart] = dateTimeStr.split(' at ');
+
+  const [month, dayWithComma, year] = datePart.split(' ');
+  const day = dayWithComma.replace(',', '');
+
+  return `${day} ${month} ${year}`;
+}
+function parseTimeString(dateTimeStr:string) {
+  const [,timePart] = dateTimeStr.split(' at ');
+
+  return `${timePart}`;
+}
+
 
 const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInfoTypes }) => {
 
   // const {leadid} = useParams();
-  // const [markConsultationAsCompleted] = useMarkConsultationAsCompletedMutation();
+  const [markConsultationAsCompleted] = useMarkConsultationAsCompletedMutation();
+const consultationId  = consultationInfo?.consultationId
 
   const handleMarkComplete = async()=>{
-      // try {
-      //   await markConsultationAsCompleted(consultationId).unwrap();
-      //   alert("done")
-      // } catch (error) {
-      //   console.log(error)
-      // }
+      try {
+        await markConsultationAsCompleted(consultationId).unwrap();
+        alert("mark consultation as completed")
+      } catch (error) {
+        console.log(error)
+      }
   }
 
   return (
@@ -25,7 +40,7 @@ const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInf
         borderRadius: 4,
         bgcolor: "#FAF9F8",
         boxShadow: "none",
-        maxWidth: 300,
+        maxWidth: 350,
       }}
     >
       {/* Title & Status */}
@@ -36,7 +51,7 @@ const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInf
         <Chip
           label={consultationInfo?.status}
           sx={{
-            bgcolor: consultationInfo?.status === "Completed" ? "#CAE6CB" : "#FFF9E6",
+            bgcolor: consultationInfo?.status === "COMPLETED" ? "#CAE6CB" : "#FFF9E6",
             color: "#3D3D3D",
             fontWeight: "thin",
             fontSize: 13,
@@ -48,23 +63,30 @@ const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInf
       {/* Date & Time */}
       <Box mt={2}>
         <Typography fontWeight="bold">Date</Typography>
-        <Typography>{formatDate(consultationInfo?.meetTime || "")}</Typography>
+        <Typography>{parseDateString(consultationInfo?.meetTime || "")}</Typography>
         <Typography fontWeight="bold" mt={1}>
           Time
         </Typography>
-        <Typography>{formatTime(consultationInfo?.meetTime || "")}</Typography>
+        <Typography>{parseTimeString(consultationInfo?.meetTime || "")}</Typography>
       </Box>
 
       {/* Buttons */}
-      {consultationInfo?.status === "SCHEDULED" && (
-        <a href={consultationInfo?.joinUrl} target="_blank">
+      <Box 
+      sx={{
+        display:"flex",
+        gap:2,
+        alignItems:"center"
+      }}
+      >
+      <a href={consultationInfo?.joinUrl} target="_blank">
           <Button
-            fullWidth
             sx={{
               bgcolor: "#F6C328",
               color: "black",
               borderRadius: "15px",
               mt: 3,
+              px:1.5,
+              py:1,
               textTransform: "none",
               fontWeight: "bold",
               "&:hover": { bgcolor: "#E5B120" },
@@ -73,17 +95,16 @@ const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInf
             Join Consultation
           </Button>
         </a>
-      )}
 
-      {status === "Complete" && (
         <Button
-          fullWidth
           onClick={handleMarkComplete}
           sx={{
             bgcolor: "#E0E0E0",
             color: "black",
             borderRadius: "15px",
-            mt: 2,
+            mt: 3,
+            px:1.5,
+            py:1,
             textTransform: "none",
             fontWeight: "bold",
             "&:hover": { bgcolor: "#D5D5D5" },
@@ -91,7 +112,8 @@ const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInf
         >
           Mark Complete
         </Button>
-      )}
+      </Box>
+        
     </Card>
   );
 };

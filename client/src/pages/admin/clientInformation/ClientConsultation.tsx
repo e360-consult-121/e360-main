@@ -35,11 +35,13 @@ function a11yProps(index: number) {
   }
 
   const ClientConsultation = ({
+    leadStatus,
     consultationInfo,
     paymentInfo,
     eligibilityForm,
     formSubmisionDate
   }: {
+    leadStatus:string,
     consultationInfo: ConsultationInfoTypes;
     paymentInfo: PaymentInfoTypes;
     eligibilityForm: EligibilityFormTypes;
@@ -48,7 +50,7 @@ function a11yProps(index: number) {
     const tabs = [
       {
         label: "Client Eligibility Form",
-        content: <ClientEligibilityForm formSubmisionDate={formSubmisionDate} eligibilityForm={eligibilityForm} />,
+        content: <ClientEligibilityForm leadStatus={leadStatus} formSubmisionDate={formSubmisionDate} eligibilityForm={eligibilityForm} />,
         show: eligibilityForm != null,
       },
       {
@@ -58,8 +60,8 @@ function a11yProps(index: number) {
       },
       {
         label: "Payment & Invoice Management",
-        content: <PaymentAndInvoiceManagement paymentInfo={paymentInfo} />,
-        show: paymentInfo != null,
+        content: <PaymentAndInvoiceManagement  paymentInfo={paymentInfo} />,
+        show: paymentInfo != null && consultationInfo?.status != "SCHEDULED",
       },
     ].filter(tab => tab.show);
   
