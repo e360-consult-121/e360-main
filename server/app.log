@@ -760,6 +760,7 @@
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fd1729716d6c73d85d00d3/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"328.258\"}","timestamp":"2025-04-17T09:46:25.984Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fd1729716d6c73d85d00d3/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"314.447\"}","timestamp":"2025-04-17T10:25:16.219Z"}
 >>>>>>> Stashed changes
+<<<<<<< Updated upstream
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"304\",\"responseTime\":\"11.311\"}","timestamp":"2025-04-17T11:06:55.127Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"304\",\"responseTime\":\"55.128\"}","timestamp":"2025-04-17T11:06:58.169Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/67fd1729716d6c73d85d00d3/fetchParticularLead\",\"status\":\"200\",\"responseTime\":\"90.923\"}","timestamp":"2025-04-17T11:10:17.931Z"}
@@ -978,3 +979,11 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/visaapplication/application\",\"status\":\"200\",\"responseTime\":\"68.040\"}","timestamp":"2025-04-17T13:52:11.193Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/consultations/fetchAllConsultations\",\"status\":\"304\",\"responseTime\":\"39.728\"}","timestamp":"2025-04-17T13:52:15.990Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"304\",\"responseTime\":\"32.359\"}","timestamp":"2025-04-17T13:52:17.725Z"}
+=======
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/67fd1729716d6c73d85d00d3/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"262.335\"}","timestamp":"2025-04-17T11:01:04.995Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"3328.817\"}","timestamp":"2025-04-17T12:32:14.764Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/leads/67fd1729716d6c73d85d00d3/rejectLead\",\"status\":\"200\",\"responseTime\":\"518.407\"}","timestamp":"2025-04-17T12:33:24.449Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/6800df95582291b26235f56c/markConsultationAsCompleted\",\"status\":\"500\",\"responseTime\":\"489.113\"}","timestamp":"2025-04-17T12:37:03.764Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/6800df95582291b26235f56c/markConsultationAsCompleted\",\"status\":\"500\",\"responseTime\":\"237.972\"}","timestamp":"2025-04-17T12:44:09.744Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/6800df95582291b26235f56c/markConsultationAsCompleted\",\"status\":\"200\",\"responseTime\":\"319.848\"}","timestamp":"2025-04-17T12:48:41.414Z"}
+>>>>>>> Stashed changes
