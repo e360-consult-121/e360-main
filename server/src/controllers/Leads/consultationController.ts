@@ -134,7 +134,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     const newConsultation = await ConsultationModel.create({
       name: payload?.name,
       email: payload?.email,
-      calendlyEventUrl : payload?.uri ,
+      calendlyEventUrl : payload?.uri ,  // ek particular consultation/schedule ki info ke liye use hota hai ...
       startTime : payload?.scheduled_event?.start_time,
       endTime :  payload?.scheduled_event?.end_time ,
       joinUrl,
@@ -155,6 +155,13 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   } 
   
   else if (calendlyEvent === "invitee.canceled") {
+
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+
     const consultation = await ConsultationModel.findOne({ calendlyEventUrl });
 
     if (consultation) {
