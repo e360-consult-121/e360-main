@@ -4,10 +4,10 @@ import {createPaymentLink ,createPaymentSession } from "../../utils/paymentUtils
 import { LeadModel } from "../../leadModels/leadModel";
 import { UserModel } from "../../models/Users";
 import {PaymentModel} from "../../leadModels/paymentModel"
-import { leadStatus } from "../../types/enums/enums";
+import { leadStatus , RoleEnum , AccountStatusEnum} from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums"
 import { sendEmail } from "../../utils/sendEmail";
-
+import bcrypt from 'bcryptjs';
 import Stripe from 'stripe';
 import { stripe } from '../../utils/paymentUtils';
 
@@ -64,6 +64,59 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
 
 // The stripe-signature header is automatically added by Stripe when it sends a webhook request to your server.
 // You must use it to verify the webhook using your STRIPE_WEBHOOK_SECRET
+
+
+export interface  createUserOptions {
+  name: string;
+  email: string;
+  role?: RoleEnum; 
+  UserStatus?: AccountStatusEnum; 
+}
+
+export async function createUserFunction({  name, email }: createUserOptions): Promise<void> {
+  try {
+    // 1. Generate random password
+    const randomPassword = Math.random().toString(36).slice(-5); // example: 'f4g7k'
+
+    // 2. Hash the password
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+    // 3. Create user in DB
+    const user = await UserModel.create({
+      email,
+      password: hashedPassword,
+      role: RoleEnum.USER,
+      status: AccountStatusEnum.ACTIVE,
+    });
+
+    console.log(`User-Account created : ` , user);
+
+    const html =  `
+    <p>Hello ${name},</p>
+    <p>Your account has been created.</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Password:</strong> ${randomPassword}</p>
+    <p>Please change your password after login.</p>
+  `;
+
+    // 4. Send email with password (optional)
+    await sendEmail({
+      to: email,
+      subject: "your account is created",
+      html,
+    });
+
+    console.log(`User ${email} created & email sent.`);
+  } catch (error) {
+    console.error('User creation or email failed:', error);
+    throw error;
+  }
+}
+
+
+
+
+
 
 
 
@@ -167,13 +220,16 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
             await payment.save();
           }
 
-          // UPDATE STATUS OF LEAD
+          // UPDATE STATUS OF LEAD and create account
           if(lead){
             lead.leadStatus = leadStatus.PAYMENTDONE;
             await lead.save();
-          }
-
-          // account create and sendLink
+            // call function to create user account
+            await createUserFunction({
+              name  : lead.fullName.first , 
+              email : lead.email,
+            });
+          };
 
         }
         break;
@@ -198,9 +254,6 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
       default:
         console.log(" Ignored event type:", event.type);
     }
-
-  
-
 
 
   res.sendStatus(200);
