@@ -1,5 +1,5 @@
 import { Box, Tab, Tabs } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ClientEligibilityForm from "./ClientEligibilityForm";
 import Consultations from "./Consultations";
 import PaymentAndInvoiceManagement from "./PaymentAndInvoiceManagement";
@@ -66,12 +66,21 @@ function a11yProps(index: number) {
         show: consultationInfo?.status === "COMPLETED",
       },
     ].filter(tab => tab.show);
+    
+    const [value, setValue] = useState(tabs.length-1);
   
-    const [value, setValue] = useState(0);
-  
+    useEffect(() => {
+      if (tabs.length > 0) {
+        setValue(tabs.length - 1); // Set to the last tab
+      }
+    }, [tabs.length]);
+    
+    
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
       setValue(newValue);
     };
+
+
   
     return (
       <Box sx={{ px: 5, mt: 5, width: "100%" }}>

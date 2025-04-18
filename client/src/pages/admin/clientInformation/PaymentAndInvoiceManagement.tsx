@@ -13,7 +13,7 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
-import Invoice_Image from "../../../assets/Admin/Invoice_Image.png";
+import Invoice_Image from "../../../assets/Admin/Invoice_Image.jpeg";
 import { PaymentInfoTypes } from "../../../features/admin/clientInformation/clientInformationTypes";
 import { useSendPaymentLinkMutation } from "../../../features/admin/clientInformation/clientInformationApi";
 import { useParams } from "react-router-dom";
@@ -29,27 +29,22 @@ const PaymentAndInvoiceManagement = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [amount, setAmount] = useState("100");
   const [currency, setCurrency] = useState("inr");
+  const [loading, setLoading] = useState(false);
 
   const [sendPaymentLink] = useSendPaymentLinkMutation();
 
   const handleSendPaymentLink = async () => {
-    try {
-      if (
-        !amount ||
-        isNaN(Number(amount)) ||
-        Number(amount) <= 0 ||
-        !currency
-      ) {
-        alert("Please enter a valid amount and select a currency.");
-        return;
-      }
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0 || !currency) {
+      alert("Please enter a valid amount and select a currency.");
+      return;
+    }
 
+    setLoading(true);
+    try {
       const body = {
         currency,
         amount: Number(amount),
       };
-
-      // console.log(body);
 
       const data = await sendPaymentLink({ leadid, body }).unwrap();
       if (data.success === true) {
@@ -60,7 +55,9 @@ const PaymentAndInvoiceManagement = ({
       }
     } catch (error) {
       console.log(error);
+      alert("An error occurred while sending the payment link.");
     } finally {
+      setLoading(false);
       setDialogOpen(false);
     }
   };
@@ -73,43 +70,49 @@ const PaymentAndInvoiceManagement = ({
           : `Send Payment Link :`}
       </Typography>
 
-      {paymentInfo?.status !== "PAID" && <Button
-      onClick={() => setDialogOpen(true)}
-      sx={{
-        p: 1.2,
+      {paymentInfo?.status !== "PAID" && (
+        <Button
+          onClick={handleSendPaymentLink}
+          disabled={loading}
+          sx={{
+            p: 1.2,
         bgcolor: "#F6C328",
         color: "black",
         borderRadius: "15px",
         mt: 2,
-        textTransform: "none",
-        "&:hover": { bgcolor: "#E5B120" },
-      }}
-    >
-      Send Payment Link
-    </Button>}
+        textTransform:"none",
+            "&:disabled": {
+              bgcolor: "#e0e0e0",
+              color: "gray",
+            },
+          }}
+        >
+          {loading ? "Sending..." : " Send Payment Link"}
+        </Button>
+      )}
 
-  {paymentInfo?.status === "PAID" ? (
-  <Box>
-    <img src={Invoice_Image} className="my-3" />
-    <Typography sx={{ mt: 2 }}>
-      Invoice:{" "}
-      <a
-        href={paymentInfo?.invoice}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          color: "#F8CC51",
-          textDecoration: "underline",
-          fontWeight: "bold",
-        }}
-      >
-        View Invoice
-      </a>
-    </Typography>
-  </Box>
-) : (
-  <>
-    {/* {paymentInfo?.status === "LINKSENT" && (
+      {paymentInfo?.status === "PAID" ? (
+        <Box>
+          <img src={Invoice_Image} className="w-[168px] h-[93px] my-3" />
+          <Typography sx={{ mt: 2 }}>
+            Invoice:{" "}
+            <a
+              href={paymentInfo?.invoice}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#F8CC51",
+                textDecoration: "underline",
+                fontWeight: "bold",
+              }}
+            >
+              View Invoice
+            </a>
+          </Typography>
+        </Box>
+      ) : (
+        <>
+          {/* {paymentInfo?.status === "LINKSENT" && (
       <Typography sx={{ mt: 2, color: "green", fontWeight: "bold" }}>
         Payment link has been sent to the client.
       </Typography>

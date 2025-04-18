@@ -136,12 +136,19 @@ const ConsultationsTable: React.FC<TableProps> = ({
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>
                   {consultation.status === "CANCELLED" ? (
-                    <a href={consultation?.reschedule} target="_blank">
-                    <Button variant="outlined" sx={{ textTransform: "none",borderColor:"black",borderRadius:"15px" }}>
+                   <></>
+                  ) : consultation.status === "SCHEDULED" ? (
+                    <Box
+                    sx={{
+                      display:"flex",
+                      gap:2
+                    }}
+                    >
+                    <a href={consultation?.rescheduleUrl} target="_blank">
+                    <Button variant="outlined" sx={{ textTransform: "none",borderColor:"black",borderRadius:"15px",color:"black" }}>
                       Reschedule
                     </Button>
                     </a>
-                  ) : consultation.status === "SCHEDULED" ? (
                     <a href={consultation?.joinUrl} target="_blank">
                     <Button
                       sx={{ backgroundColor: "#F6C328", color: "black", textTransform: "none",borderRadius:"15px" }}
@@ -149,6 +156,7 @@ const ConsultationsTable: React.FC<TableProps> = ({
                       Join Now
                     </Button>
                     </a>
+                    </Box>
                   ) : null}
                   {/* <Button
                     sx={{ color: "black", textTransform: "none", marginLeft: "10px" }}

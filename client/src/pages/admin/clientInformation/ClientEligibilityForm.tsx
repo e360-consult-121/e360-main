@@ -41,6 +41,7 @@ const ClientEligibilityForm = ({
   const [rejectOpen, setRejectOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [remarks, setRemarks] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [sendConsultationLink] = useSendConsultationLinkMutation();
   const [rejectParticularLead] = useRejectParticularLeadMutation();
@@ -56,6 +57,7 @@ const ClientEligibilityForm = ({
 
   const handleSendConsultation = async () => {
     try {
+      setLoading(true);
       if (leadid === undefined) return console.log("LeadId absent");
       const data = await sendConsultationLink(leadid).unwrap();
       if (data.message !== undefined) {
@@ -65,6 +67,8 @@ const ClientEligibilityForm = ({
       }
     } catch (error) {
       console.error("Failed to send consultation link", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -230,7 +234,9 @@ const ClientEligibilityForm = ({
         <Typography color="error">This lead is rejected</Typography>
       ) : (
         <Box sx={{ mt: 3, display: "flex", flexDirection: "column", gap: 1 }}>
-          {(leadStatus === "CONSULTATIONDONE" || leadStatus === "PAYMENTLINKSENT" || leadStatus === "PAYMENTDONE") && (
+          {(leadStatus === "CONSULTATIONDONE" ||
+            leadStatus === "PAYMENTLINKSENT" ||
+            leadStatus === "PAYMENTDONE") && (
             <Typography color="success.main" fontWeight="bold">
               Consultation is completed
             </Typography>
@@ -239,6 +245,7 @@ const ClientEligibilityForm = ({
             {leadStatus !== "CONSULTATIONDONE" && (
               <Button
                 onClick={handleSendConsultation}
+                disabled={loading}
                 variant="contained"
                 sx={{
                   color: "black",
@@ -246,9 +253,13 @@ const ClientEligibilityForm = ({
                   textTransform: "none",
                   borderRadius: "10px",
                   boxShadow: "none",
+                  "&:disabled": {
+                    bgcolor: "#e0e0e0",
+                    color: "gray",
+                  },
                 }}
               >
-                Send Consultation Link
+                {loading ? "Sending..." : "Send Consultation Link"}
               </Button>
             )}
             <Button
