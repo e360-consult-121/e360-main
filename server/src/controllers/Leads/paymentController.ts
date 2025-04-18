@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import mongoose ,  { Schema, model, Document } from "mongoose";
 import AppError from "../../utils/appError";
 import {
   createPaymentLink,
@@ -7,10 +8,12 @@ import {
 import { LeadModel } from "../../leadModels/leadModel";
 import { UserModel } from "../../models/Users";
 import { PaymentModel } from "../../leadModels/paymentModel";
+import {  VisaApplicationModel } from "../../models/VisaApplication";
 import {
   leadStatus,
   RoleEnum,
   AccountStatusEnum,
+  VisaApplicationStatusEnum
 } from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums";
 import { sendEmail } from "../../utils/sendEmail";
@@ -82,7 +85,7 @@ export interface createUserOptions {
 export async function createUserFunction({
   name,
   email,
-}: createUserOptions): Promise<void> {
+}: createUserOptions): Promise<any> {
   try {
     // 1. Generate random password
     const randomPassword = Math.random().toString(36).slice(-5); // example: 'f4g7k'
@@ -116,8 +119,45 @@ export async function createUserFunction({
     });
 
     console.log(`User ${email} created & email sent.`);
+    return user;
   } catch (error) {
     console.error("User creation or email failed:", error);
+    throw error;
+  }
+}
+
+
+
+const VISATYPE_MAP: Record<string, string> = {
+  "250912382847462": "67d0073306629112babf1651",
+  "250901425096454": "68024722baf865abe06c4553",
+  "250912364956463": "67d15c5633d15e4bca96770a",
+};
+
+// create visaApplication
+
+interface CreateVisaApplicationOptions {
+  userId: mongoose.Types.ObjectId | string;
+  visaTypeId: mongoose.Types.ObjectId | string;
+  currentStep?: number; // optional, default 1
+  visaApplicationStatus? : VisaApplicationStatusEnum;
+}
+
+export async function createVisaApplication({
+  userId,
+  visaTypeId
+}: CreateVisaApplicationOptions): Promise<void> {
+  try {
+    const newApplication = await VisaApplicationModel.create({
+      userId: userId , 
+      visaTypeId : new mongoose.Types.ObjectId(visaTypeId),
+      currentStep : 1 ,
+      visaApplicationStatus: VisaApplicationStatusEnum.PENDING,
+    });
+
+    console.log("Visa application created successfully:", newApplication);
+  } catch (error) {
+    console.error("Error creating visa application:", error);
     throw error;
   }
 }
@@ -228,9 +268,18 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
           lead.leadStatus = leadStatus.PAYMENTDONE;
           await lead.save();
           // call function to create user account
-          await createUserFunction({
+          const user = await createUserFunction({
             name: lead.fullName.first,
             email: lead.email,
+          });
+
+          const formId = lead.formId
+
+          const visaTypeId = VISATYPE_MAP[formId];
+
+          await createVisaApplication ({
+            userId :   user._id,
+            visaTypeId : visaTypeId ,
           });
         }
       }
