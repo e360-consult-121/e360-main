@@ -105,7 +105,7 @@ const ConsultationsTable: React.FC<TableProps> = ({
         <Table>
           <TableHead>
             <TableRow>
-              {["Case ID", "Name", "Date & Time", "Status", "Action"].map((header) => (
+              {["Name", "Date & Time", "Status", "Action"].map((header) => (
                 <TableCell key={header} sx={{ color: "#8D8883" }}>
                   {header}
                 </TableCell>
@@ -115,7 +115,7 @@ const ConsultationsTable: React.FC<TableProps> = ({
           <TableBody>
             {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((consultation) => (
               <TableRow key={consultation._id}>
-                <TableCell sx={{ borderBottom: "none" }}>{consultation._id}</TableCell>
+                {/* <TableCell sx={{ borderBottom: "none" }}>{consultation._id}</TableCell> */}
                 <TableCell sx={{ borderBottom: "none" }}>{consultation.name}</TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>
                   {dayjs(consultation.startTime).format("MMM D, YYYY h:mm A")}

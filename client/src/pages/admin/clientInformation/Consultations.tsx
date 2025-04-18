@@ -98,7 +98,7 @@ const Consultations = ({
                 color: "black",
                 borderRadius: "15px",
                 mt: 3,
-                px: 1.5,
+                px: 1.3,
                 py: 1,
                 textTransform: "none",
                 fontWeight: "bold",
@@ -108,7 +108,19 @@ const Consultations = ({
               Join Consultation
             </Button>
           </a>
-
+          {/* <a href={consultationInfo?.rescheduleUrl || ""} target="_blank">
+            <Button
+              variant="outlined"
+              sx={{
+                textTransform: "none",
+                borderColor: "black",
+                borderRadius: "15px",
+                color: "black",
+              }}
+            >
+              Reschedule
+            </Button>
+          </a> */}
           <Button
             onClick={handleMarkComplete}
             sx={{
@@ -116,7 +128,7 @@ const Consultations = ({
               color: "black",
               borderRadius: "15px",
               mt: 3,
-              px: 1.5,
+              px: 1.3,
               py: 1,
               textTransform: "none",
               fontWeight: "bold",
