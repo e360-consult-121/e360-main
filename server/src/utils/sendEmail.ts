@@ -73,7 +73,7 @@ export interface SendEmailOptions {
 export async function sendEmail({ to, subject, html }: SendEmailOptions): Promise<any> {
   try {
     const data = await resend.emails.send({
-      from: 'pankaj707165@gmail.com', // fixed sender
+      from:process.env.EMAIL_FROM!, // fixed sender
       to,
       subject,
       html,
