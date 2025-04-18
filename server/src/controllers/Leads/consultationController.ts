@@ -88,6 +88,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   const calendlyEventUrl = payload?.uri;
   const startTime = payload?.scheduled_event?.start_time;
   // const endTime = payload?.scheduled_event?.end_time;
+  const rescheduleUrl = payload?.reschedule_url ;
 
 
   // ✅ Proceed only if source is EEE360
@@ -145,6 +146,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       startTime : payload?.scheduled_event?.start_time,
       endTime :  payload?.scheduled_event?.end_time ,
       joinUrl,
+      rescheduleUrl,
       formattedDate,
       leadId: leadId,
       // caseId: lead.caseId,

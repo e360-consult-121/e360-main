@@ -13,6 +13,7 @@ export interface IConsultation extends Document {
   endTime: Date;
   joinUrl: string;
   calendlyEventUrl: string;
+  rescheduleUrl : string;
   formattedDate?: string;
 
   leadId: Types.ObjectId; // Reference to LeadModel
@@ -34,6 +35,7 @@ const ConsultationSchema: Schema = new Schema<IConsultation>({
   endTime: { type: Date, required: true },
   joinUrl: { type: String, required: true },
   calendlyEventUrl: { type: String, required: true },
+  rescheduleUrl : {type: String ,required : true },
   formattedDate: { type: String },
 
   leadId: {
