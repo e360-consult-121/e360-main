@@ -21,7 +21,7 @@ import { useParams } from "react-router-dom";
 const PaymentAndInvoiceManagement = ({
   paymentInfo,
   onRefreshLead,
-}: {
+} : {
   paymentInfo: PaymentInfoTypes;
   onRefreshLead: () => void;
 }) => {
@@ -72,7 +72,7 @@ const PaymentAndInvoiceManagement = ({
 
       {paymentInfo?.status !== "PAID" && (
         <Button
-          onClick={handleSendPaymentLink}
+        onClick={() => setDialogOpen(true)}
           disabled={loading}
           sx={{
             p: 1.2,
