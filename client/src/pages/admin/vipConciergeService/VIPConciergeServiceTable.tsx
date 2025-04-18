@@ -61,7 +61,7 @@ const VIPConciergeServiceTable: React.FC<TableProps> = ({ data, onJoinNow, onRes
       {/* Filter Section */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
-        VIP Concierge Service
+        Eligibility Form Leads
         </Typography>
 
         <Box sx={{ display: "flex", gap: 5 }}>
