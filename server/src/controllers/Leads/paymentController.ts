@@ -181,8 +181,11 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
     //   return;
     // }
 
-    const lead = await LeadModel.findOne({leadId});
-
+    const lead = await LeadModel.findById({leadId});
+    
+    if(lead){
+      console.log(`this is our lead:`, lead);
+    }
 
     const payment = await PaymentModel.findOne({ leadId });
     if (payment) {
