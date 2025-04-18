@@ -1,40 +1,32 @@
-import { Box } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import ConsultationsTable from "./ConsultationsTable";
 import { useFetchAllConsultationsQuery } from "../../../features/admin/consultations/consultationApi";
 import { useEffect, useState } from "react";
 import { AllConsultationsTypes } from "../../../features/admin/consultations/consultationTypes";
 
 const Consultations = () => {
-
   const { data, isLoading, isError } = useFetchAllConsultationsQuery(undefined);
+  const [consultationData, setConsultationData] = useState<AllConsultationsTypes[]>();
 
-  const [consultationData,setConsultationData] = useState<AllConsultationsTypes[]>()
-   
-  useEffect(() => {    
-      if (data && !isLoading && !isError) {
-        // console.log(data)
-        setConsultationData(data.consultations);
-      }
-    }, [data, isLoading, isError]);
-
-
-  // const handleJoinNow = (consultation: any) => {
-  //   alert(`Joining consultation for ${consultation.name}`);
-  // };
-
-  // const handleReschedule = (consultation: any) => {
-  //   alert(`Rescheduling consultation for ${consultation.name}`);
-  // };
+  useEffect(() => {
+    if (data && !isLoading && !isError) {
+      setConsultationData(data.consultations);
+    }
+  }, [data, isLoading, isError]);
 
   return (
-    <Box 
-    sx={{
-      px:4
-    }}>
-      <ConsultationsTable data={consultationData} 
-      // onJoinNow={handleJoinNow} 
-      // onReschedule={handleReschedule} 
-      />
+    <Box sx={{ px: 4 }}>
+      {isLoading ? (
+        <CircularProgress />
+      ) : isError ? (
+        <Typography color="error">Failed to load consultations.</Typography>
+      ) : consultationData?.length ? (
+        <ConsultationsTable data={consultationData} />
+      ) : (
+        <Typography variant="h6" color="textSecondary" align="center" mt={35}>
+          No consultations found.
+        </Typography>
+      )}
     </Box>
   );
 };

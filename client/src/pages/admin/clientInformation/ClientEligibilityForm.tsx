@@ -31,10 +31,12 @@ const ClientEligibilityForm = ({
   leadStatus,
   formSubmisionDate,
   eligibilityForm,
+  onRefreshLead
 }: {
   leadStatus:string
   formSubmisionDate:string,
-  eligibilityForm: EligibilityFormTypes;
+  eligibilityForm: EligibilityFormTypes,
+  onRefreshLead: () => void
 }) => {
   
   const {leadid} = useParams()
@@ -79,6 +81,7 @@ const ClientEligibilityForm = ({
       const data = await rejectParticularLead({leadid:leadid,body}).unwrap()
       if(data.message !== undefined){
         alert("Rejected")
+        onRefreshLead();
       }
       else{
         alert("Error somthing wentwrong try again")

@@ -18,7 +18,7 @@ function parseTimeString(dateTimeStr:string) {
 }
 
 
-const Consultations = ({ consultationInfo }: { consultationInfo: ConsultationInfoTypes }) => {
+const Consultations = ({ consultationInfo, onRefreshLead }: { consultationInfo: ConsultationInfoTypes, onRefreshLead: () => void }) => {
 
   // const {leadid} = useParams();
   const [markConsultationAsCompleted] = useMarkConsultationAsCompletedMutation();
@@ -27,7 +27,8 @@ const consultationId  = consultationInfo?.consultationId
   const handleMarkComplete = async()=>{
       try {
         await markConsultationAsCompleted(consultationId).unwrap();
-        alert("mark consultation as completed")
+        alert("Mark consultation as completed")
+        onRefreshLead();
       } catch (error) {
         console.log(error)
       }

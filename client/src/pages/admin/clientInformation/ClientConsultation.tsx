@@ -39,23 +39,25 @@ function a11yProps(index: number) {
     consultationInfo,
     paymentInfo,
     eligibilityForm,
-    formSubmisionDate
+    formSubmisionDate,
+    onRefreshLead
   }: {
     leadStatus:string,
     consultationInfo: ConsultationInfoTypes;
     paymentInfo: PaymentInfoTypes;
     eligibilityForm: EligibilityFormTypes;
     formSubmisionDate:string
+    onRefreshLead: () => void
   }) => {
     const tabs = [
       {
         label: "Client Eligibility Form",
-        content: <ClientEligibilityForm leadStatus={leadStatus} formSubmisionDate={formSubmisionDate} eligibilityForm={eligibilityForm} />,
+        content: <ClientEligibilityForm onRefreshLead={onRefreshLead} leadStatus={leadStatus} formSubmisionDate={formSubmisionDate} eligibilityForm={eligibilityForm} />,
         show: eligibilityForm != null,
       },
       {
         label: "Consultations",
-        content: <Consultations consultationInfo={consultationInfo} />,
+        content: <Consultations onRefreshLead={onRefreshLead}  consultationInfo={consultationInfo} />,
         show: consultationInfo != null,
       },
       {

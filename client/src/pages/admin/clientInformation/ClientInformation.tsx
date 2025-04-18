@@ -16,7 +16,7 @@ import {
 
 const ClientInformation = () => {
   const { leadid } = useParams();
-  const { data, isLoading, isError } = useFetchParticularLeadQuery(leadid);
+  const { data, isLoading, isError,refetch } = useFetchParticularLeadQuery(leadid);
   const [clientInfo, setClientInfo] = useState<ClientInfoType>();
 
   useEffect(() => {
@@ -87,9 +87,6 @@ const ClientInformation = () => {
             </Typography>
           </Box>
 
-          {/* clientInfo?.leadStatus === leadStatus.CONSULTATIONLINKSENT ||
-              clientInfo?.leadStatus === leadStatus.CONSULTATIONSCHEDULED */}
-
           <Box
             sx={{
               display: "flex",
@@ -121,6 +118,7 @@ const ClientInformation = () => {
         </CardContent>
       </Card>
       <ClientConsultation
+        onRefreshLead={refetch}
         leadStatus={clientInfo?.leadStatus || ""}
         consultationInfo={clientInfo?.consultationInfo}
         paymentInfo={clientInfo?.paymentInfo}
