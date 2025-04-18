@@ -18,85 +18,114 @@ import { PaymentInfoTypes } from "../../../features/admin/clientInformation/clie
 import { useSendPaymentLinkMutation } from "../../../features/admin/clientInformation/clientInformationApi";
 import { useParams } from "react-router-dom";
 
-const PaymentAndInvoiceManagement = ({ paymentInfo }: { paymentInfo: PaymentInfoTypes}) => {
-  const {leadid} = useParams();
+const PaymentAndInvoiceManagement = ({
+  paymentInfo,
+  onRefreshLead,
+}: {
+  paymentInfo: PaymentInfoTypes;
+  onRefreshLead: () => void;
+}) => {
+  const { leadid } = useParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [amount, setAmount] = useState("100");
-  const [currency, setCurrency] = useState("₹");
+  const [currency, setCurrency] = useState("inr");
 
   const [sendPaymentLink] = useSendPaymentLinkMutation();
 
-  const handleSendPaymentLink = async() => {
+  const handleSendPaymentLink = async () => {
     try {
-      if(amount === "0" && currency === undefined) {
-        throw new Error("Need amount and currency")
+      if (
+        !amount ||
+        isNaN(Number(amount)) ||
+        Number(amount) <= 0 ||
+        !currency
+      ) {
+        alert("Please enter a valid amount and select a currency.");
+        return;
       }
+
       const body = {
-        currency:currency,
-        amount:amount
-      }
-      const data = await sendPaymentLink({leadid:leadid,body}).unwrap()
-      if(data.success === true){
-        alert("Paymentlink sent");
-      }
-      else{
-        alert("Somthing went wrong")
+        currency,
+        amount: Number(amount),
+      };
+
+      // console.log(body);
+
+      const data = await sendPaymentLink({ leadid, body }).unwrap();
+      if (data.success === true) {
+        alert("Payment link sent");
+        onRefreshLead();
+      } else {
+        alert("Something went wrong");
       }
     } catch (error) {
-      console.log(error)
-    }finally{
+      console.log(error);
+    } finally {
       setDialogOpen(false);
     }
   };
 
   return (
-
     <div>
-      <Typography>Payment Method : {paymentInfo?.method}</Typography>
+      <Typography>
+        {paymentInfo?.method
+          ? `Payment Method : ${paymentInfo?.method}`
+          : `Send Payment Link :`}
+      </Typography>
 
-      {paymentInfo?.status === "PAID" ? (
-        <Box>
-          <img src={Invoice_Image} className="my-3" />
-          <Typography sx={{ mt: 2 }}>
-            Invoice:{" "}
-            <a
-              href={paymentInfo?.invoice}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#F8CC51",
-                textDecoration: "underline",
-                fontWeight: "bold",
-              }}
-            >
-              View Invoice
-            </a>
-          </Typography>
-        </Box>
-      ) : (
-        <>
-          <Button
-            onClick={() => setDialogOpen(true)}
-            sx={{
-              p: 1.2,
-              bgcolor: "#F6C328",
-              color: "black",
-              borderRadius: "15px",
-              mt: 3,
-              textTransform: "none",
-              "&:hover": { bgcolor: "#E5B120" },
-            }}
-          >
-            Send Payment Link
-          </Button>
+      {paymentInfo?.status !== "PAID" && <Button
+      onClick={() => setDialogOpen(true)}
+      sx={{
+        p: 1.2,
+        bgcolor: "#F6C328",
+        color: "black",
+        borderRadius: "15px",
+        mt: 2,
+        textTransform: "none",
+        "&:hover": { bgcolor: "#E5B120" },
+      }}
+    >
+      Send Payment Link
+    </Button>}
+
+  {paymentInfo?.status === "PAID" ? (
+  <Box>
+    <img src={Invoice_Image} className="my-3" />
+    <Typography sx={{ mt: 2 }}>
+      Invoice:{" "}
+      <a
+        href={paymentInfo?.invoice}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          color: "#F8CC51",
+          textDecoration: "underline",
+          fontWeight: "bold",
+        }}
+      >
+        View Invoice
+      </a>
+    </Typography>
+  </Box>
+) : (
+  <>
+    {/* {paymentInfo?.status === "LINKSENT" && (
+      <Typography sx={{ mt: 2, color: "green", fontWeight: "bold" }}>
+        Payment link has been sent to the client.
+      </Typography>
+    )} */}
 
           {/* Modal to select currency and amount */}
-          <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="xs" fullWidth>
+          <Dialog
+            open={dialogOpen}
+            onClose={() => setDialogOpen(false)}
+            maxWidth="xs"
+            fullWidth
+          >
             <DialogTitle align="center" fontWeight="bold">
               Enter Payment Details
             </DialogTitle>
             <DialogContent>
-
               <FormControl fullWidth sx={{ mt: 1 }}>
                 <InputLabel>Currency</InputLabel>
                 <Select

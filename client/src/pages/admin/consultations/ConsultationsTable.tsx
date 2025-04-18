@@ -136,9 +136,11 @@ const ConsultationsTable: React.FC<TableProps> = ({
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>
                   {consultation.status === "CANCELLED" ? (
+                    <a href={consultation?.reschedule} target="_blank">
                     <Button variant="outlined" sx={{ textTransform: "none",borderColor:"black",borderRadius:"15px" }}>
                       Reschedule
                     </Button>
+                    </a>
                   ) : consultation.status === "SCHEDULED" ? (
                     <a href={consultation?.joinUrl} target="_blank">
                     <Button

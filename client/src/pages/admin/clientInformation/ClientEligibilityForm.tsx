@@ -16,7 +16,6 @@ import { useParams } from "react-router-dom";
 import { useRejectParticularLeadMutation } from "../../../features/admin/leadManagement/leadManagementApi";
 import { formatDate } from "../../../utils/FormateDate";
 
-
 const isEmptyOrNullObject = (obj: any): boolean => {
   if (typeof obj !== "object" || obj === null) return true;
 
@@ -31,74 +30,72 @@ const ClientEligibilityForm = ({
   leadStatus,
   formSubmisionDate,
   eligibilityForm,
-  onRefreshLead
+  onRefreshLead,
 }: {
-  leadStatus:string
-  formSubmisionDate:string,
-  eligibilityForm: EligibilityFormTypes,
-  onRefreshLead: () => void
+  leadStatus: string;
+  formSubmisionDate: string;
+  eligibilityForm: EligibilityFormTypes;
+  onRefreshLead: () => void;
 }) => {
-  
-  const {leadid} = useParams()
+  const { leadid } = useParams();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [remarks, setRemarks] = useState("");
-  
 
   const [sendConsultationLink] = useSendConsultationLinkMutation();
   const [rejectParticularLead] = useRejectParticularLeadMutation();
 
   const handleRejectOpen = () => setRejectOpen(true);
   const handleRejectClose = () => {
-    setRemarks("")
+    setRemarks("");
     setRejectOpen(false);
-  }
+  };
 
   const handleFormOpen = () => setFormOpen(true);
   const handleFormClose = () => setFormOpen(false);
 
-  const handleSendConsultation = async() => {
+  const handleSendConsultation = async () => {
     try {
-      if (leadid === undefined) return console.log("LeadId absent")
+      if (leadid === undefined) return console.log("LeadId absent");
       const data = await sendConsultationLink(leadid).unwrap();
-      if(data.message !== undefined){
-        alert("done")
-      }
-      else{
-        alert("Error somthing wentwrong try again")
+      if (data.message !== undefined) {
+        alert("done");
+      } else {
+        alert("Error somthing wentwrong try again");
       }
     } catch (error) {
       console.error("Failed to send consultation link", error);
     }
   };
 
-  const handleRejectSubmit = async() => {
+  const handleRejectSubmit = async () => {
     try {
-      if (leadid === undefined) return console.log("LeadId absent")
+      if (leadid === undefined) return console.log("LeadId absent");
       const body = {
-        reasonOfRejection:remarks
-      }
-      const data = await rejectParticularLead({leadid:leadid,body}).unwrap()
-      if(data.message !== undefined){
-        alert("Rejected")
+        reasonOfRejection: remarks,
+      };
+      const data = await rejectParticularLead({
+        leadid: leadid,
+        body,
+      }).unwrap();
+      if (data.message !== undefined) {
+        alert("Rejected");
         onRefreshLead();
-      }
-      else{
-        alert("Error somthing wentwrong try again")
+      } else {
+        alert("Error somthing wentwrong try again");
       }
     } catch (error) {
-      console.error("Failed to send consultation link", error); 
-    } 
-    finally {
+      console.error("Failed to send consultation link", error);
+    } finally {
       handleRejectClose();
     }
   };
 
   const formatLabel = (label: string) =>
-  label
-    .replace(/([A-Z])/g, " $1")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+    label
+      .replace(/([A-Z])/g, " $1")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
 
   // const renderFields = (
   //   data: any,
@@ -106,7 +103,7 @@ const ClientEligibilityForm = ({
   //   isNested = false
   // ) => {
   //   if (isEmptyOrNullObject(data)) return null;
-  
+
   //   const fields = Object.entries(data).filter(
   //     ([_, value]) =>
   //       value !== null &&
@@ -115,7 +112,7 @@ const ClientEligibilityForm = ({
   //         ? !isEmptyOrNullObject(value)
   //         : value !== "")
   //   );
-  
+
   //   return (
   //     <Box sx={{ mb: 3 }} key={sectionTitle}>
   //       {/* Show title only if it's not "additionalInfo" */}
@@ -130,7 +127,7 @@ const ClientEligibilityForm = ({
   //         </Typography>
   //         </>
   //       )}
-  
+
   //       {fields.map(([key, value]) => {
   //         if (typeof value === "object" && !Array.isArray(value)) {
   //           return renderFields(value, key, true);
@@ -158,16 +155,14 @@ const ClientEligibilityForm = ({
     isNested = false
   ) => {
     if (isEmptyOrNullObject(data)) return null;
-  
+
     const fields = Object.entries(data).filter(
       ([_, value]) =>
         value !== null &&
         value !== undefined &&
-        (typeof value === "object"
-          ? !isEmptyOrNullObject(value)
-          : value !== "")
+        (typeof value === "object" ? !isEmptyOrNullObject(value) : value !== "")
     );
-  
+
     return (
       <Box sx={{ mb: 3 }} key={sectionTitle}>
         {/* Section title (no left margin) */}
@@ -180,14 +175,11 @@ const ClientEligibilityForm = ({
             {formatLabel(sectionTitle)}
           </Typography>
         )}
-  
+
         {/* Children (indented only if nested and not under additionalInfo) */}
         <Box
           sx={{
-            ml:
-              isNested && sectionTitle !== "additionalInfo"
-                ? 3
-                : 0,
+            ml: isNested && sectionTitle !== "additionalInfo" ? 3 : 0,
           }}
         >
           {fields.map(([key, value]) => {
@@ -211,10 +203,7 @@ const ClientEligibilityForm = ({
       </Box>
     );
   };
-  
-  
-  
-  
+
   return (
     <div>
       <Typography sx={{ my: 1 }}>
@@ -237,36 +226,47 @@ const ClientEligibilityForm = ({
       </Typography>
 
       {/* Buttons */}
-      {leadStatus !== "REJECTED" ? <Box sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2 }}>
-        <Button
-          onClick={handleSendConsultation}
-          variant="contained"
-          sx={{
-            color: "black",
-            bgcolor: "#F6C328",
-            textTransform: "none",
-            borderRadius: "10px",
-            boxShadow: "none",
-          }}
-        >
-          Send Consultation Link
-        </Button>
-        <Button
-          variant="outlined"
-          sx={{
-            color: "red",
-            textTransform: "none",
-            borderRadius: "10px",
-            boxShadow: "none",
-            borderColor: "red",
-          }}
-          onClick={handleRejectOpen}
-        >
-          Reject Application
-        </Button>
-      </Box>:<Typography>
-        This lead is rejected 
-        </Typography>}
+      {leadStatus === "REJECTED" ? (
+        <Typography color="error">This lead is rejected</Typography>
+      ) : (
+        <Box sx={{ mt: 3, display: "flex", flexDirection: "column", gap: 1 }}>
+          {(leadStatus === "CONSULTATIONDONE" || leadStatus === "PAYMENTLINKSENT" || leadStatus === "PAYMENTDONE") && (
+            <Typography color="success.main" fontWeight="bold">
+              Consultation is completed
+            </Typography>
+          )}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {leadStatus !== "CONSULTATIONDONE" && (
+              <Button
+                onClick={handleSendConsultation}
+                variant="contained"
+                sx={{
+                  color: "black",
+                  bgcolor: "#F6C328",
+                  textTransform: "none",
+                  borderRadius: "10px",
+                  boxShadow: "none",
+                }}
+              >
+                Send Consultation Link
+              </Button>
+            )}
+            <Button
+              variant="outlined"
+              sx={{
+                color: "red",
+                textTransform: "none",
+                borderRadius: "10px",
+                boxShadow: "none",
+                borderColor: "red",
+              }}
+              onClick={handleRejectOpen}
+            >
+              Reject Application
+            </Button>
+          </Box>
+        </Box>
+      )}
 
       {/* ===== FORM MODAL ===== */}
       <Dialog
@@ -304,13 +304,17 @@ const ClientEligibilityForm = ({
         onClose={handleRejectClose}
         PaperProps={{ sx: { borderRadius: 10, padding: 2 } }}
       >
-        <DialogTitle align="center" sx={{ fontWeight: "bold", fontSize: "24px" }}>
+        <DialogTitle
+          align="center"
+          sx={{ fontWeight: "bold", fontSize: "24px" }}
+        >
           Reject Application
         </DialogTitle>
 
         <DialogContent>
           <DialogContentText align="center">
-            Are you sure you want to reject this application? This action cannot be undone.
+            Are you sure you want to reject this application? This action cannot
+            be undone.
           </DialogContentText>
 
           <DialogContentText
@@ -320,7 +324,8 @@ const ClientEligibilityForm = ({
             borderRadius={5}
             sx={{ mt: 2 }}
           >
-            Admins have to provide a reason for rejection, which will be sent to the client.
+            Admins have to provide a reason for rejection, which will be sent to
+            the client.
           </DialogContentText>
 
           <TextField

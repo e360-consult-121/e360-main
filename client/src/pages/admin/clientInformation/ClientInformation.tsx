@@ -43,7 +43,18 @@ const ClientInformation = () => {
   }
 
   if (isError || !data) {
-    return <Typography color="error">Failed to load lead data.</Typography>;
+    return (
+    <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+    }}
+    >
+    <Typography color="error">Failed to load client data.</Typography>
+    </Box>
+    )
   }
 
   return (

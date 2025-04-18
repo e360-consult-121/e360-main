@@ -6,6 +6,7 @@ export interface AllConsultationsTypes {
   startTime: string; 
   endTime: string;   
   joinUrl: string;
+  reschedule:string;
   calendlyEventUrl: string;
   formattedDate: string;
   leadId: string;

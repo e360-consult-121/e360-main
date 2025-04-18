@@ -42,12 +42,12 @@ function a11yProps(index: number) {
     formSubmisionDate,
     onRefreshLead
   }: {
-    leadStatus:string,
+    leadStatus:string;
     consultationInfo: ConsultationInfoTypes;
     paymentInfo: PaymentInfoTypes;
     eligibilityForm: EligibilityFormTypes;
-    formSubmisionDate:string
-    onRefreshLead: () => void
+    formSubmisionDate:string;
+    onRefreshLead: () => void;
   }) => {
     const tabs = [
       {
@@ -62,8 +62,8 @@ function a11yProps(index: number) {
       },
       {
         label: "Payment & Invoice Management",
-        content: <PaymentAndInvoiceManagement  paymentInfo={paymentInfo} />,
-        show: paymentInfo != null && consultationInfo?.status != "SCHEDULED",
+        content: <PaymentAndInvoiceManagement onRefreshLead={onRefreshLead} paymentInfo={paymentInfo} />,
+        show: consultationInfo?.status === "COMPLETED",
       },
     ].filter(tab => tab.show);
   

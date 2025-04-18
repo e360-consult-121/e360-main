@@ -213,7 +213,7 @@ export const markConsultationAsCompleted = async (req: Request, res: Response) =
   // 1. Update consultation status
   const updatedConsultation = await ConsultationModel.findByIdAndUpdate(
     consultationId,
-    { consultationStatus: consultationStatus.COMPLETED },
+    { status: consultationStatus.COMPLETED },
     { new: true }
   );
 
