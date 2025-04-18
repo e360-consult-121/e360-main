@@ -49,6 +49,7 @@ export interface ClientInfoType  {
     meetTime: string;
     status: string;
     joinUrl: string;
+    rescheduleUrl:string;
   };
   paymentInfo: {
     status: string;
