@@ -12,7 +12,7 @@ const LeadManagement: React.FC = () => {
 
   useEffect(() => {
     if (data && !isLoading && !isError) {
-      setLeadData(data.leads);
+      setLeadData(data.leads??[]);
     }
   }, [data, isLoading, isError]);
 

@@ -47,7 +47,7 @@ const tabs:TAB[] = [
   },
   {
     icon: "grommet-icons:visa",
-    label: "VIP Concierge Service",
+    label: "Eligibility Form Leads",
     route: "admin/vipconciergeservice",
   },
   {
