@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
 import {createPaymentLink ,createPaymentSession } from "../../utils/paymentUtils"
 import { LeadModel } from "../../leadModels/leadModel";
+import { UserModel } from "../../models/Users";
 import {PaymentModel} from "../../leadModels/paymentModel"
 import { leadStatus } from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums"
@@ -127,6 +128,8 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
     //   return;
     // }
 
+    const lead = await LeadModel.findOne({leadId});
+
 
     const payment = await PaymentModel.findOne({ leadId });
     if (payment) {
@@ -163,6 +166,15 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
             payment.paymentMethod = paymentMethod;
             await payment.save();
           }
+
+          // UPDATE STATUS OF LEAD
+          if(lead){
+            lead.leadStatus = leadStatus.PAYMENTDONE;
+            await lead.save();
+          }
+
+          // account create and sendLink
+
         }
         break;
 
@@ -174,6 +186,12 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
             payment.paymentMethod = null;
             await payment.save();
           }
+
+          // UPDATE STATUS OF LEAD
+          // if(lead){
+          //   lead.leadStatus = leadStatus.PAYMENTDONE;
+          //   await lead.save();
+          // }
         }
         break;
 
@@ -211,5 +229,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
 
 // we can fetch invoice  like this -->> 
 // const invoice = await stripe.invoices.retrieve('in_1ABCDE12345');
+
+
 
 
