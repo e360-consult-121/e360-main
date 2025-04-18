@@ -38,11 +38,11 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
 
     console.log(`this is your link for do paymentttt : ${paymentUrl}`);
   
-    // await sendEmail({
-    //   to: lead.email,
-    //   subject: "Complete Your Payment to start your Visa Application",
-    //   html,
-    // });
+    await sendEmail({
+      to: lead.email,
+      subject: "Complete Your Payment to start your Visa Application",
+      html,
+    });
 
     // save payemnt details in DB
     const payment = new PaymentModel({

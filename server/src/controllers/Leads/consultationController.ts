@@ -45,11 +45,18 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   //   html,
   // });
 
+  await sendEmail({
+    to: lead.email,
+    subject: "Schedule Your Visa Consultation",
+    html,
+  });
+
+
    console.log(`this is your calendly urllll : ${calendlyLink}`);
 
   // Update lead status
-  // lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
-  // await lead.save();
+  lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
+  await lead.save();
 
   res.status(200).json({ message: "Consultation link sent successfully" ,calendlyLink });
 };
@@ -63,7 +70,7 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
 // calendly webhook
 export const calendlyWebhook = async (req: Request, res: Response) => {
   console.log(`[Webhook Triggered] Calendly webhook hit at ${new Date().toISOString()}`);
-  console.log(`Raw request body:`, JSON.stringify(req.body, null, 2));
+  // console.log(`Raw request body:`, JSON.stringify(req.body, null, 2));
 
    
 
@@ -134,7 +141,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     const newConsultation = await ConsultationModel.create({
       name: payload?.name,
       email: payload?.email,
-      calendlyEventUrl : payload?.uri ,
+      calendlyEventUrl : payload?.uri ,  // ek particular consultation/schedule ki info ke liye use hota hai ...
       startTime : payload?.scheduled_event?.start_time,
       endTime :  payload?.scheduled_event?.end_time ,
       joinUrl,
@@ -155,12 +162,25 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   } 
   
   else if (calendlyEvent === "invitee.canceled") {
+
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+    console.log(`*****invitee.canceled event is triggered***`);
+
+    console.log(`This is Raw request body in cancel event:`, JSON.stringify(req.body, null, 2));
+
     const consultation = await ConsultationModel.findOne({ calendlyEventUrl });
 
     if (consultation) {
       await ConsultationModel.deleteOne({ calendlyEventUrl });
-      console.log(`Consultation deleted for event: ${calendlyEventUrl}`);
+      console.log(`Consultation deleted for this  event: ${calendlyEventUrl}`);
+      console.log(`Consultation deleted for this  event: ${calendlyEventUrl}`);
+      console.log(`Consultation deleted for this  event: ${calendlyEventUrl}`);
     }
+
+    
 
     // Optional: Update lead status
     // lead.leadStatus = leadStatus.CONSULTATIONCANCELLED || "PENDING";
