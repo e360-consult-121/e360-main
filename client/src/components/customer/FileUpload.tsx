@@ -30,14 +30,14 @@ const FileUpload = ({
       <div className="flex items-center space-x-5">
         <div
           className={`${
-            reqStatus === "NOT_UPLOADED"
+            reqStatus === "UPLOADED"
               ? "bg-golden-yellow-100 text-neutrals-950"
               : "bg-neutrals-200 text-white"
           }   p-3 rounded-xl`}
         >
           <Icon
             icon={`${
-              reqStatus === "NOT_UPLOADED"
+              reqStatus === "UPLOADED"
                 ? "icon-park-outline:done-all"
                 : "icon-park-outline:upload"
             }`}

@@ -3,6 +3,7 @@ export type  ConsultationInfoTypes = {
     meetTime : string,
     joinUrl: string,
     status:string
+    rescheduleUrl:string;
 } | undefined
 
 export type  PaymentInfoTypes = {

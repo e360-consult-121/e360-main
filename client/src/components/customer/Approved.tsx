@@ -1,9 +1,9 @@
 import { Button } from "@mui/material";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 
-const Approved = () => {
+const Approved = ({ onContinue }:{onContinue: () => void }) => {
   return (
-    <div className="flex flex-col items-center justify-center text-center">
+    <div className="flex flex-col items-center justify-center text-center mt-24">
       {/* Verified Icon Container */}
       <div className="rounded-full border-[20px] border-golden-yellow-50 w-fit">
         <div className="rounded-full border-[15px] border-[#FEFCEA]">
@@ -18,6 +18,7 @@ const Approved = () => {
 
       {/* Continue Button */}
       <Button
+      onClick={onContinue}
         variant="outlined"
         sx={{
           borderColor:"black", 

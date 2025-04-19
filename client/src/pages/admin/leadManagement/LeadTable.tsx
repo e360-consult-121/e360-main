@@ -79,7 +79,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ data }) => {
         <Table>
           <TableHead>
             <TableRow>
-              {["Case ID", "Name", "Email", "Phone Number", "Submission Date", "Priority", "Action"].map((header) => (
+              {["Name", "Email", "Phone Number", "Submission Date", "Priority", "Action"].map((header) => (
                 <TableCell key={header} sx={{ color: "#8D8883" }}>
                   {header}
                 </TableCell>
@@ -89,7 +89,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ data }) => {
           <TableBody>
             {sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((lead, index) => (
               <TableRow key={index}>
-                <TableCell sx={{ borderBottom: "none" }}>{lead._id}</TableCell>
+                {/* <TableCell sx={{ borderBottom: "none" }}>{lead._id}</TableCell> */}
                 <TableCell sx={{ borderBottom: "none" }}>{lead.fullName.first + lead.fullName.last}</TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>{lead.email}</TableCell>
                 <TableCell sx={{ borderBottom: "none" }}>{lead.phone}</TableCell>

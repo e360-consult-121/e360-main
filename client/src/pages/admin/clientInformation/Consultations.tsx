@@ -86,19 +86,26 @@ const Consultations = ({
       {consultationInfo?.status === "SCHEDULED" ? (
         <Box
           sx={{
-            display: "flex",
+            display: "block",
             gap: 2,
             alignItems: "center",
           }}
         >
-          <a href={consultationInfo?.joinUrl} target="_blank">
+         <Box
+         sx={{
+          display:"flex",
+          gap:2,
+          alignItems:"center"
+         }}
+         >
+         <a href={consultationInfo?.joinUrl} target="_blank">
             <Button
               sx={{
                 bgcolor: "#F6C328",
                 color: "black",
                 borderRadius: "15px",
                 mt: 3,
-                px: 1.5,
+                px: 1.3,
                 py: 1,
                 textTransform: "none",
                 fontWeight: "bold",
@@ -108,15 +115,32 @@ const Consultations = ({
               Join Consultation
             </Button>
           </a>
-
+          <a href={consultationInfo?.rescheduleUrl || ""} target="_blank">
+            <Button
+              variant="outlined"
+              sx={{
+                mt: 3,
+                px: 3,
+                py: 1,
+                textTransform: "none",
+                borderColor: "black",
+                borderRadius: "15px",
+                color: "black",
+              }}
+            >
+              Reschedule
+            </Button>
+          </a>
+         </Box>
           <Button
+            fullWidth
             onClick={handleMarkComplete}
             sx={{
               bgcolor: "#E0E0E0",
               color: "black",
               borderRadius: "15px",
               mt: 3,
-              px: 1.5,
+              px: 1.3,
               py: 1,
               textTransform: "none",
               fontWeight: "bold",

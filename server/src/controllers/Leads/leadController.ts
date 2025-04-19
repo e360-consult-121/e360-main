@@ -92,6 +92,7 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
           meetTime: consultation.formattedDate,
           status: consultation.status,
           joinUrl: consultation.joinUrl,
+          rescheduleUrl:consultation.rescheduleUrl
         }
       : null, 
 

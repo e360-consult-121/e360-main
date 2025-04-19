@@ -11,10 +11,37 @@ import { sendEmail } from "../../utils/sendEmail";
 // get all consultations
 // pagination bhi lagana hai 
 export const getAllConsultations = async (req: Request, res: Response) => {
-  // isme ab caseId bhi ja rahi hai 
-    const consultations = await ConsultationModel.find();
-    res.status(200).json({ consultations });
+  const consultations = await ConsultationModel.aggregate([
+    {
+      $addFields: {
+        statusOrder: {
+          $switch: {
+            branches: [
+              { case: { $eq: ["$status", "SCHEDULED"] }, then: 0 },
+              { case: { $eq: ["$status", "CANCELLED"] }, then: 1 },
+              { case: { $eq: ["$status", "COMPLETED"] }, then: 2 },
+            ],
+            default: 3
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        statusOrder: 1,
+        startTime: 1
+      }
+    },
+    {
+      $project: {
+        statusOrder: 0 // Remove helper field from final output
+      }
+    }
+  ])
+
+  res.status(200).json({ consultations });
 };
+
 
 
 // send consultation link
