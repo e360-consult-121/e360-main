@@ -15,6 +15,7 @@ import { useState } from "react";
 import BankDetails from "./BankDetails";
 import MedicalDetails from "./MedicalDetails";
 import TradeDetails from "./TradeDetails";
+import AdminStepSource from "./AdminStepSource";
 
 const Requirements = ({
   phase,
@@ -104,17 +105,20 @@ const Requirements = ({
   }
 
   else if(stepType === "BANK" ){
-    return <div className="flex flex-col mt-6 overflow-y-auto custom-scrollbar">
+    return <div className="flex flex-col mt-6 overflow-y-auto custom-scrollbar ">
         {phase === "IN_PROGRESS" ? (
-          <>
+          <div className="mt-20">
           <BankDetails/>
-          </>
+          </div>
         ):(
           <>
-
+          <AdminStepSource 
+          label="Processing"
+          date="13 Feb 2025, 12:30 P.M."
+          status="in_progress"
+          />
           </>
         )
-
         }
       
       </div>;
