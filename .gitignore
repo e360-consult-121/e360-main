@@ -10,5 +10,7 @@ client/dist
 client/.env
 server/.env
 
+/server/app.log
+
 
 server/app.log

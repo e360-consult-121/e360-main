@@ -15,12 +15,22 @@ const tabs:TAB[] = [
     children: [
       {
         label: "Dominica Passport",
-        route: "admin/dominica",
+        route: "/admin/applications/dominica",
         icon: "",
       },
       {
         label: "Greneda Passport",
-        route: "admin/gredena",
+        route: "/admin/applications/greneda",
+        icon: "",
+      },
+      {
+        label: "Portugal D7 Visa",
+        route: "/admin/applications/portugal",
+        icon: "",
+      },
+      {
+        label: "Dubai Residency",
+        route: "admin/applications/dubai",
         icon: "",
       },
     ],
@@ -55,11 +65,11 @@ const tabs:TAB[] = [
     label: "Notification",
     route: "admin/notification",
   },
-  {
-    icon: "icon-park-outline:setting",
-    label: "Settings",
-    route: "admin/settings",
-  },
+  // {
+  //   icon: "icon-park-outline:setting",
+  //   label: "Settings",
+  //   route: "admin/settings",
+  // },
 ];
 
 const AdminLayout = () => {

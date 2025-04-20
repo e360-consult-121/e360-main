@@ -28,7 +28,7 @@ const AdminRoutes = () => {
       <Route path="/login" element={<AdminLogin />} />
       <Route element={<AdminLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/:applications" element={<VisaService />} />
+        <Route path="/applications/:type" element={<VisaService />} />
         <Route path="/leadmanagement" element={<LeadManagement />} />
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/servicemanagement" element={<ServiceManagement />} />
