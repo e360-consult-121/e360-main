@@ -89,6 +89,14 @@ export async function createUserFunction({
   email,
 }: createUserOptions): Promise<any> {
   try {
+
+    // 1. Check if user already exists
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      console.log(`User with email ${email} already exists.`);
+      return existingUser;
+    }
+
     // 1. Generate random password
     const randomPassword = Math.random().toString(36).slice(-5); // example: 'f4g7k'
 
@@ -132,8 +140,8 @@ export async function createUserFunction({
 
 const VISATYPE_MAP: Record<string, string> = {
   "250912382847462": "6803644993e23a8417963622",
-  "250901425096454": "68024722baf865abe06c4553",
-  "250912364956463": "67d15c5633d15e4bca96770a",
+  "250901425096454": "6803644993e23a8417963623",
+  "250912364956463": "6803644993e23a8417963620", // Dominica for now later it will be updated
 };
 
 // create visaApplication
@@ -270,6 +278,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
         if (lead) {
           lead.leadStatus = leadStatus.PAYMENTDONE;
           await lead.save();
+          
           // call function to create user account
           const user = await createUserFunction({
             name: lead.fullName.first,

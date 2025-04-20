@@ -14,7 +14,7 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface TableData {
   CaseID: string;
@@ -29,7 +29,7 @@ interface Props {
 }
 
 const TableComponent: React.FC<Props> = ({ data }) => {
-  
+  const {type} = useParams()
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("All");
@@ -74,9 +74,11 @@ const TableComponent: React.FC<Props> = ({ data }) => {
         alignItems:"center"
       }}
       >
-      <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
-        Dominica Passport
-      </Typography>
+      {type && (
+  <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
+    {type.charAt(0).toUpperCase() + type.slice(1)} Passport
+  </Typography>
+)}
       
       <Select
         value={statusFilter}

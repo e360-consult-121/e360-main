@@ -9,8 +9,24 @@ import {
 import Map from "../../../../assets/Admin/Map.png";
 import { RevenueDataTypes } from "../dashboardTypes";
 
-const RevenueCard = ({ data }: { data: RevenueDataTypes[] }) => {
-  const maxRevenue = Math.max(...data.map((item) => item.totalRevenue), 1); 
+// All possible visa types you want to show, in order
+const visaTypes = ["Dominica", "Granada", "Portugal", "Dubai"];
+
+const RevenueCard = ({ data = [] }: { data: RevenueDataTypes[] }) => {
+  // Create a map for quick access to totalRevenue by visaType
+  const dataMap = data.reduce((acc, item) => {
+    acc[item.visaType] = item.totalRevenue;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Fill missing types with 0
+  const mergedData = visaTypes.map((type) => ({
+    visaType: type,
+    totalRevenue: dataMap[type] || 0,
+  }));
+
+  // Get the max revenue to scale the progress bars
+  const maxRevenue = 10000;
 
   return (
     <Card
@@ -23,17 +39,17 @@ const RevenueCard = ({ data }: { data: RevenueDataTypes[] }) => {
       }}
     >
       <CardContent>
-        <Typography sx={{ fontWeight: "bold", fontSize: "18px",mb:5 }}>
+        <Typography sx={{ fontWeight: "bold", fontSize: "18px", mb: 5 }}>
           Revenue by Location
         </Typography>
         <img src={Map} alt="Map" />
         <Stack sx={{ mt: 2, gap: "16px" }}>
-          {data.map((item) => (
+          {mergedData.map((item) => (
             <Box key={item.visaType}>
               <Stack direction="row" justifyContent={"space-between"}>
                 <Typography fontSize={"12px"}>{item.visaType}</Typography>
                 <Typography fontSize={"12px"}>
-                  ${Math.round(item.totalRevenue / 1000)}K
+                  ${(item.totalRevenue / 1000).toFixed(1)}K
                 </Typography>
               </Stack>
               <LinearProgress

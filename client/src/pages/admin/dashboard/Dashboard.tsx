@@ -39,12 +39,14 @@ const Dashboard = () => {
   const [revenueData, setRevenueData] = useState<RevenueDataTypes[]>([]);
 
   useEffect(() => {
+    // console.log(fetchedRevenueData)
     if (recentLeadsData && !isLoading && !isError) {
       setLeadData(recentLeadsData.leads ?? []);
     }
   }, [recentLeadsData, isLoading, isError]);
 
   useEffect(() => {
+
     if (fetchedConsultationData) {
       setConsultationData(fetchedConsultationData.consultations ?? []);
     }
@@ -52,7 +54,7 @@ const Dashboard = () => {
       setRecentUpdatesData(fetchedRecentUpdatesData.updates ?? []);
     }
     if (fetchedRevenueData) {
-      setRevenueData(fetchedRecentUpdatesData.revenue ?? []);
+      setRevenueData(fetchedRevenueData.revenue ?? []);
     }
   }, [fetchedConsultationData, fetchedRecentUpdatesData]);
 

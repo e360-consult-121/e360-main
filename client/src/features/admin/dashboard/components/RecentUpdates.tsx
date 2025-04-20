@@ -32,7 +32,7 @@ const RecentUpdates = ({data}:{data:RecentUpdatesTypes[]}) => {
           {data.map((id) => (
             <TableRow key={id.caseId}>
               <TableCell>{id.caseId}</TableCell>
-              <TableCell>Person {id.name}</TableCell>
+              <TableCell>{id.name}</TableCell>
               <TableCell>{id.status}</TableCell>
               <TableCell>
                 <Button
