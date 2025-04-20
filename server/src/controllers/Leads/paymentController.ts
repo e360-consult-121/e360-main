@@ -8,7 +8,7 @@ import {
 import { LeadModel } from "../../leadModels/leadModel";
 import { UserModel } from "../../models/Users";
 import { PaymentModel } from "../../leadModels/paymentModel";
-import {  VisaApplicationModel } from "../../models/VisaApplication";
+import { VisaApplicationModel } from "../../models/VisaApplication";
 import {
   leadStatus,
   RoleEnum,
@@ -20,6 +20,8 @@ import { sendEmail } from "../../utils/sendEmail";
 import bcrypt from "bcryptjs";
 import Stripe from "stripe";
 import { stripe } from "../../utils/paymentUtils";
+import { updateRevenueSummary } from "../../utils/revenueCalculate";
+import { addToRecentUpdates } from "../../utils/addToRecentUpdates";
 
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
@@ -129,7 +131,7 @@ export async function createUserFunction({
 
 
 const VISATYPE_MAP: Record<string, string> = {
-  "250912382847462": "67d0073306629112babf1651",
+  "250912382847462": "6803644993e23a8417963622",
   "250901425096454": "68024722baf865abe06c4553",
   "250912364956463": "67d15c5633d15e4bca96770a",
 };
@@ -143,19 +145,19 @@ interface CreateVisaApplicationOptions {
   visaApplicationStatus? : VisaApplicationStatusEnum;
 }
 
-export async function createVisaApplication({
+export async function createVisaApplication ({
   userId,
   visaTypeId
-}: CreateVisaApplicationOptions): Promise<void> {
+}: CreateVisaApplicationOptions):Promise<{ visaApplicantInfo: any }> {
   try {
     const newApplication = await VisaApplicationModel.create({
       userId: userId , 
       visaTypeId : new mongoose.Types.ObjectId(visaTypeId),
       currentStep : 1 ,
       visaApplicationStatus: VisaApplicationStatusEnum.PENDING,
-    });
-
-    console.log("Visa application created successfully:", newApplication);
+    })
+    return { visaApplicantInfo:newApplication }
+    // console.log("Visa application created successfully:", newApplication);
   } catch (error) {
     console.error("Error creating visa application:", error);
     throw error;
@@ -225,6 +227,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   if (lead) {
     console.log(`this is our lead:`, lead);
   }
+  const name = [lead?.fullName?.first, lead?.fullName?.last].filter(Boolean).join(" ");
 
   const payment = await PaymentModel.findOne({ leadId });
   if (payment) {
@@ -277,11 +280,33 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
 
           const visaTypeId = VISATYPE_MAP[formId];
 
-          await createVisaApplication ({
+          const {visaApplicantInfo} = await createVisaApplication ({
             userId :   user._id,
             visaTypeId : visaTypeId ,
           });
+          
+           //Function call to add visapplication recent updates Db
+         try {
+          const _id = visaApplicantInfo._id; 
+          console.log("Attempting to add to recent updates with:", name);
+          await addToRecentUpdates({ caseId : _id.toString() ,status: "Processing", name });
+          console.log("Added to recent updates");
+          } catch (error) {
+          console.error("Failed to add to recent updates:", error);
+          }
+
+          // Function to update the revenue of particular visaType for dashboard analytics 
+          try {
+            console.log("Attempting to update revenue summary with:", visaTypeId, paymentIntent.amount_received / 100);
+            await updateRevenueSummary(visaTypeId, paymentIntent.amount_received / 100);
+            console.log("Added to revenue updates");
+          } catch (error) {
+            console.error("Failed to update revenue summary:", error);
+          }
         }
+        
+       
+        
       }
       break;
 
