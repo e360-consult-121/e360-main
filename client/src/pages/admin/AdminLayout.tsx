@@ -15,17 +15,17 @@ const tabs:TAB[] = [
     children: [
       {
         label: "Dominica Passport",
-        route: "/admin/applications/dominica",
+        route: "admin/applications/dominica",
         icon: "",
       },
       {
         label: "Greneda Passport",
-        route: "/admin/applications/greneda",
+        route: "admin/applications/greneda",
         icon: "",
       },
       {
         label: "Portugal D7 Visa",
-        route: "/admin/applications/portugal",
+        route: "admin/applications/portugal",
         icon: "",
       },
       {
