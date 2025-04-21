@@ -73,7 +73,6 @@ const PaymentAndInvoiceManagement = ({
       {paymentInfo?.status !== "PAID" && (
         <Button
         onClick={() => setDialogOpen(true)}
-          disabled={loading}
           sx={{
             p: 1.2,
         bgcolor: "#F6C328",
@@ -87,7 +86,7 @@ const PaymentAndInvoiceManagement = ({
             },
           }}
         >
-          {loading ? "Sending..." : " Send Payment Link"}
+          Send Payment Link
         </Button>
       )}
 
@@ -154,6 +153,7 @@ const PaymentAndInvoiceManagement = ({
 
             <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
               <Button
+              disabled={loading}
                 onClick={handleSendPaymentLink}
                 variant="contained"
                 sx={{
@@ -164,7 +164,7 @@ const PaymentAndInvoiceManagement = ({
                   px: 4,
                 }}
               >
-                Send
+               {loading ? "Sending..." : " Send"}
               </Button>
               <Button
                 onClick={() => setDialogOpen(false)}
