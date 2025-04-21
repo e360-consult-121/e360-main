@@ -36,7 +36,7 @@ type RawxxxData = {
 
 
 // Final structured parsed data
-type ParsedxxxData = {
+export type ParsedxxxData = {
     formId: string;
 
     fullName: {

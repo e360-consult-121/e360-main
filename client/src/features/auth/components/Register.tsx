@@ -1,4 +1,4 @@
-import globeAnim from "../../../assets/animations/globe-anim.gif";
+import globeAnim from "../../../assets/animations/login-anim.gif";
 import logo from "../../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";

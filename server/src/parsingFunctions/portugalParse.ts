@@ -24,7 +24,7 @@ type RawPortugalData = {
     // timeToSubmit?: number;
 };
 
-type ParsedPortugalData = {
+export type ParsedPortugalData = {
     formId: string;
     fullName: {
         first: string;
