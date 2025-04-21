@@ -38,32 +38,60 @@ export const fetchRecentLeads = async(req: Request, res: Response) => {
 export const fetchRecentConsultions = async(req: Request, res: Response) => {
   const consultations = await ConsultationModel.aggregate([
     {
-      $addFields: {
-        statusOrder: {
-          $switch: {
-            branches: [
-              { case: { $eq: ["$status", "SCHEDULED"] }, then: 0 },
-              { case: { $eq: ["$status", "CANCELLED"] }, then: 1 },
-              { case: { $eq: ["$status", "COMPLETED"] }, then: 2 },
-            ],
-            default: 3
-          }
-        }
+      $match: {
+        status: "SCHEDULED",
+        startTime: { $gte: new Date() }
       }
     },
     {
       $sort: {
-        statusOrder: 1,
-        startTime: 1
+        startTime: 1 
       }
     },
     {
-      $project: {
-        statusOrder: 0
-      }
+      $limit: 5
     }
-  ]).limit(5)
+  ]);
 
   res.status(200).json({ consultations });
 }
+
+// returns last 30days leads,%conversions,pending and completed  
+export const fetchAnalytics =  async (req: Request, res: Response) => {
+  try {
+    const now = new Date();
+    const startOfRange = new Date();
+    startOfRange.setDate(startOfRange.getDate() - 30);
+
+    const leadsLast30Days = await LeadModel.find({
+      createdAt: { $gte: startOfRange }
+    });
+
+    const totalLeads = leadsLast30Days.length;
+
+    const completedApplications = leadsLast30Days.filter(
+      (lead) => lead.leadStatus === "PAYMENTDONE"
+    ).length;
+
+    const pendingApplications = leadsLast30Days.filter(
+      (lead) => lead.leadStatus !== "PAYMENTDONE" && lead.leadStatus !== "REJECTED"
+    ).length;
+
+    const leadConversionRate = totalLeads === 0
+      ? 0
+      : Math.round((completedApplications / totalLeads) * 100);
+
+    res.status(200).json({
+      newLeadsLast30Days: totalLeads,
+      leadConversionRate: `${leadConversionRate}%`,
+      pendingApplications,
+      completedApplications
+    });
+
+  } catch (error) {
+    console.error("Error fetching lead stats:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 

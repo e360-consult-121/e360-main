@@ -29,7 +29,14 @@ export const dashboardApi = baseApi.injectEndpoints({
           }
       )
     }),
+    fetchAnalytics: build.query({
+      query: () => (
+         { url: `/admin/dashboard/fetchAnalytics`,
+          method: "GET",
+          }
+      )
+    }),
   })
 })
 
-export const { useFetchRecentConsultationQuery,useFetchRecentLeadsQuery,useFetchRevenueQuery,useFetchRecentUpdatesQuery} = dashboardApi;
+export const { useFetchRecentConsultationQuery,useFetchRecentLeadsQuery,useFetchRevenueQuery,useFetchRecentUpdatesQuery,useFetchAnalyticsQuery} = dashboardApi;

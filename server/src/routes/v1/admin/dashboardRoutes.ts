@@ -9,5 +9,6 @@ router.get("/fetchAllRevenue", authenticate , authorizeAdmin , asyncHandler(dash
 router.get("/fetchRecentUpdates",authenticate , authorizeAdmin , asyncHandler(dashboard.getRecentUpdates));
 router.get("/fetchRecentLeads",authenticate , authorizeAdmin , asyncHandler(dashboard.fetchRecentLeads));
 router.get("/fetchRecentConsultions",authenticate , authorizeAdmin , asyncHandler(dashboard.fetchRecentConsultions));
+router.get("/fetchAnalytics",authenticate , authorizeAdmin , asyncHandler(dashboard.fetchAnalytics));
 
 export default router;

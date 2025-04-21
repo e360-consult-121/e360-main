@@ -16,19 +16,19 @@ import {
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
-interface TableData {
-  CaseID: string;
-  name: string;
-  email: string;
-  phone: string;
-  status: string;
-}
+// interface TableData {
+//   CaseID: string;
+//   name: string;
+//   email: string;
+//   phone: string;
+//   status: string;
+// }
 
-interface Props {
-  data: TableData[];
-}
+// interface Props {
+//   data: TableData[];
+// }
 
-const TableComponent: React.FC<Props> = ({ data }) => {
+const TableComponent: React.FC<any> = ({ data }) => {
   const {type} = useParams()
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -37,9 +37,9 @@ const TableComponent: React.FC<Props> = ({ data }) => {
   const navigate = useNavigate();
 
 
-  const handleNavigation = (row: TableData) => {
+  const handleNavigation = (row: any) => {
     // console.log(row)
-    navigate(`/admin/dominica/${row.CaseID}`, { state: { row } });
+    navigate(`/application/dominica/${row.CaseID}`, { state: { row } });
   };
   
   
@@ -62,7 +62,7 @@ const TableComponent: React.FC<Props> = ({ data }) => {
   const filteredData =
     statusFilter === "All"
       ? data
-      : data.filter((row) => row.status === statusFilter);
+      : data.filter((row:any) => row.status === statusFilter);
 
   return (
     <Paper sx={{ p: 2, boxShadow: "none" }}>
@@ -123,40 +123,45 @@ const TableComponent: React.FC<Props> = ({ data }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => (
-                <TableRow key={index} 
-                sx={{
-                  borderBottom:"none"
-                }}
-                >
-                  <TableCell sx={{ borderBottom: "none" }}>{row.CaseID}</TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>{row.name}</TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>{row.email}</TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>{row.phone}</TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "none",
-                      color:
-                        row.status === "Passport Delivered" ? "green" : "black",
-                    }}
-                  >
-                    {row.status}
-                  </TableCell>
-                  <TableCell align="right" 
-                  sx={{ 
-                    borderBottom: "none",
-                    cursor: "pointer" 
-                    }}>
-                    <Button
-                    onClick={()=>handleNavigation(row)}
-                    sx={{textTransform:"none"}}
-                    >View &gt;</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
+  {filteredData.length === 0 ? (
+    <TableRow>
+      <TableCell colSpan={6} align="center">
+        No applications going on right now.
+      </TableCell>
+    </TableRow>
+  ) : (
+    filteredData
+      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+      .map((row: any, index: any) => (
+        <TableRow key={index} sx={{ borderBottom: "none" }}>
+          <TableCell sx={{ borderBottom: "none" }}>{row?._id}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{row?.userId?.name}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{row?.userId?.email}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{row?.userId?.phone}</TableCell>
+          <TableCell
+            sx={{
+              borderBottom: "none",
+              color: row.status === "Passport Delivered" ? "green" : "black",
+            }}
+          >
+            {row?.visaApplicationStatus}
+          </TableCell>
+          <TableCell
+            align="right"
+            sx={{ borderBottom: "none", cursor: "pointer" }}
+          >
+            <Button
+              onClick={() => handleNavigation(row)}
+              sx={{ color: "black", textTransform: "none" }}
+            >
+              View &gt;
+            </Button>
+          </TableCell>
+        </TableRow>
+      ))
+  )}
+</TableBody>
+
         </Table>
       </TableContainer>
 

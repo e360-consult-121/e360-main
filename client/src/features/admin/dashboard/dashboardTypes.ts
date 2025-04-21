@@ -16,3 +16,10 @@ export enum VisaTypeEnum {
     DUBAI = "Dubai"
   }
 
+export interface AnalyticsTypes{
+  newLeadsLast30Days:number;
+  leadConversionRate:string;
+  pendingApplications:number
+  completedApplications:number
+}
+

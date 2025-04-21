@@ -3,6 +3,7 @@ import RecentLeadManagement from "../../../features/admin/dashboard/components/R
 import { useEffect, useState } from "react";
 import { AllLeads } from "../../../features/admin/leadManagement/leadManagementTypes";
 import {
+  useFetchAnalyticsQuery,
   useFetchRecentConsultationQuery,
   useFetchRecentLeadsQuery,
   useFetchRecentUpdatesQuery,
@@ -13,7 +14,7 @@ import { AllConsultationsTypes } from "../../../features/admin/consultations/con
 import StatsCard from "../../../features/admin/dashboard/components/StatsCard";
 import RevenueCard from "../../../features/admin/dashboard/components/RevenueCard";
 import RecentUpdates from "../../../features/admin/dashboard/components/RecentUpdates";
-import { RecentUpdatesTypes, RevenueDataTypes } from "../../../features/admin/dashboard/dashboardTypes";
+import { AnalyticsTypes, RecentUpdatesTypes, RevenueDataTypes } from "../../../features/admin/dashboard/dashboardTypes";
 
 // Main Dashboard Component
 const Dashboard = () => {
@@ -30,6 +31,7 @@ const Dashboard = () => {
     useFetchRecentUpdatesQuery(undefined);
 
     const {data:fetchedRevenueData} = useFetchRevenueQuery(undefined);
+    const {data:fetchedAnalytics} = useFetchAnalyticsQuery(undefined);
 
   const [leadData, setLeadData] = useState<AllLeads[]>([]);
   const [consultationData, setConsultationData] = useState<
@@ -37,9 +39,9 @@ const Dashboard = () => {
   >([]);
   const [recentUpdatesData, setRecentUpdatesData] = useState<RecentUpdatesTypes[]>([]);
   const [revenueData, setRevenueData] = useState<RevenueDataTypes[]>([]);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsTypes>();
 
   useEffect(() => {
-    // console.log(fetchedRevenueData)
     if (recentLeadsData && !isLoading && !isError) {
       setLeadData(recentLeadsData.leads ?? []);
     }
@@ -56,7 +58,10 @@ const Dashboard = () => {
     if (fetchedRevenueData) {
       setRevenueData(fetchedRevenueData.revenue ?? []);
     }
-  }, [fetchedConsultationData, fetchedRecentUpdatesData]);
+    if (fetchedAnalytics) {
+      setAnalyticsData(fetchedAnalytics);
+    }
+  }, [fetchedConsultationData, fetchedRecentUpdatesData,fetchedRevenueData,fetchedAnalytics]);
 
   return (
     <>
@@ -71,25 +76,25 @@ const Dashboard = () => {
       >
         <StatsCard
           title="New Leads This Month"
-          value="721K"
-          change="+11.02%"
+          value={analyticsData?.newLeadsLast30Days}
+          change=""
           bgcolor="#F6F5F5"
         />
         <StatsCard
           title="Lead Conversion Rate"
-          value="65%"
-          change="-0.03%"
+          value={analyticsData?.leadConversionRate}
+          change=""
           bgcolor="#FEFDEB"
         />
         <StatsCard
           title="Pending Applications"
-          value="1,156"
+          value={analyticsData?.pendingApplications}
           change=""
           bgcolor="#F6F5F5"
         />
         <StatsCard
           title="Completed Applications"
-          value="239K"
+          value={analyticsData?.completedApplications}
           change=""
           bgcolor="#FEFDEB"
         />

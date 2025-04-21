@@ -3,6 +3,7 @@ import { AccountStatusEnum, RoleEnum } from "../types/enums/enums";
 
 
 export interface IUser extends Document {
+  name:string;
   email: string;
   password: string;
   refreshToken: string;
@@ -10,9 +11,19 @@ export interface IUser extends Document {
   resetPasswordExpires: Date;
   status: AccountStatusEnum;
   role: RoleEnum;
+  phone: string;
 }
 
 const UserSchema: Schema = new Schema({
+
+  name:{
+    type:String,
+    required:true,
+  },
+   phone:{
+    type:String,
+    required:true,
+   },
   email: {
     type: String,
     required: true,

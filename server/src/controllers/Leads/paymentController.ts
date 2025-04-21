@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import mongoose ,  { Schema, model, Document } from "mongoose";
+import mongoose, { Schema, model, Document } from "mongoose";
 import AppError from "../../utils/appError";
 import {
   createPaymentLink,
@@ -13,7 +13,7 @@ import {
   leadStatus,
   RoleEnum,
   AccountStatusEnum,
-  VisaApplicationStatusEnum
+  VisaApplicationStatusEnum,
 } from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums";
 import { sendEmail } from "../../utils/sendEmail";
@@ -65,13 +65,11 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
 
   await payment.save();
 
-  res
-    .status(200)
-    .json({
-      success: true,
-      url: paymentUrl,
-      meassage: "payment link successfully sent ",
-    });
+  res.status(200).json({
+    success: true,
+    url: paymentUrl,
+    meassage: "payment link successfully sent ",
+  });
 };
 
 // The stripe-signature header is automatically added by Stripe when it sends a webhook request to your server.
@@ -82,14 +80,15 @@ export interface createUserOptions {
   email: string;
   role?: RoleEnum;
   UserStatus?: AccountStatusEnum;
+  phone:string
 }
 
 export async function createUserFunction({
   name,
   email,
+  phone
 }: createUserOptions): Promise<any> {
   try {
-
     // 1. Check if user already exists
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
@@ -105,10 +104,12 @@ export async function createUserFunction({
 
     // 3. Create user in DB
     const user = await UserModel.create({
+      name,
       email,
       password: hashedPassword,
       role: RoleEnum.USER,
       status: AccountStatusEnum.ACTIVE,
+      phone
     });
 
     console.log(`User-Account created : `, user);
@@ -136,8 +137,6 @@ export async function createUserFunction({
   }
 }
 
-
-
 const VISATYPE_MAP: Record<string, string> = {
   "250912382847462": "6803644993e23a8417963622",
   "250901425096454": "6803644993e23a8417963623",
@@ -150,21 +149,21 @@ interface CreateVisaApplicationOptions {
   userId: mongoose.Types.ObjectId | string;
   visaTypeId: mongoose.Types.ObjectId | string;
   currentStep?: number; // optional, default 1
-  visaApplicationStatus? : VisaApplicationStatusEnum;
+  visaApplicationStatus?: VisaApplicationStatusEnum;
 }
 
-export async function createVisaApplication ({
+export async function createVisaApplication({
   userId,
-  visaTypeId
-}: CreateVisaApplicationOptions):Promise<{ visaApplicantInfo: any }> {
+  visaTypeId,
+}: CreateVisaApplicationOptions): Promise<{ visaApplicantInfo: any }> {
   try {
     const newApplication = await VisaApplicationModel.create({
-      userId: userId , 
-      visaTypeId : new mongoose.Types.ObjectId(visaTypeId),
-      currentStep : 1 ,
+      userId: userId,
+      visaTypeId: new mongoose.Types.ObjectId(visaTypeId),
+      currentStep: 1,
       visaApplicationStatus: VisaApplicationStatusEnum.PENDING,
-    })
-    return { visaApplicantInfo:newApplication }
+    });
+    return { visaApplicantInfo: newApplication };
     // console.log("Visa application created successfully:", newApplication);
   } catch (error) {
     console.error("Error creating visa application:", error);
@@ -235,8 +234,12 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   if (lead) {
     console.log(`this is our lead:`, lead);
   }
+
+  //extract name to store in userDb
   const name = [lead?.fullName?.first, lead?.fullName?.last].filter(Boolean).join(" ");
 
+  
+  
   const payment = await PaymentModel.findOne({ leadId });
   if (payment) {
     (payment.amount = paymentIntent.amount_received / 100),
@@ -278,44 +281,59 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
         if (lead) {
           lead.leadStatus = leadStatus.PAYMENTDONE;
           await lead.save();
-          
+
           // call function to create user account
+          //extract phone number to store in userDb
+          const phone = lead?.phone
+          const fullName =
+            `${lead?.fullName?.first || ""} ${lead?.fullName?.last || ""}`.trim();
+
+            console.log(fullName)
           const user = await createUserFunction({
-            name: lead.fullName.first,
-            email: lead.email,
+            name: fullName,
+            email: lead?.email || "",
+            phone:phone
           });
 
-          const formId = lead.formId
+          const formId = lead.formId;
 
           const visaTypeId = VISATYPE_MAP[formId];
 
-          const {visaApplicantInfo} = await createVisaApplication ({
-            userId :   user._id,
-            visaTypeId : visaTypeId ,
+          const { visaApplicantInfo } = await createVisaApplication({
+            userId: user._id,
+            visaTypeId: visaTypeId,
           });
-          
-           //Function call to add visapplication recent updates Db
-         try {
-          const _id = visaApplicantInfo._id; 
-          console.log("Attempting to add to recent updates with:", name);
-          await addToRecentUpdates({ caseId : _id.toString() ,status: "Processing", name });
-          console.log("Added to recent updates");
+
+          //Function call to add visapplication recent updates Db
+          try {
+            const _id = visaApplicantInfo._id;
+            console.log("Attempting to add to recent updates with:", name);
+            await addToRecentUpdates({
+              caseId: _id.toString(),
+              status: "Processing",
+              name,
+            });
+            console.log("Added to recent updates");
           } catch (error) {
-          console.error("Failed to add to recent updates:", error);
+            console.error("Failed to add to recent updates:", error);
           }
 
-          // Function to update the revenue of particular visaType for dashboard analytics 
+          // Function to update the revenue of particular visaType for dashboard analytics
           try {
-            console.log("Attempting to update revenue summary with:", visaTypeId, paymentIntent.amount_received / 100);
-            await updateRevenueSummary(visaTypeId, paymentIntent.amount_received / 100);
+            console.log(
+              "Attempting to update revenue summary with:",
+              visaTypeId,
+              paymentIntent.amount_received / 100
+            );
+            await updateRevenueSummary(
+              visaTypeId,
+              paymentIntent.amount_received / 100
+            );
             console.log("Added to revenue updates");
           } catch (error) {
             console.error("Failed to update revenue summary:", error);
           }
         }
-        
-       
-        
       }
       break;
 

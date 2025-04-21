@@ -1,13 +1,13 @@
 import { Box, Card, Typography } from "@mui/material"
 
 const StatsCard = ({
-    title,
+  title,
   value,
   change,
   bgcolor,
 }: {
   title: string;
-  value: string;
+  value: string | number | undefined;
   change: string;
   bgcolor: string;}
 ) => {

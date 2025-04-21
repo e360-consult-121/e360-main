@@ -20,7 +20,7 @@ interface TableProps {
 const RecentConsultations: React.FC<TableProps> = ({ data }) => (
   <Paper
     sx={{
-      width: "420px",
+      width: "413px",
       p: 2,
       borderRadius: "15px",
       boxShadow: "none",
