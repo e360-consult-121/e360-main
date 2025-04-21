@@ -25,8 +25,10 @@ import {leadPriority , leadStatus} from "./types/enums/enums";
 import { parseDomiGrenaData } from "./parsingFunctions/domiGrenaParse"
 import { parseDubaiData } from "./parsingFunctions/dubaiParse"
 import { parsePortugalData } from "./parsingFunctions/portugalParse"
+import { getPortugalPriority } from "./priorityFunctions/portugalPriority";
+import { getDubaiPriority } from "./priorityFunctions/dubaiPriority";
+import { getDomiGrenaPriority } from "./priorityFunctions/domiGrena";
 // import priority functions 
-import {getPortugalPriority , getDubaiPriority , getDomiGrenaPriority} from "./utils/priority"
 
 dotenv.config();
 
