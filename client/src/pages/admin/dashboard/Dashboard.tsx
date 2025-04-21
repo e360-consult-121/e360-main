@@ -335,13 +335,13 @@ const Dashboard = () => {
         <StatsCard
           title="New Leads This Month"
           value="721K"
-          change="+11.02%"
+          change=""
           bgcolor="#F6F5F5"
         />
         <StatsCard
           title="Lead Conversion Rate"
           value="65%"
-          change="-0.03%"
+          change=""
           bgcolor="#FEFDEB"
         />
         <StatsCard
