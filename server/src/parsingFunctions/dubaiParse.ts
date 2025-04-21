@@ -23,7 +23,7 @@ type RawDubaiData = {
 
 
 
-type ParsedDubaiData = {
+export type ParsedDubaiData = {
     formId: string;
     fullName: { first: string; last: string };
     nationality: string;
