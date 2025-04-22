@@ -1,14 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
-import {VisaApplicationModel} from "../../models/VisaApplication";
+import {VisaApplicationModel as visaApplicationModel} from "../../models/VisaApplication";
 import {VisaStepModel as stepModel} from "../../models/VisaStep";
 import {VisaApplicationStepStatusModel as stepStatusModel} from "../../models/VisaApplicationStepStatus";
 import {VisaStepRequirementModel as reqModel} from "../../models/VisaStepRequirement";
 import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus";
-import {visaApplicationReqStatusEnum , StepStatusEnum } from "../../types/enums/enums"
+import {visaApplicationReqStatusEnum , StepStatusEnum ,DocumentSourceEnum } from "../../types/enums/enums"
 
 
 export const getCurrentStepInfo = async (req: Request, res: Response) => {
+  console.log(`getCurrentStepInfo api hit`);
     const { visaApplicationId } = req.params;
   
     if (!visaApplicationId) {
@@ -16,7 +17,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     }
   
     // Fetch the visa application to get visaTypeId and currentStep
-    const visaApplication = await VisaApplicationModel.findById(visaApplicationId);
+    const visaApplication = await visaApplicationModel.findById(visaApplicationId);
     if (!visaApplication) {
       return res.status(404).json({ error: "Visa Application not found" });
     }
@@ -38,7 +39,10 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     const stepStatusDoc = await stepStatusModel.findOne({ visaApplicationId, stepId : visaStepId });
   
     // Get static requirements of the step
-    const requirements = await reqModel.find({ stepId: visaStepId });
+    const requirements = await reqModel.find({ visaStepId: visaStepId });
+
+    console.log("Fetched requirements:", requirements);
+
   
     // Get dynamic requirement statuses
     const reqStatusList = await reqStatusModel.find({
@@ -65,8 +69,8 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
         reqCategory: req.reqCategory,
         options: req.options || [],
         required: req.required,
-        reqStatus: statusDoc?.status || "NOT_UPLOADED",
-        reason: statusDoc?.reason || "UNDEFINED",
+        reqStatus: statusDoc?.status || visaApplicationReqStatusEnum.NOT_UPLOADED,
+        reason: statusDoc?.reason || null,
         value: statusDoc?.value || null,
       };
     });
@@ -108,29 +112,49 @@ export const uploadDocument = async (req: Request, res: Response) => {
     return;
   }
 
-  // Find the status doc
-  const statusDoc = await reqStatusModel.findById(reqStatusId);
-  if (!statusDoc) {
+  // Find the reqStatusDoc
+  const reqStatusDoc = await reqStatusModel.findById(reqStatusId);
+  if (!reqStatusDoc) {
     res.status(404).json({ error: "Requirement status not found." });
     return ;
   }
 
+  // 🔐 Authorization check based on stepSource
+  const step = await stepModel.findById(reqStatusDoc.stepId);
+  if (!step) {
+    return res.status(500).json({ error: "Associated step not found." });
+  }
+
+  const stepSource = step.stepSource;
+
+  if (
+    (stepSource === DocumentSourceEnum.USER && !req.user) ||
+    (stepSource === DocumentSourceEnum.ADMIN && !req.admin)
+  ) {
+    return res.status(403).json({
+      error: "You are not authorized to upload document for this step.",
+    });
+  }
+
+
+
   // If a file is uploaded, save S3 URL
   if (file) {
-    statusDoc.value = (file as any).location; // S3 URL
+    reqStatusDoc.value = (file as any).location; // S3 URL
+    console.log(`reqStatus update ho gaya :`,reqStatusDoc.value );
   }
   else {
-    statusDoc.value = value;
+    reqStatusDoc.value = value;
   }
 
-  statusDoc.status = visaApplicationReqStatusEnum.UPLOADED;
-  statusDoc.reason = ""; // Optional: clear previous rejection reason
+  reqStatusDoc.status = visaApplicationReqStatusEnum.UPLOADED;
+  reqStatusDoc.reason = null; // Optional: clear previous rejection reason
 
-  await statusDoc.save();
+  await reqStatusDoc.save();
 
   // also update that map 
   // Fetch related requirement to check if it's "required"
-  const requirement = await reqModel.findById(statusDoc.reqId);
+  const requirement = await reqModel.findById(reqStatusDoc.reqId);
   if (!requirement) {
     return res.status(500).json({ error: "Related requirement not found." });
   }
@@ -138,13 +162,13 @@ export const uploadDocument = async (req: Request, res: Response) => {
   // If required, update `reqFilled` map in step status doc
   if (requirement.required) {
     const stepStatusDoc = await stepStatusModel.findOne({
-      visaApplicationId: statusDoc.visaApplicationId,
-      stepId: statusDoc.stepId,
+      visaApplicationId: reqStatusDoc.visaApplicationId,
+      stepId: reqStatusDoc.stepId,
     });
 
     if (stepStatusDoc) {
       const reqFilled = stepStatusDoc.reqFilled || {};
-      reqFilled[statusDoc.reqId.toString()] = true;
+      reqFilled[reqStatusDoc.reqId.toString()] = true;
 
       stepStatusDoc.reqFilled = reqFilled;
       await stepStatusDoc.save();
@@ -153,7 +177,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
   res.status(200).json({
     message: "Document uploaded successfully.",
-    updatedStatus: statusDoc,
+    updatedStatus: reqStatusDoc,
   });
   return ;
 };
@@ -166,20 +190,41 @@ export const uploadDocument = async (req: Request, res: Response) => {
 // submit step 
 export const stepSubmit = async (req: Request, res: Response) => {
 
-  const { stepStatusId } = req.params;
+  const { visaApplicationId } = req.params;
 
-  if (!stepStatusId) {
-    return res.status(400).json({ error: "StepStatus ID is required." });
+  if (!visaApplicationId) {
+    return res.status(400).json({ error: "visaApplicationId is required." });
   }
 
-  // Fetch the StepStatus document
-  const stepStatusDoc = await stepStatusModel.findById(stepStatusId);
+  // Step 1: Get visa application doc
+  const visaAppDoc = await visaApplicationModel.findById(visaApplicationId);
+  if (!visaAppDoc) {
+    return res.status(404).json({ error: "Visa Application not found." });
+  }
+
+  const { visaTypeId, currentStep } = visaAppDoc;
+
+  // Step 2: Get step doc (based on visaTypeId + currentStep)
+  const stepDoc = await stepModel.findOne({
+    visaTypeId,
+    stepNumber: currentStep,
+  });
+
+  if (!stepDoc) {
+    return res.status(404).json({ error: "Step not found for current step number." });
+  }
+
+  // Step 3: Get stepStatus doc
+  const stepStatusDoc = await stepStatusModel.findOne({
+    visaApplicationId,
+    stepId: stepDoc._id,
+  });
+
   if (!stepStatusDoc) {
     return res.status(404).json({ error: "Step status not found." });
   }
 
-  
-
+// Mapping check
   const reqFilledObj = stepStatusDoc.reqFilled instanceof Map
   ? Object.fromEntries(stepStatusDoc.reqFilled)
   : stepStatusDoc.reqFilled;
@@ -208,8 +253,28 @@ export const stepSubmit = async (req: Request, res: Response) => {
 
 // continue (from user-side)
 export const moveToNextStep = async (req: Request, res: Response) => {
-  // currentStep = +1;
+
+  const { visaApplicationId } = req.params;
+
+  if (!visaApplicationId) {
+    return res.status(400).json({ error: "visaApplicationId is required." });
+  }
+
+  const visaApp = await visaApplicationModel.findById(visaApplicationId);
+  if (!visaApp) {
+    return res.status(404).json({ error: "Visa Application not found." });
+  }
+
+  visaApp.currentStep += 1;
+
+  await visaApp.save();
+
+  return res.status(200).json({
+    message: "Moved to next step successfully.",
+    updatedVisaApplication: visaApp,
+  });
 };
+
 
 
   
