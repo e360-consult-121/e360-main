@@ -6,7 +6,7 @@ export interface IVisaApplication extends Document {
     userId: mongoose.Schema.Types.ObjectId; 
     visaTypeId: mongoose.Schema.Types.ObjectId; 
     currentStep: number; 
-    visaApplicationStatus: VisaApplicationStatusEnum;
+    status: VisaApplicationStatusEnum;
 }
 
 
@@ -26,7 +26,7 @@ const VisaApplicationSchema = new Schema<IVisaApplication>(
             type: Number,
             required: true
         },
-        visaApplicationStatus: {
+        status: {
             type: String,
             enum: Object.values(VisaApplicationStatusEnum),
             default: VisaApplicationStatusEnum.PENDING,

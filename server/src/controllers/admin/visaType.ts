@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { VisaTypeModel } from '../../models/VisaType';
-import { VisaStepModel } from '../../models/VisaStep';
-import { VisaStepRequirementModel } from '../../models/VisaStepRequirement';
+import { VisaStepModel as stepModel } from '../../models/VisaStep';
+import { VisaStepRequirementModel as reqModel } from '../../models/VisaStepRequirement';
 import { VisaTypeEnum } from '../../types/enums/enums';
 import AppError from '../../utils/appError';
 import { ObjectId } from 'mongoose';
@@ -51,7 +51,7 @@ export const addStepToVisaType = async (
         throw new AppError("VisaType not found.", 404);
     }
 
-    const newStep = await VisaStepModel.create({
+    const newStep = await stepModel.create({
         visaTypeId,
         stepName,
         stepNumber,
@@ -86,13 +86,13 @@ export const createRequirementAndPushToVisaType = async (
     }
 
     // 2. Find the visaStep using visaTypeId and stepNumber
-    const visaStep = await VisaStepModel.findOne({ visaTypeId, stepNumber });
+    const visaStep = await stepModel.findOne({ visaTypeId, stepNumber });
     if (!visaStep) {
         throw new AppError("Step not found for given visaType and stepNumber.", 404);
     }
 
     // 3. Create requirement with visaTypeId and visaStepId
-    const newRequirement = await VisaStepRequirementModel.create({
+    const newRequirement = await reqModel.create({
         visaTypeId,
         visaStepId: visaStep._id,
         question: requirementData.question,

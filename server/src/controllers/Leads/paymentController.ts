@@ -9,11 +9,19 @@ import { LeadModel } from "../../leadModels/leadModel";
 import { UserModel } from "../../models/Users";
 import { PaymentModel } from "../../leadModels/paymentModel";
 import { VisaApplicationModel } from "../../models/VisaApplication";
+
+import { VisaStepModel as stepModel } from "../../models/VisaStep";
+import { VisaApplicationStepStatusModel as stepStatusModel } from "../../models/VisaApplicationStepStatus";
+import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
+import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus"
+
 import {
   leadStatus,
   RoleEnum,
   AccountStatusEnum,
   VisaApplicationStatusEnum,
+  StepStatusEnum , 
+  visaApplicationReqStatusEnum
 } from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums";
 import { sendEmail } from "../../utils/sendEmail";
@@ -157,15 +165,74 @@ export async function createVisaApplication({
   visaTypeId,
 }: CreateVisaApplicationOptions): Promise<{ visaApplicantInfo: any }> {
   try {
-    const newApplication = await VisaApplicationModel.create({
-      userId: userId,
-      visaTypeId: new mongoose.Types.ObjectId(visaTypeId),
-      currentStep: 1,
-      visaApplicationStatus: VisaApplicationStatusEnum.PENDING,
-    });
-    return { visaApplicantInfo: newApplication };
+    
+      // step : 1 
+      const newApplication = await VisaApplicationModel.create({
+        userId: userId , 
+        visaTypeId : new mongoose.Types.ObjectId(visaTypeId),
+        currentStep : 1 ,
+        status: VisaApplicationStatusEnum.PENDING,
+      });
+  
+      // 2. Get the visaStep with stepNumber = 1 for this visaTypeId
+      const firstStep = await stepModel.findOne({
+        visaTypeId: new mongoose.Types.ObjectId(visaTypeId),
+        stepNumber: 1,
+      });
+  
+      if (!firstStep) {
+        throw new Error("First visa step not found for this visa type");
+      }
+  
+      // 3. Create a StepStatus document
+
+      const requiredRequirements = await reqModel.find({
+        visaStepId: firstStep._id,
+        required: true
+      });
+      
+      const initialReqFilled: Record<string, boolean> = {};
+
+      requiredRequirements.forEach((req) => {
+        const requirement = req as { _id: mongoose.Types.ObjectId };
+        initialReqFilled[requirement._id.toString()] = false;
+      });
+
+      const stepStatusDoc = await stepStatusModel.create({
+        userId: userId,
+        visaTypeId: visaTypeId,
+        stepId: firstStep._id,
+        visaApplicationId: newApplication._id,
+        status: StepStatusEnum.IN_PROGRESS,
+        reqFilled: initialReqFilled, 
+      });
+  
+      // 4. Fetch all requirements of this step
+      const requirements = await reqModel.find({
+        visaStepId: firstStep._id,
+      });
+  
+          // Step 5: Create & insert reqStatus for each requirement
+      const reqStatusDocs = requirements.map((req) => ({
+        userId,
+        visaTypeId,
+        visaApplicationId: newApplication._id,
+        reqId: req._id,
+        stepStatusId: stepStatusDoc._id,
+        status: visaApplicationReqStatusEnum.NOT_UPLOADED,
+        value: null,
+        stepId : firstStep._id,
+      }));
+
+      await reqStatusModel.insertMany(reqStatusDocs); 
+
+      console.log("Visa application & step status created successfully:", newApplication._id);
+      console.log("Visa application created successfully:", newApplication);
+    
+    return { visaApplicantInfo:newApplication }
     // console.log("Visa application created successfully:", newApplication);
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Error creating visa application:", error);
     throw error;
   }

@@ -6,11 +6,12 @@ export interface IVisaApplicationRequirementStatus extends Document {
     userId: mongoose.Schema.Types.ObjectId; 
     visaTypeId: mongoose.Schema.Types.ObjectId; 
     visaApplicationId: mongoose.Schema.Types.ObjectId; 
-    visaStepRequirementId: mongoose.Schema.Types.ObjectId; 
-    visaApplicationStepStatusId: mongoose.Schema.Types.ObjectId; 
+    reqId: mongoose.Schema.Types.ObjectId; 
+    stepStatusId: mongoose.Schema.Types.ObjectId; 
     reason?: string; // Optional 
     value: Mixed; // Can store any type of value (String, Number, Object, etc.)
-    visaApplicationReqStatus: visaApplicationReqStatusEnum;
+    status: visaApplicationReqStatusEnum;
+    stepId: mongoose.Schema.Types.ObjectId;
 }
 
 
@@ -31,18 +32,18 @@ const VisaApplicationRequirementStatusSchema = new Schema<IVisaApplicationRequir
             ref: "VisaApplication", 
             required: true
         },
-        visaStepRequirementId: {
+        reqId: {
             type: Schema.Types.ObjectId,
             ref: "VisaStepRequirement", 
             required: true
         },
-        visaApplicationStepStatusId: {
+        stepStatusId: {
             type: Schema.Types.ObjectId,
             ref: "VisaApplicationStepStatus", 
             required: true
         },
 
-        visaApplicationReqStatus: {
+        status: {
             type: String,
             enum: Object.values(visaApplicationReqStatusEnum),
             default: visaApplicationReqStatusEnum.NOT_UPLOADED,
@@ -55,11 +56,16 @@ const VisaApplicationRequirementStatusSchema = new Schema<IVisaApplicationRequir
             type: Schema.Types.Mixed, 
             required: true
         },
+        stepId: {
+            type: Schema.Types.ObjectId,
+            ref: "VisaStep", 
+            required: true
+        },
     }
 );
 
 
-export const VisaApplicationRequirementStatusModel = mongoose.model<IVisaApplicationRequirementStatus>(
+export const VisaApplicationReqStatusModel = mongoose.model<IVisaApplicationRequirementStatus>(
     "VisaApplicationRequirementStatus",
     VisaApplicationRequirementStatusSchema
 );

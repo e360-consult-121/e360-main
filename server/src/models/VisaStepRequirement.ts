@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { QuestionTypeEnum } from "../types/enums/enums";
+import {reqCategoryEnum} from "../types/enums/enums";
 
 
 export interface IVisaStepRequirement extends Document {
@@ -9,6 +10,7 @@ export interface IVisaStepRequirement extends Document {
     requirementType: QuestionTypeEnum;
     required: boolean;
     options: string[];
+    reqCategory : reqCategoryEnum;
 }
 
 
@@ -22,7 +24,7 @@ const VisaStepRequirementSchema = new Schema<IVisaStepRequirement>(
         visaStepId: {
             type: Schema.Types.ObjectId,
             ref: "VisaStep", 
-            required: true
+            // required: true
         },
         question: {
             type: String,
@@ -31,7 +33,7 @@ const VisaStepRequirementSchema = new Schema<IVisaStepRequirement>(
         requirementType: {
             type: String,
             enum: Object.values(QuestionTypeEnum),
-            required: true
+            // required: true
         },
         required: {
             type: Boolean,
@@ -40,6 +42,11 @@ const VisaStepRequirementSchema = new Schema<IVisaStepRequirement>(
         options: {
             type: [String],
             required: true
+        },
+        reqCategory : {
+           type : String , 
+           enum: Object.values(reqCategoryEnum),
+           required : true
         }
     }
 );

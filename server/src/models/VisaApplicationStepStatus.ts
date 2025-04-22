@@ -4,9 +4,14 @@ import { StepStatusEnum} from "../types/enums/enums";
 export interface IVisaApplicationStepStatus extends Document {
     userId: mongoose.Schema.Types.ObjectId; 
     visaTypeId: mongoose.Schema.Types.ObjectId; 
-    visaStepId: mongoose.Schema.Types.ObjectId; 
+    stepId: mongoose.Schema.Types.ObjectId; 
     visaApplicationId: mongoose.Schema.Types.ObjectId; 
-    visaApplicationStepStatus: StepStatusEnum;
+    status: StepStatusEnum;
+
+    reqFilled: {
+        [requirementId: string]: boolean;
+      };
+    
 }
 
 
@@ -22,7 +27,7 @@ const VisaApplicationStepStatusSchema = new Schema<IVisaApplicationStepStatus>(
             ref: "VisaType", 
             required: true
         },
-        visaStepId: {
+        stepId: {
             type: Schema.Types.ObjectId,
             ref: "VisaStep", 
             required: true
@@ -32,11 +37,16 @@ const VisaApplicationStepStatusSchema = new Schema<IVisaApplicationStepStatus>(
             ref: "VisaApplication", 
             required: true
         },
-        visaApplicationStepStatus: {
+        status: {
             type: String,
             enum: Object.values(StepStatusEnum),
             default: StepStatusEnum.IN_PROGRESS,
-        }
+        }, 
+        reqFilled: {
+            type: Map,
+            of: Boolean,
+            default: {},
+        },
     }
 );
 

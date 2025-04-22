@@ -33,16 +33,16 @@ export enum DocumentSourceEnum {
 }
 
 export enum QuestionTypeEnum {
-  TEXT = "text",  // Text input.
-  EMAIL = "email", //Email input.
-  PHONE_NUMBER = "phone",
-  DOB = "dob",
-  RADIO = "radio",
-  CHECKBOX = "checkbox",
-  DROPDOWN = "dropdown",
-  IMAGE = "image",
-  PDF = "pdf",
-  SIGNATURE="signature"
+  TEXT = "TEXT",  // Text input.
+  EMAIL = "EMAIL", //Email input.
+  PHONE_NUMBER = "PHONE_NUMBER",
+  DOB = "DOB",
+  RADIO = "RADIO",
+  CHECKBOX = "CHECKBOX",
+  DROPDOWN = "DROPDOWN",
+  IMAGE = "IMAGE",
+  PDF = "PDF",
+  SIGNATURE="SIGNATURE"
 }
 
 export enum VisaApplicationStatusEnum {
@@ -72,6 +72,13 @@ export enum StepTypeEnum {
   BANK = "BANK",
   DELIVERY = "DELIVERY",
   GENERAL = "GENERAL"
+}
+
+export enum reqCategoryEnum {
+  GENRAL = "GENRAL" , 
+  SPOUSE  =  "SPOUSE" , 
+  CHILD   =  "CHILD",
+  TIME_SENSITIVE = "TIME_SENSITIVE"
 }
 
 
