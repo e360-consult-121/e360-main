@@ -56,7 +56,7 @@ export const fetchRecentConsultions = async(req: Request, res: Response) => {
   res.status(200).json({ consultations });
 }
 
-// returns last 30days leads,%conversions,pending and completed  
+// returns last 30 Days leads ,%conversions ,pending and completed.  
 export const fetchAnalytics =  async (req: Request, res: Response) => {
   try {
     const now = new Date();

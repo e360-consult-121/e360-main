@@ -156,6 +156,7 @@ const VISATYPE_MAP: Record<string, string> = {
 interface CreateVisaApplicationOptions {
   userId: mongoose.Types.ObjectId | string;
   visaTypeId: mongoose.Types.ObjectId | string;
+  leadId: mongoose.Types.ObjectId | string;
   currentStep?: number; // optional, default 1
   visaApplicationStatus?: VisaApplicationStatusEnum;
 }
@@ -163,12 +164,14 @@ interface CreateVisaApplicationOptions {
 export async function createVisaApplication({
   userId,
   visaTypeId,
+  leadId
 }: CreateVisaApplicationOptions): Promise<{ visaApplicantInfo: any }> {
   try {
     
       // step : 1 
       const newApplication = await VisaApplicationModel.create({
-        userId: userId , 
+        userId: userId ,
+        leadId:leadId, 
         visaTypeId : new mongoose.Types.ObjectId(visaTypeId),
         currentStep : 1 ,
         status: VisaApplicationStatusEnum.PENDING,
@@ -367,6 +370,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
           const visaTypeId = VISATYPE_MAP[formId];
 
           const { visaApplicantInfo } = await createVisaApplication({
+            leadId : lead._id as mongoose.Types.ObjectId,
             userId: user._id,
             visaTypeId: visaTypeId,
           });

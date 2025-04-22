@@ -242,7 +242,9 @@ const ClientEligibilityForm = ({
             </Typography>
           )}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            {leadStatus !== "CONSULTATIONDONE" && (
+            {!["CONSULTATIONDONE", "PAYMENTLINKSENT", "PAYMENTDONE", "REJECTED"].includes(
+              leadStatus
+            ) && (
               <Button
                 onClick={handleSendConsultation}
                 disabled={loading}
@@ -262,6 +264,7 @@ const ClientEligibilityForm = ({
                 {loading ? "Sending..." : "Send Consultation Link"}
               </Button>
             )}
+
             <Button
               variant="outlined"
               sx={{
