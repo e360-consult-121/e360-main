@@ -9,7 +9,7 @@ export interface IVisaApplicationRequirementStatus extends Document {
     reqId: mongoose.Schema.Types.ObjectId; 
     stepStatusId: mongoose.Schema.Types.ObjectId; 
     reason?: string; // Optional 
-    value: Mixed; // Can store any type of value (String, Number, Object, etc.)
+    value: Mixed | null; // Can store any type of value (String, Number, Object, etc.)
     status: visaApplicationReqStatusEnum;
     stepId: mongoose.Schema.Types.ObjectId;
 }
@@ -54,7 +54,7 @@ const VisaApplicationRequirementStatusSchema = new Schema<IVisaApplicationRequir
         },
         value: {
             type: Schema.Types.Mixed, 
-            required: true
+            default : null 
         },
         stepId: {
             type: Schema.Types.ObjectId,

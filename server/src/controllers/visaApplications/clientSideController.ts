@@ -160,8 +160,6 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
 
 
-// Note -->> jab jab stepStatus ka doc banega , dhyan rakhna hai (map bhi daalna hoga )
-// second -->> jab bhi upload hoga , tab bhi handle karna hai (update karna hai)
 
 
 
@@ -180,10 +178,7 @@ export const stepSubmit = async (req: Request, res: Response) => {
     return res.status(404).json({ error: "Step status not found." });
   }
 
-  // const reqFilledMap = stepStatusDoc.reqFilled || new Map();
-
-  // // Check if all required requirements are filled (true)
-  // const allFilled = [...reqFilledMap.values()].every((val) => val === true);
+  
 
   const reqFilledObj = stepStatusDoc.reqFilled instanceof Map
   ? Object.fromEntries(stepStatusDoc.reqFilled)
@@ -213,9 +208,7 @@ export const stepSubmit = async (req: Request, res: Response) => {
 
 // continue (from user-side)
 export const moveToNextStep = async (req: Request, res: Response) => {
-
-
-
+  // currentStep = +1;
 };
 
 

@@ -11,11 +11,15 @@ import {visaApplicationReqStatusEnum , StepStatusEnum } from "../../types/enums/
 
 // Approve click on step
 export const approveStep = async (req: Request, res: Response) => {
-
+    // mark all req status = verified (of this step)
+    // mark step status = "Approved"
+    // create stepStatus Doc for next step
+    // create reqStatus DocS for next step
 };
 
 // Reject click on step
 export const rejectStep = async (req: Request, res: Response) => {
+    // mark stepStatus = "rejected"
 
 };
 
@@ -23,7 +27,7 @@ export const rejectStep = async (req: Request, res: Response) => {
 
 // verified (requirement)
 export const markAsVerified = async (req: Request, res: Response) => {
-
+// reqStatus = "Verified"
 
 
 };
@@ -32,7 +36,7 @@ export const markAsVerified = async (req: Request, res: Response) => {
 // Needs Reupload (requirement)
 export const needsReupload = async (req: Request, res: Response) => {
 
-
+// reqStatus = "reupload"
 
 };
 
