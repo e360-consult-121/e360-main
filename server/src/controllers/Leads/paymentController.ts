@@ -224,6 +224,7 @@ export async function createVisaApplication({
         stepStatusId: stepStatusDoc._id,
         status: visaApplicationReqStatusEnum.NOT_UPLOADED,
         value: null,
+        reason : null , 
         stepId : firstStep._id,
       }));
 
