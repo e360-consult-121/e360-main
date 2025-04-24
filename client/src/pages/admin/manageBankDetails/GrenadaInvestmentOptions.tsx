@@ -17,13 +17,20 @@ const GrenadaInvestmentOptions: React.FC = () => {
   // State for bank details sections - Using same structure but with Grenada-specific IDs
   const [sections, setSections] = useState<BankDetailsSection[]>([
     {
-      id: "grenada-ntf",
+      id: "grenada-etf",
       title: "Economical Transformation Fund (ETF) Donation",
       isEditing: false,
       fields: [
-        { id: "grenada-ntf-bank1", label: "Bank Name", value: "" },
-        { id: "grenada-ntf-bank2", label: "Account Number", value: "" },
-        { id: "grenada-ntf-bank3", label: "Account Holder Name", value: "" },
+        { id: "grenada-etf-bank1", label: "Bank Name", value: "" },
+        { id: "grenada-etf-bank2", label: "Account Number", value: "" },
+        { id: "grenada-etf-bank3", label: "Account Holder Name", value: "" },
+        { id: "grenada-etf-bank4", label: "SWIFT/BIC Code", value: "" },
+        {
+          id: "grenada-etf-bank5",
+          label: "IBAN Number (if applicable)",
+          value: "",
+        },
+        { id: "grenada-etf-bank6", label: "IFSC Code", value: "" },
       ],
     },
     {
@@ -31,13 +38,16 @@ const GrenadaInvestmentOptions: React.FC = () => {
       title: "Real Estate Investment",
       isEditing: false,
       fields: [
-        { id: "grenada-re-bank1", label: "SWIFT/BIC Code", value: "" },
+        { id: "grenada-re-bank1", label: "Bank Name", value: "" },
+        { id: "grenada-re-bank2", label: "Account Number", value: "" },
+        { id: "grenada-re-bank3", label: "Account Holder Name", value: "" },
+        { id: "grenada-re-bank4", label: "SWIFT/BIC Code", value: "" },
         {
-          id: "grenada-re-bank2",
+          id: "grenada-re-bank5",
           label: "IBAN Number (if applicable)",
           value: "",
         },
-        { id: "grenada-re-bank3", label: "IFSC Code", value: "" },
+        { id: "grenada-re-bank6", label: "IFSC Code", value: "" },
       ],
     },
   ]);

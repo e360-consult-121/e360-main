@@ -21,9 +21,12 @@ const DominicaInvestmentOptions: React.FC = () => {
       title: "National Transformation Fund (NTF) Donation",
       isEditing: false,
       fields: [
-        { id: "ntf-bank1", label: "Bank Name", value: "" },
-        { id: "ntf-bank2", label: "Account Number", value: "" },
-        { id: "ntf-bank3", label: "Account Holder Name", value: "" },
+        { id: "dominica-ntf-bank1", label: "Bank Name", value: "" },
+        { id: "dominica-ntf-bank2", label: "Account Number", value: "" },
+        { id: "dominica-ntf-bank3", label: "Account Holder Name", value: "" },
+        { id: "dominica-ntf-bank4", label: "SWIFT/BIC Code", value: "" },
+        { id: "dominica-ntf-bank5", label: "IBAN Number (if applicable)", value: "" },
+        { id: "dominica-ntf-bank6", label: "IFSC Code", value: "" },
       ],
     },
     {
@@ -31,9 +34,12 @@ const DominicaInvestmentOptions: React.FC = () => {
       title: "Real Estate Investment",
       isEditing: false,
       fields: [
-        { id: "re-bank1", label: "SWIFT/BIC Code", value: "" },
-        { id: "re-bank2", label: "IBAN Number (if applicable)", value: "" },
-        { id: "re-bank3", label: "IFSC Code", value: "" },
+        { id: "dominica-re-bank1", label: "Bank Name", value: "" },
+        { id: "dominica-re-bank2", label: "Account Number", value: "" },
+        { id: "dominica-re-bank3", label: "Account Holder Name", value: "" },
+        { id: "dominica-re-bank4", label: "SWIFT/BIC Code", value: "" },
+        { id: "dominica-re-bank5", label: "IBAN Number (if applicable)", value: "" },
+        { id: "dominica-re-bank6", label: "IFSC Code", value: "" },
       ],
     },
   ]);
