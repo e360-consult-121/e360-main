@@ -71,7 +71,8 @@ export enum StepTypeEnum {
   MEDICAL = "MEDICAL",
   BANK = "BANK",
   DELIVERY = "DELIVERY",
-  GENERAL = "GENERAL"
+  GENERAL = "GENERAL",
+  DGINVESTMENT = "DGINVESTMENT",
 }
 
 export enum reqCategoryEnum {
@@ -111,3 +112,16 @@ export enum paymentStatus {
   SESSIONEXPIRED = "SESSIONEXPIRED"
 }
 
+
+export enum dgInvestStatusEnum {
+  optionSelected = "optionSelected",
+  realStateOptionsUploaded = "realStateOptionsUploaded",
+  paymentDone = "paymentDone",
+}
+
+
+export enum investmentOptionEnum {
+  EDF = "EDF",
+  NTF = "NTF",
+  REAL_STATE = "REAL_STATE",
+}
