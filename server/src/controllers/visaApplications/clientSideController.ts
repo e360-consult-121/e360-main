@@ -5,8 +5,9 @@ import {VisaStepModel as stepModel} from "../../models/VisaStep";
 import {VisaApplicationStepStatusModel as stepStatusModel} from "../../models/VisaApplicationStepStatus";
 import {VisaStepRequirementModel as reqModel} from "../../models/VisaStepRequirement";
 import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus";
-import {visaApplicationReqStatusEnum , StepStatusEnum ,DocumentSourceEnum } from "../../types/enums/enums"
-
+import {visaApplicationReqStatusEnum , StepStatusEnum ,DocumentSourceEnum , StepTypeEnum } from "../../types/enums/enums"
+import {getDgInvestmentStepResponse} from "./exceptionUtility";
+import { Types } from "mongoose";
 
 export const getCurrentStepInfo = async (req: Request, res: Response) => {
   console.log(`getCurrentStepInfo api hit`);
@@ -32,6 +33,8 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     if (!step) {
       return res.status(404).json({ error: "Step not found for this visa type and step number" });
     }
+
+    const { stepType } = step;
   
     const visaStepId = step._id;
   
@@ -49,6 +52,23 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
       visaApplicationId,
       stepId: visaStepId,
     });
+
+    // ***reqList empty aa gayi *****
+    // handle here ...
+
+    // handle when domiGrena
+    const stepStatusId = stepStatusDoc?._id as Types.ObjectId;;
+
+      if (!stepStatusId) {
+        return res.status(400).json({ message: "Missing stepStatusId." });
+      }
+    
+    if(stepType == StepTypeEnum.DGINVESTMENT){
+      
+      const response = await getDgInvestmentStepResponse({ stepStatusId });
+      // directly return this response
+      return res.status(response.statusCode).json(response);       
+    }
   
     // Create a map for quick access
     const reqStatusMap = new Map();
@@ -79,6 +99,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       stepData: {
+        currentStepStatusId : stepStatusId ,
         totalSteps,
         currentStep,
         stepType: step.stepType,
