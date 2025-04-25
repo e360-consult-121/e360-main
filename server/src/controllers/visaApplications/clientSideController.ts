@@ -41,7 +41,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     // Get static requirements of the step
     const requirements = await reqModel.find({ visaStepId: visaStepId });
 
-    console.log("Fetched requirements:", requirements);
+    // console.log("Fetched requirements:", requirements);
 
   
     // Get dynamic requirement statuses
@@ -107,6 +107,8 @@ export const uploadDocument = async (req: Request, res: Response) => {
   const file = req.file;
   const { value } = req.body;
 
+  console.log(file,value)
+
   if (!file && !value) {
     res.status(400).json({ error: "Either a file or value must be provided." });
     return;
@@ -118,6 +120,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
     res.status(404).json({ error: "Requirement status not found." });
     return ;
   }
+  console.log(reqStatusDoc)
 
   // 🔐 Authorization check based on stepSource
   const step = await stepModel.findById(reqStatusDoc.stepId);

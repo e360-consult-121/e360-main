@@ -1,27 +1,29 @@
 import { Icon } from "@iconify/react";
 
 type CustomStepperProps = {
-  visaType: string;
+  // visaType: string;
   currentStep: number;
-  caseId?: string;
+  visaApplicationId?: string;
   stepsCount: number;
-  currentStepName: string;
+  // currentStepName: string;
   stepStatus: string;
 };
 
+
 const CustomStepper = ({
-  visaType,
+  // visaType,
   currentStep,
-  caseId,
+  visaApplicationId,
   stepsCount,
-  currentStepName,
+  // currentStepName,
   // stepStatus,
 }: CustomStepperProps) => {
+  console.log(currentStep)
   return (
     <>
       <div className="w-full flex flex-col items-center text-neutrals-950">
-        <h1 className="text-xl font-bold">{visaType}</h1>
-        <p className="text-sm">Case ID - {caseId}</p>
+        {/* <h1 className="text-xl font-bold">{visaType}</h1> */}
+        <p className="text-sm">Case ID - {visaApplicationId}</p>
       </div>
       <div className="w-full justify-center my-10 flex items-center relative">
         {Array.from({ length: stepsCount }).map((_, index) => (
@@ -49,7 +51,7 @@ const CustomStepper = ({
                   <div
                     className={`relative px-3 py-2 w-full bg-golden-yellow-100 rounded-2xl text-center text-neutrals-950`}
                   >
-                    {currentStepName}
+                    {/* {currentStepName} */}
                     <div className="absolute top-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-golden-yellow-100"></div>
                   </div>
                 </div>

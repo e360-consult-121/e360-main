@@ -4,9 +4,9 @@ import CustomerLayout from "./CustomerLayout";
 import PrevApplications from "./application/PrevApplications";
 import Notification from "./notification/Notification";
 import Settings from "./settings/Settings";
-import ApplicationMain from "./dashboard/ApplicationMain";
 import { useFetchUserQuery } from "../../features/auth/authApi";
 import { useEffect } from "react";
+import VisaApplicationProcess from "./dashboard/VisaApplicationProcess";
 
 const CustomerRoutes = () => {
 
@@ -27,7 +27,7 @@ const CustomerRoutes = () => {
         <Route path="/applications" element={<PrevApplications />} />
         <Route path="/notification" element={<Notification />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/application/:caseId" element={<ApplicationMain />} />
+        <Route path="/application/:visaApplicationId" element={<VisaApplicationProcess />} />
       </Route>
     </Routes>
   );

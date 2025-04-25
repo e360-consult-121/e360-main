@@ -14,7 +14,7 @@ const AdminStepSource = ({ label, date, status }:{ label:string; date:string; st
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start', // align to left
+        alignItems: 'flex-start', 
         overflowY: 'auto',
         mt:10
       }}

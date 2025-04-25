@@ -55,11 +55,13 @@ function a11yProps(index: number) {
   }) => {
     const tabs = [
       {
+        //this is admin component only will show is show Extra is sent true
         label: "Application Process",
         content: <ApplicationProcess/>,
         show: showExtraTabs, 
       },
       {
+        //this is admin component only will show is show Extra is sent true
         label: "Documentation Management",
         content: <DocumentationManagement/>,
         show: showExtraTabs, 

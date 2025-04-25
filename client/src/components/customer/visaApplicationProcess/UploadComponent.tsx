@@ -1,16 +1,19 @@
 import FileUpload from "./FileUpload";
 
-const UploadComponent = ({ d ,phase}: { d: any,phase:string }) => {
+const UploadComponent = ({ d ,phase , refetch}: { d: any,phase:string,refetch:()=> void }) => {
   const type = d.requirementType;
   // console.log(d);
  
     if(type === "IMAGE" || type === "PDF"){
       return <FileUpload
+      reqStatusId={d.reqStatusId}
       fileName={d.question}
       fileSize="12"
       fileType={d.requirementType}
       reqStatus={d.reqStatus}
-      phase   ={phase}
+      phase={phase}
+      value={d.value}
+      refetch={refetch}
     />
     } 
     // ) : type === "SELECT_DROPDOWN" ? (

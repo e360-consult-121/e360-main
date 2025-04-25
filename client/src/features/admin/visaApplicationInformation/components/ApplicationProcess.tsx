@@ -1,107 +1,123 @@
 import { Box } from "@mui/material";
 import StepItem from "./StepItem";
 import RequirementList from "./RequirementList";
+import { useApproveStepMutation, useGetCurrentStepInfoQuery, useMarkAsVerifiedMutation, useNeedsReUploadMutation, useRejectStepMutation } from "../visaApplicationInformationApi";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { StepData } from "../visaAppicationInformationTypes";
 
 
-const steps:any = [
+
+
+const steps: any = [
   "Uploaded Documents",
-  "Due Diligence & Application Submission",
-  "Investment & Government Processing",
-  "Approval & Passport Issuance",
+  "NIF Request & Confirmation",
+  "Bank Account Opening & Confirmation",
+  "Visa Submission & Processing",
   "Upload Passport",
-  "Passport Delivery"
+  "VISA Approval"
 ];
 
-const currentStepData:any = {
-  stepIndex: 0,
-  requirements: [
-    {
-      visaApplicationReqStatusId: 101,
-      question: "Upload your passport scan",
-      requirementType: "IMAGE",
-      required: true,
-      status: "RE_UPLOAD",
-      remarks: "The uploaded file is blurry, please re-upload.",
-      value: "https://s3.amazonaws.com/example-bucket/passport.png",
-      fileName: "Passport.png",
-      fileType: "PNG",
-      fileSize: "1.2MB"
-    },
-    {
-      visaApplicationReqStatusId: 102,
-      question: "Provide your birth certificate",
-      requirementType: "PDF",
-      required: true,
-      status: "VERIFIED",
-      remarks: "Verified successfully",
-      value: "https://s3.amazonaws.com/example-bucket/birth_certificate.pdf",
-      fileName: "Birth Certificate.pdf",
-      fileType: "PDF",
-      fileSize: "12MB"
-    },
-    {
-      visaApplicationReqStatusId: 103,
-      question: "Upload national ID or driver’s license",
-      requirementType: "PDF",
-      required: true,
-      status: "NOT_UPLOADED",
-      remarks: "Awaiting document upload",
-      value: null,
-      fileName: "National ID.pdf",
-      fileType: "PDF",
-      fileSize: "11MB"
-    },
-    {
-      visaApplicationReqStatusId: 104,
-      question: "Upload proof of financial stability",
-      requirementType: "PDF",
-      required: true,
-      status: "NOT_UPLOADED",
-      remarks: "Pending verification",
-      value: "https://s3.amazonaws.com/example-bucket/financial_statement.pdf",
-      fileName: "Financial_Stability.pdf",
-      fileType: "PDF",
-      fileSize: "8MB"
-    },
-    {
-      visaApplicationReqStatusId: 105,
-      question: "Provide police clearance certificate",
-      requirementType: "PDF",
-      required: false,
-      status: "VERIFIED",
-      remarks: "Optional document, verified",
-      value: "https://s3.amazonaws.com/example-bucket/police_clearance.pdf",
-      fileName: "Police Clearance.pdf",
-      fileType: "PDF",
-      fileSize: "9MB"
-    }
-  ]
-};
 const ApplicationProcess = () => {
-    const handleApprove = () => {
-        console.log("Approved");
-      };
-    
-      const handleReject = () => {
-        console.log("Rejected");
-      };
+  const { visatype } = useParams();
+
+  const [currentStepInfo, setCurrentStepInfo] = useState<StepData>();
+
+
+  const visaApplicationId = visatype;
+  const { data, error, isLoading , refetch} = useGetCurrentStepInfoQuery(visaApplicationId);
+  const [approveStep] = useApproveStepMutation();
+  const [markAsVerified] = useMarkAsVerifiedMutation();
+  const [rejectStep] = useRejectStepMutation();
+  const [needsReUpload] = useNeedsReUploadMutation()
+
+   useEffect(() => {
+      // console.log(currentStepInfo);
+      if (error) {
+        console.error("Failed to fetch step info:", error);
+      }
+  
+      if (!isLoading && data) {
+        setCurrentStepInfo(data.stepData);
+      }
+    }, [error, isLoading, data]);
+
+  const handleApprove = async () => {
+    try {
+      const response = await approveStep(visatype).unwrap();
+      console.log("Approved", response);
+      alert("Approved Step")
+      refetch();
+    } catch (error) {
+      console.error("Approval failed", error);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const response = await rejectStep(visatype).unwrap();
+      console.log("Rejected", response);
+      alert("Rejected the Step")
+      refetch();
+    } catch (error) {
+      console.error("Rejection failed", error);
+    }
+  };
+
+  const handleMarkAsVerified = async (reqStatusId:string) => {
+    try {
+      console.log(reqStatusId)
+      const response = await markAsVerified(reqStatusId).unwrap();
+      alert("Verified")
+      console.log("Marked as verified", response);
+      refetch()
+    } catch (error) {
+      console.error("Marking as verified failed", error);
+    }
+  };
+
+  const handleNeedsReUpload = async({
+    reqStatusId,
+    reason,
+  }: {
+    reqStatusId: string;
+    reason: string;
+  }) => {
+    try {
+      console.log(reqStatusId,reason)
+      await needsReUpload({reqStatusId, reason }).unwrap(); 
+      alert("Send document for reupload")
+      refetch()
+    } catch (error) {
+           console.error("Re-upload request failed", error); 
+    }
+  };
+
   return (
-    <Box 
-    sx={{
-      mt:2
-    }}
-    >
-      {steps.map((step:any, index:any) => {
-        const isActive = index === currentStepData.stepIndex;
+    <Box sx={{ mt: 2 }}>
+      {steps.map((step: any, index: number) => {
+        const currentStep = currentStepInfo?.currentStep ?? 0;
+        const isActive = index === (currentStep - 1);
+        const requirements = currentStepInfo?.requirements ?? [];
+        const stepType =  currentStepInfo?.stepType ?? ""
         return (
           <StepItem
             key={index}
             step={step}
             index={index}
             isActive={isActive}
+            currentStepIndex={currentStep - 1}
+            requirements={requirements}
             showRequirements={
               isActive ? (
-                <RequirementList requirements={currentStepData.requirements} />
+                <RequirementList
+                  stepSource={currentStepInfo?.stepSource ?? ""}
+                  onMarkAsVerified={handleMarkAsVerified}
+                  onNeedsReUpload={handleNeedsReUpload}
+                  requirements={requirements}
+                  stepType={stepType}
+                  refetch={refetch}
+                />
               ) : null
             }
             onApprove={handleApprove}
@@ -110,7 +126,7 @@ const ApplicationProcess = () => {
         );
       })}
     </Box>
-  )
-}
+  );
+};
 
-export default ApplicationProcess
+export default ApplicationProcess;
