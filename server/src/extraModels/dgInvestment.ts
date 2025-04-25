@@ -38,7 +38,7 @@ const dgInvestmentSchema: Schema = new Schema<IDgInvestment>(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'VisaApplicationStepStatus',
         required: true,
-      },
+    },
   }
 
 );

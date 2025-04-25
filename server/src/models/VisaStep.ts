@@ -4,7 +4,7 @@ import { DocumentSourceEnum , StepTypeEnum } from "../types/enums/enums";
 export interface IVisaStep extends Document {
     stepName: string;
     stepNumber: number;
-    stepSource: DocumentSourceEnum;
+    stepSource: DocumentSourceEnum | null;
     stepType: StepTypeEnum;
     visaTypeId: mongoose.Schema.Types.ObjectId; 
 }
@@ -27,8 +27,9 @@ const VisaStepSchema = new Schema<IVisaStep>(
         },
         stepSource: {
             type: String,
-            enum: Object.values(DocumentSourceEnum),
-            required: true
+            enum: [...Object.values(DocumentSourceEnum), null],
+            default: null,
+            required: false
         },
         stepType: {
             type: String,

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
-import {VisaApplicationStepStatusModel as stepStatusModel} from "../../models/VisaApplicationStepStatus";
-import { StepStatusEnum  , dgInvestStatusEnum ,investmentOptionEnum} from "../../types/enums/enums"
+import {  dgInvestStatusEnum ,investmentOptionEnum} from "../../types/enums/enums"
 import {DgInvestmentModel } from "../../extraModels/dgInvestment";
 
 

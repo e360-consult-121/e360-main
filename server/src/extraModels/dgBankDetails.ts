@@ -5,10 +5,10 @@ export interface IDgBankDetails extends Document {
   visaTypeName: "DOMINICA" | "GRENADA";
   bankName: string;
   accountHolderName: string;
-  accountNumber: string;
-  ifscOrSwiftCode: string;
-  currency: string;
-  note?: string;
+  accountNumber: string; //  recommended
+  swiftOrBicCode: string;
+  ibanNumber: string | null;
+  ifscCode: string;
 }
 
 // 2. Mongoose Schema
@@ -32,21 +32,19 @@ const dgBankDetailsSchema: Schema = new Schema(
       type: String,
       required: true,
     },
-    ifscOrSwiftCode: {
+    swiftOrBicCode: {
       type: String,
       required: true,
     },
-    currency: {
+    ibanNumber: {
+      type: String,
+      default: null,
+    },
+    ifscCode: {
       type: String,
       required: true,
-      default: "USD",
     },
-    note: {
-      type: String,
-      default: "",
-    },
-  },
-  { timestamps: true }
+  }
 );
 
 // 3. Mongoose Model
@@ -55,4 +53,4 @@ export const DgBankDetailsModel = mongoose.model<IDgBankDetails>(
   dgBankDetailsSchema
 );
 
-export default DgBankDetailsModel;
+

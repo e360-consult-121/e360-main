@@ -70,9 +70,11 @@ export enum visaApplicationReqStatusEnum{
 export enum StepTypeEnum {
   MEDICAL = "MEDICAL",
   BANK = "BANK",
-  DELIVERY = "DELIVERY",
+  DGDELIVERY = "DGDELIVERY",
   GENERAL = "GENERAL",
   DGINVESTMENT = "DGINVESTMENT",
+  STATUSUPDATE = "STATUSUPDATE" , 
+  EMPTY = "EMPTY"
 }
 
 export enum reqCategoryEnum {
