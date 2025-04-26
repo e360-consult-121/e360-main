@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 import { ILead , LeadModel } from "./leadModel";
 import {leadPriority} from "../types/enums/enums";
 
-export interface ILeadDomiGrena extends ILead {
+export interface ILeadGrenada extends ILead {
   additionalInfo: {
 
     profession:
@@ -104,7 +104,7 @@ export interface ILeadDomiGrena extends ILead {
 
 
 
-const LeadDomiGrenaSchema = new Schema<ILeadDomiGrena>({
+const LeadGrenadaSchema = new Schema<ILeadGrenada>({
   additionalInfo: {
 
       profession: {
@@ -246,7 +246,7 @@ const LeadDomiGrenaSchema = new Schema<ILeadDomiGrena>({
   }
 });
 
-export const LeadDomiGrenaModel = LeadModel.discriminator<ILeadDomiGrena>(
-  "LeadDomiGrena",
-  LeadDomiGrenaSchema
+export const LeadGrenadaModel = LeadModel.discriminator<ILeadGrenada>(
+  "LeadGrenada",
+  LeadGrenadaSchema
 );

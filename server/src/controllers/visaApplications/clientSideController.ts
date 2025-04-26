@@ -2,11 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
 import {VisaApplicationModel as visaApplicationModel} from "../../models/VisaApplication";
 import {VisaStepModel as stepModel} from "../../models/VisaStep";
+import { aimaModel } from "../../extraModels/aimaModel";
 import {VisaApplicationStepStatusModel as stepStatusModel} from "../../models/VisaApplicationStepStatus";
 import {VisaStepRequirementModel as reqModel} from "../../models/VisaStepRequirement";
 import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus";
 import {visaApplicationReqStatusEnum , StepStatusEnum ,DocumentSourceEnum , StepTypeEnum } from "../../types/enums/enums"
 import {getDgInvestmentStepResponse} from "./exceptionUtility";
+import { VisaTypeModel } from "../../models/VisaType";
 import { Types } from "mongoose";
 
 export const getCurrentStepInfo = async (req: Request, res: Response) => {
@@ -25,6 +27,13 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
   
     const { visaTypeId, currentStep } = visaApplication;
 
+  // fetch visaTypeName from visaTypeDoc
+  const visaType = await VisaTypeModel.findById(visaTypeId);
+  const visaTypeName = visaType?.visaType || "Unknown"; 
+
+  const allSteps = await stepModel.find({ visaTypeId }).sort({ stepNumber: 1 }); // sort by step order
+  const stepNames = allSteps.map(step => step.stepName);
+
   // Get total steps for this visaType
   const totalSteps = await stepModel.countDocuments({ visaTypeId });
   
@@ -32,6 +41,16 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     const step = await stepModel.findOne({ visaTypeId, stepNumber: currentStep });
     if (!step) {
       return res.status(404).json({ error: "Step not found for this visa type and step number" });
+    }
+
+    const currentStepName = step.stepName;
+    // prepare the common  things needed
+    const commonInfo = {
+      visaTypeName,
+      currentStepName,
+      totalSteps,
+      currentStepNumber :currentStep,
+      stepNames,
     }
 
     const { stepType } = step;
@@ -60,17 +79,28 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     // handle here ...
 
     // handle when domiGrena
-    const stepStatusId = stepStatusDoc?._id as Types.ObjectId;;
+    const stepStatusId = stepStatusDoc?._id as Types.ObjectId;
 
-      if (!stepStatusId) {
-        return res.status(400).json({ message: "Missing stepStatusId." });
-      }
+    if (!stepStatusId) {
+      return res.status(400).json({ message: "Missing stepStatusId." });
+    }
     
     if(stepType == StepTypeEnum.DGINVESTMENT){
       
       const response = await getDgInvestmentStepResponse({ stepStatusId });
       // directly return this response
-      return res.status(response.statusCode).json(response);       
+      return res.status(response.statusCode).json({response , commonInfo});       
+    }
+
+    // Handle AIMA Case
+    if (stepType === StepTypeEnum.AIMA) {
+      const aimaDocs = await aimaModel.find({ stepStatusId });
+    
+      return res.status(200).json({
+        message: "AIMA documents fetched successfully",
+        commonInfo,
+        aimaDocs,
+      });
     }
   
     // Create a map for quick access
@@ -101,10 +131,10 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
 
 
     return res.status(200).json({
+      commonInfo , 
       stepData: {
         currentStepStatusId : stepStatusId ,
-        totalSteps,
-        currentStep,
+        currentStepNumber :currentStep,
         stepType: step.stepType,
         stepSource: step.stepSource,
         stepStatus: stepStatusDoc?.status || "IN_PROGRESS",

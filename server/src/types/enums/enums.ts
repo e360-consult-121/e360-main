@@ -73,8 +73,9 @@ export enum StepTypeEnum {
   DGDELIVERY = "DGDELIVERY",
   GENERAL = "GENERAL",
   DGINVESTMENT = "DGINVESTMENT",
-  STATUSUPDATE = "STATUSUPDATE" ,
-  EMPTY = "EMPTY"
+  STATUSUPDATE = "STATUSUPDATE" , 
+  EMPTY = "EMPTY",
+  AIMA = "AIMA",
 }
 
 export enum reqCategoryEnum {
@@ -127,3 +128,11 @@ export enum investmentOptionEnum {
   NTF = "NTF",
   REAL_STATE = "REAL_STATE",
 }
+
+export enum aimaStatusEnum {
+  Appointment_Scheduled = "AIMA Appointment Scheduled",
+  Visa_Approved = "Visa Approved",
+  Appointment_Confirmed = "Appointment Confirmed",
+  Application_Approved = "Application Approved",
+}
+
