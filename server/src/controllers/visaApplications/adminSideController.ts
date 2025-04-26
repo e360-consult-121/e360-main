@@ -45,7 +45,7 @@ export const approveStep = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "currentStepStatusDoc not found." });
     }
 
-    if(currentStepStatusDoc.status != StepStatusEnum.SUBMITED){
+    if(currentStepStatusDoc.status != StepStatusEnum.SUBMITTED){
       return res.status(400).json({error:"request can't be done , beacause step is not submitted yet"})
     }
   
