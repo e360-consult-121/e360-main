@@ -1588,3 +1588,17 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"200\",\"responseTime\":\"3.342\"}","timestamp":"2025-04-26T13:11:21.823Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/680c93d321c6512dc4a7058e/fetchParticularLead\",\"status\":\"200\",\"responseTime\":\"198.969\"}","timestamp":"2025-04-26T13:11:22.009Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/common/680c942e21c6512dc4a705a6/getCurrentStepInfo\",\"status\":\"200\",\"responseTime\":\"460.089\"}","timestamp":"2025-04-26T13:11:22.549Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"920.494\"}","timestamp":"2025-04-22T17:28:52.381Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/consultations/6807d105dbe5c135db4af1da/sendConsultationLink\",\"status\":\"200\",\"responseTime\":\"3234.662\"}","timestamp":"2025-04-22T17:30:19.446Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/payment/6807d105dbe5c135db4af1da/sendPaymentLink\",\"status\":\"200\",\"responseTime\":\"4139.963\"}","timestamp":"2025-04-22T17:36:15.632Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/client-side/6807d930dbe5c135db4af225/getCurrentStepInfo\",\"status\":\"200\",\"responseTime\":\"1263.374\"}","timestamp":"2025-04-22T18:10:45.303Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/client-side/6807d930dbe5c135db4af225/getCurrentStepInfo\",\"status\":\"200\",\"responseTime\":\"689.029\"}","timestamp":"2025-04-22T18:14:22.102Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/client-side/6807d930dbe5c135db4af225/getCurrentStepInfo\",\"status\":\"200\",\"responseTime\":\"646.619\"}","timestamp":"2025-04-22T18:18:17.557Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/client-side/6807d930dbe5c135db4af225/getCurrentStepInfo\",\"status\":\"200\",\"responseTime\":\"915.598\"}","timestamp":"2025-04-22T18:22:15.262Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"2015.192\"}","timestamp":"2025-04-22T19:10:39.275Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1695.246\"}","timestamp":"2025-04-22T19:53:38.937Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/client-side/6807f367e5f4598f21c26c33/uploadDocument\",\"status\":\"200\",\"responseTime\":\"5177.641\"}","timestamp":"2025-04-22T20:00:46.974Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/client-side/6807d930dbe5c135db4af225/getCurrentStepInfo\",\"status\":\"200\",\"responseTime\":\"708.973\"}","timestamp":"2025-04-22T20:02:24.119Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"795.999\"}","timestamp":"2025-04-26T14:41:02.440Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/common/:visaApplicationId/approveStep\",\"status\":\"500\",\"responseTime\":\"703.466\"}","timestamp":"2025-04-26T14:41:55.548Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/common/680ceb366e720260b2b5d7c1/approveStep\",\"status\":\"400\",\"responseTime\":\"276.466\"}","timestamp":"2025-04-26T14:46:35.991Z"}

@@ -210,8 +210,8 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
 
     await newLead.save();
 
-    logger.info("Lead saved successfully");
-     res.status(200).json({ status: "success", message: "Lead saved to DB" });
+    logger.info("Lead saved successfully :" , newLead );
+     res.status(200).json({ status: "success", message: "Lead saved to DB"  });
      return;
   } catch (error: any) {
     logger.error("Error saving lead: " + error.message);
