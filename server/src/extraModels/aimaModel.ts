@@ -42,7 +42,6 @@ const AIMASchema: Schema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'VisaApplicationStepStatus',
       required: true,
-      unique : true 
     }
 
   }
