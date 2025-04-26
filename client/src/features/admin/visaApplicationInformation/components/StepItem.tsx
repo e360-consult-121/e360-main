@@ -58,7 +58,6 @@ const StepItem = ({
             </div>
           </div>
         )}
-
         <Typography
           fontWeight={isActive ? "bold" : "medium"}
           color={isActive ? "text.primary" : "grey.500"}

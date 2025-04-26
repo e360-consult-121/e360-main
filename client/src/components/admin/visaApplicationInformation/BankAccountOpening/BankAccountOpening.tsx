@@ -1,96 +1,176 @@
-import { useState } from "react";
-import { TextField, Button, Typography, Box } from "@mui/material";
+import { useState, useEffect } from "react";
+import {
+  TextField,
+  Button,
+  Typography,
+  Box,
+  CircularProgress,
+} from "@mui/material";
+import { useSubmitRequirementsMutation } from "../../../../features/common/commonApi";
 
-const BankAccountOpening = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    accountNumber: "",
-    bankingDetails1: "",
-    bankingDetails2: "",
-  });
+const BankAccountOpening = ({ requirements }: { requirements: any[] }) => {
+  const [submitRequirements, { isLoading }] = useSubmitRequirementsMutation();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = () => {
-    const allFilled = Object.values(formData).every(
-      (value) => value.trim() !== ""
-    );
+  useEffect(() => {
+    const initialData: Record<string, string> = {};
 
-    if (!allFilled) {
-      alert("Please fill out all fields before submitting.");
+    requirements.forEach((req) => {
+      initialData[req.reqStatusId] = req.value || "";
+    });
+
+    setFormData(initialData);
+  }, [requirements]);
+
+  const handleChange = (
+    reqStatusId: string,
+    value: string,
+    requirementType: string
+  ) => {
+    if (requirementType === "NUMBER") {
+      const numericValue = value.replace(/[^0-9.-]/g, "");
+
+      setFormData((prev) => ({ ...prev, [reqStatusId]: numericValue }));
     } else {
-      console.log("Form Submitted:", formData);
-      // Optionally reset form:
-      // setFormData({ name: '', accountNumber: '', bankingDetails1: '', bankingDetails2: '' });
+      setFormData((prev) => ({ ...prev, [reqStatusId]: value }));
+    }
+
+    if (errors[reqStatusId]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[reqStatusId];
+        return newErrors;
+      });
     }
   };
 
+  const handleKeyPress = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+    requirementType: string
+  ) => {
+    if (requirementType === "NUMBER") {
+      const isValidKey =
+        /^[0-9.-]$/.test(event.key) ||
+        ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"].includes(
+          event.key
+        );
+
+      if (!isValidKey) {
+        event.preventDefault();
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    requirements.forEach((req) => {
+      if (req.required) {
+        const value = formData[req.reqStatusId] || "";
+
+        if (!value.trim()) {
+          newErrors[req.reqStatusId] = "This field is required";
+          isValid = false;
+        } else if (req.requirementType === "NUMBER" && isNaN(Number(value))) {
+          newErrors[req.reqStatusId] = "Please enter a valid number";
+          isValid = false;
+        }
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      const requirementsToSubmit = requirements.map((req) => ({
+        reqStatusId: req.reqStatusId,
+        value: formData[req.reqStatusId] || "",
+      }));
+
+      await submitRequirements(requirementsToSubmit).unwrap();
+
+      console.log("All requirements submitted successfully");
+    } catch (error) {
+      console.error("Failed to submit requirements:", error);
+    }
+  };
+
+  const chunkedRequirements = [];
+  for (let i = 0; i < requirements.length; i += 2) {
+    chunkedRequirements.push(requirements.slice(i, i + 2));
+  }
+
   return (
     <Box p={4}>
-      <Typography  gutterBottom sx={{fontSize:"16px",mb:3}}>
+      <Typography gutterBottom sx={{ fontSize: "16px", mb: 3 }}>
         Add Bank Account Details
       </Typography>
 
       <Box display="flex" flexDirection="column" gap={2} mb={2}>
-        <Box display="flex" gap={2}>
-          <Box flex={1} minWidth="250px">
-            <TextField
-              label="Name"
-              name="name"
-              fullWidth
-              value={formData.name}
-              onChange={handleChange}
-              // variant="filled"
-            />
+        {chunkedRequirements.map((chunk, rowIndex) => (
+          <Box display="flex" gap={2} key={`row-${rowIndex}`}>
+            {chunk.map((req) => (
+              <Box flex={1} minWidth="250px" key={req.reqStatusId}>
+                <TextField
+                  label={req.question}
+                  fullWidth
+                  value={formData[req.reqStatusId] || ""}
+                  onChange={(e) =>
+                    handleChange(
+                      req.reqStatusId,
+                      e.target.value,
+                      req.requirementType
+                    )
+                  }
+                  onKeyDown={(e) => handleKeyPress(e, req.requirementType)}
+                  inputProps={{
+                    inputMode:
+                      req.requirementType === "NUMBER" ? "numeric" : "text",
+                  }}
+                  type={req.requirementType === "NUMBER" ? "text" : "text"}
+                  required={req.required}
+                  error={!!errors[req.reqStatusId]}
+                  helperText={
+                    errors[req.reqStatusId] || (req.required ? "" : "Optional")
+                  }
+                />
+              </Box>
+            ))}
+            {/* Add empty box if we have an odd number of fields in the last row */}
+            {chunk.length === 1 && <Box flex={1} minWidth="250px" />}
           </Box>
-
-          <Box flex={1} minWidth="250px">
-            <TextField
-              label="Account number"
-              name="accountNumber"
-              fullWidth
-              value={formData.accountNumber}
-              onChange={handleChange}
-              // variant="filled"
-            />
-          </Box>
-        </Box>
-
-        <Box display="flex" gap={2}>
-          <Box flex={1} minWidth="250px">
-            <TextField
-              label="Banking Details"
-              name="bankingDetails1"
-              fullWidth
-              value={formData.bankingDetails1}
-              onChange={handleChange}
-              // variant="filled"
-            />
-          </Box>
-
-          <Box flex={1} minWidth="250px">
-            <TextField
-              label="Banking Details"
-              name="bankingDetails2"
-              fullWidth
-              value={formData.bankingDetails2}
-              onChange={handleChange}
-              // variant="filled"
-            />
-          </Box>
-        </Box>
+        ))}
       </Box>
 
       <Box>
-        <Button variant="outlined" onClick={handleSubmit} sx={{
-          borderColor:"black",
-          color:"black",
-          textTransform:"none",
-          borderRadius:"20px"
-        }}>
-          Submit
+        <Button
+          variant="outlined"
+          onClick={handleSubmit}
+          disabled={isLoading}
+          sx={{
+            borderColor: "black",
+            color: "black",
+            textTransform: "none",
+            borderRadius: "20px",
+          }}
+        >
+          {isLoading ? (
+            <>
+              <CircularProgress size={16} sx={{ mr: 1 }} color="inherit" />
+              Submitting...
+            </>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </Box>
     </Box>

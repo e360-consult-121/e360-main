@@ -58,7 +58,7 @@ const RequirementList = ({
         </>
       } else if (stepType === "BANK") {
         return <>
-        <BankAccountOpening/>
+        <BankAccountOpening requirements={requirements}/>
         </>
       } else if (stepType === "TRADE_NAME") {
         return <>

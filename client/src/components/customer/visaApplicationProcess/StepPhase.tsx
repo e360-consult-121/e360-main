@@ -10,6 +10,7 @@ import VisaCompletionPortugal from "./VisaCompletionComponents/VisaCompletionPor
 const StepPhase: React.FC<{
   phase: Phase;
   requirementData: any;
+  currentStepName:string;
   stepType: string;
   onContinue: () => void;
   stepSource: string;
@@ -19,6 +20,7 @@ const StepPhase: React.FC<{
 }> = ({
   phase,
   requirementData,
+  currentStepName,
   stepType,
   onContinue,
   stepSource,
@@ -36,7 +38,7 @@ const StepPhase: React.FC<{
     if (stepType === "TRADE_NAME") {
       return <TradeNameApproved onContinue={onContinue} />;
     } else if (stepType === "GENERAL") {
-      return <Approved onContinue={onContinue} />;
+      return <Approved stepSource={stepSource} requirementData={requirementData} currentStepName={currentStepName} onContinue={onContinue} />;
     } else if (stepType === "MEDICAL") {
       return <MedicalApproved onContinue={onContinue} />;
     }

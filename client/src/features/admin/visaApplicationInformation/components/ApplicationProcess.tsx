@@ -7,48 +7,38 @@ import { useEffect, useState } from "react";
 import { StepData } from "../visaAppicationInformationTypes";
 import { useGetCurrentStepInfoQuery } from "../../../common/commonApi";
 
-
-
-
-const steps: any = [
-  "Uploaded Documents",
-  "NIF Request & Confirmation",
-  "Bank Account Opening & Confirmation",
-  "Visa Submission & Processing",
-  "Upload Passport",
-  "VISA Approval"
-];
-
 const ApplicationProcess = () => {
   const { visatype } = useParams();
-
   const [currentStepInfo, setCurrentStepInfo] = useState<StepData>();
-
+  const [stepNames, setStepNames] = useState<string[]>([]);
 
   const visaApplicationId = visatype;
-  const { data, error, isLoading , refetch} = useGetCurrentStepInfoQuery(visaApplicationId);
+  const { data, error, isLoading, refetch } = useGetCurrentStepInfoQuery(visaApplicationId);
   const [approveStep] = useApproveStepMutation();
   const [markAsVerified] = useMarkAsVerifiedMutation();
   const [rejectStep] = useRejectStepMutation();
-  const [needsReUpload] = useNeedsReUploadMutation()
+  const [needsReUpload] = useNeedsReUploadMutation();
 
-   useEffect(() => {
-      console.log(currentStepInfo);
-      if (error) {
-        console.error("Failed to fetch step info:", error);
+  useEffect(() => {
+    if (error) {
+      console.error("Failed to fetch step info:", error);
+    }
+
+    if (!isLoading && data) {
+      setCurrentStepInfo(data.stepData);
+      
+      // Set the step names from the commonInfo data
+      if (data.commonInfo && data.commonInfo.stepNames) {
+        setStepNames(data.commonInfo.stepNames);
       }
-  
-      if (!isLoading && data) {
-        setCurrentStepInfo(data.stepData);
-      }
-      console.log(currentStepInfo);
-    }, [error, isLoading, data]);
+    }
+  }, [error, isLoading, data]);
 
   const handleApprove = async () => {
     try {
       const response = await approveStep(visatype).unwrap();
       console.log("Approved", response);
-      alert("Approved Step")
+      alert("Approved Step");
       refetch();
     } catch (error) {
       console.error("Approval failed", error);
@@ -59,26 +49,26 @@ const ApplicationProcess = () => {
     try {
       const response = await rejectStep(visatype).unwrap();
       console.log("Rejected", response);
-      alert("Rejected the Step")
+      alert("Rejected the Step");
       refetch();
     } catch (error) {
       console.error("Rejection failed", error);
     }
   };
 
-  const handleMarkAsVerified = async (reqStatusId:string) => {
+  const handleMarkAsVerified = async (reqStatusId: string) => {
     try {
-      console.log(reqStatusId)
+      console.log(reqStatusId);
       const response = await markAsVerified(reqStatusId).unwrap();
-      alert("Verified")
+      alert("Verified");
       console.log("Marked as verified", response);
-      refetch()
+      refetch();
     } catch (error) {
       console.error("Marking as verified failed", error);
     }
   };
 
-  const handleNeedsReUpload = async({
+  const handleNeedsReUpload = async ({
     reqStatusId,
     reason,
   }: {
@@ -86,30 +76,31 @@ const ApplicationProcess = () => {
     reason: string;
   }) => {
     try {
-      console.log(reqStatusId,reason)
-      await needsReUpload({reqStatusId, reason }).unwrap(); 
-      alert("Send document for reupload")
-      refetch()
+      console.log(reqStatusId, reason);
+      await needsReUpload({ reqStatusId, reason }).unwrap();
+      alert("Send document for reupload");
+      refetch();
     } catch (error) {
-           console.error("Re-upload request failed", error); 
+      console.error("Re-upload request failed", error);
     }
   };
 
   return (
     <Box sx={{ mt: 2 }}>
-      {steps.map((step: any, index: number) => {
-        const currentStep = currentStepInfo?.currentStep ?? 0;
-        const isActive = index === (currentStep - 1);
+      {stepNames.map((step: string, index: number) => {
+        const currentStepNumber = currentStepInfo?.currentStepNumber ?? 0;
+        const isActive = index === (currentStepNumber - 1);
         const requirements = currentStepInfo?.requirements ?? [];
-        const stepType =  currentStepInfo?.stepType ?? "";
+        const stepType = currentStepInfo?.stepType ?? "";
         const stepStatusId = currentStepInfo?.currentStepStatusId ?? "";
+        
         return (
           <StepItem
             key={index}
             step={step}
             index={index}
             isActive={isActive}
-            currentStepIndex={currentStep - 1}
+            currentStepIndex={currentStepNumber - 1}
             requirements={requirements}
             showRequirements={
               isActive ? (
