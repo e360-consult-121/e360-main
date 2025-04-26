@@ -2,9 +2,9 @@ import { useParams } from "react-router-dom";
 import CustomStepper from "../../../components/CustomStepper";
 import StepPhase from "../../../components/customer/visaApplicationProcess/StepPhase";
 import Chatbot from "../../../components/customer/ Chatbot";
-import { useGetCurrentStepInfoQuery, useMoveToNextStepMutation, useStepSubmitMutation } from "../../../features/customer/applicationMain/applicationMainApi";
 import { useEffect, useState } from "react";
 import { RequirementTypes, StepData } from "../../../features/customer/applicationMain/applicationMainTypes";
+import { useGetCurrentStepInfoQuery, useMoveToNextStepMutation, useStepSubmitMutation } from "../../../features/common/commonApi";
 
 export interface SelectDropdown {
   type: "SELECT_DROPDOWN";

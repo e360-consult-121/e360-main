@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Typography, Box, Button } from '@mui/material';
+import { useUploadShippingDetailsMutation } from '../../../features/admin/visaApplicationInformation/visaApplicationInformationApi';
 
 type ClientDetails = {
   name: string;
@@ -12,16 +13,24 @@ type ClientDetails = {
 
 type PassportDeliveryDetailsProps = {
   clientDetails: ClientDetails;
+  stepStatusId: string;
+  refetch: () => void;
 };
 
-const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clientDetails }) => {
+const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({
+  clientDetails,
+  stepStatusId,
+  refetch
+}) => {
   const [courierService, setCourierService] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [trackingUrl, setTrackingUrl] = useState('');
   const [supportEmail, setSupportEmail] = useState('');
   const [supportPhone, setSupportPhone] = useState('');
 
-  const handleSubmit = () => {
+  const [uploadShippingDetails, { isLoading }] = useUploadShippingDetailsMutation();
+
+  const handleSubmit = async () => {
     if (
       !courierService ||
       !trackingNumber ||
@@ -33,23 +42,38 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clien
       return;
     }
 
-    console.log({
+    const data = {
       courierService,
-      trackingNumber,
+      trackingNo: trackingNumber,
       trackingUrl,
-      supportEmail,
-      supportPhone
-    });
+      email: supportEmail,  
+      phoneNo: supportPhone
+    };
+    console.log(data)
+
+    try {
+      await uploadShippingDetails({ stepStatusId, data }).unwrap();
+      setCourierService('');
+      setTrackingNumber('');
+      setTrackingUrl('');
+      setSupportEmail('');
+      setSupportPhone('');
+      alert('Shipping details submitted successfully.');
+      refetch();
+    } catch (error) {
+      console.error('Error uploading shipping details:', error);
+      alert('Failed to submit shipping details.');
+    }
   };
 
   return (
     <Box p={2}>
-      <Typography gutterBottom sx={{fontSize:"16px"}}>
+      <Typography gutterBottom sx={{ fontSize: '16px' }}>
         Client Delivery Details
       </Typography>
 
-      <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={3}  sx={{fontSize:"14px"}}>
-        <Box width={{ xs: '100%', md: '48%', }} mb={1}>
+      <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={3} sx={{ fontSize: '14px' }}>
+        <Box width={{ xs: '100%', md: '48%' }} mb={1}>
           <Typography><strong>Name:</strong> {clientDetails.name}</Typography>
           <Typography><strong>Delivery Address:</strong> {clientDetails.address}</Typography>
           <Typography><strong>City/Country:</strong> {clientDetails.cityCountry}</Typography>
@@ -62,11 +86,11 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clien
         </Box>
       </Box>
 
-      <Typography  gutterBottom  sx={{fontSize:"16px"}}>
+      <Typography gutterBottom sx={{ fontSize: '16px' }}>
         Add Passport Delivery Details
       </Typography>
 
-      <Typography  gutterBottom  sx={{fontSize:"14px"}}>
+      <Typography gutterBottom sx={{ fontSize: '14px' }}>
         Shipping Provider & Tracking Info
       </Typography>
 
@@ -76,7 +100,6 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clien
           placeholder="Enter Courier Service"
           value={courierService}
           onChange={(e) => setCourierService(e.target.value)}
-          // variant="filled"
           fullWidth
         />
         <TextField
@@ -85,7 +108,6 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clien
           value={trackingNumber}
           onChange={(e) => setTrackingNumber(e.target.value)}
           fullWidth
-          // variant="filled"
         />
         <TextField
           label="Tracking URL*"
@@ -93,11 +115,10 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clien
           value={trackingUrl}
           onChange={(e) => setTrackingUrl(e.target.value)}
           fullWidth
-          // variant="filled"
         />
       </Box>
 
-      <Typography  sx={{fontSize:"14px"}} gutterBottom>
+      <Typography sx={{ fontSize: '14px' }} gutterBottom>
         Additional Support
       </Typography>
 
@@ -108,8 +129,6 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clien
           value={supportEmail}
           onChange={(e) => setSupportEmail(e.target.value)}
           fullWidth
-          // variant="filled"
-
         />
         <TextField
           label="Phone Number*"
@@ -117,17 +136,21 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({ clien
           value={supportPhone}
           onChange={(e) => setSupportPhone(e.target.value)}
           fullWidth
-          // variant="filled"
-          />
+        />
       </Box>
 
-      <Button variant="outlined" onClick={handleSubmit} sx={{
-          borderColor:"black",
-          color:"black",
-          textTransform:"none",
-          borderRadius:"20px"
-        }}>
-        Submit
+      <Button
+        variant="outlined"
+        onClick={handleSubmit}
+        disabled={isLoading}
+        sx={{
+          borderColor: isLoading ? 'grey.400' : 'black',
+          color: isLoading ? 'grey.600' : 'black',
+          textTransform: 'none',
+          borderRadius: '20px'
+        }}
+      >
+        {isLoading ? 'Submitting...' : 'Submit'}
       </Button>
     </Box>
   );

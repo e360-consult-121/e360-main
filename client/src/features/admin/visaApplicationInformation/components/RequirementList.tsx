@@ -6,6 +6,18 @@ import AIMAStatusComponent from "../../../../components/admin/visaApplicationInf
 import AdminDocumentUpload from "../../../../components/admin/visaApplicationInformation/General/AdminDocumentUpload";
 import MedicalAppointment from "../../../../components/admin/visaApplicationInformation/Medical/MedicalAppointment";
 import InvestmentOptions from "../../../../components/admin/visaApplicationInformation/InvestmentOptions";
+import PassportDeliveryDetails from "../../../../components/admin/visaApplicationInformation/PassportDeliveryDetails";
+import TradeDetailsComponent from "../../../../components/admin/visaApplicationInformation/Trade/TradeDetailsComponent";
+
+//dummyclientData on stepType === DGDELIVERY
+const clientDetails={
+  name: "John Doe",
+  email: "test@gmail.com",
+  phone: "123",
+  address: "21 Bakers Street",
+  cityCountry: "Pune",
+  postalCode:"123"
+};
 
 
 type RequirementListProps = {
@@ -15,6 +27,7 @@ type RequirementListProps = {
   stepSource: string;
   stepType: string;
   refetch:()=> void;
+  stepStatusId:string
 };
 
 const RequirementList = ({
@@ -24,27 +37,33 @@ const RequirementList = ({
   stepSource,
   stepType,
   refetch,
+  stepStatusId
 }: RequirementListProps) => {
   const renderDocuments = () => {
     if (stepSource === "ADMIN") {
       if (stepType === "GENERAL") {
         return<>
-        <AdminDocumentUpload
-        fileName="test"
-        fileType="test"
-        fileSize={"12MB"}
-        reqStatus={"UPLOADED"}
-        value=""
-        reqStatusId=""
-        refetch={refetch}
-        />
+        {requirements.map((req) => (
+          <AdminDocumentUpload
+            key={req.reqStatusId}
+            fileName={req.question}
+            fileType={req.requirementType}
+            fileSize={"12MB"} 
+            reqStatus={req.reqStatus}
+            value={req.value || ""}
+            reqStatusId={req.reqStatusId}
+            refetch={refetch}
+          />
+        ))}
         </>
       } else if (stepType === "BANK") {
         return <>
         <BankAccountOpening/>
         </>
       } else if (stepType === "TRADE_NAME") {
-        return <></>;
+        return <>
+        <TradeDetailsComponent/>        
+        </>;
       } else if (stepType === "MEDICAL") {
         return<>
         <MedicalAppointment/>
@@ -54,6 +73,26 @@ const RequirementList = ({
         return <>
         <AIMAStatusComponent/>
         </>
+      }
+      else if(stepType === "DGINVESTMENT"){
+        return <>
+          <InvestmentOptions
+          stepStatusId={stepStatusId}
+          refetch={refetch}
+        />
+        </>
+      }
+      else if(stepType === "DGDELIVERY"){
+        return <>
+        <PassportDeliveryDetails
+        clientDetails={clientDetails}
+        stepStatusId={stepStatusId}
+        refetch={refetch}
+        />
+        </>
+      }
+      else if (stepType === "EMPTY"){
+        return<></>
       }
     } else if (stepSource === "USER") {
       if (stepType === "GENERAL") {
@@ -72,7 +111,7 @@ const RequirementList = ({
           />
         ))}
         {/* <PassportDeliveryDetails clientDetails={dummyClientDetails} /> */}
-        {/* <InvestmentOptions/> */}
+        
         </>
       } else if (stepType === "BANK") {
         return 

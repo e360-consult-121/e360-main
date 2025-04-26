@@ -1,7 +1,7 @@
 import { Modal } from "@mui/material";
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { useUploadDocumentMutation } from "../features/customer/applicationMain/applicationMainApi";
+import { useUploadDocumentMutation } from "../features/common/commonApi";
 
 
 interface UploadModalProps {

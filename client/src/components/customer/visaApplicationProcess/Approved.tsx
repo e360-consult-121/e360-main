@@ -8,6 +8,7 @@ const Approved = ({ onContinue }:{onContinue: () => void }) => {
         <div className="rounded-full border-[15px] border-[#FEFCEA]">
           <div className="text-neutrals-50 bg-[#FAE081] p-8 rounded-full">
           <img
+          className="w-[50px] h-[50px]"
           src={LoadingGif}
           />
           </div>

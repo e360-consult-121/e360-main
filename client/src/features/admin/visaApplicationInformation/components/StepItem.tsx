@@ -6,7 +6,7 @@ import { RequirementTypes } from "../visaAppicationInformationTypes";
 function areAllRequiredDocsVerified(requirements:any) {
   return requirements
     .filter((req:any) => req.required) // Only check required documents
-    .every((req:any) => req.reqStatus === "VERIFIED"); // All must be VERIFIED
+    .every((req:any) => req.reqStatus === "UPLOADED"); // All must be VERIFIED
 }
 
 const StepItem = ({

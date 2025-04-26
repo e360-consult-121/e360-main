@@ -52,6 +52,8 @@ export const uploadShippingDetails = async (req: Request, res: Response) => {
       email,
       phoneNo
     } = req.body;
+
+    console.log(req.body)
   
     const shipping = new DgShippingModel({
       courierService,

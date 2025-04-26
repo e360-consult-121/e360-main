@@ -2,16 +2,9 @@ import { baseApi } from "../../../app/api";
 
 export const visaApplicationInformationApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
-      //Fetch customers current visa application step  informationa and  requirements
-      getCurrentStepInfo: build.query({
-        query: (visaApplicationId) => ({
-          url: `visaApplications/client-side/${visaApplicationId}/getCurrentStepInfo`,
-          method: "GET"
-        }),
-      }),
       approveStep: build.mutation({
         query: (visaApplicationId) => ({
-          url: `/visaApplications/admin-side/${visaApplicationId}/approveStep`,
+          url: `/visaApplications/common/${visaApplicationId}/approveStep`,
           method: "POST",
         }),
       }),
@@ -34,12 +27,27 @@ export const visaApplicationInformationApi = baseApi.injectEndpoints({
             body: { reason }
         }),
       }),
+      addRealStateOptions: build.mutation({
+        query: ({ stepStatusId ,  realStateOptions }) => ({
+            url: `/visaApplications/admin-side/${stepStatusId}/addOptionsForRealState`,
+            method: "POST",
+            body: { realStateOptions }
+        }),
+      }),
+      uploadShippingDetails: build.mutation({
+        query: ({ stepStatusId ,data }) => ({
+            url: `/visaApplications/admin-side/${stepStatusId}/uploadShippingDetails`,
+            method: "POST",
+            body: data 
+        }),
+      }),
     }),
   });
   
 
   export const {
-    useGetCurrentStepInfoQuery,
+    useUploadShippingDetailsMutation,
+    useAddRealStateOptionsMutation,
     useApproveStepMutation,
     useRejectStepMutation,
     useMarkAsVerifiedMutation,

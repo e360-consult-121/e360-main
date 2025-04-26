@@ -1,79 +1,15 @@
 import { baseApi } from "../../../app/api";
 
 export const applicationMainApi = baseApi.injectEndpoints({
-    endpoints: (build) => ({
-      getCurrentStepInfo: build.query({
-        query: (visaApplicationId) => ({
-          url: `/visaApplications/client-side/${visaApplicationId}/getCurrentStepInfo`,
-          method: "GET"
+  endpoints: (build) => ({
+    uploadDeliveryDetails: build.mutation({
+        query: ({ stepStatusId, body }) => ({
+          url: `visaApplications/client-side/${stepStatusId}/uploadDeliveryDetails`,
+          method: 'POST',
+          body,
         }),
-      }),
+      }),      
+  }),
+});
 
-      //lots of changes here
-      uploadDocument: build.mutation({
-        // Use queryFn instead of query for complete control
-        queryFn: async ({ reqStatusId, file }, _extraOptions,) => {
-          try {
-            const formData = new FormData();
-            formData.append("file", file);
-            
-            // Log the file being sent
-            console.log("Uploading file:", file?.name, file?.size, file?.type);
-            
-            // Use native fetch for complete control over headers
-            const  baseUrl= import.meta.env.VITE_BACKEND_BASE_URL
-            const response = await fetch(
-              `${baseUrl}/api/v1/visaApplications/client-side/${reqStatusId}/uploadDocument`, 
-              {
-                method: 'POST',
-                body: formData,
-                // DO NOT set Content-Type header here - browser will set it correctly
-                // Include credentials if needed for auth
-                credentials: 'include'
-              }
-            );
-            
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => null);
-              return { 
-                error: { 
-                  status: response.status, 
-                  data: errorData || 'Upload failed' 
-                } 
-              };
-            }
-            
-            const result = await response.json();
-            return { data: result };
-          } catch (error) {
-            console.error("Upload error:", error);
-            return { 
-              error: { 
-                status: 500, 
-                data: error
-              } 
-            };
-          }
-        }
-      }),
-      stepSubmit: build.mutation({
-        query: (visaApplicationId) => { 
-          return {
-            url: `/visaApplications/client-side/${visaApplicationId}/stepSubmit`,
-            method: "POST",
-          };
-        },
-      }),
-      moveToNextStep: build.mutation({
-        query: (visaApplicationId) => { 
-          return {
-            url: `/visaApplications/client-side/${visaApplicationId}/moveToNextStep`,
-            method: "POST",
-          };
-        },
-      }),
-    })
-  });
-
-
-export const { useGetCurrentStepInfoQuery ,useUploadDocumentMutation ,useMoveToNextStepMutation,useStepSubmitMutation } = applicationMainApi;
+export const { useUploadDeliveryDetailsMutation } = applicationMainApi;

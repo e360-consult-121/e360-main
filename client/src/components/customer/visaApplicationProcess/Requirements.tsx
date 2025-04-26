@@ -13,10 +13,10 @@ import { useState } from "react";
 import BankDetails from "./Bank/BankDetails";
 import MedicalDetails from "./Medical/MedicalDetails";
 import TradeDetails from "./TradeName/TradeDetails";
-import AdminStepSource from "./AdminStepSource";
 import { canProceedToNextStep } from "../../../pages/customer/dashboard/VisaApplicationProcess";
 import UploadComponent from "./UploadComponent";
 import UploadModal from "../../UploadModal";
+import ProcessComponent from "./ProcessComponent";
 
 const Requirements = ({
   phase,
@@ -177,7 +177,8 @@ const Requirements = ({
           </div>
         ) : (
           <>
-            <AdminStepSource
+           {/* Processing component */}
+            <ProcessComponent
               label="Processing"
               date="13 Feb 2025, 12:30 P.M."
               status="in_progress"
@@ -196,6 +197,11 @@ const Requirements = ({
         ) : (
           <>
           {/* Processing component */}
+          <ProcessComponent
+              label="Processing"
+              date="13 Feb 2025, 12:30 P.M."
+              status="in_progress"
+            />
           </>
         )}
       </div>
@@ -210,6 +216,11 @@ const Requirements = ({
         ) : (
           <>
             {/* Processing component */}
+            <ProcessComponent
+              label="Processing"
+              date="13 Feb 2025, 12:30 P.M."
+              status="in_progress"
+            />
           </>
         )}
       </div>

@@ -2,8 +2,10 @@ import { Phase } from "../../../pages/customer/dashboard/VisaApplicationProcess"
 import Requirements from "./Requirements";
 import Approved from "./Approved";
 import TradeNameApproved from "./TradeName/TradeNameApproved";
-import AdminStepSource from "./AdminStepSource";
+import AdminStepSource from "./ProcessComponent";
 import MedicalApproved from "./Medical/MedicalApproved";
+import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
+import VisaCompletionPortugal from "./VisaCompletionComponents/VisaCompletionPortugal";
 
 const StepPhase: React.FC<{
   phase: Phase;
@@ -24,55 +26,32 @@ const StepPhase: React.FC<{
   refetch,
   onSubmit,
 }) => {
-  if (stepType === "TRADE_NAME") {
-    if(phase === "APPROVED")
-    return <TradeNameApproved />;
-  } else if (stepType === "GENERAL"){
-    if (phase === "APPROVED") {
+  if(stepType === "DGDELIVERY"){
+    return<>
+    <VisaCompletionPortugal />
+    </>
+  }
+  else if (phase === "APPROVED") {
+    if (stepType === "TRADE_NAME") {
+      return <TradeNameApproved onContinue={onContinue} />;
+    } else if (stepType === "GENERAL") {
       return <Approved onContinue={onContinue} />;
+    } else if (stepType === "MEDICAL") {
+      return <MedicalApproved onContinue={onContinue} />;
     }
   }
-  else if(stepType === "MEDICAL"){
-    if(phase === "APPROVED"){
-      return <MedicalApproved onContinue={onContinue}/>
+  else if (phase === "IN_PROGRESS" || phase === "SUBMITTED") {
+    if(stepType === "AIMA_APPOINTMENT"){
+      {requirementData.map((req:any) => (
+        <AIMAClientComponent 
+        key={req.reqStatusId}
+        label={req.question}
+        status={req.reqStatus}
+        date ="13 Feb 2025, 12:30 P.M." 
+        />
+      ))}
     }
-  }
-  if (phase === "IN_PROGRESS" || phase === "SUBMITTED") {
-    if (stepSource === "ADMIN" && phase === "IN_PROGRESS") {
-      return (
-        <div>
-          <AdminStepSource
-            label="Final Review by Legal Team"
-            date="13 Feb 2025, 12:30 P.M."
-            status="in_progress"
-          />
-        </div>
-      );
-    }
-    if (stepSource === "ADMIN" && phase === "SUBMITTED") {
-      // if(currentStepName === "Visa Submission & Processing"){
-      // return(
-      // <>
-      {
-        /* <AdminStepSource 
-          label="Visa Approved"
-          date="13 Feb 2025, 12:30 P.M."
-          status="completed"
-          />
-          <AdminStepSource 
-          label="Appointment Confirmed"
-          date="13 Feb 2025, 12:30 P.M."
-          status="completed"
-          /> */
-      }
-      //   <AdminStepSource
-      //   label="Application Approved"
-      //   date="13 Feb 2025, 12:30 P.M."
-      //   status="completed"
-      //   />
-      //   </>
-      // )
-      // }
+    else if (stepSource === "ADMIN"){
       return (
         <div>
           <AdminStepSource
@@ -83,6 +62,7 @@ const StepPhase: React.FC<{
         </div>
       );
     }
+
     return (
       <Requirements
         stepStatus={stepStatus}

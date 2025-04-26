@@ -2,7 +2,7 @@ import { Box, Typography, Stack, Avatar } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import CircleIcon from '@mui/icons-material/Circle';
 
-const AdminStepSource = ({ label, date, status }:{ label:string; date:string; status:string }) => {
+const ProcessComponent = ({ label, date, status }:{ label:string; date:string; status:string }) => {
   return (
     <Box
       sx={{
@@ -10,13 +10,13 @@ const AdminStepSource = ({ label, date, status }:{ label:string; date:string; st
         borderRadius: '20px',
         padding: '24px',
         width: '76vw',
-        height: '40vh',
+        height: '80vh',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start', 
         overflowY: 'auto',
-        mt:10
+        mt:12
       }}
     >
       <Stack spacing={4} sx={{ mt: 2 }}>
@@ -52,4 +52,4 @@ const AdminStepSource = ({ label, date, status }:{ label:string; date:string; st
   );
 };
 
-export default AdminStepSource;
+export default ProcessComponent;

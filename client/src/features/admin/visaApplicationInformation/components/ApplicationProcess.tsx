@@ -1,10 +1,11 @@
 import { Box } from "@mui/material";
 import StepItem from "./StepItem";
 import RequirementList from "./RequirementList";
-import { useApproveStepMutation, useGetCurrentStepInfoQuery, useMarkAsVerifiedMutation, useNeedsReUploadMutation, useRejectStepMutation } from "../visaApplicationInformationApi";
+import { useApproveStepMutation, useMarkAsVerifiedMutation, useNeedsReUploadMutation, useRejectStepMutation } from "../visaApplicationInformationApi";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { StepData } from "../visaAppicationInformationTypes";
+import { useGetCurrentStepInfoQuery } from "../../../common/commonApi";
 
 
 
@@ -32,7 +33,7 @@ const ApplicationProcess = () => {
   const [needsReUpload] = useNeedsReUploadMutation()
 
    useEffect(() => {
-      // console.log(currentStepInfo);
+      console.log(currentStepInfo);
       if (error) {
         console.error("Failed to fetch step info:", error);
       }
@@ -40,6 +41,7 @@ const ApplicationProcess = () => {
       if (!isLoading && data) {
         setCurrentStepInfo(data.stepData);
       }
+      console.log(currentStepInfo);
     }, [error, isLoading, data]);
 
   const handleApprove = async () => {
@@ -99,7 +101,8 @@ const ApplicationProcess = () => {
         const currentStep = currentStepInfo?.currentStep ?? 0;
         const isActive = index === (currentStep - 1);
         const requirements = currentStepInfo?.requirements ?? [];
-        const stepType =  currentStepInfo?.stepType ?? ""
+        const stepType =  currentStepInfo?.stepType ?? "";
+        const stepStatusId = currentStepInfo?.currentStepStatusId ?? "";
         return (
           <StepItem
             key={index}
@@ -117,6 +120,7 @@ const ApplicationProcess = () => {
                   requirements={requirements}
                   stepType={stepType}
                   refetch={refetch}
+                  stepStatusId={stepStatusId}
                 />
               ) : null
             }
