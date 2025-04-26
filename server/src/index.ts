@@ -77,9 +77,9 @@ app.post(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const upload = multer({ storage: multer.memoryStorage() });
-
 app.use("/api/v1", v1Routes);
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.get("/health", (req: Request, res: Response): void => {
   logger.info("Health check endpoint hit");
