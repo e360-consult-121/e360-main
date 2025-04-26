@@ -55,7 +55,7 @@ export enum VisaApplicationStatusEnum {
 
 export enum StepStatusEnum {
   IN_PROGRESS = "IN_PROGRESS",
-  SUBMITED = "SUBMITED",
+  SUBMITTED = "SUBMITTED",
   APPROVED="APPROVED",
   REJECTED = "REJECTED", 
 }

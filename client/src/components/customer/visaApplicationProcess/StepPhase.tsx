@@ -26,6 +26,7 @@ const StepPhase: React.FC<{
   refetch,
   onSubmit,
 }) => {
+
   if(stepType === "DGDELIVERY"){
     return<>
     <VisaCompletionPortugal />
@@ -63,6 +64,7 @@ const StepPhase: React.FC<{
       );
     }
 
+    
     return (
       <Requirements
         stepStatus={stepStatus}

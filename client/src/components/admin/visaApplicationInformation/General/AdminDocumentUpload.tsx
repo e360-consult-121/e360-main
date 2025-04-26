@@ -40,7 +40,7 @@ const AdminDocumentUpload = ({
       <div className="flex items-center space-x-5">
         <div
           className={`${
-            reqStatus === "UPLOADED"
+            reqStatus === "UPLOADED" || reqStatus === "VERIFIED"
               ? "bg-golden-yellow-100 text-neutrals-950"
               : "bg-neutrals-200 text-white"
           }   p-3 rounded-xl`}
@@ -75,7 +75,7 @@ const AdminDocumentUpload = ({
           className="hidden"
         />
           <>
-            {reqStatus === "UPLOADED" ? (
+            {reqStatus === "UPLOADED" || reqStatus === "VERIFIED" ? (
               <>
                 <button
                   className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"

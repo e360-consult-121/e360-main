@@ -1,12 +1,12 @@
 import { Box, Typography, Button } from "@mui/material";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { canProceedToNextStep } from "../../../../pages/customer/dashboard/VisaApplicationProcess";
+// import { canProceedToNextStep } from "../../../../pages/customer/dashboard/VisaApplicationProcess";
 import { RequirementTypes } from "../visaAppicationInformationTypes";
 
 function areAllRequiredDocsVerified(requirements:any) {
   return requirements
     .filter((req:any) => req.required) // Only check required documents
-    .every((req:any) => req.reqStatus === "UPLOADED"); // All must be VERIFIED
+    .every((req:any) => req.reqStatus === "UPLOADED"|| req.reqStatus==="VERIFIED"); // All must be VERIFIED
 }
 
 const StepItem = ({

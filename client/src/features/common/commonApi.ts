@@ -62,7 +62,7 @@ export const commonApi = baseApi.injectEndpoints({
       stepSubmit: build.mutation({
         query: (visaApplicationId) => { 
           return {
-            url: `/visaApplications/client-side/${visaApplicationId}/stepSubmit`,
+            url: `/visaApplications/common/${visaApplicationId}/stepSubmit`,
             method: "POST",
           };
         },
