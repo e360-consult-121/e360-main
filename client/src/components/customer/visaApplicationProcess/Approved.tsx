@@ -1,6 +1,5 @@
 import { Button } from "@mui/material";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
-
+import LoadingGif from "../../../assets/customer/Rightt.gif"
 const Approved = ({ onContinue }:{onContinue: () => void }) => {
   return (
     <div className="flex flex-col items-center justify-center text-center mt-24">
@@ -8,7 +7,10 @@ const Approved = ({ onContinue }:{onContinue: () => void }) => {
       <div className="rounded-full border-[20px] border-golden-yellow-50 w-fit">
         <div className="rounded-full border-[15px] border-[#FEFCEA]">
           <div className="text-neutrals-50 bg-[#FAE081] p-8 rounded-full">
-          <DoneAllIcon sx={{ color: "black", fontSize: 100 }} />
+          <img
+          className="w-[50px] h-[50px]"
+          src={LoadingGif}
+          />
           </div>
         </div>
       </div>

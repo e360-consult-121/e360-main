@@ -39,7 +39,7 @@ const TableComponent: React.FC<any> = ({ data }) => {
 
   const handleNavigation = (row: any) => {
     // console.log(row)
-    navigate(`/application/dominica/${row.CaseID}`, { state: { row } });
+    navigate(`/admin/application/${row._id}`, { state: { row } });
   };
   
   

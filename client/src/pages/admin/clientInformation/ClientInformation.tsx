@@ -135,6 +135,7 @@ const ClientInformation = () => {
         paymentInfo={clientInfo?.paymentInfo}
         eligibilityForm={clientInfo?.eligibilityForm}
         formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
+        showExtraTabs={false}
       />
     </>
   );

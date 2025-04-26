@@ -63,7 +63,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     // Get static requirements of the step
     const requirements = await reqModel.find({ visaStepId: visaStepId });
 
-    console.log("Fetched requirements:", requirements);
+    // console.log("Fetched requirements:", requirements);
 
   
     // Get dynamic requirement statuses
@@ -71,6 +71,9 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
       visaApplicationId,
       stepId: visaStepId,
     });
+
+
+
 
     // ***reqList empty aa gayi *****
     // handle here ...
@@ -149,14 +152,16 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
   const { reqStatusId } = req.params;
 
-  if (!reqStatusId) {
-     res.status(400).json({ error: "Requirement Status ID is required." });
-     return;
+
+  if (!reqStatusId || reqStatusId === "null" || reqStatusId === "undefined") {
+    res.status(400).json({ error: "Requirement Status ID is required." });
+    return;
   }
 
   // Check if file or value is present
   const file = req.file;
   const { value } = req.body;
+
 
   if (!file && !value) {
     res.status(400).json({ error: "Either a file or value must be provided." });
@@ -216,12 +221,9 @@ export const uploadDocument = async (req: Request, res: Response) => {
       visaApplicationId: reqStatusDoc.visaApplicationId,
       stepId: reqStatusDoc.stepId,
     });
-
+    
     if (stepStatusDoc) {
-      const reqFilled = stepStatusDoc.reqFilled || {};
-      reqFilled[reqStatusDoc.reqId.toString()] = true;
-
-      stepStatusDoc.reqFilled = reqFilled;
+      stepStatusDoc.reqFilled.set(reqStatusDoc.reqId.toString(), true);
       await stepStatusDoc.save();
     }
   }
@@ -275,6 +277,7 @@ export const stepSubmit = async (req: Request, res: Response) => {
     return res.status(404).json({ error: "Step status not found." });
   }
 
+
 // Mapping check
   const reqFilledObj = stepStatusDoc.reqFilled instanceof Map
   ? Object.fromEntries(stepStatusDoc.reqFilled)
@@ -291,7 +294,7 @@ export const stepSubmit = async (req: Request, res: Response) => {
   }
 
   // If everything is filled, update the step status
-  stepStatusDoc.status = StepStatusEnum.SUBMITED;
+  stepStatusDoc.status = StepStatusEnum.SUBMITTED;
   await stepStatusDoc.save();
 
   return res.status(200).json({

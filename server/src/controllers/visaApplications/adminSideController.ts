@@ -227,9 +227,8 @@ export const markAsVerified = async (req: Request, res: Response) => {
 
 
 
-// Needs Reupload (requirement)
+// Needs Reupload (requirement) updated the trim part-Aditya!!!
 export const needsReupload = async (req: Request, res: Response) => {
-
   const { reqStatusId } = req.params;
   let { reason } = req.body;
 
@@ -237,15 +236,18 @@ export const needsReupload = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "reqStatusId is required." });
   }
 
-  // Convert empty string to null
-  reason = reason.trim() === "" ? null : reason;
+  if (typeof reason === "string") {
+    reason = reason.trim() === "" ? null : reason;
+  } else {
+    reason = null;
+  }
 
   const updatedStatus = await reqStatusModel.findByIdAndUpdate(
     reqStatusId,
     {
       $set: {
         status: visaApplicationReqStatusEnum.RE_UPLOAD,
-        reason : reason ,
+        reason: reason,
       },
     },
     { new: true }
@@ -260,6 +262,7 @@ export const needsReupload = async (req: Request, res: Response) => {
     data: updatedStatus,
   });
 };
+
 
 
 

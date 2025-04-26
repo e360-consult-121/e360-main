@@ -4,6 +4,8 @@ import ClientEligibilityForm from "./ClientEligibilityForm";
 import Consultations from "./Consultations";
 import PaymentAndInvoiceManagement from "./PaymentAndInvoiceManagement";
 import { ConsultationInfoTypes, EligibilityFormTypes, PaymentInfoTypes } from "../../../features/admin/clientInformation/clientInformationTypes";
+import ApplicationProcess from "../../../features/admin/visaApplicationInformation/components/ApplicationProcess";
+import DocumentationManagement from "../../../features/admin/visaApplicationInformation/components/DocumentManagement";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -40,7 +42,8 @@ function a11yProps(index: number) {
     paymentInfo,
     eligibilityForm,
     formSubmisionDate,
-    onRefreshLead
+    onRefreshLead,
+    showExtraTabs
   }: {
     leadStatus:string;
     consultationInfo: ConsultationInfoTypes;
@@ -48,8 +51,21 @@ function a11yProps(index: number) {
     eligibilityForm: EligibilityFormTypes;
     formSubmisionDate:string;
     onRefreshLead: () => void;
+    showExtraTabs:boolean
   }) => {
     const tabs = [
+      {
+        //this is admin component only will show is show Extra is sent true
+        label: "Application Process",
+        content: <ApplicationProcess/>,
+        show: showExtraTabs, 
+      },
+      {
+        //this is admin component only will show is show Extra is sent true
+        label: "Documentation Management",
+        content: <DocumentationManagement/>,
+        show: showExtraTabs, 
+      },
       {
         label: "Client Eligibility Form",
         content: <ClientEligibilityForm onRefreshLead={onRefreshLead} leadStatus={leadStatus} formSubmisionDate={formSubmisionDate} eligibilityForm={eligibilityForm} />,
@@ -71,9 +87,13 @@ function a11yProps(index: number) {
   
     useEffect(() => {
       if (tabs.length > 0) {
-        setValue(tabs.length - 1); // Set to the last tab
+        if (showExtraTabs) {
+          setValue(0);
+        } else {
+          setValue(tabs.length - 1);
+        }
       }
-    }, [tabs.length]);
+    }, [tabs.length, showExtraTabs]);
     
     
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {

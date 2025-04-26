@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import UploadModal from "./UploadModal";
+import UploadModal from "../../UploadModal";
 
 interface FileDataType {
   fileName: string;
@@ -8,6 +8,9 @@ interface FileDataType {
   fileSize?: string;
   reqStatus?: string;
   phase?: string;
+  value:string;
+  reqStatusId:string
+  refetch:()=>void
 }
 
 const FileUpload = ({
@@ -16,7 +19,12 @@ const FileUpload = ({
   fileSize,
   reqStatus,
   phase,
+  value,
+  reqStatusId,
+  refetch
 }: FileDataType) => {
+
+  // console.log(reqStatusId)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
 
   return (
@@ -24,6 +32,8 @@ const FileUpload = ({
       <UploadModal
         isUploadModalOpen={isUploadModalOpen}
         setIsUploadModalOpen={setIsUploadModalOpen}
+        reqStatusId={reqStatusId}
+        refetch={refetch}
       />
 
       {/* Left portion */}
@@ -76,9 +86,11 @@ const FileUpload = ({
                   Re-Upload
                 </button>
 
+                <a href={value} target="_blank">
                 <button className="bg-golden-yellow-400 py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
                   Preview
                 </button>
+                </a>
               </>
             ) : (
               <button
@@ -87,7 +99,7 @@ const FileUpload = ({
                 }}
                 className="bg-neutrals-500 py-1 px-3 text-neutrals-50 text-sm rounded-xl cursor-pointer"
               >
-                Upload File
+                Upload File 
               </button>
             )}
           </>
