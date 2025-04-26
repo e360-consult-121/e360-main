@@ -14,7 +14,7 @@ import {
 } from "../../types/enums/enums";
 import { getDgInvestmentStepResponse } from "./exceptionUtility";
 import { VisaTypeModel } from "../../models/VisaType";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 export const getCurrentStepInfo = async (req: Request, res: Response) => {
   console.log(`getCurrentStepInfo api hit`);
@@ -65,11 +65,14 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
 
   const visaStepId = step._id;
 
+
+  console.log(visaApplicationId,visaStepId)
   // Get the dynamic step status
   const stepStatusDoc = await stepStatusModel.findOne({
     visaApplicationId,
     stepId: visaStepId,
   });
+
 
   // Get static requirements of the step
   const requirements = await reqModel.find({ visaStepId: visaStepId });
@@ -100,12 +103,20 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
 
   // Handle AIMA Case
   if (stepType === StepTypeEnum.AIMA) {
-    const aimaDocs = await aimaModel.find({ stepStatusId });
-
+    console.log("StepstatusId", stepStatusId);
+    const aimaDocs = await aimaModel.find({
+      stepStatusId: new mongoose.Types.ObjectId(stepStatusId)
+    });
+    
     return res.status(200).json({
       message: "AIMA documents fetched successfully",
       commonInfo,
-      aimaDocs,
+      stepData:{
+        stepType:step.stepType,
+        stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
+        aimaDocs,
+        stepSource: step.stepSource,
+      },
     });
   }
 
@@ -229,10 +240,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
 export const submitRequirements = async (req: Request, res: Response) => {
 
-  console.log("SubmitRequirements - Request headers:", req.headers);
-  console.log("SubmitRequirements - Request body:", req.body);
   const { requirements } = req.body;
-  console.log("SubmitRequirements - Requirements:", requirements);
 
   if (
     !requirements ||
@@ -247,11 +255,9 @@ export const submitRequirements = async (req: Request, res: Response) => {
   const updateResults = [];
   const errors = [];
 
-  // Process each requirement in the array
   for (const requirement of requirements) {
     const { reqStatusId, value } = requirement;
 
-    // Validate individual requirement data
     if (!reqStatusId) {
       errors.push(
         `Missing reqStatusId for requirement: ${JSON.stringify(requirement)}`
@@ -264,14 +270,12 @@ export const submitRequirements = async (req: Request, res: Response) => {
       continue;
     }
 
-    // Find the requirement status
     const reqStatusDoc = await reqStatusModel.findById(reqStatusId);
     if (!reqStatusDoc) {
       errors.push(`Requirement status not found for ID: ${reqStatusId}`);
       continue;
     }
 
-    // 🔐 Authorization check based on stepSource
     const step = await stepModel.findById(reqStatusDoc.stepId);
     if (!step) {
       errors.push(`Associated step not found for requirement: ${reqStatusId}`);
@@ -287,9 +291,8 @@ export const submitRequirements = async (req: Request, res: Response) => {
       continue;
     }
 
-    // Update the requirement status
     reqStatusDoc.value = value;
-
+    reqStatusDoc.status = visaApplicationReqStatusEnum.UPLOADED
     await reqStatusDoc.save();
     updateResults.push({
       reqStatusId,
@@ -298,7 +301,6 @@ export const submitRequirements = async (req: Request, res: Response) => {
     });
   }
 
-  // Return response with results summary
   return res.status(200).json({
     message: "Requirements processing completed",
     processed: updateResults.length,

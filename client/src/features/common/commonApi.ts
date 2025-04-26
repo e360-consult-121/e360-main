@@ -82,6 +82,9 @@ export const commonApi = baseApi.injectEndpoints({
         };
       },
     }),
+
+    
+
     fetchDeliveryDetails: build.query({
       query: (stepStatusId) => {
         return {

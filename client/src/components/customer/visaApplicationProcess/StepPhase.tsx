@@ -6,11 +6,13 @@ import AdminStepSource from "./ProcessComponent";
 import MedicalApproved from "./Medical/MedicalApproved";
 import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
 import VisaCompletionPortugal from "./VisaCompletionComponents/VisaCompletionPortugal";
+import BankDetails from "./Bank/BankDetails";
 
 const StepPhase: React.FC<{
   phase: Phase;
   requirementData: any;
-  currentStepName:string;
+  currentStepName: string;
+  stepData: any;
   stepType: string;
   onContinue: () => void;
   stepSource: string;
@@ -23,38 +25,51 @@ const StepPhase: React.FC<{
   currentStepName,
   stepType,
   onContinue,
+  stepData,
   stepSource,
   stepStatus,
   refetch,
   onSubmit,
 }) => {
-
-  if(stepType === "DGDELIVERY"){
-    return<>
-    <VisaCompletionPortugal />
-    </>
-  }
-  else if (phase === "APPROVED") {
+  if (stepType === "DGDELIVERY") {
+    return (
+      <>
+        <VisaCompletionPortugal />
+      </>
+    );
+  } else if (phase === "APPROVED") {
     if (stepType === "TRADE_NAME") {
       return <TradeNameApproved onContinue={onContinue} />;
+    }
+    if (stepType === "BANK") {
+      return (
+        <BankDetails
+          onContinue={onContinue}
+          requirementData={requirementData}
+        />
+      );
     } else if (stepType === "GENERAL") {
-      return <Approved stepSource={stepSource} requirementData={requirementData} currentStepName={currentStepName} onContinue={onContinue} />;
+      return (
+        <Approved
+          stepSource={stepSource}
+          requirementData={requirementData}
+          currentStepName={currentStepName}
+          onContinue={onContinue}
+        />
+      );
     } else if (stepType === "MEDICAL") {
       return <MedicalApproved onContinue={onContinue} />;
     }
-  }
-  else if (phase === "IN_PROGRESS" || phase === "SUBMITTED") {
-    if(stepType === "AIMA_APPOINTMENT"){
-      {requirementData.map((req:any) => (
-        <AIMAClientComponent 
-        key={req.reqStatusId}
-        label={req.question}
-        status={req.reqStatus}
-        date ="13 Feb 2025, 12:30 P.M." 
-        />
-      ))}
-    }
-    else if (stepSource === "ADMIN"){
+  } else if (phase === "IN_PROGRESS" || phase === "SUBMITTED") {
+    if (stepType === "AIMA") {
+      return (
+        <>
+          {stepData?.aimaDocs && (
+            <AIMAClientComponent aimaDocs={stepData.aimaDocs} />
+          )}
+        </>
+      );
+    } else if (stepSource === "ADMIN") {
       return (
         <div>
           <AdminStepSource
@@ -66,7 +81,6 @@ const StepPhase: React.FC<{
       );
     }
 
-    
     return (
       <Requirements
         stepStatus={stepStatus}

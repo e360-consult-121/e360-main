@@ -7,10 +7,24 @@ import { useEffect, useState } from "react";
 import { StepData } from "../visaAppicationInformationTypes";
 import { useGetCurrentStepInfoQuery } from "../../../common/commonApi";
 
+interface CommonInfo {
+  visaTypeName: string;
+  currentStepName: string;
+  totalSteps: number;
+  currentStepNumber: number;
+  stepNames: string[];
+}
+
 const ApplicationProcess = () => {
   const { visatype } = useParams();
-  const [currentStepInfo, setCurrentStepInfo] = useState<StepData>();
-  const [stepNames, setStepNames] = useState<string[]>([]);
+  const [stepData, setStepData] = useState<StepData>();
+  const [commonInfo, setCommonInfo] = useState<CommonInfo>({
+    visaTypeName: "",
+    currentStepName: "",
+    totalSteps: 0,
+    currentStepNumber: 0,
+    stepNames: []
+  });
 
   const visaApplicationId = visatype;
   const { data, error, isLoading, refetch } = useGetCurrentStepInfoQuery(visaApplicationId);
@@ -25,11 +39,11 @@ const ApplicationProcess = () => {
     }
 
     if (!isLoading && data) {
-      setCurrentStepInfo(data.stepData);
+      setStepData(data.stepData);
       
-      // Set the step names from the commonInfo data
-      if (data.commonInfo && data.commonInfo.stepNames) {
-        setStepNames(data.commonInfo.stepNames);
+      // Set the common info from the API response
+      if (data.commonInfo) {
+        setCommonInfo(data.commonInfo);
       }
     }
   }, [error, isLoading, data]);
@@ -87,12 +101,12 @@ const ApplicationProcess = () => {
 
   return (
     <Box sx={{ mt: 2 }}>
-      {stepNames.map((step: string, index: number) => {
-        const currentStepNumber = currentStepInfo?.currentStepNumber ?? 0;
+      {commonInfo.stepNames.map((step: string, index: number) => {
+        const currentStepNumber = commonInfo.currentStepNumber ?? 0;
         const isActive = index === (currentStepNumber - 1);
-        const requirements = currentStepInfo?.requirements ?? [];
-        const stepType = currentStepInfo?.stepType ?? "";
-        const stepStatusId = currentStepInfo?.currentStepStatusId ?? "";
+        const requirements = stepData?.requirements ?? [];
+        const stepType = stepData?.stepType ?? "";
+        const stepStatusId = stepData?.currentStepStatusId ?? "";
         
         return (
           <StepItem
@@ -105,7 +119,7 @@ const ApplicationProcess = () => {
             showRequirements={
               isActive ? (
                 <RequirementList
-                  stepSource={currentStepInfo?.stepSource ?? ""}
+                  stepSource={stepData?.stepSource ?? ""}
                   onMarkAsVerified={handleMarkAsVerified}
                   onNeedsReUpload={handleNeedsReUpload}
                   requirements={requirements}

@@ -39,6 +39,7 @@ const RequirementList = ({
   refetch,
   stepStatusId
 }: RequirementListProps) => {
+
   const renderDocuments = () => {
     if (stepSource === "ADMIN") {
       if (stepType === "GENERAL") {
@@ -69,7 +70,7 @@ const RequirementList = ({
         <MedicalAppointment/>
         </>
       }
-      else if(stepType === "AIMA_APPOINTEMENT"){
+      else if(stepType === "AIMA"){
         return <>
         <AIMAStatusComponent/>
         </>

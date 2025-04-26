@@ -41,7 +41,7 @@ const CustomerLayout = () => {
           <CustomerHeader />
         </div>
 
-        <div className="w-full h-full flex-[0.92] overflow-y-hidden">
+        <div className="w-full h-full flex-[0.92] overflow-y-scroll">
           <Outlet />
         </div>
       </div>

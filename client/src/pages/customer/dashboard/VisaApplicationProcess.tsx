@@ -121,6 +121,7 @@ const VisaApplicationProcess = () => {
                 | "SUBMITTED"
                 | "APPROVED"
             }
+            stepData={currentStepInfo}
             requirementData={currentStepInfo.requirements}
             onContinue={handleContinueClick}
             stepSource={currentStepInfo.stepSource}
