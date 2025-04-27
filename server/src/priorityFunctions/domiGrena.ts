@@ -207,11 +207,11 @@ import { getDominicaPriority } from "./dominicaPriority";
 import { getGrenadaPriority } from "./grenadaPriority";
 
 export function getDomiGrenaPriority(data: any): leadPriority {
-  const visaTypeName = data["q63_whatAre"]; // same field
+  const visaTypeName = data["visaTypeName"];
 
-  if (visaTypeName.includes("Dominica")) {
+  if (visaTypeName === "DOMINICA") {
     return getDominicaPriority(data);
-  } else if (visaTypeName.includes("Grenada")) {
+  } else if (visaTypeName === "GRENADA") {
     return getGrenadaPriority(data);
   } else {
     throw new Error("Unknown visa type in form data");
