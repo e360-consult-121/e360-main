@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
-import {  dgInvestStatusEnum ,investmentOptionEnum} from "../../types/enums/enums"
+import {  dgInvestStatusEnum ,investmentOptionEnum, StepStatusEnum} from "../../types/enums/enums"
 import {DgInvestmentModel } from "../../extraModels/dgInvestment";
+import { VisaApplicationStepStatusModel } from "../../models/VisaApplicationStepStatus";
 
 
 
@@ -24,6 +25,12 @@ export const selectOption = async (req: Request, res: Response) => {
       investmentOption,
       dgInvestStatus: dgInvestStatusEnum.optionSelected,
     });
+
+    if(investmentOption===investmentOptionEnum.REAL_STATE){
+      await VisaApplicationStepStatusModel.findByIdAndUpdate(stepStatusId, {
+        $set: { status: StepStatusEnum.SUBMITTED },
+      });
+    }
   
     res.status(201).json({
       message: "Investment option selected successfully",
@@ -57,6 +64,10 @@ export const addOptionsForRealState = async (req: Request, res: Response) => {
       res.status(404).json({ message: "Investment not found for given stepStatusId" });
       return;
     }
+
+    await VisaApplicationStepStatusModel.findByIdAndUpdate(stepStatusId, {
+      $set: { status: StepStatusEnum.IN_PROGRESS },
+    });
   
     res.status(200).json({
       message: "Real state options added successfully",
@@ -88,6 +99,10 @@ export const uploadInvoice = async (req: Request, res: Response) => {
       res.status(404).json({ message: "Investment not found for given stepStatusId" });
       return;
     }
+    
+    await VisaApplicationStepStatusModel.findByIdAndUpdate(stepStatusId, {
+      $set: { status: StepStatusEnum.SUBMITTED },
+    })
   
     res.status(200).json({
       message: "Invoice uploaded successfully",

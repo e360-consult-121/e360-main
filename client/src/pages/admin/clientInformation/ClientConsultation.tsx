@@ -40,6 +40,7 @@ function a11yProps(index: number) {
     leadStatus,
     consultationInfo,
     paymentInfo,
+    visaType,
     eligibilityForm,
     formSubmisionDate,
     onRefreshLead,
@@ -48,6 +49,7 @@ function a11yProps(index: number) {
     leadStatus:string;
     consultationInfo: ConsultationInfoTypes;
     paymentInfo: PaymentInfoTypes;
+    visaType:string;
     eligibilityForm: EligibilityFormTypes;
     formSubmisionDate:string;
     onRefreshLead: () => void;
@@ -78,7 +80,7 @@ function a11yProps(index: number) {
       },
       {
         label: "Payment & Invoice Management",
-        content: <PaymentAndInvoiceManagement onRefreshLead={onRefreshLead} paymentInfo={paymentInfo} />,
+        content: <PaymentAndInvoiceManagement visaType={visaType} onRefreshLead={onRefreshLead} paymentInfo={paymentInfo} />,
         show: consultationInfo?.status === "COMPLETED",
       },
     ].filter(tab => tab.show);

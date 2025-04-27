@@ -106,7 +106,7 @@ const ApplicationProcess = () => {
         const isActive = index === (currentStepNumber - 1);
         const requirements = stepData?.requirements ?? [];
         const stepType = stepData?.stepType ?? "";
-        const stepStatusId = stepData?.currentStepStatusId ?? "";
+        const stepStatusId = stepData?.stepStatusId ?? "";
         
         return (
           <StepItem
@@ -120,7 +120,7 @@ const ApplicationProcess = () => {
             showRequirements={
               isActive ? (
                 <RequirementList
-                  visaApplicationId={visaApplicationId}
+                  visaApplicationId={visaApplicationId??""}
                   stepSource={stepData?.stepSource ?? ""}
                   onMarkAsVerified={handleMarkAsVerified}
                   onNeedsReUpload={handleNeedsReUpload}

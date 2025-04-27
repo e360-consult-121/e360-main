@@ -79,14 +79,6 @@ const RequirementList = ({
         <AIMAStatusComponent stepData={stepData}/>
         </>
       }
-      else if(stepType === "DGINVESTMENT"){
-        return <>
-          <InvestmentOptions
-          stepStatusId={stepStatusId}
-          refetch={refetch}
-        />
-        </>
-      }
       else if(stepType === "DGDELIVERY"){
         return <>
         <PassportDeliveryDetails
@@ -124,6 +116,18 @@ const RequirementList = ({
         return;
       } else if (stepType === "MEDICAL") {
         return;
+      }
+    }
+
+    else{
+      if(stepType === "DGINVESTMENT"){
+        return <>
+          <InvestmentOptions
+          stepStatusId={stepStatusId}
+          stepData={stepData}
+          refetch={refetch}
+        />
+        </>
       }
     }
     return null;

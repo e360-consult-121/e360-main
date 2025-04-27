@@ -133,6 +133,7 @@ const ClientInformation = () => {
         leadStatus={clientInfo?.leadStatus || ""}
         consultationInfo={clientInfo?.consultationInfo}
         paymentInfo={clientInfo?.paymentInfo}
+        visaType={clientInfo?.leadInfo?.appliedFor??""}
         eligibilityForm={clientInfo?.eligibilityForm}
         formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
         showExtraTabs={false}

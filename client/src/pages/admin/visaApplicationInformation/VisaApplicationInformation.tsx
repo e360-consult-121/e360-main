@@ -129,6 +129,7 @@ const VisaApplicationInformation = () => {
           consultationInfo={clientInfo?.consultationInfo}
           paymentInfo={clientInfo?.paymentInfo}
           eligibilityForm={clientInfo?.eligibilityForm}
+          visaType={clientInfo?.leadInfo?.appliedFor ?? ""}
           formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
           showExtraTabs={true}
         />

@@ -42,7 +42,7 @@ export type Phase = (typeof phases)[number];
 
 const VisaApplicationProcess = () => {
   const { visaApplicationId } = useParams();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const [currentStepInfo, setCurrentStepInfo] = useState<StepData>();
   const [commonInfo, setCommonInfo] = useState<any>(null);
 
@@ -66,8 +66,8 @@ const VisaApplicationProcess = () => {
   const handleContinueClick = async () => {
     if (!visaApplicationId) return;
 
-    if(commonInfo.currentStepNumber===commonInfo.totalSteps){
-      navigate("/dashboard")
+    if (commonInfo.currentStepNumber === commonInfo.totalSteps) {
+      navigate("/dashboard");
       return;
     }
     try {
@@ -104,22 +104,23 @@ const VisaApplicationProcess = () => {
 
       <div className="w-full relative overflow-y-auto custom-scrollbar px-5 pb-16">
         {/* Custom Stepper */}
-        {commonInfo && currentStepInfo && (
+        {commonInfo && (
           <CustomStepper
             visaType={commonInfo.visaTypeName}
             visaApplicationId={visaApplicationId}
             currentStepName={commonInfo.currentStepName}
             currentStep={commonInfo.currentStepNumber - 1}
             stepsCount={commonInfo.totalSteps}
-            stepStatus={currentStepInfo.stepStatus}
           />
         )}
 
         {/* Main Content based on phase and src */}
         {currentStepInfo && (
           <StepPhase
+            visaApplicationId={visaApplicationId??""}
+            visaType={commonInfo.visaTypeName}
             currentStepName={commonInfo.currentStepName}
-            stepType={currentStepInfo.stepType}
+            stepType={commonInfo.stepType}
             phase={
               currentStepInfo.stepStatus as
                 | "IN_PROGRESS"

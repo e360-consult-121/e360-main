@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import BankDetails from "./Bank/BankDetails";
 import MedicalDetails from "./Medical/MedicalDetails";
 import TradeDetails from "./TradeName/TradeDetails";
 import { canProceedToNextStep } from "../../../pages/customer/dashboard/VisaApplicationProcess";

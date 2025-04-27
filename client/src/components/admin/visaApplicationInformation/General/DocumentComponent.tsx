@@ -127,6 +127,7 @@ const DocumentComponent = ({
                   textTransform: "none",
                   color: "#64AF64",
                   borderColor: "#64AF64",
+                  minWidth:"max-content",
                   borderRadius: "12px",
                 }}
               >
@@ -141,6 +142,7 @@ const DocumentComponent = ({
                   color: "red",
                   borderColor: "red",
                   borderRadius: "12px",
+                  minWidth:"max-content"
                 }}
               >
                 Needs Re-Upload

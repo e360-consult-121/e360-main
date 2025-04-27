@@ -7,9 +7,12 @@ import MedicalApproved from "./Medical/MedicalApproved";
 import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
 import VisaCompletionPortugal from "./VisaCompletionComponents/VisaCompletionPortugal";
 import BankDetails from "./Bank/BankDetails";
+import DGInvestmentMain from "../../admin/visaApplicationInformation/DGInvestment/DGInvestmentMain";
 
 const StepPhase: React.FC<{
   phase: Phase;
+  visaType: string;
+  visaApplicationId: string;
   requirementData: any;
   currentStepName: string;
   stepData: any;
@@ -21,6 +24,8 @@ const StepPhase: React.FC<{
   onSubmit: () => void;
 }> = ({
   phase,
+  visaType,
+  visaApplicationId,
   requirementData,
   currentStepName,
   stepType,
@@ -37,7 +42,9 @@ const StepPhase: React.FC<{
         <VisaCompletionPortugal />
       </>
     );
-  } else if (phase === "APPROVED" && stepType !=="AIMA") {
+  } else if (stepType === "DGINVESTMENT") {
+    return <DGInvestmentMain visaApplicationId={visaApplicationId} visaType={visaType} stepData={stepData} onContinue={onContinue} currentStepName={currentStepName} />;
+  } else if (phase === "APPROVED" && stepType !== "AIMA") {
     if (stepType === "TRADE_NAME") {
       return <TradeNameApproved onContinue={onContinue} />;
     }
@@ -48,7 +55,7 @@ const StepPhase: React.FC<{
           requirementData={requirementData}
         />
       );
-    } else if (stepType === "GENERAL") {
+    } else if (stepType === "GENERAL" || stepType === "EMPTY") {
       return (
         <Approved
           stepSource={stepSource}
@@ -60,12 +67,20 @@ const StepPhase: React.FC<{
     } else if (stepType === "MEDICAL") {
       return <MedicalApproved onContinue={onContinue} />;
     }
-  } else if (phase === "IN_PROGRESS" || phase === "SUBMITTED" || phase === "APPROVED") {
+  } else if (
+    phase === "IN_PROGRESS" ||
+    phase === "SUBMITTED" ||
+    phase === "APPROVED"
+  ) {
     if (stepType === "AIMA") {
       return (
         <>
           {stepData?.aimaDocs && (
-            <AIMAClientComponent aimaDocs={stepData.aimaDocs} approved={phase==="APPROVED"} onContinue={onContinue}/>
+            <AIMAClientComponent
+              aimaDocs={stepData.aimaDocs}
+              approved={phase === "APPROVED"}
+              onContinue={onContinue}
+            />
           )}
         </>
       );

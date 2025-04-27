@@ -6,7 +6,6 @@ type CustomStepperProps = {
   visaApplicationId?: string;
   stepsCount: number;
   currentStepName: string;
-  stepStatus: string;
 };
 
 
@@ -16,7 +15,6 @@ const CustomStepper = ({
   visaApplicationId,
   stepsCount,
   currentStepName,
-  // stepStatus,
 }: CustomStepperProps) => {
   console.log(currentStep)
   return (

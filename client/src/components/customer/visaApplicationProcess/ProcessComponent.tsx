@@ -3,6 +3,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import CircleIcon from '@mui/icons-material/Circle';
 
 const ProcessComponent = ({ label, date, status }:{ label:string; date:string; status:string }) => {
+  {date}
+  
   return (
     <Box
       sx={{

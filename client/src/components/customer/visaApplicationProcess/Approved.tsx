@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import LoadingGif from "../../../assets/customer/Rightt.gif"
-const Approved = ({stepSource,requirementData, onContinue ,currentStepName}:{stepSource:string,requirementData:any,onContinue: () => void,currentStepName:string }) => {
+const Approved = ({stepSource,requirementData, onContinue ,currentStepName}:{stepSource?:string,requirementData?:any,onContinue: () => void,currentStepName:string }) => {
 
   const document=stepSource==="ADMIN" ? requirementData[0]?.value :null
 

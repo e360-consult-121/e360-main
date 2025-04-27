@@ -20,7 +20,6 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
   console.log(`getCurrentStepInfo api hit`);
   const { visaApplicationId } = req.params;
 
-
   if (!visaApplicationId) {
     return res.status(400).json({ error: "visaApplicationId is required" });
   }
@@ -60,20 +59,19 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
     totalSteps,
     currentStepNumber: currentStep,
     stepNames,
+    stepType: step.stepType,
   };
 
   const { stepType } = step;
 
   const visaStepId = step._id;
 
-
-  console.log(visaApplicationId,visaStepId)
+  console.log(visaApplicationId, visaStepId);
   // Get the dynamic step status
   const stepStatusDoc = await stepStatusModel.findOne({
     visaApplicationId,
     stepId: visaStepId,
   });
-
 
   // Get static requirements of the step
   const requirements = await reqModel.find({ visaStepId: visaStepId });
@@ -99,21 +97,31 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
   if (stepType == StepTypeEnum.DGINVESTMENT) {
     const response = await getDgInvestmentStepResponse({ stepStatusId });
     // directly return this response
-    return res.status(response.statusCode).json({ response, commonInfo });
+    return res.status(response.statusCode).json({
+      response,
+      commonInfo,
+      stepData: {
+        stepType: step.stepType,
+        stepStatusId:stepStatusId,
+        stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
+        stepSource: step.stepSource,
+        dgInvestmentData: response.dgInvestmentData
+      },
+    });
   }
 
   // Handle AIMA Case
   if (stepType === StepTypeEnum.AIMA) {
     console.log("StepstatusId", stepStatusId);
     const aimaDocs = await aimaModel.find({
-      stepStatusId: new mongoose.Types.ObjectId(stepStatusId)
+      stepStatusId: new mongoose.Types.ObjectId(stepStatusId),
     });
-    
+
     return res.status(200).json({
       message: "AIMA documents fetched successfully",
       commonInfo,
-      stepData:{
-        stepType:step.stepType,
+      stepData: {
+        stepType: step.stepType,
         stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
         aimaDocs,
         stepSource: step.stepSource,
@@ -240,7 +248,6 @@ export const uploadDocument = async (req: Request, res: Response) => {
 };
 
 export const submitRequirements = async (req: Request, res: Response) => {
-
   const { requirements } = req.body;
 
   if (
@@ -293,7 +300,7 @@ export const submitRequirements = async (req: Request, res: Response) => {
     }
 
     reqStatusDoc.value = value;
-    reqStatusDoc.status = visaApplicationReqStatusEnum.UPLOADED
+    reqStatusDoc.status = visaApplicationReqStatusEnum.UPLOADED;
     await reqStatusDoc.save();
     updateResults.push({
       reqStatusId,
