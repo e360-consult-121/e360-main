@@ -1,4 +1,4 @@
-import Chatbot from "../../../components/customer/ Chatbot";
+import Chatbot from "../../../components/customer/Chatbot";
 import CustomTable from "../../../components/CustomTable";
 
 const Notification = () => {

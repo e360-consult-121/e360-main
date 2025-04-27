@@ -5,7 +5,9 @@ import {VisaStepModel as stepModel} from "../../models/VisaStep";
 import {VisaApplicationStepStatusModel as stepStatusModel} from "../../models/VisaApplicationStepStatus";
 import {VisaStepRequirementModel as reqModel} from "../../models/VisaStepRequirement";
 import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus";
-import {visaApplicationReqStatusEnum , StepStatusEnum } from "../../types/enums/enums"
+import { VisaTypeModel } from "../../models/VisaType";
+import { aimaModel} from "../../extraModels/aimaModel";
+import {visaApplicationReqStatusEnum , StepStatusEnum , aimaStatusEnum , StepTypeEnum} from "../../types/enums/enums"
 
 
 
@@ -32,8 +34,20 @@ export const approveStep = async (req: Request, res: Response) => {
     });
   
     if (!currentStepDoc) {
-      return res.status(404).json({ error: "Current Step not found." });
+      return res.status(404).json({ error: "currentStepDoc not found." });
     }
+
+    const currentStepStatusDoc = await stepStatusModel.findOne({
+      stepId : currentStepDoc._id
+    });
+
+    if (!currentStepStatusDoc) {
+      return res.status(404).json({ error: "currentStepStatusDoc not found." });
+    }
+
+    // if(currentStepStatusDoc.status != StepStatusEnum.SUBMITTED){
+    //   return res.status(400).json({error:"request can't be done , beacause step is not submitted yet"})
+    // }
   
     // 2. Mark all requirement status = VERIFIED for this step
     await reqStatusModel.updateMany(
@@ -71,15 +85,40 @@ export const approveStep = async (req: Request, res: Response) => {
       });
     }
 
-//  Now , DO *****THIS*****
-const newStepStatusDoc = await stepStatusModel.create({
-    userId,
-    visaTypeId,
-    stepId: nextStepDoc._id,
-    visaApplicationId,
-    status: StepStatusEnum.IN_PROGRESS,
-    reqFilled: {},
-  });
+
+    //  Now , DO *****THIS*****
+    const newStepStatusDoc = await stepStatusModel.create({
+        userId,
+        visaTypeId,
+        stepId: nextStepDoc._id,
+        visaApplicationId,
+        status: StepStatusEnum.IN_PROGRESS,
+        reqFilled: {},
+    });
+
+    // now agar nextStepDoc ka stepType == AIMA -->> create 4 documents of aima step
+    const { stepType } = nextStepDoc;
+    
+    // yaha karna padega
+    if(stepType == StepTypeEnum.AIMA){
+      
+      const phases = [
+        aimaStatusEnum.Application_Approved,
+        aimaStatusEnum.Appointment_Confirmed,
+        aimaStatusEnum.Visa_Approved,
+        aimaStatusEnum.Appointment_Scheduled,
+      ];
+
+      const aimaDocsToCreate = phases.map((status) => ({
+        aimaStatus: status,
+        isCompleted: false,
+        completedOn: null,
+        aimaNumber: null,
+        stepStatusId: newStepStatusDoc._id,
+      }));
+
+      await aimaModel.insertMany(aimaDocsToCreate);
+    }
 
     // 5. Get requirements for next step
     const nextRequirements = await reqModel.find({
@@ -188,25 +227,30 @@ export const markAsVerified = async (req: Request, res: Response) => {
 
 
 
-// Needs Reupload (requirement)
+// Needs Reupload (requirement) updated the trim part-Aditya!!!
 export const needsReupload = async (req: Request, res: Response) => {
-
   const { reqStatusId } = req.params;
   let { reason } = req.body;
+  console.log(req.body)
 
+
+  console.log("_________Reason________ ", reason);
   if (!reqStatusId) {
     return res.status(400).json({ error: "reqStatusId is required." });
   }
 
-  // Convert empty string to null
-  reason = reason.trim() === "" ? null : reason;
+  if (typeof reason === "string") {
+    reason = reason.trim() === "" ? null : reason;
+  } else {
+    reason = null;
+  }
 
   const updatedStatus = await reqStatusModel.findByIdAndUpdate(
     reqStatusId,
     {
       $set: {
         status: visaApplicationReqStatusEnum.RE_UPLOAD,
-        reason : reason ,
+        reason: reason,
       },
     },
     { new: true }
@@ -221,6 +265,7 @@ export const needsReupload = async (req: Request, res: Response) => {
     data: updatedStatus,
   });
 };
+
 
 
 

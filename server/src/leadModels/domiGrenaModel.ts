@@ -6,8 +6,6 @@ import {leadPriority} from "../types/enums/enums";
 export interface ILeadDomiGrena extends ILead {
   additionalInfo: {
 
-
-
     profession:
       | "Business Owner / Entrepreneur"
       | "Investor"

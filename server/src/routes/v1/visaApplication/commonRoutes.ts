@@ -10,6 +10,7 @@ import {upload} from "../../../services/s3Upload"
 const router = Router();
 
 router.get("/:visaApplicationId/getCurrentStepInfo", authenticate ,  asyncHandler(clientSideControllers.getCurrentStepInfo));
+router.post("/submitRequirements" ,authenticate,asyncHandler(clientSideControllers.submitRequirements));
 router.post("/:reqStatusId/uploadDocument", authenticate , upload.single("file"), asyncHandler(clientSideControllers.uploadDocument));
 router.post("/:visaApplicationId/stepSubmit", authenticate ,  asyncHandler(clientSideControllers.stepSubmit));
 router.post("/:visaApplicationId/approveStep", authenticate ,  asyncHandler(adminSideControllers.approveStep) );

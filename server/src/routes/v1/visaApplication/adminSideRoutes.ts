@@ -4,6 +4,7 @@ import asyncHandler from "../../../utils/asyncHandler";
 import * as adminSideControllers from "../../../controllers/visaApplications/adminSideController";
 import * as domiGrenaControllers from "../../../controllers/visaApplications/domiGrenaController";
 import * as deliveryControllers from "../../../controllers/visaApplications/dgDeliveryController";
+import * as portugalControllers from "../../../controllers/visaApplications/portugalController";
 import {upload} from "../../../services/s3Upload"
 
 const router = Router();
@@ -20,5 +21,7 @@ router.post("/:stepStatusId/addOptionsForRealState", authenticate ,authorizeAdmi
 
 // domiGrena Delivery and Shipping API'S
 router.post("/:stepStatusId/uploadShippingDetails", authenticate , authorizeAdmin, asyncHandler(deliveryControllers.uploadShippingDetails));
+// Portugal AIMA 
+router.post('/:aimaId/updateStatus' , authenticate , authorizeAdmin , asyncHandler(portugalControllers.updateStatus) );
 
 export default router;

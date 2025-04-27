@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import UploadModal from "./UploadModal";
+import UploadModal from "../../UploadModal";
 
 interface FileDataType {
   fileName: string;
@@ -8,6 +8,9 @@ interface FileDataType {
   fileSize?: string;
   reqStatus?: string;
   phase?: string;
+  value: string;
+  reqStatusId: string;
+  refetch: () => void;
 }
 
 const FileUpload = ({
@@ -16,6 +19,9 @@ const FileUpload = ({
   fileSize,
   reqStatus,
   phase,
+  value,
+  reqStatusId,
+  refetch,
 }: FileDataType) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
 
@@ -24,22 +30,24 @@ const FileUpload = ({
       <UploadModal
         isUploadModalOpen={isUploadModalOpen}
         setIsUploadModalOpen={setIsUploadModalOpen}
+        reqStatusId={reqStatusId}
+        refetch={refetch}
       />
 
       {/* Left portion */}
       <div className="flex items-center space-x-5">
         <div
           className={`${
-            reqStatus === "UPLOADED"
-              ? "bg-golden-yellow-100 text-neutrals-950"
-              : "bg-neutrals-200 text-white"
+            reqStatus === "NOT_UPLOADED"
+              ? "bg-neutrals-200 text-white"
+              : "bg-golden-yellow-100 text-neutrals-950"
           }   p-3 rounded-xl`}
         >
           <Icon
             icon={`${
-              reqStatus === "UPLOADED"
-                ? "icon-park-outline:done-all"
-                : "icon-park-outline:upload"
+              reqStatus === "NOT_UPLOADED"
+                ? "icon-park-outline:upload"
+                : "icon-park-outline:done-all"
             }`}
             width="24"
             height="24"
@@ -67,20 +75,7 @@ const FileUpload = ({
 
         {phase === "IN_PROGRESS" && (
           <>
-            {reqStatus === "UPLOADED" ? (
-              <>
-                <button
-                  className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
-                  onClick={() => setIsUploadModalOpen(true)}
-                >
-                  Re-Upload
-                </button>
-
-                <button className="bg-golden-yellow-400 py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
-                  Preview
-                </button>
-              </>
-            ) : (
+            {reqStatus === "NOT_UPLOADED" ? (
               <button
                 onClick={() => {
                   setIsUploadModalOpen(true);
@@ -89,6 +84,21 @@ const FileUpload = ({
               >
                 Upload File
               </button>
+            ) : (
+              <>
+                <button
+                  className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
+                  onClick={() => setIsUploadModalOpen(true)}
+                >
+                  Re-Upload
+                </button>
+
+                <a href={value} target="_blank">
+                  <button className="bg-golden-yellow-400 py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
+                    Preview
+                  </button>
+                </a>
+              </>
             )}
           </>
         )}

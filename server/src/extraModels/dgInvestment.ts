@@ -7,10 +7,7 @@ export interface IDgInvestment extends Document {
   invoiceUrl: string;
   realStateOptions: string[];
   investmentOption: investmentOptionEnum;
-
   stepStatusId: mongoose.Schema.Types.ObjectId;
-
-
 }
 
 // 2. Mongoose Schema

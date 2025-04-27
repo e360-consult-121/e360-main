@@ -8,10 +8,8 @@ export interface IVisaApplicationStepStatus extends Document {
     visaApplicationId: mongoose.Schema.Types.ObjectId; 
     status: StepStatusEnum;
 
-    reqFilled: {
-        [requirementId: string]: boolean;
-      };
-    
+    reqFilled: Map<string, boolean>;
+
 }
 
 

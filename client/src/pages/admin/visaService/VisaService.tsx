@@ -13,6 +13,7 @@ const VisaService = () => {
   const { data, isLoading, isError } = useFetchParticularVisaApplicationQuery(visaType);
 
   useEffect(() => {
+    console.log(data)
     if (data && !isLoading && !isError) {
       setApplications(data.visaApplications);
     }

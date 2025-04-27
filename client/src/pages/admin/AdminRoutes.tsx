@@ -11,6 +11,7 @@ import BankDetails from "./manageBankDetails/BankDetails";
 import AdminLogin from "./AdminLogin";
 import { useFetchUserQuery } from "../../features/auth/authApi";
 import { useEffect } from "react";
+import VisaApplicationInformation from "./visaApplicationInformation/VisaApplicationInformation";
 
 const AdminRoutes = () => {
 
@@ -35,6 +36,7 @@ const AdminRoutes = () => {
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
         <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/consultation/:leadid" element={<ClientInformation />} />
+        <Route path="/application/:visatype" element={<VisaApplicationInformation />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>

@@ -17,6 +17,8 @@ import asyncHandler from "./utils/asyncHandler";
 // leadMOdel 
 import { LeadModel } from "./leadModels/leadModel";
 import { LeadDomiGrenaModel } from "./leadModels/domiGrenaModel";
+import { LeadGrenadaModel } from "./leadModels/grenadaModel";
+import { LeadDominicaModel } from "./leadModels/dominicaModel";
 import { LeadPortugalModel } from "./leadModels/portugalModel";
 import { LeadDubaiModel } from "./leadModels/dubaiModel";
 // priority enum
@@ -75,9 +77,9 @@ app.post(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const upload = multer({ storage: multer.memoryStorage() });
-
 app.use("/api/v1", v1Routes);
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.get("/health", (req: Request, res: Response): void => {
   logger.info("Health check endpoint hit");
@@ -100,8 +102,6 @@ const PRIORITY_MAP: Record<string, (data: any) => leadPriority> = {
 };
 
 
-
-
 // webhook endpoint
 app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): Promise<void> => {
   
@@ -119,7 +119,8 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
   let formData;
   try {
     formData = JSON.parse(rawRequest);
-  } catch (error: any) {
+  }
+  catch (error: any) {
     logger.error(`Failed to parse rawRequest: ${error.message}`);
      res.status(400).json({ status: "error", message: "Invalid rawRequest data" });
      return;
@@ -181,9 +182,21 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
       case "250901425096454":
         LeadModelToUse = LeadDubaiModel;
         break;
+      // case "250912364956463":
+      //   LeadModelToUse = LeadDomiGrenaModel;
+      //   break;
       case "250912364956463":
-        LeadModelToUse = LeadDomiGrenaModel;
-        break;
+        // Check visaType inside parsed data
+          if (parsedData.visaTypeName === "DOMINICA") {
+            LeadModelToUse = LeadDominicaModel;
+          } else if (parsedData.visaTypeName === "GRENADA") {
+            LeadModelToUse = LeadGrenadaModel;
+          } else {
+            res.status(400).json({ status: "error", message: "Unknown visa type in form data" });
+            return;
+          }
+          break;
+          
       default:
          res.status(400).json({ status: "error", message: "Unsupported formID" });
          return;
@@ -197,8 +210,8 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
 
     await newLead.save();
 
-    logger.info("Lead saved successfully");
-     res.status(200).json({ status: "success", message: "Lead saved to DB" });
+    logger.info("Lead saved successfully :" , newLead );
+     res.status(200).json({ status: "success", message: "Lead saved to DB"  });
      return;
   } catch (error: any) {
     logger.error("Error saving lead: " + error.message);
@@ -233,3 +246,6 @@ const PORT =
     : Number(process.env.PORT) || 5000;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
