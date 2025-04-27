@@ -28,7 +28,8 @@ export class EmailService {
     const html = EmailTemplateManager.compileTemplate(
       options.templateCategory,
       options.templateName,
-      options.variables
+      options.variables , 
+      true  // false here indicates plain text
     );
 
     await this.resend.emails.send({
