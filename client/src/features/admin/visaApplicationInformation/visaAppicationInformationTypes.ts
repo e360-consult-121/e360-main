@@ -11,7 +11,7 @@ export interface RequirementTypes {
   }
   
   export interface StepData {
-    stepStatusId:string;
+    currentStepStatusId	:string;
     totalSteps: number;
     currentStepNumber: number;
     stepType: string; 

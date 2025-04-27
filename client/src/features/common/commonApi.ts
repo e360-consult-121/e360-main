@@ -86,7 +86,7 @@ export const commonApi = baseApi.injectEndpoints({
 
 
     fetchDeliveryDetails: build.query({
-      query: (stepStatusId) => {
+      query: ({stepStatusId}) => {
         return {
           url: `visaApplications/common/${stepStatusId}/fetchBothDetails`,
           method: "GET",

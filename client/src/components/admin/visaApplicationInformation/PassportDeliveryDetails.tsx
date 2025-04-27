@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Typography, Box, Button } from '@mui/material';
 import { useUploadShippingDetailsMutation } from '../../../features/admin/visaApplicationInformation/visaApplicationInformationApi';
+import { useFetchDeliveryDetailsQuery } from '../../../features/common/commonApi';
 
 type ClientDetails = {
   name: string;
@@ -12,13 +13,11 @@ type ClientDetails = {
 };
 
 type PassportDeliveryDetailsProps = {
-  clientDetails: ClientDetails;
   stepStatusId: string;
   refetch: () => void;
 };
 
 const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({
-  clientDetails,
   stepStatusId,
   refetch
 }) => {
@@ -28,6 +27,9 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({
   const [supportEmail, setSupportEmail] = useState('');
   const [supportPhone, setSupportPhone] = useState('');
 
+  const { data:deliveryData } = useFetchDeliveryDetailsQuery({
+      stepStatusId,
+    });
   const [uploadShippingDetails, { isLoading }] = useUploadShippingDetailsMutation();
 
   const handleSubmit = async () => {
@@ -74,15 +76,15 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({
 
       <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={3} sx={{ fontSize: '14px' }}>
         <Box width={{ xs: '100%', md: '48%' }} mb={1}>
-          <Typography><strong>Name:</strong> {clientDetails.name}</Typography>
-          <Typography><strong>Delivery Address:</strong> {clientDetails.address}</Typography>
-          <Typography><strong>City/Country:</strong> {clientDetails.cityCountry}</Typography>
+          <Typography><strong>Name:</strong> {deliveryData?.data?.delivery?.fullName}</Typography>
+          <Typography><strong>Delivery Address:</strong> {deliveryData?.data?.delivery?.address}</Typography>
+          <Typography><strong>City/Country:</strong> {deliveryData?.data?.delivery?.city},{deliveryData?.data?.delivery?.country}</Typography>
         </Box>
 
         <Box width={{ xs: '100%', md: '48%' }} mb={1}>
-          <Typography><strong>Email address:</strong> {clientDetails.email}</Typography>
-          <Typography><strong>Phone Number:</strong> {clientDetails.phone}</Typography>
-          <Typography><strong>Postal Code:</strong> {clientDetails.postalCode}</Typography>
+          <Typography><strong>Email address:</strong> {deliveryData?.data?.delivery?.email}</Typography>
+          <Typography><strong>Phone Number:</strong> {deliveryData?.data?.delivery?.phoneNo}</Typography>
+          <Typography><strong>Postal Code:</strong> {deliveryData?.data?.delivery?.postalCode}</Typography>
         </Box>
       </Box>
 

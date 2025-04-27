@@ -20,7 +20,7 @@ const Approved = ({stepSource,requirementData, onContinue ,currentStepName}:{ste
 
       {/* Verified Message */}
       <p className="mt-4 text-lg">{currentStepName} - Approved</p>
-      {document&& <Button sx={{textTransform:"none"}} onClick={()=>window.open(document)}>View Document</Button>}
+      {document&& <Button variant="contained" sx={{textTransform:"none",borderRadius:"20px"}} onClick={()=>window.open(document)}>Download</Button>}
 
       {/* Continue Button */}
       <Button

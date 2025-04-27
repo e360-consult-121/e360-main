@@ -106,7 +106,7 @@ const ApplicationProcess = () => {
         const isActive = index === (currentStepNumber - 1);
         const requirements = stepData?.requirements ?? [];
         const stepType = stepData?.stepType ?? "";
-        const stepStatusId = stepData?.stepStatusId ?? "";
+        const stepStatusId = stepData?.currentStepStatusId	 ?? "";
         
         return (
           <StepItem

@@ -5,9 +5,9 @@ import TradeNameApproved from "./TradeName/TradeNameApproved";
 import AdminStepSource from "./ProcessComponent";
 import MedicalApproved from "./Medical/MedicalApproved";
 import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
-import VisaCompletionPortugal from "./VisaCompletionComponents/VisaCompletionPortugal";
 import BankDetails from "./Bank/BankDetails";
 import DGInvestmentMain from "../../admin/visaApplicationInformation/DGInvestment/DGInvestmentMain";
+import VisaCompletionDetailsGrenedaDominica from "./VisaCompletionComponents/VisaCompletionDetailsGrenedaDominica";
 
 const StepPhase: React.FC<{
   phase: Phase;
@@ -39,7 +39,7 @@ const StepPhase: React.FC<{
   if (stepType === "DGDELIVERY") {
     return (
       <>
-        <VisaCompletionPortugal />
+        <VisaCompletionDetailsGrenedaDominica stepStatusId={stepData.currentStepStatusId} />
       </>
     );
   } else if (stepType === "DGINVESTMENT") {

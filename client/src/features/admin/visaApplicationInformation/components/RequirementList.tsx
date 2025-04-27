@@ -45,6 +45,7 @@ const RequirementList = ({
 }: RequirementListProps) => {
 
   const renderDocuments = () => {
+
     if (stepSource === "ADMIN") {
       if (stepType === "GENERAL") {
         return<>
@@ -77,15 +78,6 @@ const RequirementList = ({
       else if(stepType === "AIMA"){
         return <>
         <AIMAStatusComponent stepData={stepData}/>
-        </>
-      }
-      else if(stepType === "DGDELIVERY"){
-        return <>
-        <PassportDeliveryDetails
-        clientDetails={clientDetails}
-        stepStatusId={stepStatusId}
-        refetch={refetch}
-        />
         </>
       }
       else if (stepType === "EMPTY"){
@@ -126,6 +118,14 @@ const RequirementList = ({
           stepStatusId={stepStatusId}
           stepData={stepData}
           refetch={refetch}
+        />
+        </>
+      }
+      else if(stepType === "DGDELIVERY"){
+        return <>
+        <PassportDeliveryDetails
+        stepStatusId={stepStatusId}
+        refetch={refetch}
         />
         </>
       }

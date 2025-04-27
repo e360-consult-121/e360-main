@@ -6,7 +6,7 @@ export const applicationMainApi = baseApi.injectEndpoints({
         query: ({ stepStatusId, body }) => ({
           url: `visaApplications/client-side/${stepStatusId}/uploadDeliveryDetails`,
           method: 'POST',
-          body,
+          data:body,
         }),
       }),      
   }),

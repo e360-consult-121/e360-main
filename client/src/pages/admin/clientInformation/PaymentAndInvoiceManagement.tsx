@@ -114,7 +114,8 @@ const PaymentAndInvoiceManagement = ({
     <div>
       <Box mb={2}>
         <Typography variant="subtitle1" fontWeight="bold">
-          Default Price for {visaType || "Selected Service"}: {getDefaultPriceDisplay()}
+          Default Price 
+          {/* for {visaType || "Selected Service"}: {getDefaultPriceDisplay()} */}
         </Typography>
       </Box>
 
