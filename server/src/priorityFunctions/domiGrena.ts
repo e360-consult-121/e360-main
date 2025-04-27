@@ -208,6 +208,8 @@ import { getGrenadaPriority } from "./grenadaPriority";
 
 export function getDomiGrenaPriority(data: any): leadPriority {
   const visaTypeName = data["visaTypeName"];
+  
+  console.log("Visa Type Name:", visaTypeName);
 
   if (visaTypeName === "DOMINICA") {
     return getDominicaPriority(data);

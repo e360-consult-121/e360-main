@@ -187,9 +187,9 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
       //   break;
       case "250912364956463":
         // Check visaType inside parsed data
-          if (parsedData.visaType === "Dominica") {
+          if (parsedData.visaTypeName === "DOMINICA") {
             LeadModelToUse = LeadDominicaModel;
-          } else if (parsedData.visaType === "Grenada") {
+          } else if (parsedData.visaTypeName === "GRENADA") {
             LeadModelToUse = LeadGrenadaModel;
           } else {
             res.status(400).json({ status: "error", message: "Unknown visa type in form data" });
