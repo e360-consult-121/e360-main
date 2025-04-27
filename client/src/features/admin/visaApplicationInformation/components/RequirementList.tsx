@@ -10,14 +10,14 @@ import PassportDeliveryDetails from "../../../../components/admin/visaApplicatio
 import TradeDetailsComponent from "../../../../components/admin/visaApplicationInformation/Trade/TradeDetailsComponent";
 
 //dummyclientData on stepType === DGDELIVERY
-const clientDetails={
-  name: "John Doe",
-  email: "test@gmail.com",
-  phone: "123",
-  address: "21 Bakers Street",
-  cityCountry: "Pune",
-  postalCode:"123"
-};
+// const clientDetails={
+//   name: "John Doe",
+//   email: "test@gmail.com",
+//   phone: "123",
+//   address: "21 Bakers Street",
+//   cityCountry: "Pune",
+//   postalCode:"123"
+// };
 
 
 type RequirementListProps = {

@@ -3,14 +3,14 @@ import { TextField, Typography, Box, Button } from '@mui/material';
 import { useUploadShippingDetailsMutation } from '../../../features/admin/visaApplicationInformation/visaApplicationInformationApi';
 import { useFetchDeliveryDetailsQuery } from '../../../features/common/commonApi';
 
-type ClientDetails = {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  cityCountry: string;
-  postalCode: string;
-};
+// type ClientDetails = {
+//   name: string;
+//   email: string;
+//   phone: string;
+//   address: string;
+//   cityCountry: string;
+//   postalCode: string;
+// };
 
 type PassportDeliveryDetailsProps = {
   stepStatusId: string;
