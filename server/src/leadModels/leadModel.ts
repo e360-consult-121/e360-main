@@ -22,6 +22,7 @@ export interface ILead extends Document {
   updatedAt?: Date;
 
   caseId?: string;
+  __t?: string; 
 }
 
 

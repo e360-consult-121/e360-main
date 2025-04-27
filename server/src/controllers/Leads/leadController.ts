@@ -55,7 +55,10 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
       "250912364956463": "DomiGrena",
     };
 
-    const visaType = formIdToVisaType[lead.formId] || "Unknown";
+
+    const visaType = lead.__t?.replace("Lead", "") || "Unknown";
+    
+    // const visaType = formIdToVisaType[lead.formId] || "Unknown";
 
 
     // Convert Mongoose doc to plain JS object

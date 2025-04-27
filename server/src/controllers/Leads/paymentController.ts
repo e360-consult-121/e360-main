@@ -145,10 +145,17 @@ export async function createUserFunction({
   }
 }
 
+// const VISATYPE_MAP: Record<string, string> = {
+//   "250912382847462": "6803644993e23a8417963622",
+//   "250901425096454": "6803644993e23a8417963623",
+//   "250912364956463": "6803644993e23a8417963620", // Dominica for now later it will be updated
+// };
+
 const VISATYPE_MAP: Record<string, string> = {
-  "250912382847462": "6803644993e23a8417963622",
-  "250901425096454": "6803644993e23a8417963623",
-  "250912364956463": "6803644993e23a8417963620", // Dominica for now later it will be updated
+  "Portugal": "6803644993e23a8417963622",
+  "Dubai": "6803644993e23a8417963623",
+  "Dominica": "6803644993e23a8417963620", 
+  "Grenada": "6803644993e23a8417963621", 
 };
 
 // create visaApplication
@@ -366,9 +373,10 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
             phone:phone
           });
 
-          const formId = lead.formId;
+          const visaType=lead.__t?.replace("Lead", "") || "Unknown";
 
-          const visaTypeId = VISATYPE_MAP[formId];
+
+          const visaTypeId = VISATYPE_MAP[visaType];
 
           const { visaApplicantInfo } = await createVisaApplication({
             leadId : lead._id as mongoose.Types.ObjectId,
