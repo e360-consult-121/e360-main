@@ -141,7 +141,7 @@ const InvestmentOptions = ({
 
             {/* Display newly added options */}
             {realStateOptions.length > 0 && realStateOptions.some(option => !existingOptions.includes(option)) && (
-              <Box mt={2} display="flex" flexWrap="wrap" gap={1}>
+              <Box mt={2} display="flex" flexDirection={"column"} flexWrap="wrap" gap={1}>
                 <Typography variant="body2" color="text.secondary" gutterBottom width="100%">
                   New options to submit:
                 </Typography>
@@ -154,6 +154,7 @@ const InvestmentOptions = ({
                       onDelete={() => handleRemoveOption(realStateOptions.indexOf(option))}
                       sx={{
                         bgcolor: "#f1f1f1",
+                        width: "fit-content",
                         '& .MuiChip-deleteIcon': {
                           color: '#F6C328',
                           '&:hover': {

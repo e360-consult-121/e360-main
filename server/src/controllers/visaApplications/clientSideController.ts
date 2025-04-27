@@ -102,7 +102,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
       commonInfo,
       stepData: {
         stepType: step.stepType,
-        stepStatusId:stepStatusId,
+        currentStepStatusId:stepStatusId,
         stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
         stepSource: step.stepSource,
         dgInvestmentData: response.dgInvestmentData

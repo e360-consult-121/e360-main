@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useUploadDeliveryDetailsMutation } from '../../../../features/customer/applicationMain/applicationMainApi';
 
-const DGDeliveryForm = ({stepStatusId}:{stepStatusId:string}) => {
+const DGDeliveryForm = ({stepStatusId,refetch}:{stepStatusId:string,refetch:()=>void}) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -73,6 +73,8 @@ const DGDeliveryForm = ({stepStatusId}:{stepStatusId:string}) => {
       };
   
       const response = await uploadDeliveryDetails({ stepStatusId, body }).unwrap();
+      refetch();
+      
       console.log('Response:', response);
       alert('Details submitted successfully!');
     } catch (error) {

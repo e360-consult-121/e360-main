@@ -92,29 +92,29 @@ const PaymentAndInvoiceManagement = ({
   };
 
   // Format currency symbol
-  // const getCurrencySymbol = (currencyCode: string): string => {
-  //   switch(currencyCode) {
-  //     case 'usd': return '$';
-  //     case 'eur': return '€';
-  //     case 'inr': return '₹';
-  //     default: return currencyCode.toUpperCase();
-  //   }
-  // };
+  const getCurrencySymbol = (currencyCode: string): string => {
+    switch(currencyCode) {
+      case 'usd': return '$';
+      case 'eur': return '€';
+      case 'inr': return '₹';
+      default: return currencyCode.toUpperCase();
+    }
+  };
 
   // Get default pricing display
-  // const getDefaultPriceDisplay = () => {
-  //   if (visaType && visaPricing[visaType]) {
-  //     const { amount, currency } = visaPricing[visaType];
-  //     return `${getCurrencySymbol(currency)}${amount}`;
-  //   }
-  //   return "Contact for pricing";
-  // };
+  const getDefaultPriceDisplay = () => {
+    if (visaType && visaPricing[visaType]) {
+      const { amount, currency } = visaPricing[visaType];
+      return `${getCurrencySymbol(currency)}${amount}`;
+    }
+    return "Contact for pricing";
+  };
 
   return (
     <div>
       <Box mb={2}>
         <Typography variant="subtitle1" fontWeight="bold">
-          Default Price 
+          Default Price : {getDefaultPriceDisplay()}
           {/* for {visaType || "Selected Service"}: {getDefaultPriceDisplay()} */}
         </Typography>
       </Box>

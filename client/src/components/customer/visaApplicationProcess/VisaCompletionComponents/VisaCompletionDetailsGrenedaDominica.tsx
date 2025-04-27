@@ -16,7 +16,7 @@ const VisaCompletionDetailsGrenedaDominica = ({
 }: {
   stepStatusId: string;
 }) => {
-  const { data, isLoading, isError } = useFetchDeliveryDetailsQuery({
+  const { data, isLoading, isError,refetch } = useFetchDeliveryDetailsQuery({
     stepStatusId,
   });
 
@@ -39,7 +39,7 @@ const VisaCompletionDetailsGrenedaDominica = ({
   }
 
   if (!data.data.delivery && !data.data.shipping) {
-    return <DGDeliveryForm stepStatusId={stepStatusId} />;
+    return <DGDeliveryForm stepStatusId={stepStatusId} refetch={refetch} />;
   }
 
   if(data.data.delivery && !data.data.shipping){
