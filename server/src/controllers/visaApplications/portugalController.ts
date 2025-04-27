@@ -7,11 +7,11 @@ import { aimaModel} from "../../extraModels/aimaModel";
 
 export const updateStatus = async (req: Request, res: Response) => {
     const { aimaId } = req.params;
-    const { completedOn, aimaNumber } = req.body;
+    const { aimaNumber } = req.body;
   
     const updatePayload: any = {
       isCompleted: true,
-      completedOn: new Date(completedOn),
+      completedOn: Date.now(),
     };
   
     // Only set aimaNumber if it's a non-empty string

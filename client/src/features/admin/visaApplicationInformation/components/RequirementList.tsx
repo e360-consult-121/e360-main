@@ -25,6 +25,8 @@ type RequirementListProps = {
   onMarkAsVerified: any;
   onNeedsReUpload: any;
   stepSource: string;
+  stepData:any;
+  visaApplicationId: string;
   stepType: string;
   refetch:()=> void;
   stepStatusId:string
@@ -35,7 +37,9 @@ const RequirementList = ({
   onMarkAsVerified,
   onNeedsReUpload,
   stepSource,
+  stepData,
   stepType,
+  visaApplicationId,
   refetch,
   stepStatusId
 }: RequirementListProps) => {
@@ -59,7 +63,7 @@ const RequirementList = ({
         </>
       } else if (stepType === "BANK") {
         return <>
-        <BankAccountOpening requirements={requirements}/>
+        <BankAccountOpening visaApplicationId={visaApplicationId} requirements={requirements}/>
         </>
       } else if (stepType === "TRADE_NAME") {
         return <>
@@ -72,7 +76,7 @@ const RequirementList = ({
       }
       else if(stepType === "AIMA"){
         return <>
-        <AIMAStatusComponent/>
+        <AIMAStatusComponent stepData={stepData}/>
         </>
       }
       else if(stepType === "DGINVESTMENT"){

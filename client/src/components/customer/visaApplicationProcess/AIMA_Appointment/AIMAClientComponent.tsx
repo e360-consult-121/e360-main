@@ -1,6 +1,7 @@
-import { Box, Typography, Stack, Avatar } from '@mui/material';
+import { Box, Typography, Stack, Avatar, Button } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import CircleIcon from '@mui/icons-material/Circle';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 // Define the interface for AIMA document data
 interface AIMADoc {
@@ -15,10 +16,12 @@ interface AIMADoc {
 
 // Interface for component props
 interface AIMAClientComponentProps {
+  approved: boolean;
   aimaDocs: AIMADoc[];
+  onContinue: () => void;
 }
 
-const AIMAClientComponent = ({ aimaDocs }: AIMAClientComponentProps) => {
+const AIMAClientComponent = ({ aimaDocs, approved, onContinue }: AIMAClientComponentProps) => {
   // Helper function to format date
   const formatDate = (date: string | null) => {
     if (!date) return "Not completed";
@@ -32,6 +35,9 @@ const AIMAClientComponent = ({ aimaDocs }: AIMAClientComponentProps) => {
     return formattedDate;
   };
 
+  // Check if all steps are completed
+  const allStepsCompleted = aimaDocs.every(doc => doc.isCompleted);
+
   return (
     <Box
       sx={{
@@ -39,7 +45,6 @@ const AIMAClientComponent = ({ aimaDocs }: AIMAClientComponentProps) => {
         borderRadius: '20px',
         padding: '24px',
         width: '76vw',
-        height: '80vh',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
@@ -86,6 +91,28 @@ const AIMAClientComponent = ({ aimaDocs }: AIMAClientComponentProps) => {
           </Stack>
         ))}
       </Stack>
+
+      {/* Continue button - only displays if all steps are completed */}
+      {allStepsCompleted && approved && (
+        <Box sx={{ display: 'flex', width: '100%'}}>
+          <Button 
+            endIcon={<ArrowForwardIcon />}
+            onClick={onContinue}
+            variant="outlined"
+        sx={{
+          borderColor:"black", 
+          my: 5,
+          color:"black",
+          borderRadius:"15px",
+          textTransform:"none",
+          px:6,
+          py:1
+         }}
+          >
+            Continue
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };

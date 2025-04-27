@@ -189,15 +189,19 @@ import {parseDominicaData} from "./dominicaParse";
 import {parseGrenadaData} from "./grenadaParse";
 
 export function parseDomiGrenaData(data: any): any {
-    const visaTypeName = data["q63_whatAre"]; 
-  // isko sahi se handle karna padega (Exactly kya name aa raha hai jotform me)
-    if (visaTypeName === "Dominica") {
-      return parseDominicaData(data);
-    }
-    else if (visaTypeName === "Grenada") {
-      return parseGrenadaData(data);
-    }
-    else {
-      throw new Error("Unknown visa type in form data");
-    }
+  const visaTypeName = data["q63_whatAre"]?.trim(); 
+
+  if (!visaTypeName) {
+    throw new Error("Visa type is missing in form data");
   }
+
+  if (visaTypeName.includes("Dominica")) {
+    return parseDominicaData(data);
+  } 
+  else if (visaTypeName.includes("Grenada")) {
+    return parseGrenadaData(data);
+  } 
+  else {
+    throw new Error(`Unknown visa type in form data: ${visaTypeName}`);
+  }
+}

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomStepper from "../../../components/CustomStepper";
 import StepPhase from "../../../components/customer/visaApplicationProcess/StepPhase";
 import Chatbot from "../../../components/customer/Chatbot";
@@ -42,6 +42,7 @@ export type Phase = (typeof phases)[number];
 
 const VisaApplicationProcess = () => {
   const { visaApplicationId } = useParams();
+  const navigate=useNavigate()
   const [currentStepInfo, setCurrentStepInfo] = useState<StepData>();
   const [commonInfo, setCommonInfo] = useState<any>(null);
 
@@ -65,6 +66,10 @@ const VisaApplicationProcess = () => {
   const handleContinueClick = async () => {
     if (!visaApplicationId) return;
 
+    if(commonInfo.currentStepNumber===commonInfo.totalSteps){
+      navigate("/dashboard")
+      return;
+    }
     try {
       const response = await moveToNextStep(visaApplicationId).unwrap();
       console.log("Moved to next step:", response);

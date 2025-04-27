@@ -42,9 +42,9 @@ const ProcessComponent = ({ label, date, status }:{ label:string; date:string; s
             <Typography sx={{ fontWeight: 500, fontSize: 16, color: '#222' }}>
               {label}
             </Typography>
-            <Typography sx={{ fontSize: 14, color: '#555' }}>
+            {/* <Typography sx={{ fontSize: 14, color: '#555' }}>
               Date - {date}
-            </Typography>
+            </Typography> */}
           </Box>
         </Stack>
       </Stack>

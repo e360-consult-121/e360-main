@@ -37,7 +37,7 @@ const StepPhase: React.FC<{
         <VisaCompletionPortugal />
       </>
     );
-  } else if (phase === "APPROVED") {
+  } else if (phase === "APPROVED" && stepType !=="AIMA") {
     if (stepType === "TRADE_NAME") {
       return <TradeNameApproved onContinue={onContinue} />;
     }
@@ -60,12 +60,12 @@ const StepPhase: React.FC<{
     } else if (stepType === "MEDICAL") {
       return <MedicalApproved onContinue={onContinue} />;
     }
-  } else if (phase === "IN_PROGRESS" || phase === "SUBMITTED") {
+  } else if (phase === "IN_PROGRESS" || phase === "SUBMITTED" || phase === "APPROVED") {
     if (stepType === "AIMA") {
       return (
         <>
           {stepData?.aimaDocs && (
-            <AIMAClientComponent aimaDocs={stepData.aimaDocs} />
+            <AIMAClientComponent aimaDocs={stepData.aimaDocs} approved={phase==="APPROVED"} onContinue={onContinue}/>
           )}
         </>
       );

@@ -20,25 +20,27 @@ export const visaApplicationInformationApi = baseApi.injectEndpoints({
           method: "POST",
         }),
       }),
+
       needsReUpload: build.mutation({
         query: ({ reqStatusId, reason }) => ({
             url: `/visaApplications/admin-side/${reqStatusId}/needsReupload`,
             method: "POST",
-            body: { reason }
+            data: { reason },
         }),
       }),
+
       addRealStateOptions: build.mutation({
         query: ({ stepStatusId ,  realStateOptions }) => ({
             url: `/visaApplications/admin-side/${stepStatusId}/addOptionsForRealState`,
             method: "POST",
-            body: { realStateOptions }
+            data: { realStateOptions }
         }),
       }),
       uploadShippingDetails: build.mutation({
         query: ({ stepStatusId ,data }) => ({
             url: `/visaApplications/admin-side/${stepStatusId}/uploadShippingDetails`,
             method: "POST",
-            body: data 
+            data: data 
         }),
       }),
     }),

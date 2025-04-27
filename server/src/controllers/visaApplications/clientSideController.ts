@@ -20,6 +20,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
   console.log(`getCurrentStepInfo api hit`);
   const { visaApplicationId } = req.params;
 
+
   if (!visaApplicationId) {
     return res.status(400).json({ error: "visaApplicationId is required" });
   }

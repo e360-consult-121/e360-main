@@ -114,15 +114,18 @@ const ApplicationProcess = () => {
             step={step}
             index={index}
             isActive={isActive}
+            stepStatus={stepData?.stepStatus ?? ""}
             currentStepIndex={currentStepNumber - 1}
             requirements={requirements}
             showRequirements={
               isActive ? (
                 <RequirementList
+                  visaApplicationId={visaApplicationId}
                   stepSource={stepData?.stepSource ?? ""}
                   onMarkAsVerified={handleMarkAsVerified}
                   onNeedsReUpload={handleNeedsReUpload}
                   requirements={requirements}
+                  stepData={stepData}
                   stepType={stepType}
                   refetch={refetch}
                   stepStatusId={stepStatusId}

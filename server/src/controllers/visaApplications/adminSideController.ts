@@ -231,7 +231,10 @@ export const markAsVerified = async (req: Request, res: Response) => {
 export const needsReupload = async (req: Request, res: Response) => {
   const { reqStatusId } = req.params;
   let { reason } = req.body;
+  console.log(req.body)
 
+
+  console.log("_________Reason________ ", reason);
   if (!reqStatusId) {
     return res.status(400).json({ error: "reqStatusId is required." });
   }

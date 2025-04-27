@@ -83,7 +83,7 @@ export const commonApi = baseApi.injectEndpoints({
       },
     }),
 
-    
+
 
     fetchDeliveryDetails: build.query({
       query: (stepStatusId) => {
@@ -99,6 +99,7 @@ export const commonApi = baseApi.injectEndpoints({
 export const {
   useFetchDeliveryDetailsQuery,
   useGetCurrentStepInfoQuery,
+  useLazyGetCurrentStepInfoQuery,
   useUploadDocumentMutation,
   useSubmitRequirementsMutation,
   useStepSubmitMutation,

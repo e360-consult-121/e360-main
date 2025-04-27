@@ -6,10 +6,11 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import { useSubmitRequirementsMutation } from "../../../../features/common/commonApi";
+import { useLazyGetCurrentStepInfoQuery, useSubmitRequirementsMutation } from "../../../../features/common/commonApi";
 
-const BankAccountOpening = ({ requirements }: { requirements: any[] }) => {
+const BankAccountOpening = ({ requirements, visaApplicationId }: { requirements: any[], visaApplicationId: string }) => {
   const [submitRequirements, { isLoading }] = useSubmitRequirementsMutation();
+  const [getCurrentStepInfo] = useLazyGetCurrentStepInfoQuery();
 
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -98,6 +99,8 @@ const BankAccountOpening = ({ requirements }: { requirements: any[] }) => {
 
       await submitRequirements(requirementsToSubmit).unwrap();
 
+      // Call getCurrentStepInfo with visaApplicationId after successful submission
+      getCurrentStepInfo(visaApplicationId );
       console.log("All requirements submitted successfully");
     } catch (error) {
       console.error("Failed to submit requirements:", error);
@@ -139,9 +142,7 @@ const BankAccountOpening = ({ requirements }: { requirements: any[] }) => {
                   type={req.requirementType === "NUMBER" ? "text" : "text"}
                   required={req.required}
                   error={!!errors[req.reqStatusId]}
-                  helperText={
-                    errors[req.reqStatusId] || (req.required ? "" : "Optional")
-                  }
+                  helperText={errors[req.reqStatusId]}
                 />
               </Box>
             ))}
