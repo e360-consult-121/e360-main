@@ -2586,3 +2586,7 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"330.393\"}","timestamp":"2025-04-27T07:57:14.715Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"200\",\"responseTime\":\"8.750\"}","timestamp":"2025-04-27T08:16:58.175Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"676.411\"}","timestamp":"2025-04-27T08:16:58.691Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"200\",\"responseTime\":\"9.260\"}","timestamp":"2025-04-27T08:30:46.147Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"451.996\"}","timestamp":"2025-04-27T08:30:46.529Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"200\",\"responseTime\":\"2.410\"}","timestamp":"2025-04-27T08:30:50.101Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"192.361\"}","timestamp":"2025-04-27T08:30:50.285Z"}

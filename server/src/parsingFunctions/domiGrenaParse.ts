@@ -189,7 +189,7 @@ import {parseDominicaData} from "./dominicaParse";
 import {parseGrenadaData} from "./grenadaParse";
 
 export function parseDomiGrenaData(data: any): any {
-  const visaTypeName = data["q63_whatAre"]?.trim(); 
+  const visaTypeName = data["q63_pleaseSelect"]?.trim(); 
 
   if (!visaTypeName) {
     throw new Error("Visa type is missing in form data");
