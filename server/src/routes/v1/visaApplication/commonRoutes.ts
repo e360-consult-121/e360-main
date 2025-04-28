@@ -6,6 +6,7 @@ import * as adminSideControllers from "../../../controllers/visaApplications/adm
 import * as domiGrenaControllers from "../../../controllers/visaApplications/domiGrenaController";
 import * as deliveryControllers from "../../../controllers/visaApplications/dgDeliveryController";
 import {upload} from "../../../services/s3Upload"
+import { handleEligibilityForm } from "../../../controllers/visaApplications/testingEmails"
 
 const router = Router();
 
@@ -20,4 +21,8 @@ router.post("/:visaApplicationId/approveStep", authenticate ,  asyncHandler(admi
 // domiGrena Delivery and Shipping API'S
 router.get("/:stepStatusId/fetchBothDetails", authenticate ,  asyncHandler(deliveryControllers.fetchBothDetails));
 
+
+
+// route for testing emails 
+router.post('/eligibility-form', asyncHandler(handleEligibilityForm) );
 export default router;
