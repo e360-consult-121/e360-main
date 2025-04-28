@@ -19,15 +19,15 @@ export const handleEligibilityForm = async (req: Request, res: Response) => {
     // Prepare the email variables for the admin
     const dashboardLink = 'Link to Dashboard'; // You can generate the actual link here, if needed
   
-    let priority: 'high' | 'medium' | 'low' = 'low'; // Default priority is low
+    let priority: 'HIGH' | 'MEDIUM' | 'LOW' = 'LOW'; // Default priority is low
   
     // Determine the lead priority based on eligibility
     if (eligibilityStatus === 'Eligible') {
-      priority = 'high';  // High priority for eligible leads
+      priority = 'HIGH';  // High priority for eligible leads
     } else if (eligibilityStatus === 'Not Eligible') {
-      priority = 'low';   // Low priority for not eligible leads
+      priority = 'LOW';   // Low priority for not eligible leads
     } else {
-      priority = 'medium';  // Medium priority for potentially eligible leads
+      priority = 'MEDIUM';  // Medium priority for potentially eligible leads
     }
   
     // Call the leadEmailToAdmin function to send email to the admin

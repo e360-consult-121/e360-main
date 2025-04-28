@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, {Request, Response } from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 // import helmet from "helmet";
@@ -33,6 +33,7 @@ import { getDomiGrenaPriority } from "./priorityFunctions/domiGrena";
 import { sendHighPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/highPriority";
 import { sendMediumPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
 import { sendLowPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/lowPriority";
+import { leadEmailToAdmin } from "./services/emails/triggers/admin/eligibility-form-filled/priorityTrigger";
 // import priority functions
 
 dotenv.config();
@@ -224,6 +225,15 @@ app.post(
 
       await newLead.save();
 
+      const adminEmail="e360consult121@gmail.com"
+      const dashboardLink = "app.e360consult.com/admin"
+      await leadEmailToAdmin(
+            adminEmail,  
+            newLead.fullName.first,
+            serviceType,
+            dashboardLink,
+            priority
+          );
       if (priority === leadPriority.HIGH) {
         await sendHighPriorityLeadEmail(
           newLead.email,
