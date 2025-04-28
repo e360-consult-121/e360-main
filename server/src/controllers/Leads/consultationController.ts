@@ -87,12 +87,12 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   }
   // const calendlyLink = process.env.CALENDLY_LINK;
   // const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
-  const html = `
-    <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
-    <p>You have been marked as high-priority. Please schedule your visa consultation using the link below:</p>
-    <a href="${calendlyLink}" target="_blank">${calendlyLink}</a>
-    <p>Regards,<br/>Visa Team</p>
-  `;
+  // const html = `
+  //   <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
+  //   <p>You have been marked as high-priority. Please schedule your visa consultation using the link below:</p>
+  //   <a href="${calendlyLink}" target="_blank">${calendlyLink}</a>
+  //   <p>Regards,<br/>Visa Team</p>
+  // `;
 
   // await sendEmail({
   //   to: lead.email,
@@ -100,13 +100,13 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   //   html,
   // });
 
-  await sendEmail({
-    to: lead.email,
-    subject: "Schedule Your Visa Consultation",
-    html,
-  });
+  // await sendEmail({
+  //   to: lead.email,
+  //   subject: "Schedule Your Visa Consultation",
+  //   html,
+  // });
 
-  console.log(`this is your calendly urllll : ${calendlyLink}`);
+  // console.log(`this is your calendly urllll : ${calendlyLink}`);
 
   // Update lead status
   lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;

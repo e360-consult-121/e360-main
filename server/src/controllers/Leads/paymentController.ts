@@ -30,6 +30,9 @@ import Stripe from "stripe";
 import { stripe } from "../../utils/paymentUtils";
 import { updateRevenueSummary } from "../../utils/revenueCalculate";
 import { addToRecentUpdates } from "../../utils/addToRecentUpdates";
+import { sendPaymentLinkToLead } from "../../services/emails/triggers/leads/payment/payment-link-send";
+import { getServiceType } from "../../utils/leadToServiceType";
+import { sendPortalAccessToClient } from "../../services/emails/triggers/leads/payment/payment-successful";
 
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
@@ -46,21 +49,25 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
   // 2. Create payment link using utility function
   const paymentUrl = await createPaymentSession(leadId, amount, currency);
 
+
+
+  await sendPaymentLinkToLead(lead.email,lead.fullName.first,getServiceType(lead.__t??""),paymentUrl)
+
   // 3. Send email to the user
-  const html = `
-      <p>Hi ${lead.fullName.first},</p>
-      <p>Please complete the payment to start your visa application:</p>
-      <a href="${paymentUrl}" target="_blank">${paymentUrl}</a>
-      <p>If you've already paid, please ignore this.</p>
-    `;
+  // const html = `
+  //     <p>Hi ${lead.fullName.first},</p>
+  //     <p>Please complete the payment to start your visa application:</p>
+  //     <a href="${paymentUrl}" target="_blank">${paymentUrl}</a>
+  //     <p>If you've already paid, please ignore this.</p>
+  //   `;
 
-  console.log(`this is your link for do paymentttt : ${paymentUrl}`);
+  // console.log(`this is your link for do paymentttt : ${paymentUrl}`);
 
-  await sendEmail({
-    to: lead.email,
-    subject: "Complete Your Payment to start your Visa Application",
-    html,
-  });
+  // await sendEmail({
+  //   to: lead.email,
+  //   subject: "Complete Your Payment to start your Visa Application",
+  //   html,
+  // });
 
   // save payemnt details in DB
   const payment = new PaymentModel({
@@ -89,12 +96,14 @@ export interface createUserOptions {
   role?: RoleEnum;
   UserStatus?: AccountStatusEnum;
   phone:string
+  serviceType:string
 }
 
 export async function createUserFunction({
   name,
   email,
-  phone
+  phone,
+  serviceType
 }: createUserOptions): Promise<any> {
   try {
     // 1. Check if user already exists
@@ -122,20 +131,23 @@ export async function createUserFunction({
 
     console.log(`User-Account created : `, user);
 
-    const html = `
-    <p>Hello ${name},</p>
-    <p>Your account has been created.</p>
-    <p><strong>Email:</strong> ${email}</p>
-    <p><strong>Password:</strong> ${randomPassword}</p>
-    <p>Please change your password after login.</p>
-  `;
+    
+    await sendPortalAccessToClient(user.email, user.name,serviceType , randomPassword)
+
+  //   const html = `
+  //   <p>Hello ${name},</p>
+  //   <p>Your account has been created.</p>
+  //   <p><strong>Email:</strong> ${email}</p>
+  //   <p><strong>Password:</strong> ${randomPassword}</p>
+  //   <p>Please change your password after login.</p>
+  // `;
 
     // 4. Send email with password (optional)
-    await sendEmail({
-      to: email,
-      subject: "your account is created",
-      html,
-    });
+    // await sendEmail({
+    //   to: email,
+    //   subject: "your account is created",
+    //   html,
+    // });
 
     console.log(`User ${email} created & email sent.`);
     return user;
@@ -370,7 +382,8 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
           const user = await createUserFunction({
             name: fullName,
             email: lead?.email || "",
-            phone:phone
+            phone:phone,
+            serviceType: getServiceType(lead.__t || ""),
           });
 
           const visaType=lead.__t?.replace("Lead", "") || "Unknown";
