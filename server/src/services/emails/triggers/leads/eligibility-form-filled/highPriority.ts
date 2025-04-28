@@ -9,12 +9,11 @@ export const sendHighPriorityLeadEmail = async (
   const subject = `${firstName}, You're Eligible! We’re Holding a Spot for You`;
   const templateName = 'high-priority-form-filled';
 
-  // Send the email for high priority lead
   await EmailService.getInstance().sendEmail({
     to,
     subject,
     templateName,
-    templateCategory: 'eligibility-form',
+    templateCategory: 'leads/eligibility-form-filled',
     variables: {
       FirstName: firstName,
       Service: service,

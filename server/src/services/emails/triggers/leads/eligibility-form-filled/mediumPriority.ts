@@ -14,7 +14,7 @@ export const sendMediumPriorityLeadEmail = async (
     to,
     subject,
     templateName,
-    templateCategory: 'eligibility-form',
+    templateCategory: 'leads/eligibility-form-filled',
     variables: {
       FirstName: firstName,
       Service: service,
