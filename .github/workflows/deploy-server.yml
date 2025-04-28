@@ -44,6 +44,13 @@ jobs:
             mv dist/server/dist/* dist/
             rm -rf dist/server
           fi
+          
+          # Manually copy templates
+          mkdir -p dist/services/emails/templates
+          cp -r src/services/emails/templates/* dist/services/emails/templates/
+          # Verify templates were copied
+          echo "Template files copied:"
+          find dist/services/emails/templates -type f | wc -l
 
       - name: Clean and Prepare Remote Server Directory
         uses: appleboy/ssh-action@v0.1.7
@@ -61,7 +68,7 @@ jobs:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
-          source: "server/dist/**/*,server/package*.json,server/.env"
+          source: "server/dist/, server/package*.json, server/.env"
           target: "/home/ubuntu/e360consult/e360-main/server-new/"
           strip_components: 1
           concurrency: 10  # Increase concurrency for faster file transfer
