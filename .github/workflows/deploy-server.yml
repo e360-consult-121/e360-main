@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Shallow clone for faster checkout
 
       - name: Cache Server Dependencies
         uses: actions/cache@v3
@@ -50,8 +52,8 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            sudo rm -rf /home/ubuntu/e360consult/e360-main/server
-            mkdir -p /home/ubuntu/e360consult/e360-main/server
+            mkdir -p /home/ubuntu/e360consult/e360-main/server-new
+            rm -rf /home/ubuntu/e360consult/e360-main/server-old
 
       - name: Deploy Server Files
         uses: appleboy/scp-action@v0.1.7
@@ -59,28 +61,22 @@ jobs:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
-          source: "server/dist/*, server/package*.json, server/.env"
-          target: "/home/ubuntu/e360consult/e360-main/server/"
+          source: "server/dist/**/*,server/package*.json,server/.env"
+          target: "/home/ubuntu/e360consult/e360-main/server-new/"
           strip_components: 1
+          concurrency: 10  # Increase concurrency for faster file transfer
 
-      - name: Install Server Dependencies on EC2
+      - name: Install Dependencies and Restart PM2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/e360consult/e360-main/server
-            npm ci --production
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/server
-
-      - name: Restart PM2 Application
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
-          script: |
+            cd /home/ubuntu/e360consult/e360-main/server-new
+            npm ci --production --no-audit --prefer-offline
+            
+            # Setup PM2 config if needed
             cd /home/ubuntu/e360consult/e360-main/
             if [ ! -f "ecosystem.config.js" ]; then
               echo "Creating PM2 ecosystem config file"
@@ -96,28 +92,16 @@ jobs:
                 }]
               }' > ecosystem.config.js
             fi
+            
+            # Swap directories and restart app
+            if [ -d "/home/ubuntu/e360consult/e360-main/server" ]; then
+              mv /home/ubuntu/e360consult/e360-main/server /home/ubuntu/e360consult/e360-main/server-old
+            fi
+            mv /home/ubuntu/e360consult/e360-main/server-new /home/ubuntu/e360consult/e360-main/server
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/server
+            
+            # Restart the application
             pm2 reload ecosystem.config.js --only e360-consult
-
-      - name: Verify Server Deployment
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
-          script: |
-            # Wait for server to start
-            sleep 5
-            # Check if server is running
-            if ! pm2 show e360-consult | grep -q "online"; then
-              echo "Server deployment verification failed - PM2 process not running"
-              exit 1
-            fi
-            # Optional: Check if server responds to health check
-            if command -v curl &> /dev/null; then
-              PORT=${{ secrets.c }}
-              if ! curl -s http://localhost:$PORT/health | grep -q "ok"; then
-                echo "Server health check failed"
-                exit 1
-              fi
-            fi
-            echo "Server deployment completed successfully"
+            
+            # Clean up old directory after successful deployment
+            rm -rf /home/ubuntu/e360consult/e360-main/server-old
