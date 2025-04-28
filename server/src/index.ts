@@ -225,6 +225,8 @@ app.post(
 
       const adminEmail = "e360consult121@gmail.com";
       const dashboardLink = "app.e360consult.com/admin";
+      const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${newLead._id}&utm_source=EEE360`;
+
       await leadEmailToAdmin(
         adminEmail,
         newLead.fullName.first,
@@ -237,14 +239,14 @@ app.post(
           newLead.email,
           newLead.fullName.first,
           serviceType,
-          process.env.CALENDLY_LINK ?? ""
+          calendlyLink
         );
       } else if (priority === leadPriority.MEDIUM) {
         await sendMediumPriorityLeadEmail(
           newLead.email,
           newLead.fullName.first,
           serviceType,
-          process.env.CALENDLY_LINK ?? ""
+          calendlyLink
         );
       } else if (priority === leadPriority.LOW) {
         await sendLowPriorityLeadEmail(

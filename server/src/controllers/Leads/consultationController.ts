@@ -3,13 +3,15 @@ import axios from "axios";
 import AppError from "../../utils/appError";
 import { UserModel } from "../../models/Users";
 import { LeadModel } from "../../leadModels/leadModel";
-import {ConsultationModel} from "../../leadModels/consultationModel"
-import { leadStatus } from "../../types/enums/enums";
-import { consultationStatus } from "../../types/enums/enums"
+import { ConsultationModel } from "../../leadModels/consultationModel";
+import { leadPriority, leadStatus } from "../../types/enums/enums";
+import { consultationStatus } from "../../types/enums/enums";
 import { sendEmail } from "../../utils/sendEmail";
+import { sendHighPriorityLeadEmail } from "../../services/emails/triggers/leads/eligibility-form-filled/highPriority";
+import { sendMediumPriorityLeadEmail } from "../../services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
 
 // get all consultations
-// pagination bhi lagana hai 
+// pagination bhi lagana hai
 export const getAllConsultations = async (req: Request, res: Response) => {
   const consultations = await ConsultationModel.aggregate([
     {
@@ -21,32 +23,29 @@ export const getAllConsultations = async (req: Request, res: Response) => {
               { case: { $eq: ["$status", "CANCELLED"] }, then: 1 },
               { case: { $eq: ["$status", "COMPLETED"] }, then: 2 },
             ],
-            default: 3
-          }
-        }
-      }
+            default: 3,
+          },
+        },
+      },
     },
     {
       $sort: {
         statusOrder: 1,
-        startTime: 1
-      }
+        startTime: 1,
+      },
     },
     {
       $project: {
-        statusOrder: 0 // Remove helper field from final output
-      }
-    }
-  ])
+        statusOrder: 0, // Remove helper field from final output
+      },
+    },
+  ]);
 
   res.status(200).json({ consultations });
 };
 
-
-
 // send consultation link
 export const sendConsultationLink = async (req: Request, res: Response) => {
-
   const leadId = req.params.leadId;
 
   const lead = await LeadModel.findById(leadId);
@@ -56,9 +55,38 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
     throw new Error("Lead not found");
   }
 
+  let serviceType="";
+  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}&utm_source=EEE360`;
+
+  const visaType = lead.__t?.replace("Lead", "");
+  if (visaType === "Dominica") {
+    serviceType = "Dominica Passport";
+  } else if (visaType === "Grenada") {
+    serviceType = "Grenada Passport";
+  } else if (visaType === "Portugal") {
+    serviceType = "Portugal D7 Visa";
+  } else if (visaType === "Dubai") {
+    serviceType = "Dubai Business Setup";
+  }
+
+  if (lead.additionalInfo?.priority === leadPriority.HIGH) {
+    await sendHighPriorityLeadEmail(
+      lead.email,
+      lead.fullName.first,
+      serviceType,
+      calendlyLink
+    );
+  }
+  else{
+    await sendMediumPriorityLeadEmail(
+      lead.email,
+      lead.fullName.first,
+      serviceType,
+      calendlyLink
+    )
+  }
   // const calendlyLink = process.env.CALENDLY_LINK;
   // const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
-  const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}&utm_source=EEE360` ;
   const html = `
     <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
     <p>You have been marked as high-priority. Please schedule your visa consultation using the link below:</p>
@@ -78,35 +106,30 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
     html,
   });
 
-
-   console.log(`this is your calendly urllll : ${calendlyLink}`);
+  console.log(`this is your calendly urllll : ${calendlyLink}`);
 
   // Update lead status
   lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
   await lead.save();
 
-  res.status(200).json({ message: "Consultation link sent successfully" ,calendlyLink });
+  res
+    .status(200)
+    .json({ message: "Consultation link sent successfully", calendlyLink });
 };
-
-
-
-
-
-
 
 // calendly webhook
 export const calendlyWebhook = async (req: Request, res: Response) => {
-  console.log(`[Webhook Triggered] Calendly webhook hit at ${new Date().toISOString()}`);
+  console.log(
+    `[Webhook Triggered] Calendly webhook hit at ${new Date().toISOString()}`
+  );
   // console.log(`Raw request body:`, JSON.stringify(req.body, null, 2));
-
-   
 
   const calendlyEvent = req.body.event;
   const payload = req.body.payload;
 
   const source = payload?.tracking?.utm_source || "";
 
-  console.log(`this is our sourece : ${source}`)
+  console.log(`this is our sourece : ${source}`);
 
   const leadId = payload?.tracking?.utm_campaign; // if you're setting leadId in Calendly tracking parameters
 
@@ -115,21 +138,23 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   const calendlyEventUrl = payload?.uri;
   const startTime = payload?.scheduled_event?.start_time;
   // const endTime = payload?.scheduled_event?.end_time;
-  const rescheduleUrl = payload?.reschedule_url ;
-
+  const rescheduleUrl = payload?.reschedule_url;
 
   // ✅ Proceed only if source is EEE360
   if (source !== "EEE360") {
     console.log(`Webhook source is not EEE360. Ignoring this event.`);
-    res.status(200).json({ message: "Webhook source is not EEE360, skipping." });  // res status ko change karna hai
+    res
+      .status(200)
+      .json({ message: "Webhook source is not EEE360, skipping." }); // res status ko change karna hai
     return;
   }
 
-
   if (!leadId) {
-    console.log(`Actually leadId is not present in meta data , so we can't proceed further and returning`);
-     res.status(400).json({ message: "Missing leadId in tracking data" });
-     return;
+    console.log(
+      `Actually leadId is not present in meta data , so we can't proceed further and returning`
+    );
+    res.status(400).json({ message: "Missing leadId in tracking data" });
+    return;
   }
 
   const lead = await LeadModel.findById(leadId);
@@ -137,14 +162,13 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   // const caseId = lead?.caseId;
   // console.log(`this is your caseId : ${caseId}`);
 
-
   if (!lead) {
-    console.log(`lead is not not present for this leadId : ${leadId}`)
-     res.status(404).json({ message: "Lead not found" });
-     return;
+    console.log(`lead is not not present for this leadId : ${leadId}`);
+    res.status(404).json({ message: "Lead not found" });
+    return;
   }
 
-// case - 1
+  // case - 1
   if (calendlyEvent === "invitee.created") {
     const eventRes = await axios.get(payload.scheduled_event.uri, {
       headers: {
@@ -169,9 +193,9 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     const newConsultation = await ConsultationModel.create({
       name: payload?.name,
       email: payload?.email,
-      calendlyEventUrl : payload?.uri ,  // ek particular consultation/schedule ki info ke liye use hota hai ...
-      startTime : payload?.scheduled_event?.start_time,
-      endTime :  payload?.scheduled_event?.end_time ,
+      calendlyEventUrl: payload?.uri, // ek particular consultation/schedule ki info ke liye use hota hai ...
+      startTime: payload?.scheduled_event?.start_time,
+      endTime: payload?.scheduled_event?.end_time,
       joinUrl,
       rescheduleUrl,
       formattedDate,
@@ -179,7 +203,9 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       // caseId: lead.caseId,
     });
 
-    console.log(`Consultation created: ${JSON.stringify(newConsultation, null, 2)}`);
+    console.log(
+      `Consultation created: ${JSON.stringify(newConsultation, null, 2)}`
+    );
 
     lead.leadStatus = leadStatus.CONSULTATIONSCHEDULED;
     await lead.save();
@@ -188,17 +214,17 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Consultation created and lead updated" });
     return;
-  } 
-  
-  else if (calendlyEvent === "invitee.canceled") {
-
+  } else if (calendlyEvent === "invitee.canceled") {
     console.log(`*****invitee.canceled event is triggered***`);
     console.log(`*****invitee.canceled event is triggered***`);
     console.log(`*****invitee.canceled event is triggered***`);
     console.log(`*****invitee.canceled event is triggered***`);
     console.log(`*****invitee.canceled event is triggered***`);
 
-    console.log(`This is Raw request body in cancel event:`, JSON.stringify(req.body, null, 2));
+    console.log(
+      `This is Raw request body in cancel event:`,
+      JSON.stringify(req.body, null, 2)
+    );
 
     const consultation = await ConsultationModel.findOne({ calendlyEventUrl });
 
@@ -209,14 +235,14 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       console.log(`Consultation deleted for this  event: ${calendlyEventUrl}`);
     }
 
-    
-
     // Optional: Update lead status
     // lead.leadStatus = leadStatus.CONSULTATIONCANCELLED || "PENDING";
     // await lead.save();
 
-     res.status(200).json({ message: "Consultation cancelled and lead updated" });
-     return;
+    res
+      .status(200)
+      .json({ message: "Consultation cancelled and lead updated" });
+    return;
   }
 
   // Unhandled or future events
@@ -224,20 +250,12 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   return res.status(200).json({ message: "Unhandled event received" });
 };
 
-
-
-
-
-
-
-
-
-
-
-// Mark consultation as completed 
-export const markConsultationAsCompleted = async (req: Request, res: Response) => {
-
-  const  consultationId  = req.params.consultationId;
+// Mark consultation as completed
+export const markConsultationAsCompleted = async (
+  req: Request,
+  res: Response
+) => {
+  const consultationId = req.params.consultationId;
 
   // 1. Update consultation status
   const updatedConsultation = await ConsultationModel.findByIdAndUpdate(
@@ -252,10 +270,9 @@ export const markConsultationAsCompleted = async (req: Request, res: Response) =
   }
 
   // 2. Update lead status
-  await LeadModel.findByIdAndUpdate(
-    updatedConsultation.leadId,
-    { leadStatus: leadStatus.CONSULTATIONDONE }
-  );
+  await LeadModel.findByIdAndUpdate(updatedConsultation.leadId, {
+    leadStatus: leadStatus.CONSULTATIONDONE,
+  });
 
   res.status(200).json({
     message: "Consultation marked as completed",
