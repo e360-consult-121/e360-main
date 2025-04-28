@@ -31,7 +31,10 @@ import { getPortugalPriority } from "./priorityFunctions/portugalPriority";
 import { getDubaiPriority } from "./priorityFunctions/dubaiPriority";
 import { getDomiGrenaPriority } from "./priorityFunctions/domiGrena";
 // import priority functions 
-
+import { leadEmailToAdmin} from "./services/emails/triggers/admin/eligibility-form-filled/priorityTrigger";
+import { sendMediumPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
+import { sendHighPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/highPriority";
+import { sendLowPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/lowPriority";
 dotenv.config();
 
 connectDB();
@@ -174,13 +177,16 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
   // Step 4: Create lead (discriminator model will handle the right schema)
   try {
     let LeadModelToUse;
+    let serviceType = '';
 
     switch (formID) {
       case "250912382847462":
         LeadModelToUse = LeadPortugalModel;
+        serviceType = 'Portugal Citizenship';
         break;
       case "250901425096454":
         LeadModelToUse = LeadDubaiModel;
+        serviceType = 'Dubai Business Setup'
         break;
       // case "250912364956463":
       //   LeadModelToUse = LeadDomiGrenaModel;
@@ -189,8 +195,10 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
         // Check visaType inside parsed data
           if (parsedData.visaTypeName === "DOMINICA") {
             LeadModelToUse = LeadDominicaModel;
+            serviceType = 'Dominica Citizenship';
           } else if (parsedData.visaTypeName === "GRENADA") {
             LeadModelToUse = LeadGrenadaModel;
+            serviceType = 'Grenada Citizenship';
           } else {
             res.status(400).json({ status: "error", message: "Unknown visa type in form data" });
             return;
@@ -209,6 +217,46 @@ app.post("/api/v1/webhook", upload.any(), async (req: Request, res: Response): P
     });
 
     await newLead.save();
+
+
+    // Send mail to admin
+    await leadEmailToAdmin(
+      'e360consult121@gmail.com',  // Admin email address (this could be dynamic or stored)
+       newLead.fullName.first , 
+      serviceType,
+      "https://staging.e360consult.com/admin/dashboard",
+      priority,
+    );
+
+    // send mail to user
+    // if (priority === 'HIGH') {
+    //   await sendHighPriorityLeadEmail(
+    //     newLead.email,
+    //     newLead.fullName.first,
+    //     serviceType,
+    //     "https://staging.e360consult.com/user/dashboard"
+    //   );
+    // }
+    // else if (priority === 'MEDIUM') {
+    //   await sendMediumPriorityLeadEmail(
+    //     newLead.email,
+    //     newLead.fullName.first,
+    //     serviceType,
+    //     "https://staging.e360consult.com/user/dashboard"
+    //   );
+    // }
+    // else if (priority === 'LOW') {
+    //   await sendLowPriorityLeadEmail(
+    //     newLead.email,
+    //     newLead.fullName.first,
+    //     serviceType,
+    //     "https://staging.e360consult.com/user/dashboard"
+    //   );
+    // }
+    // else {
+    //   logger.warn(`Unknown priority level: ${priority} for lead: ${newLead._id}`);
+    // }
+
 
     logger.info("Lead saved successfully :" , newLead );
      res.status(200).json({ status: "success", message: "Lead saved to DB"  });

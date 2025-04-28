@@ -5,22 +5,22 @@ export const leadEmailToAdmin = async (
   firstName: string, 
   service: string, 
   dashboardLink: string, 
-  priority: 'high' | 'medium' | 'low'
+  priority: 'HIGH' | 'MEDIUM' | 'LOW'
 ) => {
   let subject = '';
   let templateName = '';
 
   // Determine the subject and template based on priority
   switch (priority) {
-    case 'high':
+    case 'HIGH':
       subject = `High-Priority Lead Alert: ${firstName} – ${service}`;
       templateName = 'high-priority-form-filled';
       break;
-    case 'medium':
+    case 'MEDIUM':
       subject = `Review Needed: Potential Lead for ${firstName} – ${service}`;
       templateName = 'medium-priority-form-filled';
       break;
-    case 'low':
+    case 'LOW':
       subject = `Non-Eligible Lead for ${firstName} – ${service}`;
       templateName = 'low-priority-form-filled';
       break;
