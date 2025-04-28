@@ -257,7 +257,6 @@ app.post(
           ""
         );
       }
-      
       logger.info("Lead saved successfully :", newLead);
       res.status(200).json({ status: "success", message: "Lead saved to DB" });
       return;
