@@ -1,4 +1,4 @@
-import express, {Request, Response } from "express";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 // import helmet from "helmet";
@@ -200,12 +200,10 @@ app.post(
             LeadModelToUse = LeadGrenadaModel;
             serviceType = "Grenada Passport";
           } else {
-            res
-              .status(400)
-              .json({
-                status: "error",
-                message: "Unknown visa type in form data",
-              });
+            res.status(400).json({
+              status: "error",
+              message: "Unknown visa type in form data",
+            });
             return;
           }
           break;
@@ -225,15 +223,15 @@ app.post(
 
       await newLead.save();
 
-      const adminEmail="e360consult121@gmail.com"
-      const dashboardLink = "app.e360consult.com/admin"
+      const adminEmail = "e360consult121@gmail.com";
+      const dashboardLink = "app.e360consult.com/admin";
       await leadEmailToAdmin(
-            adminEmail,  
-            newLead.fullName.first,
-            serviceType,
-            dashboardLink,
-            priority
-          );
+        adminEmail,
+        newLead.fullName.first,
+        serviceType,
+        dashboardLink,
+        priority
+      );
       if (priority === leadPriority.HIGH) {
         await sendHighPriorityLeadEmail(
           newLead.email,
