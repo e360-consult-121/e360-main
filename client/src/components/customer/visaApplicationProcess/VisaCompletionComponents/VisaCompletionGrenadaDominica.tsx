@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useUploadDeliveryDetailsMutation } from '../../../../features/customer/applicationMain/applicationMainApi';
 
-const VisaCompletionGreneda = (stepStatusId:string) => {
+const VisaCompletionGrenada = ({stepStatusId}:{stepStatusId:string}) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -84,7 +84,7 @@ const VisaCompletionGreneda = (stepStatusId:string) => {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 5 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
+      <Paper elevation={0} sx={{ p: 4, borderRadius: 3 }}>
         <Typography variant="h6" fontWeight="bold" mb={2}>
           Confirm Your Delivery Details
         </Typography>
@@ -188,4 +188,4 @@ const VisaCompletionGreneda = (stepStatusId:string) => {
   );
 };
 
-export default VisaCompletionGreneda;
+export default VisaCompletionGrenada;

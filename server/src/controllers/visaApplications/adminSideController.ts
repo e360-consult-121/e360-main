@@ -78,6 +78,7 @@ export const approveStep = async (req: Request, res: Response) => {
       visaTypeId,
       stepNumber: currentStep + 1,
     });
+
   
     if (!nextStepDoc) {
       return res.status(200).json({
