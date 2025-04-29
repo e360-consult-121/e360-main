@@ -1,16 +1,14 @@
+import { ADMIN_EMAIL, DASHBOARD_LINK } from '../../../../../config/configLinks';
 import { EmailService } from '../../../EmailService';
 
 export const leadEmailToAdmin = async (
-  to: string, 
   firstName: string, 
   service: string, 
-  dashboardLink: string, 
   priority: 'HIGH' | 'MEDIUM' | 'LOW'
 ) => {
   let subject = '';
   let templateName = '';
 
-  // Determine the subject and template based on priority
   switch (priority) {
     case 'HIGH':
       subject = `High-Priority Lead Alert: ${firstName} – ${service}`;
@@ -26,16 +24,15 @@ export const leadEmailToAdmin = async (
       break;
   }
 
-  // Send the email using the determined subject and template
   await EmailService.getInstance().sendEmail({
-    to,
+    to:ADMIN_EMAIL,
     subject,
     templateName,
     templateCategory: 'admin/eligibility-form-filled',
     variables: {
       FirstName: firstName,
       Service: service,
-      LinkToDashboard: dashboardLink,
+      LinkToDashboard: DASHBOARD_LINK,
     },
   });
 };
