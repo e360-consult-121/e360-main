@@ -1,205 +1,275 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
-import {VisaApplicationModel as visaApplicationModel} from "../../models/VisaApplication";
-import {VisaStepModel as stepModel} from "../../models/VisaStep";
-import {VisaApplicationStepStatusModel as stepStatusModel} from "../../models/VisaApplicationStepStatus";
-import {VisaStepRequirementModel as reqModel} from "../../models/VisaStepRequirement";
-import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus";
+import { VisaApplicationModel as visaApplicationModel } from "../../models/VisaApplication";
+import {
+  VisaStepModel as stepModel,
+  VisaStepModel,
+} from "../../models/VisaStep";
+import { VisaApplicationStepStatusModel as stepStatusModel } from "../../models/VisaApplicationStepStatus";
+import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
+import { VisaApplicationReqStatusModel as reqStatusModel } from "../../models/VisaApplicationReqStatus";
 import { VisaTypeModel } from "../../models/VisaType";
-import { aimaModel} from "../../extraModels/aimaModel";
-import {visaApplicationReqStatusEnum , StepStatusEnum , aimaStatusEnum , StepTypeEnum} from "../../types/enums/enums"
-
-
+import { aimaModel } from "../../extraModels/aimaModel";
+import {
+  visaApplicationReqStatusEnum,
+  StepStatusEnum,
+  aimaStatusEnum,
+  StepTypeEnum,
+} from "../../types/enums/enums";
+import { sendApplicationUpdateEmails } from "../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
+import mongoose from "mongoose";
 
 // Approve click on step
 export const approveStep = async (req: Request, res: Response) => {
-    const { visaApplicationId } = req.params;
+  const { visaApplicationId } = req.params;
 
-    if (!visaApplicationId) {
-      return res.status(400).json({ error: "visaApplicationId is required." });
-    }
-  
-    // Get Visa Application
-    const visaApp = await visaApplicationModel.findById(visaApplicationId);
-    if (!visaApp) {
-      return res.status(404).json({ error: "Visa Application not found." });
-    }
-  
-    const { currentStep, visaTypeId, userId } = visaApp;
-  
-    // 1. Get step for currentStep
-    const currentStepDoc = await stepModel.findOne({
-      visaTypeId,
-      stepNumber: currentStep,
-    });
-  
-    if (!currentStepDoc) {
-      return res.status(404).json({ error: "currentStepDoc not found." });
-    }
+  if (!visaApplicationId) {
+    return res.status(400).json({ error: "visaApplicationId is required." });
+  }
 
-    const currentStepStatusDoc = await stepStatusModel.findOne({
-      stepId : currentStepDoc._id
-    });
-
-    if (!currentStepStatusDoc) {
-      return res.status(404).json({ error: "currentStepStatusDoc not found." });
-    }
-
-    // if(currentStepStatusDoc.status != StepStatusEnum.SUBMITTED){
-    //   return res.status(400).json({error:"request can't be done , beacause step is not submitted yet"})
-    // }
-  
-    // 2. Mark all requirement status = VERIFIED for this step
-    await reqStatusModel.updateMany(
-      {
-        visaApplicationId,
-        stepId: currentStepDoc._id,
+  const appData = await visaApplicationModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(visaApplicationId) } },
+    {
+      $lookup: {
+        from: "users", // assuming collection name
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
       },
-      {
-        $set: {
-          status: visaApplicationReqStatusEnum.VERIFIED,
+    },
+    { $unwind: "$user" },
+    {
+      $lookup: {
+        from: "visatypes", // assuming collection name
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "visasteps", // assuming collection name
+        let: { visaTypeId: "$visaTypeId", currentStep: "$currentStep" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$visaTypeId", "$$visaTypeId"] },
+                  { $eq: ["$stepNumber", "$$currentStep"] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "currentStepDoc",
+      },
+    },
+    { $unwind: "$currentStepDoc" },
+    {
+      $lookup: {
+        from: "visaapplicationstepstatuses", // assuming collection name
+        let: {
+          stepId: "$currentStepDoc._id",
+          visaAppId: "$_id",
         },
-      }
-    );
-  
-    // 3. Update stepStatus to APPROVED
-    const stepStatusDoc = await stepStatusModel.findOne({
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$stepId", "$$stepId"] },
+                  { $eq: ["$visaApplicationId", "$$visaAppId"] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "currentStepStatusDoc",
+      },
+    },
+    { $unwind: "$currentStepStatusDoc" },
+    {
+      $lookup: {
+        from: "visasteps", // assuming collection name
+        let: {
+          visaTypeId: "$visaTypeId",
+          nextStep: { $add: ["$currentStep", 1] },
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$visaTypeId", "$$visaTypeId"] },
+                  { $eq: ["$stepNumber", "$$nextStep"] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "nextStepDoc",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        userId: 1,
+        visaTypeId: 1,
+        currentStep: 1,
+        "user.name": 1,
+        "user.email": 1,
+        "visaType.name": 1,
+        currentStepDoc: 1,
+        currentStepStatusDoc: 1,
+        nextStepDoc: { $arrayElemAt: ["$nextStepDoc", 0] },
+      },
+    },
+  ]);
+
+  if (!appData.length) {
+    return res
+      .status(404)
+      .json({ error: "Visa Application or related data not found." });
+  }
+
+  const data = appData[0];
+
+  await reqStatusModel.updateMany(
+    {
       visaApplicationId,
-      stepId: currentStepDoc._id,
-    });
-  
-    if (stepStatusDoc) {
-      stepStatusDoc.status = StepStatusEnum.APPROVED;
-      await stepStatusDoc.save();
+      stepId: data.currentStepDoc._id,
+    },
+    {
+      $set: {
+        status: visaApplicationReqStatusEnum.VERIFIED,
+      },
     }
-  
-    // 4. Create StepStatus doc for next step
-    const nextStepDoc = await stepModel.findOne({
-      visaTypeId,
-      stepNumber: currentStep + 1,
+  );
+
+  await stepStatusModel.findByIdAndUpdate(data.currentStepStatusDoc._id, {
+    $set: { status: StepStatusEnum.APPROVED },
+  });
+
+  if (data.currentStepDoc.emailTriggers) {
+    await sendApplicationUpdateEmails({
+      triggers: data.currentStepDoc.emailTriggers,
+      stepStatus: StepStatusEnum.APPROVED,
+      visaType: data.visaType.name,
+      email: data.user.email,
+      firstName: data.user.name,
     });
+  }
 
-  
-    if (!nextStepDoc) {
-      return res.status(200).json({
-        message: "Step approved. No next step found (probably final step).",
-      });
-    }
-
-
-    //  Now , DO *****THIS*****
-    const newStepStatusDoc = await stepStatusModel.create({
-        userId,
-        visaTypeId,
-        stepId: nextStepDoc._id,
-        visaApplicationId,
-        status: StepStatusEnum.IN_PROGRESS,
-        reqFilled: {},
+  if (!data.nextStepDoc) {
+    return res.status(200).json({
+      message: "Step approved. No next step found (final step).",
     });
+  }
 
-    // now agar nextStepDoc ka stepType == AIMA -->> create 4 documents of aima step
-    const { stepType } = nextStepDoc;
-    
-    // yaha karna padega
-    if(stepType == StepTypeEnum.AIMA){
-      
-      const phases = [
-        aimaStatusEnum.Application_Approved,
-        aimaStatusEnum.Appointment_Confirmed,
-        aimaStatusEnum.Visa_Approved,
-        aimaStatusEnum.Appointment_Scheduled,
-      ];
+  const newStepStatusDoc = await stepStatusModel.create({
+    userId: data.userId,
+    visaTypeId: data.visaTypeId,
+    stepId: data.nextStepDoc._id,
+    visaApplicationId,
+    status: StepStatusEnum.IN_PROGRESS,
+    reqFilled: {},
+  });
 
-      const aimaDocsToCreate = phases.map((status) => ({
+  if (data.nextStepDoc.stepType === StepTypeEnum.AIMA) {
+    const phases = [
+      aimaStatusEnum.Application_Approved,
+      aimaStatusEnum.Appointment_Confirmed,
+      aimaStatusEnum.Visa_Approved,
+      aimaStatusEnum.Appointment_Scheduled,
+    ];
+
+    await aimaModel.insertMany(
+      phases.map((status) => ({
         aimaStatus: status,
         isCompleted: false,
         completedOn: null,
         aimaNumber: null,
         stepStatusId: newStepStatusDoc._id,
-      }));
+      }))
+    );
+  }
 
-      await aimaModel.insertMany(aimaDocsToCreate);
-    }
+  const nextRequirements = await reqModel
+    .find({
+      visaTypeId: data.visaTypeId,
+      visaStepId: data.nextStepDoc._id,
+    })
+    .lean();
 
-    // 5. Get requirements for next step
-    const nextRequirements = await reqModel.find({
-        visaTypeId,
-        visaStepId: nextStepDoc._id,
-    });
-
-    // 6. Create reqStatus docs for next step
-    const reqStatusDocs = nextRequirements.map((reqItem) => ({
-        userId,
-        visaTypeId,
+  if (nextRequirements.length > 0) {
+    await reqStatusModel.insertMany(
+      nextRequirements.map((reqItem) => ({
+        userId: data.userId,
+        visaTypeId: data.visaTypeId,
         visaApplicationId,
         reqId: reqItem._id,
-        stepId: nextStepDoc._id,
-        stepStatusId : newStepStatusDoc._id,
+        stepId: data.nextStepDoc._id,
+        stepStatusId: newStepStatusDoc._id,
         status: visaApplicationReqStatusEnum.NOT_UPLOADED,
         value: null,
         reason: null,
-    }));
+      }))
+    );
+  }
 
-    await reqStatusModel.insertMany(reqStatusDocs);
-
-
-    return res.status(200).json({
-        message: "Step approved and next step entires are done",
-        nextStepStatus: newStepStatusDoc,
-    });
+  return res.status(200).json({
+    message: "Step approved and next step entries are done",
+    nextStepStatus: newStepStatusDoc,
+  });
 };
-
-
 
 // Reject click on step
 export const rejectStep = async (req: Request, res: Response) => {
-    const { visaApplicationId } = req.params;
+  const { visaApplicationId } = req.params;
 
-    if (!visaApplicationId) {
-      return res.status(400).json({ error: "visaApplicationId is required." });
-    }
+  if (!visaApplicationId) {
+    return res.status(400).json({ error: "visaApplicationId is required." });
+  }
 
-    // Get Visa Application
-    const visaApp = await visaApplicationModel.findById(visaApplicationId);
-    if (!visaApp) {
-      return res.status(404).json({ error: "Visa Application not found." });
-    }
+  // Get Visa Application
+  const visaApp = await visaApplicationModel.findById(visaApplicationId);
+  if (!visaApp) {
+    return res.status(404).json({ error: "Visa Application not found." });
+  }
 
-    const { currentStep, visaTypeId, userId } = visaApp;
+  const { currentStep, visaTypeId, userId } = visaApp;
 
-    // 1. Get step for currentStep
-    const currentStepDoc = await stepModel.findOne({
-      visaTypeId,
-      stepNumber: currentStep,
-    });
-
-    if (!currentStepDoc) {
-      return res.status(404).json({ error: "Current Step not found." });
-    }
-
-  
-    // 3. Update stepStatus to Rejected
-    const stepStatusDoc = await stepStatusModel.findOneAndUpdate(
-      {
-        visaApplicationId,
-        stepId: currentStepDoc._id,
-      },
-      {
-        $set: { status: StepStatusEnum.REJECTED },
-      },
-      {
-        new: true, // return the updated document
-      }
-    );
-
-    return res.status(200).json({
-      message: "Step rejected",
-      stepStatusDoc,
+  // 1. Get step for currentStep
+  const currentStepDoc = await stepModel.findOne({
+    visaTypeId,
+    stepNumber: currentStep,
   });
 
+  if (!currentStepDoc) {
+    return res.status(404).json({ error: "Current Step not found." });
+  }
+
+  // 3. Update stepStatus to Rejected
+  const stepStatusDoc = await stepStatusModel.findOneAndUpdate(
+    {
+      visaApplicationId,
+      stepId: currentStepDoc._id,
+    },
+    {
+      $set: { status: StepStatusEnum.REJECTED },
+    },
+    {
+      new: true, // return the updated document
+    }
+  );
+
+  return res.status(200).json({
+    message: "Step rejected",
+    stepStatusDoc,
+  });
 };
-
-
 
 // verified (requirement)
 // *******Note***** (reason ko bhi null ya empty karna padega )
@@ -226,14 +296,11 @@ export const markAsVerified = async (req: Request, res: Response) => {
   });
 };
 
-
-
 // Needs Reupload (requirement) updated the trim part-Aditya!!!
 export const needsReupload = async (req: Request, res: Response) => {
   const { reqStatusId } = req.params;
   let { reason } = req.body;
-  console.log(req.body)
-
+  console.log(req.body);
 
   console.log("_________Reason________ ", reason);
   if (!reqStatusId) {
@@ -266,15 +333,3 @@ export const needsReupload = async (req: Request, res: Response) => {
     data: updatedStatus,
   });
 };
-
-
-
-
-
-
-
-
-
-  
-  
-  

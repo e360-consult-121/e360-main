@@ -14,7 +14,7 @@ export const consultationCallScheduledAdmin = async (
     to:ADMIN_EMAIL,
     subject,
     templateName,
-    templateCategory: 'admin/consultations',
+    templateCategory: 'admin/consultation',
     variables: {
       FirstName: firstName,
       Service: service,

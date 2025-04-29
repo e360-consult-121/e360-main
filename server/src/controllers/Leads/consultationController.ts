@@ -6,9 +6,9 @@ import { leadPriority, leadStatus } from "../../types/enums/enums";
 import { consultationStatus } from "../../types/enums/enums";
 import { sendHighPriorityLeadEmail } from "../../services/emails/triggers/leads/eligibility-form-filled/highPriority";
 import { sendMediumPriorityLeadEmail } from "../../services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
-import { consultationCallScheduledAdmin } from "../../services/emails/triggers/admin/consultations/consultation-call-scheduled";
+import { consultationCallScheduledAdmin } from "../../services/emails/triggers/admin/consultation/consultation-call-scheduled";
 import { getServiceType } from "../../utils/leadToServiceType";
-import { constultationCallScheduled } from "../../services/emails/triggers/leads/consultations/consultation-call-scheduled";
+import { constultationCallScheduled } from "../../services/emails/triggers/leads/consultation/consultation-call-scheduled";
 
 // get all consultations
 // pagination bhi lagana hai

@@ -7,7 +7,7 @@ import MedicalApproved from "./Medical/MedicalApproved";
 import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
 import BankDetails from "./Bank/BankDetails";
 import DGInvestmentMain from "../../admin/visaApplicationInformation/DGInvestment/DGInvestmentMain";
-import VisaCompletionDetailsGrenadaDominica from "./VisaCompletionComponents/VisaCompletionDetailsGrenedaDominica";
+import VisaCompletionDetailsGrenadaDominica from "./VisaCompletionComponents/VisaCompletionDetailsGrenadaDominica";
 
 const StepPhase: React.FC<{
   phase: Phase;
