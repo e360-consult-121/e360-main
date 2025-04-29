@@ -32,10 +32,8 @@ export const handleEligibilityForm = async (req: Request, res: Response) => {
   
     // Call the leadEmailToAdmin function to send email to the admin
     await leadEmailToAdmin(
-      email,  // Admin email address (this could be dynamic or stored)
       firstName,
       serviceType,
-      dashboardLink,
       priority
     );
   
