@@ -1,5 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 import { leadStatus } from "../types/enums/enums"; 
+import { nanoid } from 'nanoid';
 
 export interface ILead extends Document {
   formId: string;
@@ -65,14 +66,38 @@ const LeadSchema = new Schema<ILead>({
 
 
 
+// LeadSchema.pre("save", async function (next) {
+//   const lead = this as ILead;
+
+//   // Only generate caseId if it's a new document
+//   if (lead.isNew) {
+//     const count = await LeadModel.countDocuments();
+//     const caseNumber = String(count + 1).padStart(4, "0");    // 0001, 0002, etc.
+//     lead.caseId = `E360-DXB-${caseNumber}`;
+//   }
+
+//   next();
+// });
+
+
 LeadSchema.pre("save", async function (next) {
   const lead = this as ILead;
 
   // Only generate caseId if it's a new document
   if (lead.isNew) {
-    const count = await LeadModel.countDocuments();
-    const caseNumber = String(count + 1).padStart(4, "0");    // 0001, 0002, etc.
-    lead.caseId = `E360-DXB-${caseNumber}`;
+    let caseId;
+    let exists = true;
+
+    do {
+      const shortId = nanoid(6).toUpperCase(); // e.g., A7C8X9
+      const year = new Date().getFullYear();
+      caseId = `E360-${year}-${shortId}`;
+
+      const existing = await LeadModel.exists({ caseId });
+      exists = existing !== null;
+    } while (exists);
+
+    lead.caseId = caseId;
   }
 
   next();
