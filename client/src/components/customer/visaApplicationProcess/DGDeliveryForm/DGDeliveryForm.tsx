@@ -12,20 +12,20 @@ import {
 } from '@mui/material';
 import { useUploadDeliveryDetailsMutation } from '../../../../features/customer/applicationMain/applicationMainApi';
 
-const DGDeliveryForm = ({stepStatusId,refetch}:{stepStatusId:string,refetch:()=>void}) => {
+const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()=>void}) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     alternatePhone: '',
     address: '',
-    cityCountry: '',
+    city: '',
+    country: '',
     postalCode: '',
     confirmed: false,
   });
 
   const [uploadDeliveryDetails] = useUploadDeliveryDetailsMutation();
-
 
   const handleChange = (e:any) => {
     const { name, value, type, checked } = e.target;
@@ -42,7 +42,8 @@ const DGDeliveryForm = ({stepStatusId,refetch}:{stepStatusId:string,refetch:()=>
       phone,
       alternatePhone,
       address,
-      cityCountry,
+      city,
+      country,
       postalCode,
       confirmed,
     } = formData;
@@ -52,7 +53,8 @@ const DGDeliveryForm = ({stepStatusId,refetch}:{stepStatusId:string,refetch:()=>
       !email ||
       !phone ||
       !address ||
-      !cityCountry ||
+      !city ||
+      !country ||
       !postalCode ||
       !confirmed
     ) {
@@ -67,8 +69,8 @@ const DGDeliveryForm = ({stepStatusId,refetch}:{stepStatusId:string,refetch:()=>
         phoneNo: phone,
         alternativePhoneNo: alternatePhone,
         address,
-        city: cityCountry.split(',')[0].trim(),
-        country: cityCountry.split(',')[1]?.trim() || '',
+        city,
+        country,
         postalCode,
       };
   
@@ -83,7 +85,6 @@ const DGDeliveryForm = ({stepStatusId,refetch}:{stepStatusId:string,refetch:()=>
     }
   };
   
-
   return (
     <Container maxWidth="sm" sx={{ mt: 5 }}>
       <Paper elevation={0} sx={{ p: 4, borderRadius: 3 }}>
@@ -132,20 +133,29 @@ const DGDeliveryForm = ({stepStatusId,refetch}:{stepStatusId:string,refetch:()=>
             />
           </Box>
 
+          <TextField
+            fullWidth
+            label="Delivery Address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
+
           <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
             <TextField
               fullWidth
-              label="Delivery Address"
-              name="address"
-              value={formData.address}
+              label="City"
+              name="city"
+              value={formData.city}
               onChange={handleChange}
               required
             />
             <TextField
               fullWidth
-              label="City & Country"
-              name="cityCountry"
-              value={formData.cityCountry}
+              label="Country"
+              name="country"
+              value={formData.country}
               onChange={handleChange}
               required
             />
