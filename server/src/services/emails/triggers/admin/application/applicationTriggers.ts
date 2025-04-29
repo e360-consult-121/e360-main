@@ -6,11 +6,11 @@ import { VisaTypeEnum } from "../../../../../types/enums/enums";
 export const adminApplicationUpdateSend = async (
   triggers: EmailTrigger[],
   customerName: string,
-  visaType: VisaTypeEnum
+  visaType: string
 ) => {
   let templateCategory = "";
 
-  if (visaType === VisaTypeEnum.DOMINICA || visaType === VisaTypeEnum.GRENADA) {
+  if (visaType === "Dominica" || visaType === "Grenada") {
     templateCategory = "admin/application/DominicaGrenada";
   } else if (visaType === VisaTypeEnum.PORTUGAL) {
     templateCategory = "admin/application/Portugal";

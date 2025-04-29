@@ -12,7 +12,7 @@ export const sendApplicationUpdateEmails = async ({
 }: {
   triggers: EmailTrigger[];
   stepStatus: StepStatusEnum;
-  visaType: VisaTypeEnum;
+  visaType: string;
   email: string;
   firstName: string;
 }) => {

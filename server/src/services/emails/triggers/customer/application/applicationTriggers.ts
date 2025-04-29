@@ -7,11 +7,11 @@ export const userApplicationUpdateSend = async (
   triggers: EmailTrigger[],
   email: string,
   firstName: string,
-  visaType: VisaTypeEnum
+  visaType: string
 ) => {
   let templateCategory = "";
 
-  if (visaType === VisaTypeEnum.DOMINICA || visaType === VisaTypeEnum.GRENADA) {
+  if (visaType === "Dominica" || visaType === "Grenada") {
     templateCategory = "customer/application/DominicaGrenada";
   } else if (visaType === VisaTypeEnum.PORTUGAL) {
     templateCategory = "customer/application/Portugal";
