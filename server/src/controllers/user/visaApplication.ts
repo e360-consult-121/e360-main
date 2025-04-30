@@ -217,13 +217,9 @@ export const getAllApplications = async (
     const applications = await VisaApplicationModel.find({
       userId: userData.id,
     })
-    .populate({
-      path: "userId",
-    })
-      .populate({
-        path: "visaTypeId",
-        select: "visaType",
-      })
+      .sort({ createdAt: -1 })
+      .populate({ path: "userId" })
+      .populate({ path: "visaTypeId", select: "visaType" })
       .exec();
 
     return res.status(200).json({

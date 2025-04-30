@@ -13,11 +13,11 @@ const tabs: TAB[] = [
     label: "Previous Applications",
     route: "applications",
   },
-  {
-    icon: "icon-park-outline:remind",
-    label: "Notification",
-    route: "notification",
-  },
+  // {
+  //   icon: "icon-park-outline:remind",
+  //   label: "Notification",
+  //   route: "notification",
+  // },
   {
     icon: "icon-park-outline:setting",
     label: "Settings",

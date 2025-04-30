@@ -39,7 +39,7 @@ const Dashboard = () => {
       </div>
 
       {/* Pending actions section */}
-      <div className="mt-10">
+      {/* <div className="mt-10">
         <h1 className="text-xl text-neutrals-950 font-bold">Pending Actions</h1>
 
         <div className="mt-5">
@@ -64,7 +64,7 @@ const Dashboard = () => {
             ]}
           />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -27,22 +27,23 @@ const DocumentsSubmittedMobile = ({
 }: DocumentsSubmittedMobileTypes) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
 
+  // console.log(reqStatus)
   const getIconStyles = () => {
-    if (reqStatus === "NOT_UPLOADED") {
+    if (reqStatus === "NOT_UPLOADED" || reqStatus === "RE_UPLOAD") {
       return {
         bg: "bg-neutrals-200",
         text: "text-white",
         icon: "icon-park-outline:upload",
       };
-    } else if (reqStatus === "RE_UPLOAD") {
+    } else if (reqStatus === "UPLOADED") {
       return {
         bg: "bg-[#FFEAC0]",
         text: "text-neutrals-950",
-        icon: "icon-park-outline:upload",
+        icon: "icon-park-outline:done-all",
       };
-    } else {
+    } else{
       return {
-        bg: "bg-[#FFF6D8]",
+        bg: "bg-[#CAE6CB]",
         text: "text-neutrals-950",
         icon: "icon-park-outline:done-all",
       };

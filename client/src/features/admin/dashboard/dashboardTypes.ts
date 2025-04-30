@@ -1,5 +1,9 @@
 export interface RecentUpdatesTypes {
-    caseId:string;
+  _id:string  
+  caseId:{
+      _id:string,
+      leadId:string
+    }
     name:string;
     status:string;
   }

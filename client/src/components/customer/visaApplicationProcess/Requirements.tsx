@@ -39,7 +39,7 @@ const Requirements = ({
   if (stepType === "GENERAL") {
     return (
       <>
-        <div className="flex flex-col mt-10 md:mt-24 overflow-y-auto md:h-72 custom-scrollbar">
+        <div className="flex flex-col mt-10 md:mt-24 overflow-y-auto  h-60 md:h-72 custom-scrollbar">
           {phase === "IN_PROGRESS" ? (
             <>
               <p className="text-[#282827] text-[18px] font-bold">Documents</p>

@@ -26,23 +26,32 @@ export const getAllConsultations = async (req: Request, res: Response) => {
             default: 3,
           },
         },
+        sortTime: {
+          $cond: {
+            if: { $eq: ["$status", "SCHEDULED"] },
+            then: { $multiply: [-1, { $toLong: "$startTime" }] }, // negate for descending
+            else: { $toLong: "$startTime" }, // ascending
+          },
+        },
       },
     },
     {
       $sort: {
         statusOrder: 1,
-        startTime: 1,
+        sortTime: 1,
       },
     },
     {
       $project: {
-        statusOrder: 0, // Remove helper field from final output
+        statusOrder: 0,
+        sortTime: 0,
       },
     },
   ]);
 
   res.status(200).json({ consultations });
 };
+
 
 // send consultation link
 export const sendConsultationLink = async (req: Request, res: Response) => {

@@ -16,17 +16,22 @@ export const getAllRevenue = async(req: Request, res: Response)=>{
 
 // Fetch 5 recent updates from RecentUpdatesDB
 export const getRecentUpdates = async (req: Request, res: Response) => {
-    try {
-      const recentUpdates = await RecentUpdatesModel.find()
-        .sort({ createdAt: -1 })  
-        .limit(5);
-  
-      res.status(200).json({ updates: recentUpdates });
-    } catch (error) {
-      console.error("Error fetching recent updates:", error);
-      res.status(500).json({ message: "Error fetching recent updates" });
-    }
-  };
+  try {
+    const recentUpdates = await RecentUpdatesModel.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate({
+        path: 'caseId',
+        select: 'leadId', // only fetch leadId from VisaApplication
+      });
+
+    res.status(200).json({ updates: recentUpdates });
+  } catch (error) {
+    console.error("Error fetching recent updates:", error);
+    res.status(500).json({ message: "Error fetching recent updates" });
+  }
+};
+
 
 // Fetch 5 recent leads 
 export const fetchRecentLeads = async(req: Request, res: Response) => {
@@ -45,7 +50,7 @@ export const fetchRecentConsultions = async(req: Request, res: Response) => {
     },
     {
       $sort: {
-        startTime: 1 
+        startTime: -1 
       }
     },
     {

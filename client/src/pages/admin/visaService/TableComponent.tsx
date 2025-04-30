@@ -36,10 +36,14 @@ const TableComponent: React.FC<any> = ({ data }) => {
 
   const navigate = useNavigate();
 
+  console.log(data)
 
   const handleNavigation = (row: any) => {
-    // console.log(row)
-    navigate(`/admin/application/${row._id}`, { state: { row } });
+    const newRow = {
+      ...row,
+      leadId: row.leadId._id, // flatten leadId to top level
+    };
+    navigate(`/admin/application/${row._id}`, { state: { row: newRow } });
   };
   
   
@@ -135,16 +139,16 @@ const TableComponent: React.FC<any> = ({ data }) => {
       .map((row: any, index: any) => (
         <TableRow key={index} sx={{ borderBottom: "none" }}>
           <TableCell sx={{ borderBottom: "none" }}>{row?._id}</TableCell>
-          <TableCell sx={{ borderBottom: "none" }}>{row?.userId?.name}</TableCell>
-          <TableCell sx={{ borderBottom: "none" }}>{row?.userId?.email}</TableCell>
-          <TableCell sx={{ borderBottom: "none" }}>{row?.userId?.phone}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{row?.leadId?.fullName?.first +" "+row?.leadId?.fullName?.last }</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{row?.leadId?.email}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{row?.leadId?.phone}</TableCell>
           <TableCell
             sx={{
               borderBottom: "none",
               color: row.status === "Passport Delivered" ? "green" : "black",
             }}
           >
-            {row?.visaApplicationStatus}
+            {row?.status}
           </TableCell>
           <TableCell
             align="right"

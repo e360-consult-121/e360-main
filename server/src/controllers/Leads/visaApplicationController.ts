@@ -18,8 +18,10 @@ export const fetchParticularVisaApplication = async (req: Request, res: Response
       }
   
       const applications = await VisaApplicationModel.find({ visaTypeId: visaTypeDoc._id })
-        .populate('userId')        
-        .populate('visaTypeId');  
+      .sort({ createdAt: -1 })  
+      .populate('userId')        
+        .populate('visaTypeId')  
+        .populate('leadId');  
   
       return res.status(200).json({visaApplications:applications});
     } catch (error) {

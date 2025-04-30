@@ -46,7 +46,7 @@ const UploadInvoice: React.FC<UploadInvoiceProps> = ({ stepStatusId ,refetch}) =
   };
 
   return (
-    <div className="py-16">
+    <div className="md:mt-20 py-16 md:mx-10">
       <div className="flex justify-between">
         <div className="flex items-center space-x-5">
           <div
@@ -68,13 +68,14 @@ const UploadInvoice: React.FC<UploadInvoiceProps> = ({ stepStatusId ,refetch}) =
           </div>
 
           <div className="flex flex-col space-y-1">
-            <h1 className="text-neutrals-950 text-sm font-semibold">
+            <h1 className="text-neutrals-950 text-[14px] md:text-sm font-semibold">
               Payment Invoice
             </h1>
             {fileName && invoiceUploadStatus !== "NOT_UPLOADED" ? (
-              <p className="text-neutrals-600 text-xs">{fileName}</p>
-            ) : (
-              <div className="flex space-x-3 text-neutrals-400 text-xs">
+              <p className="text-neutrals-600 text-xs truncate overflow-hidden whitespace-nowrap max-w-[150px] sm:max-w-none">
+  {fileName}
+</p>            ) : (
+              <div className="flex space-x-2 md:space-x-3 text-neutrals-400 text-[9px] md:text-xs">
                 <p>File Format: PDF</p>
                 <p>Max. File Size: 12 MB</p>
               </div>
@@ -83,7 +84,7 @@ const UploadInvoice: React.FC<UploadInvoiceProps> = ({ stepStatusId ,refetch}) =
         </div>
 
         {/* Right portion */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center md:space-x-4">
           <input
             type="file"
             accept="image/png, application/pdf"
@@ -94,7 +95,7 @@ const UploadInvoice: React.FC<UploadInvoiceProps> = ({ stepStatusId ,refetch}) =
 
           <button
             onClick={handleUploadClick}
-            className="bg-neutrals-500 py-1 px-3 text-neutrals-50 text-sm rounded-xl cursor-pointer"
+            className="bg-neutrals-500 py-1.5 md:py-1 px-1.5 md:px-3 text-neutrals-50 text-sm rounded-xl cursor-pointer"
             disabled={isLoading}
           >
             {invoiceUploadStatus === "UPLOADED" ? "Change File" : "Upload File"}
