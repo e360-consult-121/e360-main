@@ -13,8 +13,6 @@ export interface ILead extends Document {
 
   leadStatus: leadStatus;
 
-  // timeToSubmit: Date;
-
   additionalInfo?: Record<string, any>;
   reasonOfRejection?: string | null;
 
@@ -24,8 +22,6 @@ export interface ILead extends Document {
   caseId?: string;
   __t?: string; 
 }
-
-
 
 const LeadSchema = new Schema<ILead>({
   formId: { type: String, required: true },
@@ -50,29 +46,36 @@ const LeadSchema = new Schema<ILead>({
 
   reasonOfRejection: {
     type: String,
-    default : null 
-  } , 
+    default: null 
+  },
 
   caseId: {
     type: String,
     unique: true,
-    // required : true ,
+    // required: true,
   }
-
 }, { timestamps: true });
-
-
-
-
 
 LeadSchema.pre("save", async function (next) {
   const lead = this as ILead;
 
   // Only generate caseId if it's a new document
   if (lead.isNew) {
-    const count = await LeadModel.countDocuments();
-    const caseNumber = String(count + 1).padStart(4, "0");    // 0001, 0002, etc.
-    lead.caseId = `E360-DXB-${caseNumber}`;
+    let caseId;
+    let exists = true;
+
+    do {
+      // Using dynamic import for nanoid
+      const { nanoid } = await import('nanoid');
+      const shortId = nanoid(6).toUpperCase(); // e.g., A7C8X9
+      const year = new Date().getFullYear();
+      caseId = `E360-${year}-${shortId}`;
+
+      const existing = await LeadModel.exists({ caseId });
+      exists = existing !== null;
+    } while (exists);
+
+    lead.caseId = caseId;
   }
 
   next();

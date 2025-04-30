@@ -17,7 +17,7 @@ export enum RoleEnum {
 
 export enum VisaTypeEnum {
   DOMINICA = "Dominica",
-  GRENEDA = "Grenada",
+  GRENADA = "Grenada",
   PORTUGAL = "Portugal",
   DUBAI = "Dubai"
 }

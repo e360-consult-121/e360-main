@@ -31,7 +31,6 @@ export class EmailService {
       options.variables , 
       true  // false here indicates plain text
     );
-
     await this.resend.emails.send({
       from: `E360 Consult <${process.env.EMAIL_FROM}>`,
       to: options.to,

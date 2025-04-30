@@ -43,7 +43,7 @@ const DGInvestmentMain = ({
     try {
       await selectInvestmentOption({
         investmentOption: option,
-        stepStatusId: stepData.stepStatusId,
+        stepStatusId: stepData.currentStepStatusId,
       }).unwrap();
       
       // After successful selection, get current step info
@@ -63,7 +63,7 @@ const DGInvestmentMain = ({
   
   if (uploadInvoice) {
     return (
-      <UploadInvoice stepStatusId={stepData.stepStatusId} refetch={refetchCurrentStepInfo} />
+      <UploadInvoice stepStatusId={stepData.currentStepStatusId} refetch={refetchCurrentStepInfo} />
     );
   }
   else if (

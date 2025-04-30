@@ -11,7 +11,7 @@ export interface RevenueDataTypes {
 
 export enum VisaTypeEnum {
     DOMINICA = "Dominica",
-    GRENEDA = "Grenada",
+    GRENADA = "Grenada",
     PORTUGAL = "Portugal",
     DUBAI = "Dubai"
   }

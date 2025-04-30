@@ -15,6 +15,7 @@ import {
 import { getDgInvestmentStepResponse } from "./exceptionUtility";
 import { VisaTypeModel } from "../../models/VisaType";
 import mongoose, { Types } from "mongoose";
+import { sendApplicationUpdateEmails } from "../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
 
 export const getCurrentStepInfo = async (req: Request, res: Response) => {
   console.log(`getCurrentStepInfo api hit`);
@@ -102,10 +103,10 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
       commonInfo,
       stepData: {
         stepType: step.stepType,
-        currentStepStatusId:stepStatusId,
+        currentStepStatusId: stepStatusId,
         stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
         stepSource: step.stepSource,
-        dgInvestmentData: response.dgInvestmentData
+        dgInvestmentData: response.dgInvestmentData,
       },
     });
   }
@@ -327,41 +328,98 @@ export const stepSubmit = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "visaApplicationId is required." });
   }
 
-  // Step 1: Get visa application doc
-  const visaAppDoc = await visaApplicationModel.findById(visaApplicationId);
-  if (!visaAppDoc) {
-    return res.status(404).json({ error: "Visa Application not found." });
-  }
+  console.log("visaApplicationId",visaApplicationId)
 
-  const { visaTypeId, currentStep } = visaAppDoc;
+  const appData = await visaApplicationModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(visaApplicationId) } },
+    {
+      $lookup: {
+        from: "users", 
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $lookup: {
+        from: "visatypes", // assuming collection name
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "visasteps", // assuming collection name
+        let: { visaTypeId: "$visaTypeId", currentStep: "$currentStep" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$visaTypeId", "$$visaTypeId"] },
+                  { $eq: ["$stepNumber", "$$currentStep"] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "currentStepDoc",
+      },
+    },
+    { $unwind: "$currentStepDoc" },
+    {
+      $lookup: {
+        from: "visaapplicationstepstatuses", 
+        let: {
+          stepId: "$currentStepDoc._id",
+          visaAppId: "$_id",
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$stepId", "$$stepId"] },
+                  { $eq: ["$visaApplicationId", "$$visaAppId"] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "currentStepStatusDoc",
+      },
+    },
+    { $unwind: "$currentStepStatusDoc" },
+    {
+      $project: {
+        _id: 1,
+        userId: 1,
+        visaTypeId: 1,
+        currentStep: 1,
+        "user.name": 1,
+        "user.email": 1,
+        "visaType.visaType": 1,
+        currentStepDoc: 1,
+        currentStepStatusDoc: 1,
+      },
+    },
+  ]);
 
-  // Step 2: Get step doc (based on visaTypeId + currentStep)
-  const stepDoc = await stepModel.findOne({
-    visaTypeId,
-    stepNumber: currentStep,
-  });
-
-  if (!stepDoc) {
+  if (!appData.length) {
     return res
       .status(404)
-      .json({ error: "Step not found for current step number." });
+      .json({ error: "Visa Application or related data not found." });
   }
 
-  // Step 3: Get stepStatus doc
-  const stepStatusDoc = await stepStatusModel.findOne({
-    visaApplicationId,
-    stepId: stepDoc._id,
-  });
+  const data = appData[0];
 
-  if (!stepStatusDoc) {
-    return res.status(404).json({ error: "Step status not found." });
-  }
-
-  // Mapping check
   const reqFilledObj =
-    stepStatusDoc.reqFilled instanceof Map
-      ? Object.fromEntries(stepStatusDoc.reqFilled)
-      : stepStatusDoc.reqFilled;
+    data.currentStepStatusDoc.reqFilled instanceof Map
+      ? Object.fromEntries(data.currentStepStatusDoc.reqFilled)
+      : data.currentStepStatusDoc.reqFilled;
 
   const allFilled = Object.values(reqFilledObj).every((val) => val === true);
 
@@ -371,13 +429,27 @@ export const stepSubmit = async (req: Request, res: Response) => {
     });
   }
 
-  // If everything is filled, update the step status
-  stepStatusDoc.status = StepStatusEnum.SUBMITTED;
-  await stepStatusDoc.save();
+  await stepStatusModel.findByIdAndUpdate(data.currentStepStatusDoc._id, {
+    $set: { status: StepStatusEnum.SUBMITTED },
+  });
+
+  const updatedStepStatus = await stepStatusModel.findById(
+    data.currentStepStatusDoc._id
+  );
+
+  if (data.currentStepDoc.emailTriggers) {
+    await sendApplicationUpdateEmails({
+      triggers: data.currentStepDoc.emailTriggers,
+      stepStatus: StepStatusEnum.SUBMITTED,
+      visaType: data.visaType.visaType,
+      email: data.user.email,
+      firstName: data.user.name,
+    });
+  }
 
   return res.status(200).json({
     message: "Step submitted successfully.",
-    updatedStepStatus: stepStatusDoc,
+    updatedStepStatus: updatedStepStatus,
   });
 };
 

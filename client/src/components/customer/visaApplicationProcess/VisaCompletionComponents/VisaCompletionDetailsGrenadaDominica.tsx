@@ -11,7 +11,7 @@ import { useFetchDeliveryDetailsQuery } from "../../../../features/common/common
 import DGDeliveryForm from "../DGDeliveryForm/DGDeliveryForm";
 import ProcessComponent from "../ProcessComponent";
 
-const VisaCompletionDetailsGrenedaDominica = ({
+const VisaCompletionDetailsGrenadaDominica = ({
   stepStatusId,
 }: {
   stepStatusId: string;
@@ -248,4 +248,4 @@ const VisaCompletionDetailsGrenedaDominica = ({
   );
 };
 
-export default VisaCompletionDetailsGrenedaDominica;
+export default VisaCompletionDetailsGrenadaDominica;

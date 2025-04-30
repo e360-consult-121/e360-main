@@ -223,15 +223,11 @@ app.post(
 
       await newLead.save();
 
-      const adminEmail = "e360consult121@gmail.com";
-      const dashboardLink = "app.e360consult.com/admin";
       const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${newLead._id}&utm_source=EEE360`;
 
       await leadEmailToAdmin(
-        adminEmail,
         newLead.fullName.first,
         serviceType,
-        dashboardLink,
         priority
       );
       if (priority === leadPriority.HIGH) {

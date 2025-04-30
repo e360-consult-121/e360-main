@@ -7,7 +7,7 @@ import MedicalApproved from "./Medical/MedicalApproved";
 import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
 import BankDetails from "./Bank/BankDetails";
 import DGInvestmentMain from "../../admin/visaApplicationInformation/DGInvestment/DGInvestmentMain";
-import VisaCompletionDetailsGrenedaDominica from "./VisaCompletionComponents/VisaCompletionDetailsGrenedaDominica";
+import VisaCompletionDetailsGrenadaDominica from "./VisaCompletionComponents/VisaCompletionDetailsGrenadaDominica";
 
 const StepPhase: React.FC<{
   phase: Phase;
@@ -39,9 +39,7 @@ const StepPhase: React.FC<{
   if (stepType === "DGDELIVERY") {
     return (
       <>
-        <VisaCompletionDetailsGrenedaDominica
-          stepStatusId={stepData.currentStepStatusId}
-        />
+        <VisaCompletionDetailsGrenadaDominica stepStatusId={stepData.currentStepStatusId} />
       </>
     );
   } else if (stepType === "DGINVESTMENT") {

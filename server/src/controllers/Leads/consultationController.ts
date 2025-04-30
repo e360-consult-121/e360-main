@@ -1,14 +1,14 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import axios from "axios";
-import AppError from "../../utils/appError";
-import { UserModel } from "../../models/Users";
 import { LeadModel } from "../../leadModels/leadModel";
 import { ConsultationModel } from "../../leadModels/consultationModel";
 import { leadPriority, leadStatus } from "../../types/enums/enums";
 import { consultationStatus } from "../../types/enums/enums";
-import { sendEmail } from "../../utils/sendEmail";
 import { sendHighPriorityLeadEmail } from "../../services/emails/triggers/leads/eligibility-form-filled/highPriority";
 import { sendMediumPriorityLeadEmail } from "../../services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
+import { consultationCallScheduledAdmin } from "../../services/emails/triggers/admin/consultation/consultation-call-scheduled";
+import { getServiceType } from "../../utils/leadToServiceType";
+import { constultationCallScheduled } from "../../services/emails/triggers/leads/consultation/consultation-call-scheduled";
 
 // get all consultations
 // pagination bhi lagana hai
@@ -190,6 +190,9 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       hour12: true,
     });
 
+    await consultationCallScheduledAdmin(lead.fullName.first, getServiceType(lead.__t ?? ""), formattedDate, joinUrl);
+    await constultationCallScheduled(lead.email, lead.fullName.first, getServiceType(lead.__t ?? ""), formattedDate, joinUrl,lead.additionalInfo?.priority);
+    
     const newConsultation = await ConsultationModel.create({
       name: payload?.name,
       email: payload?.email,

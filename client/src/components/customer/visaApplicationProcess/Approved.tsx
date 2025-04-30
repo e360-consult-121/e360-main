@@ -27,44 +27,24 @@ const Approved = ({
 
       {/* Verified Message */}
       <p className="mt-4 text-lg">{currentStepName} - Approved</p>
+      {document&& <Button variant="contained" sx={{textTransform:"none",borderRadius:"20px"}} onClick={()=>window.open(document)}>Download</Button>}
 
-      {/* Buttons */}
-      <div
-        className={`flex mt-8 gap-3  ${
-          document ? "flex-row space-x-4" : "flex-col items-center"
-        }`}
+      {/* Continue Button */}
+      <Button
+      onClick={onContinue}
+        variant="outlined"
+        sx={{
+          borderColor:"black", 
+          my: 5,
+          color:"black",
+          borderRadius:"15px",
+          textTransform:"none",
+          px:6,
+          py:1
+         }}
       >
-        {document && (
-          <Button
-            variant="contained"
-            sx={{
-              textTransform: "none",
-              borderRadius: "20px",
-              px: 4,
-              py: 1,
-              boxShadow:"none"
-            }}
-            onClick={() => window.open(document)}
-          >
-            Download
-          </Button>
-        )}
-
-        <Button
-          onClick={onContinue}
-          variant="outlined"
-          sx={{
-            borderColor: "black",
-            color: "black",
-            borderRadius: "15px",
-            textTransform: "none",
-            px: 4,
-            py: 1,
-          }}
-        >
-          Continue
-        </Button>
-      </div>
+        Continue
+      </Button>
     </div>
   );
 };
