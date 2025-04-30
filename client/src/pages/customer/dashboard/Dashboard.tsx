@@ -1,11 +1,10 @@
-import CustomTable from "../../../components/CustomTable";
 import ApplicationCard from "../../../features/customer/dashboard/components/ApplicationCard";
 import { useGetApplicationsQuery } from "../../../features/customer/dashboard/dashboardApi";
 import { formatDate } from "../../../utils/FormateDate";
 
 const Dashboard = () => {
   const { data, isLoading, isError } = useGetApplicationsQuery(undefined);
-
+  console.log(data)
   return (
     <div className="w-full h-full overflow-y-auto pb-44 px-5 custom-scrollbar">
       {/* Ongoing applications section */}
@@ -25,7 +24,7 @@ const Dashboard = () => {
                 <div key={application._id} className="min-w-[250px] sm:min-w-0 mr-2">
                   <ApplicationCard
                     caseId={application._id}
-                    status={application.visaApplicationStatus}
+                    status={application.status}
                     submissionDate={formatDate(application.createdAt)}
                     title={application.visaTypeId?.visaType || "Unknown Visa"}
                   />

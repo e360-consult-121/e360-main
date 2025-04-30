@@ -9,8 +9,14 @@ export const dashboardApi = baseApi.injectEndpoints({
           url: "/user/visaapplication/application",
           method: "GET",
         }),
+      }), 
+      getPreviousApplications: build.query({
+        query: () => ({
+          url: "/user/visaapplication/previousapplication",
+          method: "GET",
+        }),
       }) 
     })
 })
 
-export const { useGetApplicationsQuery} =  dashboardApi;
+export const { useGetApplicationsQuery,useGetPreviousApplicationsQuery} =  dashboardApi;

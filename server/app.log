@@ -4359,3 +4359,12 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchRecentUpdates\",\"status\":\"200\",\"responseTime\":\"81.992\"}","timestamp":"2025-04-30T18:38:45.746Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchAnalytics\",\"status\":\"200\",\"responseTime\":\"95.624\"}","timestamp":"2025-04-30T18:38:45.769Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/visaapplication/application\",\"status\":\"200\",\"responseTime\":\"65.140\"}","timestamp":"2025-04-30T18:38:50.092Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"304\",\"responseTime\":\"4.924\"}","timestamp":"2025-04-30T19:12:15.286Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/common/68126836134c366a6a0693d1/getCurrentStepInfo\",\"status\":\"304\",\"responseTime\":\"3674.148\"}","timestamp":"2025-04-30T19:12:18.926Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"304\",\"responseTime\":\"1.735\"}","timestamp":"2025-04-30T19:12:21.691Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/visaapplication/application\",\"status\":\"304\",\"responseTime\":\"237.867\"}","timestamp":"2025-04-30T19:12:21.914Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/visaapplication/previousapplication\",\"status\":\"200\",\"responseTime\":\"170.921\"}","timestamp":"2025-04-30T19:25:02.794Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"304\",\"responseTime\":\"4.351\"}","timestamp":"2025-04-30T19:25:08.565Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/visaapplication/previousapplication\",\"status\":\"304\",\"responseTime\":\"167.596\"}","timestamp":"2025-04-30T19:25:08.719Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/visaapplication/application\",\"status\":\"304\",\"responseTime\":\"417.128\"}","timestamp":"2025-04-30T19:25:10.632Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/visaapplication/previousapplication\",\"status\":\"304\",\"responseTime\":\"62.133\"}","timestamp":"2025-04-30T19:26:11.213Z"}

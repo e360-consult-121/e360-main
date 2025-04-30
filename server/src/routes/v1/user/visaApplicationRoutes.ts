@@ -10,6 +10,7 @@ import * as visaApplicationController from "../../../controllers/user/visaApplic
 const router = Router();
 
 router.route("/application").get(authenticate,asyncHandler(visaApplicationController.getAllApplications))
+router.route("/previousapplication").get(authenticate,asyncHandler(visaApplicationController.getAllPreviousApplications))
 
 // router.post("/create-visaApplication", authenticate, asyncHandler(visaApplicationController.createVisaApplication));
 // router.post("/add-visaType-steps", authenticate, asyncHandler(visaTypeController.addStepToVisaType));
