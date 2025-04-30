@@ -2,6 +2,7 @@ import { EmailTrigger } from "../../../../../models/VisaStep";
 import { PORTAL_LINK, WHATSAPP_LINK } from "../../../../../config/configLinks";
 import { EmailService } from "../../../EmailService";
 import { VisaTypeEnum } from "../../../../../types/enums/enums";
+import { getDgUserSubject } from "../../../templates/customer/application/DominicaGrenada/dg-subjects";
 
 export const userApplicationUpdateSend = async (
   triggers: EmailTrigger[],
@@ -10,9 +11,11 @@ export const userApplicationUpdateSend = async (
   visaType: string
 ) => {
   let templateCategory = "";
+  let subjectFn : (firstName: string, templateId: string) => string;
 
   if (visaType === "Dominica" || visaType === "Grenada") {
     templateCategory = "customer/application/DominicaGrenada";
+    subjectFn = getDgUserSubject
   } else if (visaType === VisaTypeEnum.PORTUGAL) {
     templateCategory = "customer/application/Portugal";
   } else if (visaType === VisaTypeEnum.DUBAI) {
@@ -20,7 +23,8 @@ export const userApplicationUpdateSend = async (
   }
 
   const emailPromises = triggers.map(async (trigger) => {
-    const { templateId, subject } = trigger;
+    const { templateId } = trigger;
+    const subject = subjectFn ? subjectFn(firstName, templateId) : "Application Update";
     return EmailService.getInstance().sendEmail({
       to: email,
       subject,

@@ -2,6 +2,8 @@ import { EmailTrigger } from "../../../../../models/VisaStep";
 import { ADMIN_EMAIL, DASHBOARD_LINK } from "../../../../../config/configLinks";
 import { EmailService } from "../../../EmailService";
 import { VisaTypeEnum } from "../../../../../types/enums/enums";
+import { getDgAdminSubject } from "../../../templates/admin/application/DominicaGrenada/dg-subject";
+import { getServiceType } from "../../../../../utils/leadToServiceType";
 
 export const adminApplicationUpdateSend = async (
   triggers: EmailTrigger[],
@@ -9,9 +11,11 @@ export const adminApplicationUpdateSend = async (
   visaType: string
 ) => {
   let templateCategory = "";
+  let subjectFn: (firstName: string, templateId: string) => string;
 
   if (visaType === "Dominica" || visaType === "Grenada") {
     templateCategory = "admin/application/DominicaGrenada";
+    subjectFn = getDgAdminSubject;
   } else if (visaType === VisaTypeEnum.PORTUGAL) {
     templateCategory = "admin/application/Portugal";
   } else if (visaType === VisaTypeEnum.DUBAI) {
@@ -19,7 +23,17 @@ export const adminApplicationUpdateSend = async (
   }
 
   const emailPromises = triggers.map(async (trigger) => {
-    const { templateId, subject } = trigger;
+    const { templateId } = trigger;
+    const subject = subjectFn
+      ? subjectFn(customerName, templateId)
+      : "Application Update";
+
+    console.log("Admin Email Trigger", {
+      customerName,
+      templateId,
+      subject,
+      templateCategory,
+    });
     return EmailService.getInstance().sendEmail({
       to: ADMIN_EMAIL,
       subject,
@@ -28,6 +42,7 @@ export const adminApplicationUpdateSend = async (
       variables: {
         CustomerName: customerName,
         AdminPortalLink: DASHBOARD_LINK,
+        Service:getServiceType(visaType),
       },
     });
   });

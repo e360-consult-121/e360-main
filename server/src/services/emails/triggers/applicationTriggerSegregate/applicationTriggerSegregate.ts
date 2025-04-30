@@ -16,12 +16,15 @@ export const sendApplicationUpdateEmails = async ({
   email: string;
   firstName: string;
 }) => {
+
   const userTriggers = triggers.filter(
     (trigger) => trigger.to === "USER" && trigger.status === stepStatus
   );
   const adminTriggers = triggers.filter(
     (trigger) => trigger.to === "ADMIN" && trigger.status === stepStatus
   );
+
+  console.log("Admin Triggers",adminTriggers)
 
   const emailPromises: Promise<void>[] = [];
 
@@ -30,7 +33,7 @@ export const sendApplicationUpdateEmails = async ({
   }
 
   if (adminTriggers.length) {
-    emailPromises.push(adminApplicationUpdateSend(adminTriggers, email, visaType));
+    emailPromises.push(adminApplicationUpdateSend(adminTriggers, firstName, visaType));
   }
 
   await Promise.all(emailPromises);

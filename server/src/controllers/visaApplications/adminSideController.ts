@@ -120,7 +120,7 @@ export const approveStep = async (req: Request, res: Response) => {
         currentStep: 1,
         "user.name": 1,
         "user.email": 1,
-        "visaType.name": 1,
+        "visaType.visaType": 1,
         currentStepDoc: 1,
         currentStepStatusDoc: 1,
         nextStepDoc: { $arrayElemAt: ["$nextStepDoc", 0] },
@@ -152,11 +152,13 @@ export const approveStep = async (req: Request, res: Response) => {
     $set: { status: StepStatusEnum.APPROVED },
   });
 
+  console.log(data)
+
   if (data.currentStepDoc.emailTriggers) {
     await sendApplicationUpdateEmails({
       triggers: data.currentStepDoc.emailTriggers,
       stepStatus: StepStatusEnum.APPROVED,
-      visaType: data.visaType.name,
+      visaType: data.visaType.visaType,
       email: data.user.email,
       firstName: data.user.name,
     });
