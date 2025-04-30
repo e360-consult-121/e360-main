@@ -8,21 +8,21 @@ export type TAB = {
   label: string;
   route: string;
   icon: string;
-  children?: TAB[]; // Optional dropdown sub-tabs
+  children?: TAB[];
+  suffix?: string;
 };
 
 const SidebarTab = ({
   tabInfo,
   isActive,
+  setSidebarOpen,
 }: {
   tabInfo: TAB;
   isActive: boolean | undefined;
+  setSidebarOpen: any;
 }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-
-  // console.log(tabInfo.route.split("/")[0],isActive)
-  
 
   const hasChildren = tabInfo.children && tabInfo.children.length > 0;
 
@@ -35,6 +35,7 @@ const SidebarTab = ({
           } else {
             navigate("/" + tabInfo.route);
           }
+          setSidebarOpen(false);
         }}
         className={`w-full flex items-center justify-between cursor-pointer hover:text-golden-yellow-400 ${
           isActive ? "text-golden-yellow-400" : "text-neutrals-400"
@@ -47,7 +48,11 @@ const SidebarTab = ({
 
         {hasChildren ? (
           <Icon
-            icon={isOpen ? "material-symbols-light:expand-less" : "material-symbols-light:chevron-right-rounded"}
+            icon={
+              isOpen
+                ? "material-symbols-light:expand-less"
+                : "material-symbols-light:chevron-right-rounded"
+            }
             width="34"
             height="34"
           />
@@ -62,16 +67,29 @@ const SidebarTab = ({
 
       {hasChildren && isOpen && (
         <div className="ml-6 mt-2 space-y-2">
-          {tabInfo.children!.map((child, index) => (
-            <div
-              key={index}
-              onClick={() => navigate("/" + child.route)}
-              className="cursor-pointer flex items-center space-x-4 text-neutrals-400 hover:text-golden-yellow-400"
-            >
-              <Icon icon={child.icon} width="18" height="18" />
-              <p className="text-sm">{child.label}</p>
-            </div>
-          ))}
+          {tabInfo.children!.map((child, index) => {
+            const isChildActive = window.location.pathname.includes(
+              child.route
+            );
+
+            return (
+              <div
+                key={index}
+                onClick={() => {
+                  navigate("/" + child.route);
+                  setSidebarOpen(false);
+                }}
+                className={`cursor-pointer flex items-center space-x-4 hover:text-golden-yellow-400 ${
+                  isChildActive ? "text-golden-yellow-400" : "text-neutrals-400"
+                }`}
+              >
+                <Icon icon={child.icon} width="18" height="18" />
+                <p className="text-sm">
+                  {child.label} {child.suffix ?? ""}
+                </p>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -81,75 +99,116 @@ const SidebarTab = ({
 const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
   const [currentTab, setCurrentTab] = useState<string>("dashboard");
   const location = useLocation();
-  // console.log(location.pathname)
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   const [logout] = useLogoutMutation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const handleLogout = async () => {
     try {
-      await logout(undefined).unwrap(); 
-      window.location.reload()
+      await logout(undefined).unwrap();
+      window.location.reload();
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err);
     }
   };
 
-  useEffect(() => {
-    const normalizedPath = location.pathname.startsWith("/")
-      ? location.pathname.slice(1)
-      : location.pathname;
+  // useEffect(() => {
+  //   const normalizedPath = location.pathname.startsWith("/")
+  //     ? location.pathname.slice(1)
+  //     : location.pathname;
 
-    setCurrentTab(normalizedPath);
+  //     // console.log
+
+  //   setCurrentTab(normalizedPath);
+  //   console.log(currentTab,normalizedPath)
+  // }, [location.pathname]);
+
+  useEffect(() => {
+    const segments = location.pathname.split("/").filter(Boolean); // removes empty strings from splitting
+    const basePath = segments.slice(0, 2).join("/"); // ["admin", "leadmanagement"] => "admin/leadmanagement"
+    setCurrentTab(basePath);
   }, [location.pathname]);
-  
-  
 
   return (
-    <div className="w-full h-full bg-neutrals-950 py-7 px-3 flex flex-col flex-1">
-      {/* Logo Section */}
-      <div className="w-full h-full flex justify-center flex-[0.1]">
-        <img
-          src={logoMark}
-          alt="E360 logo"
-          className="w-[73px] object-contain"
-        />
+    <>
+      {/* Hamburger Button (only mobile) */}
+      <div className="lg:hidden p-4">
+        <button onClick={() => setSidebarOpen(true)}>
+          <Icon
+            icon="mdi:menu"
+            width="30"
+            height="30"
+            className="text-[#282827]"
+          />
+        </button>
       </div>
 
-      {/* Sidebar Tabs */}
-      <div className="w-full flex flex-col h-full flex-[0.9] justify-between">
-        <div className="w-full space-y-5 mt-10">
-          {tabs.map((tab, index) => (
-            <SidebarTab
-              key={index}
-              tabInfo={tab}
-              isActive={
-                currentTab === tab.route ||
-                tab.children?.some((child) => currentTab === child.route)
-              }
-            />
-          ))}
-        </div>
+      {/* Dark Background Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black opacity-50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
 
-        {/* Logout Option */}
-        <div className="w-full">
-          <div className="w-full flex items-center justify-between text-red-500 cursor-pointer">
-            <div className="flex items-center space-x-4">
-              <Icon icon="icon-park-outline:logout" width="20" height="20" />
-              <p className="text-sm" onClick={handleLogout}>Logout</p>
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full w-[310px] bg-neutrals-950 z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-auto`}
+      >
+        <div className="w-full h-full bg-neutrals-950 py-7 px-3 flex flex-col flex-1">
+          {/* Logo */}
+          <div className="w-full h-full flex justify-center flex-[0.1]">
+            <img
+              src={logoMark}
+              alt="E360 logo"
+              className="w-[73px] object-contain"
+            />
+          </div>
+
+          {/* Sidebar Tabs */}
+          <div className="w-full flex flex-col h-full flex-[0.9] justify-between">
+            <div className="w-full space-y-5 mt-10">
+              {tabs.map((tab, index) => (
+                <SidebarTab
+                  key={index}
+                  tabInfo={tab}
+                  isActive={
+                    currentTab === tab.route ||
+                    tab.children?.some((child) => currentTab === child.route)
+                  }
+                  setSidebarOpen={setSidebarOpen}
+                />
+              ))}
             </div>
 
-            <Icon
-              icon="material-symbols-light:chevron-right-rounded"
-              width="34"
-              height="34"
-            />
+            {/* Logout */}
+            <div className="w-full">
+              <div className="w-full flex items-center justify-between text-red-500 cursor-pointer">
+                <div className="flex items-center space-x-4">
+                  <Icon
+                    icon="icon-park-outline:logout"
+                    width="20"
+                    height="20"
+                  />
+                  <p className="text-sm" onClick={handleLogout}>
+                    Logout
+                  </p>
+                </div>
+                <Icon
+                  icon="material-symbols-light:chevron-right-rounded"
+                  width="34"
+                  height="34"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
 export default Sidebar;
-

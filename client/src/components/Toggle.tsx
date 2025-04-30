@@ -11,7 +11,7 @@ const Toggle = ({
         setIsToggled(!isToggled);
       }}
       className={`relative w-10 h-5  ${
-        isToggled ? "bg-blue-500" : "bg-neutrals-50"
+        isToggled ? "bg-[#F6C328]" : "bg-neutrals-50"
       } rounded-full flex items-center transition-colors`}
     >
       <div

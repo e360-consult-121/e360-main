@@ -8,31 +8,33 @@ const Dashboard = () => {
 
   return (
     <div className="w-full h-full overflow-y-auto pb-44 px-5 custom-scrollbar">
-      
       {/* Ongoing applications section */}
       <div>
         <h1 className="text-xl text-neutrals-950 font-bold">
           Ongoing Applications
         </h1>
 
-        <div className="mt-5 flex flex-wrap gap-4">
-          {isLoading ? (
-            <p>Loading applications...</p>
-          ) : isError ? (
-            <p>Error fetching applications.</p>
-          ) : data?.data?.length > 0 ? (
-            data.data.map((application: any) => (
-              <ApplicationCard
-                key={application._id}
-                caseId={application._id}
-                status={application.visaApplicationStatus}
-                submissionDate={formatDate(application.createdAt)} 
-                title={application.visaTypeId?.visaType || "Unknown Visa"}
-              />
-            ))
-          ) : (
-            <p>No ongoing applications.</p>
-          )}
+        <div className="mt-5">
+          <div className="flex overflow-x-auto gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 mr-10 md:mr-0">
+            {isLoading ? (
+              <p>Loading applications...</p>
+            ) : isError ? (
+              <p>Error fetching applications.</p>
+            ) : data?.data?.length > 0 ? (
+              data.data.map((application: any) => (
+                <div key={application._id} className="min-w-[250px] sm:min-w-0 mr-2">
+                  <ApplicationCard
+                    caseId={application._id}
+                    status={application.visaApplicationStatus}
+                    submissionDate={formatDate(application.createdAt)}
+                    title={application.visaTypeId?.visaType || "Unknown Visa"}
+                  />
+                </div>
+              ))
+            ) : (
+              <p>No ongoing applications.</p>
+            )}
+          </div>
         </div>
       </div>
 

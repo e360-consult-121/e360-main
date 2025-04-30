@@ -23,7 +23,7 @@ const RecentLeadManagement: React.FC<LeadTableProps> = ({ data }) => {
 
   const handleNavigation = (row: AllLeads) => {
     // console.log(row)
-    navigate(`/admin/consultation/${row._id}`);
+    navigate(`/admin/leadmanagement/${row._id}`);
   };
   return (
     <Card
@@ -31,7 +31,7 @@ const RecentLeadManagement: React.FC<LeadTableProps> = ({ data }) => {
         boxShadow: "none",
         bgcolor: "#F6F5F5",
         ml: 2,
-        width: "100%",
+        width: "90%",
         borderRadius: "15px",
       }}
     >

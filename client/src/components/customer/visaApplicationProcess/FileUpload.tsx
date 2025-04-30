@@ -26,7 +26,7 @@ const FileUpload = ({
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
 
   return (
-    <div className="w-full flex items-center justify-between border-b border-neutrals-50 p-3">
+    <div className="w-full md:flex md:items-center md:justify-between p-3">
       <UploadModal
         isUploadModalOpen={isUploadModalOpen}
         setIsUploadModalOpen={setIsUploadModalOpen}
@@ -80,25 +80,25 @@ const FileUpload = ({
                 onClick={() => {
                   setIsUploadModalOpen(true);
                 }}
-                className="bg-neutrals-500 py-1 px-3 text-neutrals-50 text-sm rounded-xl cursor-pointer"
+                className="bg-[#726D68] py-[6px] px-3 text-neutrals-50 text-sm rounded-3xl cursor-pointer w-full my-5 md:my-0"
               >
                 Upload File
               </button>
             ) : (
-              <>
+              <div className="mt-5 md:mt-5 flex justify-between items-center gap-2">
                 <button
-                  className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
+                  className="bg-transparent border border-neutrals-400 py-1.5 md:py-1 px-10 md:px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
                   onClick={() => setIsUploadModalOpen(true)}
                 >
                   Re-Upload
                 </button>
 
                 <a href={value} target="_blank">
-                  <button className="bg-golden-yellow-400 py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
+                  <button className="bg-[#F6C328] py-2 md:py-1 px-10 md:px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
                     Preview
                   </button>
                 </a>
-              </>
+              </div>
             )}
           </>
         )}

@@ -12,6 +12,7 @@ import {
   useMoveToNextStepMutation,
   useStepSubmitMutation,
 } from "../../../features/common/commonApi";
+import { CircularProgress } from "@mui/material";
 
 export interface SelectDropdown {
   type: "SELECT_DROPDOWN";
@@ -52,6 +53,7 @@ const VisaApplicationProcess = () => {
   const [moveToNextStep] = useMoveToNextStepMutation();
 
   useEffect(() => {
+    // console.log(data)
     if (error) {
       console.error("Failed to fetch step info:", error);
     }
@@ -101,40 +103,45 @@ const VisaApplicationProcess = () => {
   return (
     <>
       <Chatbot />
-
+  
       <div className="w-full relative overflow-y-auto custom-scrollbar px-5 pb-16">
-        {/* Custom Stepper */}
-        {commonInfo && (
-          <CustomStepper
-            visaType={commonInfo.visaTypeName}
-            visaApplicationId={visaApplicationId}
-            currentStepName={commonInfo.currentStepName}
-            currentStep={commonInfo.currentStepNumber - 1}
-            stepsCount={commonInfo.totalSteps}
-          />
-        )}
-
-        {/* Main Content based on phase and src */}
-        {currentStepInfo && (
-          <StepPhase
-            visaApplicationId={visaApplicationId??""}
-            visaType={commonInfo.visaTypeName}
-            currentStepName={commonInfo.currentStepName}
-            stepType={commonInfo.stepType}
-            phase={
-              currentStepInfo.stepStatus as
-                | "IN_PROGRESS"
-                | "SUBMITTED"
-                | "APPROVED"
-            }
-            stepData={currentStepInfo}
-            requirementData={currentStepInfo.requirements}
-            onContinue={handleContinueClick}
-            stepSource={currentStepInfo.stepSource}
-            stepStatus={currentStepInfo.stepStatus}
-            onSubmit={handleSubmitDocButton}
-            refetch={refetch}
-          />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full mt-[70%] md:mt-[20%]">
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            {/* Custom Stepper */}
+            {commonInfo && (
+              <CustomStepper
+                visaType={commonInfo.visaTypeName}
+                visaApplicationId={visaApplicationId}
+                currentStepName={commonInfo.currentStepName}
+                currentStep={commonInfo.currentStepNumber - 1}
+                stepsCount={commonInfo.totalSteps}
+              />
+            )}
+  
+            {/* Main Content based on phase and src */}
+            {currentStepInfo && (
+              <StepPhase
+                visaApplicationId={visaApplicationId ?? ""}
+                visaType={commonInfo.visaTypeName}
+                currentStepName={commonInfo.currentStepName}
+                stepType={commonInfo.stepType}
+                phase={
+                  currentStepInfo.stepStatus as "IN_PROGRESS" | "SUBMITTED" | "APPROVED"
+                }
+                stepData={currentStepInfo}
+                requirementData={currentStepInfo.requirements}
+                onContinue={handleContinueClick}
+                stepSource={currentStepInfo.stepSource}
+                stepStatus={currentStepInfo.stepStatus}
+                onSubmit={handleSubmitDocButton}
+                refetch={refetch}
+              />
+            )}
+          </>
         )}
       </div>
     </>

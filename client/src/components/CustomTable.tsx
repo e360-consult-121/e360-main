@@ -1,29 +1,88 @@
-const CustomTable = ({
-  headers,
-  contents,
-}: {
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+} from "@mui/material";
+
+type CustomTableProps = {
   headers: string[];
-  contents: any[] | undefined;
-}) => {
+  contents: {
+    task: string;
+    application: string;
+    action: string;
+  }[];
+};
+
+const CustomTable = ({ headers, contents }: CustomTableProps) => {
   return (
-    <table className="w-full text-left ">
-      <thead className="[&>tr]:border-b [&>tr]:border-neutrals-200 [&>tr>th]:py-3 [&>tr>th]:text-xs [&>tr>th]:text-neutrals-400 hidden sm:table-header-group">
-        <tr>
-          {headers.map((header, index) => (
-            <th key={index}>{header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="[&>tr>td]:py-4 [&>tr>td]:text-neutrals-950 [&>tr>td]:text-xs">
-        {contents?.map((content, index) => (
-          <tr key={index}>
-            {Object.keys(contents[0]).map((field, index) => (
-              <td key={index}>{content[field]}</td>
+    <TableContainer
+      component={Paper}
+      sx={{
+        width: "100%",
+        boxShadow: "none",
+      }}
+    >
+      <Table sx={{ width: "100%" }} aria-label="custom table">
+        <TableHead>
+          <TableRow>
+            {headers.map((header, index) => (
+              <TableCell
+                key={index}
+                sx={{
+                  fontWeight: "bold",
+                  color: "black",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {header}
+              </TableCell>
             ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {contents.map((row, index) => (
+            <TableRow key={index}>
+              {/* Task column */}
+              <TableCell
+                sx={{
+                  maxWidth: { xs: 100, sm: 200 }, // 100px on mobile, 200px on bigger screen
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {row.task}
+              </TableCell>
+
+              {/* Application column */}
+              <TableCell
+                sx={{
+                  maxWidth: { xs: 80, sm: 150 },
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {row.application}
+              </TableCell>
+
+              {/* Action column */}
+              <TableCell>
+                <Button sx={{ color: "black", textTransform: "none" }}>
+                  View &gt;
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

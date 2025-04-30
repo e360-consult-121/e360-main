@@ -19,8 +19,8 @@ const tabs:TAB[] = [
         icon: "",
       },
       {
-        label: "Greneda Passport",
-        route: "admin/applications/greneda",
+        label: "Grenada Passport",
+        route: "admin/applications/grenada",
         icon: "",
       },
       {

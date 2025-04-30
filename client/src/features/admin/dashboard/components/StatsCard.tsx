@@ -1,4 +1,4 @@
-import { Box, Card, Typography } from "@mui/material"
+import { Box, Card, Typography } from "@mui/material";
 
 const StatsCard = ({
   title,
@@ -9,44 +9,51 @@ const StatsCard = ({
   title: string;
   value: string | number | undefined;
   change: string;
-  bgcolor: string;}
-) => {
-    return (<Card
-    sx={{
-      p: 2,
-      textAlign: "center",
-      bgcolor,
-      boxShadow: "none",
-      borderRadius: "15px",
-    }}
-  >
-    <Typography
+  bgcolor: string;
+}) => {
+  return (
+    <Card
       sx={{
-        fontWeight: "600",
-        fontSize: "14px",
-        display: "flex",
-        justifyContent: "start",
+        p: 2,
+        textAlign: "center",
+        bgcolor,
+        boxShadow: "none",
+        borderRadius: "15px",
+        width: {
+          xs: "90%",     
+          sm: "48%",     
+          md: "100%",    
+        },
+        mb: 2,
       }}
     >
-      {title}
-    </Typography>
-    <Box
-      sx={{
-        mt: 1,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <Typography sx={{ fontWeight: "700", fontSize: "28px" }}>
-        {value}
+      <Typography
+        sx={{
+          fontWeight: 600,
+          fontSize: { xs: "12px", md: "14px" },
+          display: "flex",
+          justifyContent: "start",
+        }}
+      >
+        {title}
       </Typography>
-      <Typography variant="caption" fontSize={"12px"}>
-        {change}
-      </Typography>
-    </Box>
-  </Card>
-    )
-}
+      <Box
+        sx={{
+          mt: 1,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography sx={{ fontWeight: 700, fontSize: { xs: "28px", md: "28px" } }}>
+          {value}
+        </Typography>
+        <Typography variant="caption" fontSize="12px">
+          {change}
+        </Typography>
+      </Box>
+    </Card>
+  );
+};
 
-export default StatsCard
+export default StatsCard;

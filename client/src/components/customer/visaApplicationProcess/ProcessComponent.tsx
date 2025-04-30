@@ -11,14 +11,20 @@ const ProcessComponent = ({ label, date, status }:{ label:string; date:string; s
         backgroundColor: '#f9f8f8',
         borderRadius: '20px',
         padding: '24px',
-        width: '76vw',
-        height: '80vh',
+        width: '76vw', // Default width
+        height: '80vh', // Default height
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start', 
         overflowY: 'auto',
-        mt:12
+        mt: 12,
+        // Mobile responsiveness
+        '@media (max-width: 600px)': {
+          width: '90vw', // Change width for mobile
+          height: '60vh', // Adjust height for mobile
+          padding: '16px', // Optional: Adjust padding for mobile
+        }
       }}
     >
       <Stack spacing={4} sx={{ mt: 2 }}>

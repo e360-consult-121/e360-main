@@ -30,18 +30,18 @@ const CustomerLayout = () => {
   return (
     <div className="h-screen flex flex-1 overflow-hidden">
       {/* Sidebar portion */}
-      <div className="w-full h-full flex-[0.2]">
+      <div className="w-full md:h-full flex-[0.2]">
         <Sidebar tabs={tabs} />
       </div>
 
       {/* Main content portion */}
-      <div className="w-full h-full flex-[0.8] flex flex-col  pt-7">
-        {/* Top header portion */}
-        <div className="w-full h-full flex-[0.08] px-5">
+      <div className="w-full h-full md:flex-[0.8] flex flex-col pt-7">
+        {/* T5op header portion */}
+        <div className="w-full h-full flex-[0.08] md:px-5">
           <CustomerHeader />
         </div>
 
-        <div className="w-full h-full flex-[0.92] overflow-y-scroll">
+        <div className="md:w-full h-full md:flex-[0.92] overflow-y-scroll overflow-x-hidden ml-[-60px] md:ml-[0px]">
           <Outlet />
         </div>
       </div>

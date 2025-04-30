@@ -3,15 +3,17 @@ import { Box, Button, Typography, Paper } from "@mui/material";
 const BankDetails = ({ requirementData,onContinue }: { requirementData: any,onContinue:()=>void }) => {
   return (
     <Box
-      mt={12}
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      p={2}
-      textAlign="center"
-    >
-      <Typography variant="h6" mb={4}>
+  mt={{ xs: 0, sm: 0, md: 12 }} 
+  display="flex"
+  flexDirection="column"
+  justifyContent="center"
+  alignItems="center"
+  p={2}
+  textAlign="center"
+>
+      <Typography mb={4}
+      fontSize={{ xs: "1rem", sm: "1.25rem" }}
+      >
         Bank Account Opened.
       </Typography>
 
@@ -32,8 +34,8 @@ const BankDetails = ({ requirementData,onContinue }: { requirementData: any,onCo
 
         {requirementData.map((item:any, index:number) => (
           <Box key={index} mb={1} display="flex" justifyContent="space-between">
-            <Typography fontWeight="bold">{item.question}</Typography>
-            <Typography>{item.value}</Typography>
+            <Typography fontWeight="bold"fontSize={{ xs: "0.8rem", sm: "1rem" }} >{item.question}</Typography>
+            <Typography fontSize={{ xs: "0.8rem", sm: "1rem" }}>{item.value}</Typography>
           </Box>
         ))}
       </Paper>
@@ -68,9 +70,12 @@ const BankDetails = ({ requirementData,onContinue }: { requirementData: any,onCo
           onClick={onContinue}
           variant="outlined"
           sx={{
+            px:5,
+            py:1,
             color: "black",
             borderColor: "black",
             textTransform: "none",
+            borderRadius:"20px"
           }}
         >
           Continue
