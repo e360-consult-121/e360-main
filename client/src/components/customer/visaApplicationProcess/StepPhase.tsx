@@ -8,6 +8,7 @@ import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
 import BankDetails from "./Bank/BankDetails";
 import DGInvestmentMain from "../../admin/visaApplicationInformation/DGInvestment/DGInvestmentMain";
 import VisaCompletionDetailsGrenadaDominica from "./VisaCompletionComponents/VisaCompletionDetailsGrenedaDominica";
+import TradeNameMain from "./TradeName/TradeNameMain";
 
 const StepPhase: React.FC<{
   phase: Phase;
@@ -44,7 +45,11 @@ const StepPhase: React.FC<{
     );
   } else if (stepType === "DGINVESTMENT") {
     return <DGInvestmentMain visaApplicationId={visaApplicationId} visaType={visaType} stepData={stepData} onContinue={onContinue} currentStepName={currentStepName} />;
-  } else if (phase === "APPROVED" && stepType !== "AIMA") {
+  } 
+  else if(stepType==="TRADE_NAME"){
+    return <TradeNameMain stepStatusId={stepData.currentStepStatusId}/>
+  }
+  else if (phase === "APPROVED" && stepType !== "AIMA") {
     if (stepType === "TRADE_NAME") {
       return <TradeNameApproved onContinue={onContinue} />;
     }

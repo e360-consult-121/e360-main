@@ -1,22 +1,38 @@
-import  { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   Button,
   TextField,
   Typography,
-} from '@mui/material';
+  CircularProgress,
+} from "@mui/material";
+import { useSubmitTradeNameOptionsMutation } from "../../../../features/admin/visaApplication/additional/dubaiApis";
 
-const InitialPreferencesForm = () => {
-  const [tradeName, setTradeName] = useState('');
-  const [altName1, setAltName1] = useState('');
-  const [altName2, setAltName2] = useState('');
+const InitialPreferencesForm = ({ stepStatusId }: { stepStatusId: string }) => {
+  const [submitOptions, { isLoading }] = useSubmitTradeNameOptionsMutation();
+  const [tradeName, setTradeName] = useState("");
+  const [altName1, setAltName1] = useState("");
+  const [altName2, setAltName2] = useState("");
 
-  const handleSubmit = () => {
-    console.log({
-      tradeName,
-      altName1,
-      altName2,
-    });
+  const handleSubmit = async () => {
+    if (!tradeName.trim() || !altName1.trim() || !altName2.trim()) {
+      alert("All trade name fields are required");
+      return;
+    }
+
+    try {
+      const options = [tradeName, altName1, altName2];
+
+      await submitOptions({
+        stepStatusId,
+        options,
+      }).unwrap();
+
+      alert("Trade names submitted successfully");
+    } catch (error) {
+      console.error("Failed to submit trade names:", error);
+      alert("Failed to submit trade names. Please try again.");
+    }
   };
 
   return (
@@ -39,11 +55,12 @@ const InitialPreferencesForm = () => {
           variant="outlined"
           value={tradeName}
           onChange={(e) => setTradeName(e.target.value)}
+          required
           sx={{
             mb: 3,
-            backgroundColor: '#F7F5F4',
-            borderRadius: 1, 
-            borderColor:"#0F1EF"
+            backgroundColor: "#F7F5F4",
+            borderRadius: 1,
+            borderColor: "#0F1EF",
           }}
         />
 
@@ -54,11 +71,12 @@ const InitialPreferencesForm = () => {
           variant="outlined"
           value={altName1}
           onChange={(e) => setAltName1(e.target.value)}
+          required
           sx={{
             mb: 3,
-            backgroundColor: '#F7F5F4',
+            backgroundColor: "#F7F5F4",
             borderRadius: 1,
-            borderColor:"#0F1EF"
+            borderColor: "#0F1EF",
           }}
         />
 
@@ -69,28 +87,41 @@ const InitialPreferencesForm = () => {
           variant="outlined"
           value={altName2}
           onChange={(e) => setAltName2(e.target.value)}
+          required
           sx={{
             mb: 4,
-            backgroundColor: '#F7F5F4',
+            backgroundColor: "#F7F5F4",
             borderRadius: 1,
-            borderColor:"#0F1EF"
+            borderColor: "#0F1EF",
           }}
         />
 
         <Box display="flex" justifyContent="center">
           <Button
             onClick={handleSubmit}
+            disabled={isLoading}
             sx={{
-              backgroundColor: '#F6C328',
-              color: '#000',
-              fontWeight: 'light',
+              backgroundColor: "#F6C328",
+              color: "#000",
+              fontWeight: "light",
               px: 4,
               py: 1,
-              borderRadius: '16px',
-              textTransform: 'none',
+              borderRadius: "16px",
+              textTransform: "none",
+              "&:disabled": {
+                backgroundColor: "#e0e0e0",
+                color: "#9e9e9e",
+              },
             }}
           >
-            Send for Approval
+            {isLoading ? (
+              <>
+                <CircularProgress size={20} sx={{ color: "#000", mr: 1 }} />
+                Submitting...
+              </>
+            ) : (
+              "Send for Approval"
+            )}
           </Button>
         </Box>
       </Box>
@@ -98,4 +129,4 @@ const InitialPreferencesForm = () => {
   );
 };
 
-export default InitialPreferencesForm
+export default InitialPreferencesForm;

@@ -216,7 +216,7 @@ export const fetchTradeNameInfo = async (req: Request, res: Response) => {
   );
 
   if (!tradeName) {
-    return res.status(404).json({ success: false, message: 'Trade name not found' });
+    return res.status(200).json({ success: false, message: 'Preferences Not Submitted',data:null });
   }
 
   res.status(200).json({
