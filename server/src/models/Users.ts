@@ -12,6 +12,8 @@ export interface IUser extends Document {
   status: AccountStatusEnum;
   role: RoleEnum;
   phone: string;
+  forgotPasswordToken: string | null;
+  forgotPasswordExpires: Date | null;
 }
 
 const UserSchema: Schema = new Schema({
