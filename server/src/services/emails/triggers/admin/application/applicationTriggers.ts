@@ -4,6 +4,7 @@ import { EmailService } from "../../../EmailService";
 import { VisaTypeEnum } from "../../../../../types/enums/enums";
 import { getDgAdminSubject } from "../../../templates/admin/application/DominicaGrenada/dg-subject";
 import { getServiceType } from "../../../../../utils/leadToServiceType";
+import { getPortugalAdminSubject } from "../../../templates/admin/application/Portugal/portugal-subject";
 
 export const adminApplicationUpdateSend = async (
   triggers: EmailTrigger[],
@@ -18,6 +19,7 @@ export const adminApplicationUpdateSend = async (
     subjectFn = getDgAdminSubject;
   } else if (visaType === VisaTypeEnum.PORTUGAL) {
     templateCategory = "admin/application/Portugal";
+    subjectFn = getPortugalAdminSubject;
   } else if (visaType === VisaTypeEnum.DUBAI) {
     templateCategory = "admin/application/Dubai";
   }

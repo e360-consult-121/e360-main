@@ -3,6 +3,7 @@ import { PORTAL_LINK, WHATSAPP_LINK } from "../../../../../config/configLinks";
 import { EmailService } from "../../../EmailService";
 import { VisaTypeEnum } from "../../../../../types/enums/enums";
 import { getDgUserSubject } from "../../../templates/customer/application/DominicaGrenada/dg-subjects";
+import { getPortugalUserSubject } from "../../../templates/customer/application/Portugal/portugal-subject";
 
 export const userApplicationUpdateSend = async (
   triggers: EmailTrigger[],
@@ -18,6 +19,7 @@ export const userApplicationUpdateSend = async (
     subjectFn = getDgUserSubject
   } else if (visaType === VisaTypeEnum.PORTUGAL) {
     templateCategory = "customer/application/Portugal";
+    subjectFn= getPortugalUserSubject
   } else if (visaType === VisaTypeEnum.DUBAI) {
     templateCategory = "customer/application/Dubai";
   }
