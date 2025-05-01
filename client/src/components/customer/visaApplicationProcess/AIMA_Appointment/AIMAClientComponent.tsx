@@ -40,17 +40,24 @@ const AIMAClientComponent = ({ aimaDocs, approved, onContinue }: AIMAClientCompo
 
   return (
     <Box
+    mt={{ xs: 0, md: 12 }}
       sx={{
         backgroundColor: '#f9f8f8',
         borderRadius: '20px',
         padding: '24px',
         width: '76vw',
+        height:'60vh',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start', 
         overflowY: 'auto',
-        mt: 12
+        // Mobile responsiveness
+        '@media (max-width: 600px)': {
+          width: '90vw', // Change width for mobile
+          height: '70vh', // Adjust height for mobile
+          padding: '16px', // Optional: Adjust padding for mobile
+        }
       }}
     >
       
@@ -74,10 +81,14 @@ const AIMAClientComponent = ({ aimaDocs, approved, onContinue }: AIMAClientCompo
               )}
             </Avatar>
             <Box>
-              <Typography sx={{ fontWeight: 500, fontSize: 16, color: '#222' }}>
+              <Typography sx={{ fontWeight: 500, color: '#222' }}
+              fontSize={{ xs: "1rem", sm: "1rem" }}
+              >
                 {doc.aimaStatus}
               </Typography>
-              <Typography sx={{ fontSize: 14, color: '#555' }}>
+              <Typography 
+              fontSize={{ xs: "0.8rem", sm: "0.9  rem" }}
+              sx={{ color: '#555' }}>
                 {doc.isCompleted 
                   ? `Completed on - ${formatDate(doc.completedOn)}`
                   : "Pending"}

@@ -16,7 +16,7 @@ const VisaCompletionDetailsGrenadaDominica = ({
 }: {
   stepStatusId: string;
 }) => {
-  const { data, isLoading, isError,refetch } = useFetchDeliveryDetailsQuery({
+  const { data, isLoading, isError, refetch } = useFetchDeliveryDetailsQuery({
     stepStatusId,
   });
 
@@ -42,12 +42,11 @@ const VisaCompletionDetailsGrenadaDominica = ({
     return <DGDeliveryForm stepStatusId={stepStatusId} refetch={refetch} />;
   }
 
-  if(data.data.delivery && !data.data.shipping){
-    return <ProcessComponent label="Processing" date="" status=""/>
+  if (data.data.delivery && !data.data.shipping) {
+    return <ProcessComponent label="Processing" date="" status="" />;
   }
 
-
-  const deliveryDetails=data.data.delivery
+  const deliveryDetails = data.data.delivery;
   const shippingDetails = data.data.shipping;
   const supportInfo = shippingDetails.supportInfo || {};
 
@@ -60,7 +59,17 @@ const VisaCompletionDetailsGrenadaDominica = ({
         alignItems="center"
         mb={4}
       >
-        <Typography variant="h6" fontWeight="bold">
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{
+            fontSize: {
+              xs: "18px",
+              sm: "20px",
+              md: "24px",
+            },
+          }}
+        >
           Your Passport is on the Way! 🚀
         </Typography>
         {/* <Button
@@ -76,17 +85,60 @@ const VisaCompletionDetailsGrenadaDominica = ({
         <Stack spacing={4}>
           {/* Delivery Address Section */}
           <Box>
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              gutterBottom
+              sx={{
+                fontSize: {
+                  xs: "1rem", 
+                  md: "1.25rem",
+                },
+              }}
+            >
               Delivery Address
             </Typography>
-            <Typography variant="body2" mb={1}>
-              <strong>Recipient Name:</strong> {deliveryDetails.fullName ?? "N/A"}
+
+            <Typography
+              variant="body2"
+              mb={1}
+              sx={{
+                fontSize: {
+                  xs: "0.9rem",
+                  md: "1rem",
+                },
+              }}
+            >
+              <strong>Recipient Name:</strong>{" "}
+              {deliveryDetails.fullName ?? "N/A"}
             </Typography>
-            <Typography variant="body2" mb={1}>
-              <strong>Delivery Address:</strong> {deliveryDetails.address ?? "N/A"}
+
+            <Typography
+              variant="body2"
+              mb={1}
+              sx={{
+                fontSize: {
+                  xs: "0.9rem",
+                  md: "1rem",
+                },
+              }}
+            >
+              <strong>Delivery Address:</strong>{" "}
+              {deliveryDetails.address ?? "N/A"}
             </Typography>
-            <Typography variant="body2" mb={1}>
-              <strong>Contact Number:</strong> {deliveryDetails.phoneNo ?? "N/A"}
+
+            <Typography
+              variant="body2"
+              mb={1}
+              sx={{
+                fontSize: {
+                  xs: "0.9rem",
+                  md: "1rem",
+                },
+              }}
+            >
+              <strong>Contact Number:</strong>{" "}
+              {deliveryDetails.phoneNo ?? "N/A"}
             </Typography>
             {/* <Typography variant="body2">
               <strong>Estimated Delivery Date:</strong> {deliveryDetails.estimatedDeliveryDate ?? "N/A"}
@@ -95,18 +147,46 @@ const VisaCompletionDetailsGrenadaDominica = ({
 
           {/* Shipping Provider Section */}
           <Box>
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom
+            sx={{
+              fontSize: {
+                xs: "1rem", 
+                md: "1.25rem",
+              },
+            }}
+            >
               Shipping Provider & Tracking Info
             </Typography>
-            <Typography variant="body2" mb={1}>
+            <Typography variant="body2" mb={1}
+            sx={{
+              fontSize: {
+                xs: "0.9rem",
+                md: "1rem",
+              },
+            }}
+            >
               <strong>Courier Service:</strong>{" "}
               {shippingDetails.courierService || "N/A"}
             </Typography>
-            <Typography variant="body2" mb={1}>
+            <Typography variant="body2" mb={1}
+            sx={{
+              fontSize: {
+                xs: "0.9rem",
+                md: "1rem",
+              },
+            }}
+            >
               <strong>Tracking Number:</strong>{" "}
               {shippingDetails.trackingNo || "N/A"}
             </Typography>
-            <Typography variant="body2">
+            <Typography variant="body2"
+            sx={{
+              fontSize: {
+                xs: "0.8rem",
+                md: "1rem",
+              },
+            }}
+            >
               <strong>Tracking URL:</strong>{" "}
               <Link
                 href={shippingDetails.trackingUrl}
@@ -121,16 +201,44 @@ const VisaCompletionDetailsGrenadaDominica = ({
 
           {/* Additional Support Section */}
           <Box>
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom
+            sx={{
+              fontSize: {
+                xs: "1rem",
+                md: "1.25rem",
+              },
+            }}
+            >
               Additional Support
             </Typography>
-            <Typography variant="body2" mb={1}>
+            <Typography variant="body2" mb={1}
+            sx={{
+              fontSize: {
+                xs: "0.9rem",
+                md: "1rem",
+              },
+            }}
+            >
               Need help with delivery? Contact our team.
             </Typography>
-            <Typography variant="body2" mb={1}>
+            <Typography variant="body2" mb={1}
+            sx={{
+              fontSize: {
+                xs: "0.9rem",
+                md: "1rem",
+              },
+            }}
+            >
               <strong>Email:</strong> {supportInfo.email || "N/A"}
             </Typography>
-            <Typography variant="body2">
+            <Typography variant="body2"
+            sx={{
+              fontSize: {
+                xs: "0.9rem",
+                md: "1rem",
+              },
+            }}
+            >
               <strong>Phone Number:</strong> {supportInfo.phoneNo || "N/A"}
             </Typography>
           </Box>

@@ -6,7 +6,7 @@ const CustomerHeader = () => {
 
   return (
     <div className="flex items-center justify-between text-neutrals-950 pb-10">
-      <p className="font-bold  text-2xl">Welcome</p>
+      <p className="hidden md:block font-bold  text-2xl">Welcome</p>
 
       <div className="relative">
         {/* Notification dot */}

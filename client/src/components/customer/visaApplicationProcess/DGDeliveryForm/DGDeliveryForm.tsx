@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   TextField,
@@ -9,8 +9,8 @@ import {
   Container,
   Paper,
   Stack,
-} from '@mui/material';
-import { useUploadDeliveryDetailsMutation } from '../../../../features/customer/applicationMain/applicationMainApi';
+} from "@mui/material";
+import { useUploadDeliveryDetailsMutation } from "../../../../features/customer/applicationMain/applicationMainApi";
 
 const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()=>void}) => {
   const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -47,7 +47,7 @@ const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()
       postalCode,
       confirmed,
     } = formData;
-  
+
     if (
       !fullName ||
       !email ||
@@ -58,10 +58,10 @@ const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()
       !postalCode ||
       !confirmed
     ) {
-      alert('Please fill all required fields and confirm the checkbox.');
+      alert("Please fill all required fields and confirm the checkbox.");
       return;
     }
-  
+
     try {
       const body = {
         fullName,
@@ -73,15 +73,20 @@ const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()
         country,
         postalCode,
       };
-  
-      const response = await uploadDeliveryDetails({ stepStatusId, body }).unwrap();
+
+      console.log(body)
+
+      const response = await uploadDeliveryDetails({
+        stepStatusId,
+        body,
+      }).unwrap();
       refetch();
-      
-      console.log('Response:', response);
-      alert('Details submitted successfully!');
+
+      console.log("Response:", response);
+      alert("Details submitted successfully!");
     } catch (error) {
-      console.error('Submission error:', error);
-      alert('Something went wrong while submitting your details.');
+      console.error("Submission error:", error);
+      alert("Something went wrong while submitting your details.");
     }
   };
   
@@ -92,11 +97,16 @@ const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()
           Confirm Your Delivery Details
         </Typography>
         <Typography variant="body2" mb={3} textAlign={"center"}>
-          Your passport has been issued! Please review and confirm your delivery details below.
+          Your passport has been issued! Please review and confirm your delivery
+          details below.
         </Typography>
 
         <Stack spacing={2}>
-          <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
+          <Box
+            display="flex"
+            gap={2}
+            flexDirection={{ xs: "column", sm: "row" }}
+          >
             <TextField
               fullWidth
               label="Full Name"
@@ -115,7 +125,11 @@ const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()
             />
           </Box>
 
-          <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
+          <Box
+            display="flex"
+            gap={2}
+            flexDirection={{ xs: "column", sm: "row" }}
+          >
             <TextField
               fullWidth
               label="Phone Number"
@@ -178,19 +192,50 @@ const DGDeliveryForm = ({stepStatusId, refetch}:{stepStatusId:string, refetch:()
                 name="confirmed"
               />
             }
-            label="I confirm that the above details are correct and understand that changes after submission may not be possible."
+            label={
+              <Typography
+                sx={{
+                  fontSize: {
+                    xs: "0.75rem",
+                    md: "1rem",
+                  },
+                }}
+              >
+                I confirm that the above details are correct and understand that
+                changes after submission may not be possible.
+              </Typography>
+            }
           />
 
-          <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
+          <Box
+            display="flex"
+            gap={2}
+            flexDirection={{ xs: "column", sm: "row" }}
+          >
             <Button
               variant="contained"
               fullWidth
               onClick={handleConfirm}
-              sx={{ bgcolor: '#f7b500', color: '#000' }}
+              sx={{
+                bgcolor: "#F6C328",
+                color: "#000",
+                boxShadow: "none",
+                borderRadius: "20px",
+                textTransform: "none",
+              }}
             >
               Confirm & Proceed
             </Button>
-            <Button variant="outlined" fullWidth>
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{
+                borderColor: "black",
+                color: "black",
+                textTransform: "none",
+                borderRadius: "20px",
+              }}
+            >
               Edit Details
             </Button>
           </Box>

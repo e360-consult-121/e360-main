@@ -1,10 +1,10 @@
 import Chatbot from "../../../components/customer/Chatbot";
-import CustomTable from "../../../components/CustomTable";
+// import CustomTable from "../../../components/CustomTable";
 
 const Notification = () => {
   return (
     <div className="w-full h-full relative px-5">
-      <CustomTable
+      {/* <CustomTable
         headers={["Notification", "Time", "Action"]}
         contents={[
           {
@@ -18,7 +18,7 @@ const Notification = () => {
             action: "View",
           },
         ]}
-      />
+      /> */}
 
       <Chatbot />
     </div>

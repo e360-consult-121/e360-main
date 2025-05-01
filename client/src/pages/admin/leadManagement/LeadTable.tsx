@@ -22,7 +22,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ data }) => {
 
   const handleNavigation = (row: AllLeads) => {
     // console.log(row)
-    navigate(`/admin/consultation/${row._id}`);
+    navigate(`/admin/leadmanagement/${row._id}`);
   };
 
   // Handle page change

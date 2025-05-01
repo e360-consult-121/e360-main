@@ -56,9 +56,9 @@ const Login = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-1 items-center px-5">
+    <div className="md:w-full h-screen flex flex-1 items-center px-5">
       {/* Left animation */}
-      <div className="w-full h-[90%] flex-[0.6] rounded-[20px]">
+      <div className="hidden md:block md:w-full h-[90%] flex-[0.6] rounded-[20px]">
         <img
           src={globeAnim}
           alt="globe animation"
@@ -67,29 +67,29 @@ const Login = () => {
       </div>
 
       {/* Right section */}
-      <div className="w-full h-[90%] flex-[0.4] flex items-center justify-center">
-        <div className="w-3/4">
+      <div className="md:w-full h-[90%] flex-[0.4] flex items-center justify-center">
+        <div className="w-screen md:w-3/4">
           <img
             src={logo}
             alt="E360 logo"
-            className="w-[163px] object-contain"
+            className="w-[150px] md:w-[163px] object-contain"
           />
 
           <div className="flex flex-col mt-14 mb-7 space-y-2">
             <p className="text-neutrals-400">Nice to see you!</p>
-            <h1 className="text-2xl text-neutrals-950">
-              Sign in to your Account
+            <h1 className="text-2xl text-neutrals-950 font-bold">
+              Sign in to your Account.
             </h1>
           </div>
 
           {/* Email Input */}
           <div className="flex flex-col space-y-6">
-            <div className="flex flex-col w-full space-y-4">
-              <p className="text-neutrals-950 text-xs px-4">Login</p>
+            <div className="flex flex-col md:w-full space-y-4 mr-8">
+              <p className="text-neutrals-950 text-[14px] px-4">Login</p>
               <input
                 type="text"
                 placeholder="Email or phone number"
-                className="w-full px-4 py-3 bg-neutrals-50 rounded-lg outline-none"
+                className="w-full  px-4 py-3 bg-neutrals-50 rounded-lg outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -97,20 +97,20 @@ const Login = () => {
 
             {/* Password Input */}
             <div className="flex flex-col w-full space-y-4">
-              <p className="text-neutrals-950 text-xs px-4">Password</p>
+              <p className="text-neutrals-950 text-[14px] px-4">Password</p>
 
-              <div className="w-full flex items-center bg-neutrals-50 rounded-lg pr-3">
+              <div className="md:w-full flex items-between bg-neutrals-50 rounded-lg md:pr-3 mr-8">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
-                  className="w-full px-4 py-3 outline-none bg-neutrals-50"
+                  className="md:w-full px-4 py-3 outline-none bg-neutrals-50 rounded-lg"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="text-gray-600 hover:text-black"
+                  className="text-gray-600 hover:text-black ml-14"
                 >
                   <Icon
                     icon={showPassword ? "mdi:eye-off" : "mdi:eye"}
@@ -123,7 +123,7 @@ const Login = () => {
           </div>
 
           {/* Remember Me + Forgot Password */}
-          <div className="my-7 flex justify-between items-center">
+          <div className="my-7 flex justify-between items-center mr-8">
             <div className="flex items-center space-x-2">
               <Toggle isToggled={isRememberMe} setIsToggled={setIsRememberMe} />
               <p className="text-neutrals-950 text-xs">Remember me</p>
@@ -134,8 +134,9 @@ const Login = () => {
           </div>
 
           {/* Sign In Button */}
-          <button
-            className={`w-full py-3 rounded-[20px] cursor-pointer active:scale-95 transition-transform flex justify-center items-center ${
+         <div>
+           <button
+            className={`w-[90%] md:w-full py-3 rounded-[20px] cursor-pointer active:scale-95 transition-transform flex justify-center items-center ${
               isLoading ? "bg-gray-400" : "bg-golden-yellow-400"
             }`}
             onClick={handleLogin}
@@ -147,6 +148,7 @@ const Login = () => {
               "Sign In"
             )}
           </button>
+         </div>
 
           {/* Sign Up Link */}
           {/* <Typography

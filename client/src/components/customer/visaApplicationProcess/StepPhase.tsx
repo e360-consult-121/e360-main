@@ -43,7 +43,15 @@ const StepPhase: React.FC<{
       </>
     );
   } else if (stepType === "DGINVESTMENT") {
-    return <DGInvestmentMain visaApplicationId={visaApplicationId} visaType={visaType} stepData={stepData} onContinue={onContinue} currentStepName={currentStepName} />;
+    return (
+      <DGInvestmentMain
+        visaApplicationId={visaApplicationId}
+        visaType={visaType}
+        stepData={stepData}
+        onContinue={onContinue}
+        currentStepName={currentStepName}
+      />
+    );
   } else if (phase === "APPROVED" && stepType !== "AIMA") {
     if (stepType === "TRADE_NAME") {
       return <TradeNameApproved onContinue={onContinue} />;

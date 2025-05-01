@@ -13,8 +13,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
 
-    if(user && isAuthenticated == false){
-      navigate("/login")
+    if(user && isAuthenticated === false){
+      if(user === "ADMIN"){
+        navigate("/admin/login")
+      
+      }
+      else if (user === "USER"){
+        navigate("/login")
+      }
     }
 
     // if (isError) {

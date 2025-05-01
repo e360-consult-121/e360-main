@@ -19,11 +19,23 @@ const AdminRoutes = () => {
   const { data, isSuccess, isError } = useFetchUserQuery(undefined);  
 
    useEffect(() => {
+    // console.log(data)
       if (isError) {
         navigate("/admin/login");
+
       }
     }, [isError,navigate,isSuccess, data]);
   
+  // useEffect(() => {
+  //   if (data.role === "USER") {
+  //     alert("Unauthorized: Access is only for admins");
+  //     navigate("/admin/login", { replace: true });
+  //   } else if (isError) {
+  //     navigate("/admin/login", { replace: true });
+  //   }
+  // }, [data, isError, navigate]);
+  
+
   return (
     <Routes>
       <Route path="/login" element={<AdminLogin />} />
@@ -35,7 +47,7 @@ const AdminRoutes = () => {
         <Route path="/servicemanagement" element={<ServiceManagement />} />
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
         <Route path="/bankdetails" element={<BankDetails />} />
-        <Route path="/consultation/:leadid" element={<ClientInformation />} />
+        <Route path="/leadmanagement/:leadid" element={<ClientInformation />} />
         <Route path="/application/:visatype" element={<VisaApplicationInformation />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />

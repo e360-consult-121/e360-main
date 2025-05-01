@@ -12,12 +12,16 @@ import {
 } from "@mui/material";
 import { AllConsultationsTypes } from "../../consultations/consultationTypes";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 interface TableProps {
   data: AllConsultationsTypes[] | undefined;
 }
 
-const RecentConsultations: React.FC<TableProps> = ({ data }) => (
+const RecentConsultations: React.FC<TableProps> = ({ data }) => {
+
+  const navigate = useNavigate()
+  return(
   <Paper
     sx={{
       width: "413px",
@@ -72,7 +76,14 @@ const RecentConsultations: React.FC<TableProps> = ({ data }) => (
         </TableCell>
 
         <TableCell sx={{ borderBottom: "none" }}>
-          {consultation.status === "CANCELLED" ? null : consultation.status === "SCHEDULED" ? (
+        <Button
+        onClick={()=> navigate("/admin/consultations")}
+                  size="small"
+                  sx={{ textTransform: "none", color: "black" }}
+                >
+                  View &gt;
+          </Button>
+          {/* {consultation.status === "CANCELLED" ? null : consultation.status === "SCHEDULED" ? (
             <Box sx={{ display: "flex", gap: "3px" }}>
               <a href={consultation?.rescheduleUrl} target="_blank">
                 <Button
@@ -111,7 +122,7 @@ const RecentConsultations: React.FC<TableProps> = ({ data }) => (
                 </Button>
               </a>
             </Box>
-          ) : null}
+          ) : null} */}
         </TableCell>
       </TableRow>
     ))
@@ -127,7 +138,7 @@ const RecentConsultations: React.FC<TableProps> = ({ data }) => (
   </Table>
 </TableContainer>
 
-  </Paper>
-);
+  </Paper>)
+}
 
 export default RecentConsultations;

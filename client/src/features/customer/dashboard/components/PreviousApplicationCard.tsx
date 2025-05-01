@@ -1,8 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import { ApplicationCardProps } from "../dashboardTypes";
 
-const ApplicationCard = ({ caseId, status, submissionDate, title }: ApplicationCardProps) => {
-  const navigate = useNavigate();
+const PreviousApplicationCard = ({ caseId, status, submissionDate, title }: ApplicationCardProps) => {
 
   return (
     <div className="flex flex-col bg-neutrals-50 rounded-4xl px-4 py-4">
@@ -17,15 +15,8 @@ const ApplicationCard = ({ caseId, status, submissionDate, title }: ApplicationC
         <h3 className="font-semibold">Submission Date</h3>
         <p>{submissionDate}</p>
       </div>
-
-      <button
-        className="mt-3 w-full bg-golden-yellow-400 text-neutrals-950 rounded-[20px] text-sm py-2 cursor-pointer"
-        onClick={() => navigate(`/application/${caseId}`)} 
-      >
-        View
-      </button>
     </div>
   );
 };
 
-export default ApplicationCard;
+export default PreviousApplicationCard;
