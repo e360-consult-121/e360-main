@@ -36,21 +36,23 @@ jobs:
           echo -e "DB_URL=${{ secrets.DB_URL }}" >> .env
           echo -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           # Add other environment variables as needed
-          
+
           npm ci
           npm run build
+
           # Handle potential nested dist folders
           if [ -d "dist/server/dist" ]; then
             mv dist/server/dist/* dist/
             rm -rf dist/server
           fi
-          
-          # Manually copy templates
-          mkdir -p dist/services/emails/templates
-          cp -r src/services/emails/templates/* dist/services/emails/templates/
+
+          # Copy only .hbs files from templates folder to dist (preserve structure, skip .ts)
+          rsync -av --include='*/' --include='*.hbs' --exclude='*.ts' --exclude='*' src/services/emails/templates/ dist/services/emails/templates/
+
           # Verify templates were copied
-          echo "Template files copied:"
-          find dist/services/emails/templates -type f | wc -l
+          echo "HBS template files copied:"
+          find dist/services/emails/templates -name "*.hbs" | wc -l
+
 
       - name: Clean and Prepare Remote Server Directory
         uses: appleboy/ssh-action@v0.1.7
