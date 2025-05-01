@@ -1,3 +1,4 @@
+import { WHATSAPP_LINK } from '../../../../../config/configLinks';
 import { EmailService } from '../../../EmailService';
 
 export const sendPortalAccessToClient = async (
@@ -20,7 +21,7 @@ export const sendPortalAccessToClient = async (
       PortalLink: "https://app.e360consult.com",
       Email: to,
       Password: password,
-      WhatsAppLink: "",
+      WhatsAppLink: WHATSAPP_LINK,
     },
   });
 };

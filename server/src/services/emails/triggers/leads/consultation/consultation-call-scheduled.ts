@@ -1,3 +1,4 @@
+import { WHATSAPP_LINK } from '../../../../../config/configLinks';
 import { leadPriority } from '../../../../../types/enums/enums';
 import { EmailService } from '../../../EmailService';
 
@@ -33,7 +34,7 @@ export const constultationCallScheduled = async (
       Service: service,
       CallDateTime: callDateTime,
       MeetingLink: meetingLink,
-      WhatsappLink: ""
+      WhatsappLink: WHATSAPP_LINK
     },
   });
 };
