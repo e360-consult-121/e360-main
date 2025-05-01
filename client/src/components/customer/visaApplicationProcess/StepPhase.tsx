@@ -1,7 +1,6 @@
 import { Phase } from "../../../pages/customer/dashboard/VisaApplicationProcess";
 import Requirements from "./Requirements";
 import Approved from "./Approved";
-import TradeNameApproved from "./TradeName/TradeNameApproved";
 import AdminStepSource from "./ProcessComponent";
 import MedicalApproved from "./Medical/MedicalApproved";
 import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
@@ -9,6 +8,8 @@ import BankDetails from "./Bank/BankDetails";
 import DGInvestmentMain from "../../admin/visaApplicationInformation/DGInvestment/DGInvestmentMain";
 import VisaCompletionDetailsGrenadaDominica from "./VisaCompletionComponents/VisaCompletionDetailsGrenedaDominica";
 import TradeNameMain from "./TradeName/TradeNameMain";
+import MoaSigningMain from "./MoaSigning/MoaSigningMain";
+import MedicalMain from "./Medical/MedicalMain";
 
 const StepPhase: React.FC<{
   phase: Phase;
@@ -47,12 +48,15 @@ const StepPhase: React.FC<{
     return <DGInvestmentMain visaApplicationId={visaApplicationId} visaType={visaType} stepData={stepData} onContinue={onContinue} currentStepName={currentStepName} />;
   } 
   else if(stepType==="TRADE_NAME"){
-    return <TradeNameMain stepStatusId={stepData.currentStepStatusId}/>
+    return <TradeNameMain stepStatusId={stepData.currentStepStatusId} onContinue={onContinue}/>
+  }
+  else if(stepType==="MOA_SIGNING" && phase==="IN_PROGRESS"){
+    return <MoaSigningMain stepStatusId={stepData.currentStepStatusId} onContinue={onContinue}/>
+  }
+  else if(stepType==="MEDICAL_TEST" ){
+    return <MedicalMain/>
   }
   else if (phase === "APPROVED" && stepType !== "AIMA") {
-    if (stepType === "TRADE_NAME") {
-      return <TradeNameApproved onContinue={onContinue} />;
-    }
     if (stepType === "BANK") {
       return (
         <BankDetails
@@ -60,7 +64,7 @@ const StepPhase: React.FC<{
           requirementData={requirementData}
         />
       );
-    } else if (stepType === "GENERAL" || stepType === "EMPTY") {
+    } else if (["GENERAL","EMPTY","DUBAI_PAYMENT","MOA_SIGNING"].includes(stepType)) {
       return (
         <Approved
           stepSource={stepSource}

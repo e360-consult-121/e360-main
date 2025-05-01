@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useSubmitTradeNameOptionsMutation } from "../../../../features/admin/visaApplication/additional/dubaiApis";
 
-const InitialPreferencesForm = ({ stepStatusId }: { stepStatusId: string }) => {
+const InitialPreferencesForm = ({ stepStatusId,refetch }: { stepStatusId: string ,refetch:()=>void}) => {
   const [submitOptions, { isLoading }] = useSubmitTradeNameOptionsMutation();
   const [tradeName, setTradeName] = useState("");
   const [altName1, setAltName1] = useState("");
@@ -29,6 +29,7 @@ const InitialPreferencesForm = ({ stepStatusId }: { stepStatusId: string }) => {
       }).unwrap();
 
       alert("Trade names submitted successfully");
+      refetch();
     } catch (error) {
       console.error("Failed to submit trade names:", error);
       alert("Failed to submit trade names. Please try again.");
