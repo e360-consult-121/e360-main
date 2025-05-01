@@ -3,6 +3,7 @@ import { ConsultationInfoTypes } from "../../../features/admin/clientInformation
 // import { useParams } from "react-router-dom";
 import { useMarkConsultationAsCompletedMutation } from "../../../features/admin/consultations/consultationApi";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { toast } from "react-toastify";
 
 function parseDateString(dateTimeStr: string) {
   const [datePart] = dateTimeStr.split(" at ");
@@ -33,7 +34,7 @@ const Consultations = ({
   const handleMarkComplete = async () => {
     try {
       await markConsultationAsCompleted(consultationId).unwrap();
-      alert("Mark consultation as completed");
+      toast.success("Mark consultation as completed");
       onRefreshLead();
     } catch (error) {
       console.log(error);

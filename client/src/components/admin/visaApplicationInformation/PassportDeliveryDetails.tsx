@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Typography, Box, Button } from '@mui/material';
 import { useUploadShippingDetailsMutation } from '../../../features/admin/visaApplicationInformation/visaApplicationInformationApi';
 import { useFetchDeliveryDetailsQuery } from '../../../features/common/commonApi';
+import { toast } from 'react-toastify';
 
 // type ClientDetails = {
 //   name: string;
@@ -40,7 +41,7 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({
       !supportEmail ||
       !supportPhone
     ) {
-      alert('Please fill all the fields!');
+      toast.info('Please fill all the fields!');
       return;
     }
 
@@ -60,11 +61,11 @@ const PassportDeliveryDetails: React.FC<PassportDeliveryDetailsProps> = ({
       setTrackingUrl('');
       setSupportEmail('');
       setSupportPhone('');
-      alert('Shipping details submitted successfully.');
+      toast.success('Shipping details submitted successfully.');
       refetch();
     } catch (error) {
       console.error('Error uploading shipping details:', error);
-      alert('Failed to submit shipping details.');
+      toast.error('Failed to submit shipping details.');
     }
   };
 

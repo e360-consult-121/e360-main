@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { StepData } from "../visaAppicationInformationTypes";
 import { useGetCurrentStepInfoQuery } from "../../../common/commonApi";
+import { toast } from "react-toastify";
 
 interface CommonInfo {
   visaTypeName: string;
@@ -53,7 +54,7 @@ const ApplicationProcess = () => {
     try {
       const response = await approveStep(visatype).unwrap();
       console.log("Approved", response);
-      alert("Approved Step");
+      toast.success("Approved Step");
       refetch();
     } catch (error) {
       console.error("Approval failed", error);
@@ -64,7 +65,7 @@ const ApplicationProcess = () => {
     try {
       const response = await rejectStep(visatype).unwrap();
       console.log("Rejected", response);
-      alert("Rejected the Step");
+      toast.error("Rejected the Step");
       refetch();
     } catch (error) {
       console.error("Rejection failed", error);
@@ -75,7 +76,7 @@ const ApplicationProcess = () => {
     try {
       console.log(reqStatusId);
       const response = await markAsVerified(reqStatusId).unwrap();
-      alert("Verified");
+      toast.success("Verified");
       console.log("Marked as verified", response);
       refetch();
     } catch (error) {
@@ -93,7 +94,7 @@ const ApplicationProcess = () => {
     try {
       console.log(reqStatusId, reason);
       await needsReUpload({ reqStatusId, reason }).unwrap();
-      alert("Send document for reupload");
+      toast.success("Send document for reupload");
       refetch();
     } catch (error) {
       console.error("Re-upload request failed", error);

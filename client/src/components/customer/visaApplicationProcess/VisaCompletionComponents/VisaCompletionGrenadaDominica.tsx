@@ -11,6 +11,7 @@ import {
   Stack,
 } from '@mui/material';
 import { useUploadDeliveryDetailsMutation } from '../../../../features/customer/applicationMain/applicationMainApi';
+import { toast } from 'react-toastify';
 
 const VisaCompletionGrenada = ({stepStatusId}:{stepStatusId:string}) => {
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const VisaCompletionGrenada = ({stepStatusId}:{stepStatusId:string}) => {
       !postalCode ||
       !confirmed
     ) {
-      alert('Please fill all required fields and confirm the checkbox.');
+      toast.info('Please fill all required fields and confirm the checkbox.');
       return;
     }
   
@@ -74,10 +75,10 @@ const VisaCompletionGrenada = ({stepStatusId}:{stepStatusId:string}) => {
   
       const response = await uploadDeliveryDetails({ stepStatusId, body }).unwrap();
       console.log('Response:', response);
-      alert('Details submitted successfully!');
+      toast.success('Details submitted successfully!');
     } catch (error) {
       console.error('Submission error:', error);
-      alert('Something went wrong while submitting your details.');
+      toast.error('Something went wrong while submitting your details.');
     }
   };
   

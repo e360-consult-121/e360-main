@@ -10,6 +10,7 @@ import { AppDispatch } from "../../../app/store";
 import { setAuth } from "../authSlice";
 import { Roles } from "../authTypes";
 import { CircularProgress } from "@mui/material";
+import { toast } from "react-toastify";
 
 const Login = () => {
 
@@ -43,15 +44,15 @@ const Login = () => {
     try {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-      if (!email || !password) return alert("All Fields are required");
-      if (!emailRegex.test(email)) return alert("Enter a valid email");
+      if (!email || !password) return toast.info("All Fields are required");
+      if (!emailRegex.test(email)) return toast.info("Enter a valid email");
 
       const data = await login({ email, password, role: Roles.USER }).unwrap();
       dispatch(setAuth(data));
-      alert("Login successful!");
+      toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error: any) {
-      alert(error?.data?.message || "Login failed.");
+      toast.error("Login failed. Please try again")
     }
   };
 
@@ -128,9 +129,11 @@ const Login = () => {
               <Toggle isToggled={isRememberMe} setIsToggled={setIsRememberMe} />
               <p className="text-neutrals-950 text-xs">Remember me</p>
             </div>
+            <a href="/forgot-password">
             <button className="text-xs text-neutrals-400 cursor-pointer">
               Forgot password
             </button>
+            </a>
           </div>
 
           {/* Sign In Button */}

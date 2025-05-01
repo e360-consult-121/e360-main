@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, useMediaQuery } from "@mui/material";
 import EditIconOutlined from "@mui/icons-material/EditOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import TextInput from "../../../components/TextInput";
+import { useEditBankDetailsMutation, useFetchBankDetailsQuery } from "../../../features/admin/manageBankDetails/manageBankDetailsApi";
+import { toast } from "react-toastify";
 
 interface BankDetailsSection {
   id: string;
@@ -13,8 +15,11 @@ interface BankDetailsSection {
 
 const DominicaInvestmentOptions: React.FC = () => {
   const isTablet = useMediaQuery("(max-width:900px)");
+  
+  const { data, isLoading, isSuccess ,refetch} = useFetchBankDetailsQuery("DOMINICA");
+  const [editBankDetails] = useEditBankDetailsMutation();
+  
 
-  // State for bank details sections with added isEditing flag
   const [sections, setSections] = useState<BankDetailsSection[]>([
     {
       id: "ntf",
@@ -38,42 +43,102 @@ const DominicaInvestmentOptions: React.FC = () => {
     },
   ]);
 
-  const handleBankDetailsChange = (
-    sectionId: string,
-    fieldId: string,
-    value: string
-  ) => {
+  useEffect(() => {
+    if (isSuccess && data) {
+      setSections([
+        {
+          id: "ntf",
+          title: "National Transformation Fund (NTF) Donation",
+          isEditing: false,
+          fields: [
+            { id: "ntf-bank1", label: "Bank Name", value: data.bankName || "" },
+            { id: "ntf-bank2", label: "Account Number", value: data.accountNumber || "" },
+            { id: "ntf-bank3", label: "Account Holder Name", value: data.accountHolderName || "" },
+            { id: "re-bank4", label: "SWIFT/BIC Code", value: data.swiftOrBicCode || "" },
+            { id: "re-bank5", label: "IBAN Number (if applicable)", value: data.ibanNumber || "" },
+            { id: "re-bank6", label: "IFSC Code", value: data.ifscCode || "" },
+          ],
+        },
+      ]);
+    }
+  }, [data, isSuccess]);
+
+  const handleBankDetailsChange = (sectionId: string, fieldId: string, value: string) => {
     setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.id === sectionId) {
-          return {
-            ...section,
-            fields: section.fields.map((field) => {
-              if (field.id === fieldId) {
-                return { ...field, value };
-              }
-              return field;
-            }),
-          };
-        }
-        return section;
-      })
+      prevSections.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              fields: section.fields.map((field) =>
+                field.id === fieldId ? { ...field, value } : field
+              ),
+            }
+          : section
+      )
     );
   };
 
-  const toggleEditMode = (sectionId: string) => {
-    setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.id === sectionId) {
-          return {
-            ...section,
-            isEditing: !section.isEditing,
-          };
+  const toggleEditMode = async (sectionId: string) => {
+    const sectionToUpdate = sections.find((s) => s.id === sectionId);
+
+    if (sectionToUpdate?.isEditing) {
+      const payload = {
+        visaTypeName: "DOMINICA",
+        bankName: "",
+        accountHolderName: "",
+        accountNumber: "",
+        swiftOrBicCode: "",
+        ibanNumber: "",
+        ifscCode: "",
+      };
+
+      sectionToUpdate.fields.forEach((field) => {
+        switch (field.label) {
+          case "Bank Name":
+            payload.bankName = field.value;
+            break;
+          case "Account Holder Name":
+            payload.accountHolderName = field.value;
+            break;
+          case "Account Number":
+            payload.accountNumber = field.value;
+            break;
+          case "SWIFT/BIC Code":
+            payload.swiftOrBicCode = field.value;
+            break;
+          case "IBAN Number (if applicable)":
+            payload.ibanNumber = field.value;
+            break;
+          case "IFSC Code":
+            payload.ifscCode = field.value;
+            break;
+          default:
+            break;
         }
-        return section;
-      })
+      });
+
+      try {
+        // Call API to update bank details
+        await editBankDetails({ visaTypeName: "DOMINICA", data: payload }).unwrap();
+
+        toast.success("Bank details updated successfully!");
+        refetch();
+      } catch (error) {
+        toast.error("Failed to update bank details. Please try again.");
+        console.error("Update error:", error);
+      }
+    }
+
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        section.id === sectionId
+          ? { ...section, isEditing: !section.isEditing }
+          : section
+      )
     );
   };
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <>
@@ -113,9 +178,7 @@ const DominicaInvestmentOptions: React.FC = () => {
               ) : (
                 <EditIconOutlined sx={{ color: "#000" }} />
               )}
-              <Typography>
-                {section.isEditing ? "Save " : "Edit Details"}
-              </Typography>
+              <Typography>{section.isEditing ? "Save " : "Edit Details"}</Typography>
             </Box>
           </Box>
 

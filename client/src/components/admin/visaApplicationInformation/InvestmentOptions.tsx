@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Box, Button, TextField, Typography, Chip } from "@mui/material";
 import { useAddRealStateOptionsMutation } from "../../../features/admin/visaApplicationInformation/visaApplicationInformationApi";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { toast } from "react-toastify";
 
 const InvestmentOptionMap: Record<string, string> = {
   EDF: "Economic Diversification Fund",
@@ -56,7 +57,7 @@ const InvestmentOptions = ({
 
   const handleSubmit = async () => {
     if (realStateOptions.length === 0) {
-      alert("Please add at least one real estate option before submitting.");
+      toast.info("Please add at least one real estate option before submitting.");
       return;
     }
 
@@ -67,10 +68,10 @@ const InvestmentOptions = ({
       }).unwrap();
 
       refetch(); // Call refetch if needed
-      alert("Successfully submitted Real Estate Options");
+      toast.success("Successfully submitted Real Estate Options");
     } catch (error) {
       console.error("Submission failed:", error);
-      alert("Failed to submit options. Please try again.");
+      toast.error("Failed to submit options. Please try again.");
     }
   };
 

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, useMediaQuery } from "@mui/material";
 import EditIconOutlined from "@mui/icons-material/EditOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import TextInput from "../../../components/TextInput";
+import { useEditBankDetailsMutation, useFetchBankDetailsQuery } from "../../../features/admin/manageBankDetails/manageBankDetailsApi";
+import { toast } from "react-toastify";
 
 interface BankDetailsSection {
   id: string;
@@ -13,34 +15,56 @@ interface BankDetailsSection {
 
 const GrenadaInvestmentOptions: React.FC = () => {
   const isTablet = useMediaQuery("(max-width:900px)");
+  const { data, isLoading, isError , refetch } = useFetchBankDetailsQuery("GRENADA");
 
-  // State for bank details sections - Using same structure but with Grenada-specific IDs
-  const [sections, setSections] = useState<BankDetailsSection[]>([
-    {
-      id: "grenada-ntf",
-      title: "Economical Transformation Fund (ETF) Donation",
-      isEditing: false,
-      fields: [
-        { id: "grenada-ntf-bank1", label: "Bank Name", value: "" },
-        { id: "grenada-ntf-bank2", label: "Account Number", value: "" },
-        { id: "grenada-ntf-bank3", label: "Account Holder Name", value: "" },
-      ],
-    },
-    {
-      id: "grenada-real-estate",
-      title: "Real Estate Investment",
-      isEditing: false,
-      fields: [
-        { id: "grenada-re-bank1", label: "SWIFT/BIC Code", value: "" },
+  const [sections, setSections] = useState<BankDetailsSection[]>([]);
+  const [editBankDetails] = useEditBankDetailsMutation();
+
+  // On API data load, initialize state
+  useEffect(() => {
+    if (data) {
+      // Sample mapping: change based on actual API structure
+      setSections([
         {
-          id: "grenada-re-bank2",
-          label: "IBAN Number (if applicable)",
-          value: "",
+          id: "grenada-ntf",
+          title: "Economical Transformation Fund (ETF) Donation",
+          isEditing: false,
+          fields: [
+            {
+              id: "grenada-ntf-bank1",
+              label: "Bank Name",
+              value: data?.bankName || "",
+            },
+            {
+              id: "grenada-ntf-bank2",
+              label: "Account Number",
+              value: data?.accountNumber || "",
+            },
+            {
+              id: "grenada-ntf-bank3",
+              label: "Account Holder Name",
+              value: data?.accountHolderName || "",
+            },
+            {
+              id: "grenada-re-bank1",
+              label: "SWIFT/BIC Code",
+              value: data?.swiftOrBicCode || "",
+            },
+            {
+              id: "grenada-re-bank2",
+              label: "IBAN Number (if applicable)",
+              value: data.ibanNumber || "",
+            },
+            {
+              id: "grenada-re-bank3",
+              label: "IFSC Code",
+              value: data?.ifscCode || "",
+            },
+          ],
         },
-        { id: "grenada-re-bank3", label: "IFSC Code", value: "" },
-      ],
-    },
-  ]);
+      ]);
+    }
+  }, [data]);
 
   const handleBankDetailsChange = (
     sectionId: string,
@@ -52,12 +76,9 @@ const GrenadaInvestmentOptions: React.FC = () => {
         if (section.id === sectionId) {
           return {
             ...section,
-            fields: section.fields.map((field) => {
-              if (field.id === fieldId) {
-                return { ...field, value };
-              }
-              return field;
-            }),
+            fields: section.fields.map((field) =>
+              field.id === fieldId ? { ...field, value } : field
+            ),
           };
         }
         return section;
@@ -65,19 +86,79 @@ const GrenadaInvestmentOptions: React.FC = () => {
     );
   };
 
-  const toggleEditMode = (sectionId: string) => {
-    setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.id === sectionId) {
-          return {
-            ...section,
-            isEditing: !section.isEditing,
-          };
+  const toggleEditMode = async (sectionId: string) => {
+    const sectionToUpdate = sections.find((s) => s.id === sectionId);
+  
+    if (sectionToUpdate?.isEditing) {
+      const payload: {
+        bankName: string;
+        accountHolderName: string;
+        accountNumber: string;
+        swiftOrBicCode: string;
+        ibanNumber: string;
+        ifscCode: string;
+        visaTypeName:string;
+      } = {
+        visaTypeName:"GRENADA",
+        bankName: "",
+        accountHolderName: "",
+        accountNumber: "",
+        swiftOrBicCode: "",
+        ibanNumber: "",
+        ifscCode: "",
+      };
+  
+      // Map field labels to payload keys
+      sectionToUpdate.fields.forEach((field) => {
+        switch (field.label) {
+          case "Bank Name":
+            payload.bankName = field.value;
+            break;
+          case "Account Holder Name":
+            payload.accountHolderName = field.value;
+            break;
+          case "Account Number":
+            payload.accountNumber = field.value;
+            break;
+          case "SWIFT/BIC Code":
+            payload.swiftOrBicCode = field.value;
+            break;
+          case "IBAN Number (if applicable)":
+            payload.ibanNumber = field.value;
+            break;
+          case "IFSC Code":
+            payload.ifscCode = field.value;
+            break;
+          default:
+            break;
         }
-        return section;
-      })
+      });
+  
+      // console.log(payload);
+  
+      try {
+        await editBankDetails({ visaTypeName: "GRENADA", data: payload }).unwrap();
+  
+        // Show success alert
+        toast.success("Bank details updated successfully!");
+        refetch();
+      } catch (error) {
+        toast.error("Failed to update bank details. Please try again.");
+        console.error("Update error:", error);
+      }
+    }
+      setSections((prevSections) =>
+      prevSections.map((section) =>
+        section.id === sectionId
+          ? { ...section, isEditing: !section.isEditing }
+          : section
+      )
     );
   };
+  
+  
+  if (isLoading) return <Typography>Loading bank details...</Typography>;
+  if (isError) return <Typography>Error fetching bank details.</Typography>;
 
   return (
     <>
@@ -112,23 +193,16 @@ const GrenadaInvestmentOptions: React.FC = () => {
                 cursor: "pointer",
               }}
             >
-              {section.isEditing ? (
-                <SaveIcon />
-              ) : (
-                <EditIconOutlined sx={{ color: "#000" }} />
-              )}
-              <Typography>
-                {section.isEditing ? "Save " : "Edit Details"}
-              </Typography>
+              {section.isEditing ? <SaveIcon /> : <EditIconOutlined sx={{ color: "#000" }} />}
+              <Typography>{section.isEditing ? "Save" : "Edit Details"}</Typography>
             </Box>
           </Box>
 
-          {/* Flexbox container instead of Grid */}
           <Box
             sx={{
               display: "flex",
               flexWrap: "wrap",
-              margin: "-12px", // Negative margin to offset padding of child items
+              margin: "-12px",
             }}
           >
             {section.fields.map((field) => (
@@ -136,10 +210,10 @@ const GrenadaInvestmentOptions: React.FC = () => {
                 key={field.id}
                 sx={{
                   width: {
-                    xs: "100%", // Full width on mobile
-                    sm: isTablet ? "50%" : "33.33%", // Half width on tablet, one-third on desktop
+                    xs: "100%",
+                    sm: isTablet ? "50%" : "33.33%",
                   },
-                  padding: "12px", // Padding for spacing
+                  padding: "12px",
                   boxSizing: "border-box",
                 }}
               >
@@ -147,11 +221,7 @@ const GrenadaInvestmentOptions: React.FC = () => {
                   label={field.label}
                   value={field.value}
                   onChange={(e) =>
-                    handleBankDetailsChange(
-                      section.id,
-                      field.id,
-                      e.target.value
-                    )
+                    handleBankDetailsChange(section.id, field.id, e.target.value)
                   }
                   required={true}
                   placeholder="Enter Bank Details"

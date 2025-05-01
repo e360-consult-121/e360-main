@@ -17,6 +17,7 @@ import Invoice_Image from "../../../assets/Admin/Invoice_Image.jpeg";
 import { PaymentInfoTypes } from "../../../features/admin/clientInformation/clientInformationTypes";
 import { useSendPaymentLinkMutation } from "../../../features/admin/clientInformation/clientInformationApi";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // Define visa pricing structure types
 interface PricingInfo {
@@ -64,7 +65,7 @@ const PaymentAndInvoiceManagement = ({
 
   const handleSendPaymentLink = async () => {
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0 || !currency) {
-      alert("Please enter a valid amount and select a currency.");
+      toast.success("Please enter a valid amount and select a currency.");
       return;
     }
 
@@ -77,14 +78,14 @@ const PaymentAndInvoiceManagement = ({
 
       const data = await sendPaymentLink({ leadid, body }).unwrap();
       if (data.success === true) {
-        alert("Payment link sent");
+        toast.success("Payment link sent");
         onRefreshLead();
       } else {
-        alert("Something went wrong");
+        toast.error("Something went wrong");
       }
     } catch (error) {
       console.log(error);
-      alert("An error occurred while sending the payment link.");
+      toast.error("An error occurred while sending the payment link.");
     } finally {
       setLoading(false);
       setDialogOpen(false);

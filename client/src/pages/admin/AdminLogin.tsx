@@ -10,6 +10,7 @@ import { setAuth } from "../../features/auth/authSlice";
 import { Roles } from "../../features/auth/authTypes";
 import { useFetchUserQuery, useLoginMutation } from "../../features/auth/authApi";
 import Toggle from "../../components/Toggle";
+import { toast } from "react-toastify";
 
 const AdminLogin = () => {
 
@@ -43,15 +44,15 @@ const AdminLogin = () => {
     try {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-      if (!email || !password) return alert("All Fields are required");
-      if (!emailRegex.test(email)) return alert("Enter a valid email");
+      if (!email || !password) return toast.info("All Fields are required");
+      if (!emailRegex.test(email)) return toast.error("Enter a valid email");
 
       const data = await login({ email, password, role: Roles.ADMIN }).unwrap();
       dispatch(setAuth(data));
-      alert("Login successful! Welcome Admin");
+      toast.success("Login successful! Welcome Admin");
       navigate("/admin/dashboard");
     } catch (error: any) {
-      alert(error?.data?.message || "Login failed.");
+      toast.error(error?.data?.message || "Login failed.");
     }
   };
 
@@ -128,9 +129,11 @@ const AdminLogin = () => {
               <Toggle isToggled={isRememberMe} setIsToggled={setIsRememberMe} />
               <p className="text-neutrals-950 text-xs">Remember me</p>
             </div>
+            <a href="/forgot-password">
             <button className="text-xs text-neutrals-400 cursor-pointer">
               Forgot password
             </button>
+            </a>
           </div>
 
           {/* Sign In Button */}

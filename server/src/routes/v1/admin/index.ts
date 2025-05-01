@@ -6,6 +6,7 @@ import paymentRoutes from "./paymentRoutes";
 // import jotformRoutes from "./jotformRoutes"
 import dashboardRoutes from "./dashboardRoutes"
 import visaApplicationRoutes from "./visaApplicationRoutes"
+import bankdetailsRoutes from "./bankdetailsRoutes"
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.use("/consultations" , consultationRoutes);
 router.use("/payment" , paymentRoutes);
 router.use("/dashboard",dashboardRoutes)
 router.use("/visaapplication",visaApplicationRoutes)
+router.use("/bankdetails",bankdetailsRoutes)
 // router.use("/jotforms" , jotformRoutes);
 
 export default router;

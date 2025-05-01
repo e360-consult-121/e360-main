@@ -2,6 +2,7 @@ import { LinearProgress, Modal } from "@mui/material";
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useUploadDocumentMutation } from "../features/common/commonApi";
+import { toast } from "react-toastify";
 
 interface UploadModalProps {
   isUploadModalOpen: boolean;
@@ -29,11 +30,11 @@ const UploadModal = ({
     try {
       // console.log(file, reqStatusId);
       await uploadDocument({ reqStatusId, file }).unwrap();
-      alert("Document uploaded successfully!");
+      toast.success("Document uploaded successfully!");
       setIsUploadModalOpen(false);
       refetch();
     } catch (err: any) {
-      alert(err?.data?.error || "Upload failed, try again");
+      toast.error(err?.data?.error || "Upload failed, try again");
     } finally {
       setSelectedFile(null);
     }

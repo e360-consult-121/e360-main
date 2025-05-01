@@ -15,6 +15,7 @@ import { useSendConsultationLinkMutation } from "../../../features/admin/consult
 import { useParams } from "react-router-dom";
 import { useRejectParticularLeadMutation } from "../../../features/admin/leadManagement/leadManagementApi";
 import { formatDate } from "../../../utils/FormateDate";
+import { toast } from "react-toastify";
 
 const isEmptyOrNullObject = (obj: any): boolean => {
   if (typeof obj !== "object" || obj === null) return true;
@@ -61,9 +62,9 @@ const ClientEligibilityForm = ({
       if (leadid === undefined) return console.log("LeadId absent");
       const data = await sendConsultationLink(leadid).unwrap();
       if (data.message !== undefined) {
-        alert("done");
+        toast.success("Consultation link sent");
       } else {
-        alert("Error somthing wentwrong try again");
+        toast.error("Error somthing-went wrong. Try again");
       }
     } catch (error) {
       console.error("Failed to send consultation link", error);
@@ -83,10 +84,10 @@ const ClientEligibilityForm = ({
         body,
       }).unwrap();
       if (data.message !== undefined) {
-        alert("Rejected");
+        toast.error("Rejected");
         onRefreshLead();
       } else {
-        alert("Error somthing wentwrong try again");
+        toast.error("Error somthing wentwrong try again");
       }
     } catch (error) {
       console.error("Failed to send consultation link", error);

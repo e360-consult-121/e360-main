@@ -4,6 +4,8 @@ import CustomerRoutes from "./pages/customer/CustomerRoutes";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import AuthPage from "./pages/auth/AuthPage";
 import AdminLogin from "./pages/admin/AdminLogin"
+import ForgotPassword from "./features/auth/components/ForgotPassword";
+import ResetPassword from "./features/auth/components/ResetPasword";
 
 
 const App = () => {
@@ -13,6 +15,8 @@ const App = () => {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<AuthPage mode="SIGN_IN" />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Admin routes */}
         <Route

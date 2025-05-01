@@ -17,51 +17,28 @@ export interface IUser extends Document {
 }
 
 const UserSchema: Schema = new Schema({
-
-  name:{
-    type:String,
-    required:true,
-  },
-   phone:{
-    type:String,
-    required:true,
-   },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  // phone number -->> needed honge jab admin side running applications show karenge 
-  password: {
-    type: String,
-    required: true
-  },
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
   UserStatus: {
     type: String,
     enum: Object.values(AccountStatusEnum),
     required: true,
     default: AccountStatusEnum.ACTIVE
   },
-  refreshToken: {
-    type: String,
-  },
-  resetPasswordToken: {
-    type: String,
-    default: null
-  },
-  resetPasswordExpires: {
-    type: Date
-  },
+  refreshToken: { type: String },
+  forgotPasswordToken: { type: String, default: null },
+  forgotPasswordExpires: { type: Date },
   role: {
     type: String,
     enum: Object.values(RoleEnum),
-    required: true,
+    required: true
   }
 },
-  {
-    timestamps: true
-  }
-);
+{
+  timestamps: true
+});
 
 export const UserModel = mongoose.model<IUser>("User", UserSchema);
 
