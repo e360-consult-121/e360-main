@@ -29,6 +29,7 @@ router.post('/:aimaId/updateStatus' , authenticate , authorizeAdmin , asyncHandl
 
 // Dubai- Trade Name
 router.get('/:stepStatusId/dubai/trade-name/fetchTradeNameOptions' , authenticate , authorizeAdmin , asyncHandler(tradeNameControllers.fetchTradeNameOptions) );
+router.post('/:stepStatusId/dubai/trade-name/assignOneTradeName' , authenticate , authorizeAdmin , asyncHandler(tradeNameControllers.assignOneTradeName) );
 router.post('/:stepStatusId/dubai/trade-name/approveChangeReq' , authenticate , authorizeAdmin , asyncHandler(tradeNameControllers.approveChangeReq) );
 router.post('/:stepStatusId/dubai/trade-name/rejectChangeReq' , authenticate , authorizeAdmin , asyncHandler(tradeNameControllers.rejectChangeReq) );
 

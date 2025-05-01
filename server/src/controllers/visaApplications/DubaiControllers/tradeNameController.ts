@@ -61,6 +61,8 @@ export const assignOneTradeName = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
   const { assignedName } = req.body;
 
+  console.log("Assigned Name:", assignedName);
+
   if (!assignedName) {
     res.status(400);
     throw new Error("Assigned name is required.");
@@ -87,7 +89,7 @@ export const assignOneTradeName = async (req: Request, res: Response) => {
 
 
 // For user
-export const SendChangeRequest = async (req: Request, res: Response) => {
+export const sendChangeRequest = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
   const { options, reasonOfChange } = req.body;
 
@@ -139,12 +141,6 @@ export const approveChangeReq = async (req: Request, res: Response) => {
   if (!tradeNameDoc) {
     res.status(404);
     throw new Error("Trade name options not found for this stepStatusId.");
-  }
-
-  // Check if assignedName is one of the options
-  if (!tradeNameDoc.options.includes(assignedName)) {
-    res.status(400);
-    throw new Error("Assigned name must be one of the submitted options.");
   }
 
   // Update the document
@@ -212,8 +208,8 @@ export const fetchTradeNameInfo = async (req: Request, res: Response) => {
 
   const tradeName = await TradeNameModel.findOne(
     { stepStatusId },
-    { options: 1, assignedName: 1 }
-  );
+    { options: 1, assignedName: 1 ,status:1,reasonOfChange:1}
+  )
 
   if (!tradeName) {
     return res.status(200).json({ success: false, message: 'Preferences Not Submitted',data:null });
@@ -224,6 +220,8 @@ export const fetchTradeNameInfo = async (req: Request, res: Response) => {
     data: {
       options: tradeName.options,
       assignedName: tradeName.assignedName,
+      status: tradeName.status,
+      reasonOfChange: tradeName.reasonOfChange,
     },
   });
 };

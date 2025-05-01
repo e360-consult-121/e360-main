@@ -22,7 +22,7 @@ router.post("/:stepStatusId/uploadDeliveryDetails", authenticate ,  asyncHandler
 
 // Dubai - Trade Name
 router.post('/:stepStatusId/dubai/trade-name/uploadTradeNameOptions' , authenticate ,  asyncHandler(tradeNameControllers.uploadTradeNameOptions) );
-router.post('/:stepStatusId/dubai/trade-name/SendChangeRequest' , authenticate ,  asyncHandler(tradeNameControllers.SendChangeRequest) );
+router.post('/:stepStatusId/dubai/trade-name/sendChangeRequest' , authenticate ,  asyncHandler(tradeNameControllers.sendChangeRequest) );
 router.get('/:stepStatusId/dubai/trade-name/fetchAssignedTradeName' , authenticate ,  asyncHandler(tradeNameControllers.fetchAssignedTradeName) );
 
 // Dubai - MOA

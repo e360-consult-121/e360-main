@@ -143,7 +143,7 @@ export enum tradeNameStatus{
   Pending = "Pending",
   TradeNames_Uploaded = "TradeNames_Uploaded",
   TradeName_Assigned = "TradeName_Assigned",
-  ChangeReq_Sent = "ChangeReq_Sent ",
+  ChangeReq_Sent = "ChangeReq_Sent",
   ChangeReq_Approved = "ChangeReq_Approved",
   ChangeReq_Rejected =  "ChangeReq_Rejected"
 }
