@@ -347,10 +347,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
     await user.save({ validateBeforeSave: false });
 
     // Build reset link
-    // const resetLink = `${PORTAL_LINK}/reset-password/${token}`;
+    const resetLink = `${PORTAL_LINK}/reset-password/${token}`;
     
     //for testing
-    const resetLink =`http://localhost:5173/reset-password/${token}` 
+    // const resetLink =`http://localhost:5173/reset-password/${token}` 
     
 
     // Send email
