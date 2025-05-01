@@ -55,16 +55,16 @@ const tabs:TAB[] = [
     label: "Manage Bank Details",
     route: "admin/bankdetails",
   },
-  {
-    icon: "grommet-icons:visa",
-    label: "Eligibility Form Leads",
-    route: "admin/vipconciergeservice",
-  },
-  {
-    icon: "basil:notification-on-solid",
-    label: "Notification",
-    route: "admin/notification",
-  },
+  // {
+  //   icon: "grommet-icons:visa",
+  //   label: "Eligibility Form Leads",
+  //   route: "admin/vipconciergeservice",
+  // },
+  // {
+  //   icon: "basil:notification-on-solid",
+  //   label: "Notification",
+  //   route: "admin/notification",
+  // },
   // {
   //   icon: "icon-park-outline:setting",
   //   label: "Settings",

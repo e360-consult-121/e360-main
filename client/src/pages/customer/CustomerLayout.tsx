@@ -8,21 +8,21 @@ const tabs: TAB[] = [
     label: "Dashboard",
     route: "dashboard",
   },
-  {
-    icon: "icon-park-outline:folder-block-one",
-    label: "Previous Applications",
-    route: "applications",
-  },
+  // {
+  //   icon: "icon-park-outline:folder-block-one",
+  //   label: "Previous Applications",
+  //   route: "applications",
+  // },
   // {
   //   icon: "icon-park-outline:remind",
   //   label: "Notification",
   //   route: "notification",
   // },
-  {
-    icon: "icon-park-outline:setting",
-    label: "Settings",
-    route: "settings",
-  },
+  // {
+  //   icon: "icon-park-outline:setting",
+  //   label: "Settings",
+  //   route: "settings",
+  // },
 ];
 
 const CustomerLayout = () => {
