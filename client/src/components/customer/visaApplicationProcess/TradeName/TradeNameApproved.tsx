@@ -35,9 +35,9 @@ const TradeNameApproved = ({ onContinue }:{onContinue: () => void }) => {
       {/* Verified Icon Container */}
       <div className="rounded-full border-[20px] border-golden-yellow-50 w-fit">
         <div className="rounded-full border-[15px] border-[#FEFCEA]">
-          <div className="text-neutrals-50 bg-[#FAE081] p-8 rounded-full">
+          <div className="text-neutrals-50 bg-[#FAE081] rounded-full">
           <img
-          className="w-[50px] h-[50px]"
+          className="w-[90px] h-[90px]"
           src={LoadingGif}
           />
           </div>

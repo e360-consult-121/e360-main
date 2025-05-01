@@ -18,7 +18,7 @@ const ProcessComponent = ({ label, date, status }:{ label:string; date:string; s
         flexDirection: 'column',
         alignItems: 'flex-start', 
         overflowY: 'auto',
-        mt:12
+        mt:4
       }}
     >
       <Stack spacing={4} sx={{ mt: 2 }}>

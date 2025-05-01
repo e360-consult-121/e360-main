@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@mui/material';
 
-const TradDetails = () => {
+const InitialPreferencesForm = () => {
   const [tradeName, setTradeName] = useState('');
   const [altName1, setAltName1] = useState('');
   const [altName2, setAltName2] = useState('');
@@ -98,4 +98,4 @@ const TradDetails = () => {
   );
 };
 
-export default TradDetails
+export default InitialPreferencesForm
