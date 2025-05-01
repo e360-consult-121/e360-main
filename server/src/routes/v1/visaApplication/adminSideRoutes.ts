@@ -5,6 +5,8 @@ import * as adminSideControllers from "../../../controllers/visaApplications/adm
 import * as domiGrenaControllers from "../../../controllers/visaApplications/domiGrenaController";
 import * as deliveryControllers from "../../../controllers/visaApplications/dgDeliveryController";
 import * as portugalControllers from "../../../controllers/visaApplications/portugalController";
+import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
+import * as moaControllers from "../../../controllers/visaApplications/DubaiControllers/moaController";
 import {upload} from "../../../services/s3Upload"
 
 const router = Router();
@@ -24,4 +26,13 @@ router.post("/:stepStatusId/uploadShippingDetails", authenticate , authorizeAdmi
 // Portugal AIMA 
 router.post('/:aimaId/updateStatus' , authenticate , authorizeAdmin , asyncHandler(portugalControllers.updateStatus) );
 
+
+// Dubai- Trade Name
+router.get('/:stepStatusId/dubai/trade-name/fetchTradeNameOptions' , authenticate , authorizeAdmin , asyncHandler(tradeNameControllers.fetchTradeNameOptions) );
+router.post('/:stepStatusId/dubai/trade-name/approveChangeReq' , authenticate , authorizeAdmin , asyncHandler(tradeNameControllers.approveChangeReq) );
+router.post('/:stepStatusId/dubai/trade-name/rejectChangeReq' , authenticate , authorizeAdmin , asyncHandler(tradeNameControllers.rejectChangeReq) );
+
+// Dubai - MOA
+router.post('/:stepStatusId/dubai/MOA/moaUpload' , authenticate , authorizeAdmin ,upload.single("file"), asyncHandler(moaControllers.moaUpload) );
+router.post('/:stepStatusId/dubai/MOA/approveSignature' , authenticate , authorizeAdmin , asyncHandler(moaControllers.approveSignature) );
 export default router;

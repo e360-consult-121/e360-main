@@ -5,6 +5,8 @@ import * as clientSideControllers from "../../../controllers/visaApplications/cl
 import * as adminSideControllers from "../../../controllers/visaApplications/adminSideController";
 import * as domiGrenaControllers from "../../../controllers/visaApplications/domiGrenaController";
 import * as deliveryControllers from "../../../controllers/visaApplications/dgDeliveryController";
+import * as moaControllers from "../../../controllers/visaApplications/DubaiControllers/moaController";
+import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
 import {upload} from "../../../services/s3Upload"
 import { handleEligibilityForm } from "../../../controllers/visaApplications/testingEmails"
 
@@ -21,6 +23,11 @@ router.post("/:visaApplicationId/approveStep", authenticate ,  asyncHandler(admi
 // domiGrena Delivery and Shipping API'S
 router.get("/:stepStatusId/fetchBothDetails", authenticate ,  asyncHandler(deliveryControllers.fetchBothDetails));
 
+// Dubai - TradeName
+router.get("/:stepStatusId/dubai/trade-name/fetchTradeNameInfo", authenticate ,  asyncHandler(tradeNameControllers.fetchTradeNameInfo));
+
+// Dubai - MOA
+router.get("/:stepStatusId/dubai/MOA/fetchSigAndMOA", authenticate ,  asyncHandler(moaControllers.fetchSigAndMOA));
 
 
 // route for testing emails 

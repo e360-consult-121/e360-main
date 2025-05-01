@@ -68,7 +68,10 @@ export enum visaApplicationReqStatusEnum{
 }
 
 export enum StepTypeEnum {
-  MEDICAL = "MEDICAL",
+  MEDICAL_TEST = "MEDICAL_TEST",
+  DUBAI_PAYMENT = "DUBAI_PAYMENT",
+  TRADE_NAME = "TRADE_NAME",
+  MOA_SIGNING = "MOA_SIGNING",
   BANK = "BANK",
   DGDELIVERY = "DGDELIVERY",
   GENERAL = "GENERAL",
@@ -136,3 +139,18 @@ export enum aimaStatusEnum {
   Application_Approved = "Application Approved",
 }
 
+export enum tradeNameStatus{
+  Pending = "Pending",
+  TradeNames_Uploaded = "TradeNames_Uploaded",
+  TradeName_Assigned = "TradeName_Assigned",
+  ChangeReq_Sent = "ChangeReq_Sent ",
+  ChangeReq_Approved = "ChangeReq_Approved",
+  ChangeReq_Rejected =  "ChangeReq_Rejected"
+}
+
+export enum moaStatusEnum{
+  MOA_Preparing = "MOA_Preparing",
+  MOA_Uploaded  = "MOA_Uploaded",
+  Sig_Uploaded  = "Sig_Uploaded",
+  Sig_Approved  = "Sig_Approved"
+}
