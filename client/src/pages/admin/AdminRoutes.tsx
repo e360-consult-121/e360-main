@@ -12,6 +12,7 @@ import AdminLogin from "./AdminLogin";
 import { useFetchUserQuery } from "../../features/auth/authApi";
 import { useEffect } from "react";
 import VisaApplicationInformation from "./visaApplicationInformation/VisaApplicationInformation";
+import { toast } from "react-toastify";
 
 const AdminRoutes = () => {
 
@@ -28,7 +29,7 @@ const AdminRoutes = () => {
   
   // useEffect(() => {
   //   if (data.role === "USER") {
-  //     alert("Unauthorized: Access is only for admins");
+      // toast.error("Unauthorized: Access is only for admins");
   //     navigate("/admin/login", { replace: true });
   //   } else if (isError) {
   //     navigate("/admin/login", { replace: true });

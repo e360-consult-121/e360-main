@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useRegisterMutation } from "../authApi";
 import { Roles } from "../authTypes";
 import { CircularProgress, Link, Typography } from "@mui/material";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [isRememberMe, setIsRememberMe] = useState<boolean>(false);
@@ -23,10 +24,10 @@ const Register = () => {
 
     try {
       await register({ email, password, role: Roles.USER }).unwrap();
-      alert("Registration successful! Please log in.");
+      toast.success("Registration successful! Please log in.");
       navigate("/login");
     } catch (error: any) {
-      alert(error?.data?.message || "Registration failed.");
+      toast.error(error?.data?.message || "Registration failed.");
     }
   };
 
