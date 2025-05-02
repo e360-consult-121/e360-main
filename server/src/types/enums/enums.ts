@@ -154,3 +154,15 @@ export enum moaStatusEnum{
   Sig_Uploaded  = "Sig_Uploaded",
   Sig_Approved  = "Sig_Approved"
 }
+
+export enum medicalTestStatus{
+  Pending = "Pending",
+  Scheduled  = "Scheduled",
+  Completed  = "Completed",
+  RescheduleReq_Sent = "RescheduleReq_Sent",
+  RescheduleReq_Approved = "RescheduleReq_Approved",
+  RescheduleReq_Rejected = "RescheduleReq_Rejected"
+}
+
+
+

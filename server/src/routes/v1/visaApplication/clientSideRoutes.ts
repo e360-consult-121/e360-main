@@ -6,6 +6,7 @@ import * as domiGrenaControllers from "../../../controllers/visaApplications/dom
 import * as deliveryControllers from "../../../controllers/visaApplications/dgDeliveryController";
 import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
 import * as moaControllers from "../../../controllers/visaApplications/DubaiControllers/moaController";
+import * as medicalControllers from "../../../controllers/visaApplications/DubaiControllers/medicalTestController";
 import {upload} from "../../../services/s3Upload"
 
 const router = Router();
@@ -28,4 +29,6 @@ router.get('/:stepStatusId/dubai/trade-name/fetchAssignedTradeName' , authentica
 // Dubai - MOA
 router.get('/:stepStatusId/dubai/MOA/moaDocumentFetch' , authenticate ,  asyncHandler(moaControllers.moaDocumentFetch) );
 router.post('/:stepStatusId/dubai/MOA/uploadSignature' , authenticate , upload.single("file"),  asyncHandler(moaControllers.uploadSignature) );
+//  Dubai - Medical Test
+router.post("/:stepStatusId/dubai/medical/sendReschedulingReq", authenticate ,  asyncHandler(medicalControllers.sendReschedulingReq));
 export default router;

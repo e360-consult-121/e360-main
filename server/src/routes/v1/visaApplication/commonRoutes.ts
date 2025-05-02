@@ -7,6 +7,7 @@ import * as domiGrenaControllers from "../../../controllers/visaApplications/dom
 import * as deliveryControllers from "../../../controllers/visaApplications/dgDeliveryController";
 import * as moaControllers from "../../../controllers/visaApplications/DubaiControllers/moaController";
 import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
+import * as medicalControllers from "../../../controllers/visaApplications/DubaiControllers/medicalTestController";
 import {upload} from "../../../services/s3Upload"
 import { handleEligibilityForm } from "../../../controllers/visaApplications/testingEmails"
 
@@ -27,9 +28,10 @@ router.get("/:stepStatusId/fetchBothDetails", authenticate ,  asyncHandler(deliv
 router.get("/:stepStatusId/dubai/trade-name/fetchTradeNameInfo", authenticate ,  asyncHandler(tradeNameControllers.fetchTradeNameInfo));
 
 // Dubai - MOA
-router.get("/:stepStatusId/dubai/MOA/fetchSigAndMOA", authenticate ,  asyncHandler(moaControllers.fetchSigAndMOA));
+router.get("/:stepStatusId/dubai/medical/fetchSigAndMOA", authenticate ,  asyncHandler(moaControllers.fetchSigAndMOA));
 
-
+// Dubai -  Medical
+router.get("/:stepStatusId/dubai/medical/fetchMedicalTestInfo", authenticate ,  asyncHandler(medicalControllers.fetchMedicalTestInfo));
 // route for testing emails 
 router.post('/eligibility-form', asyncHandler(handleEligibilityForm) );
 export default router;
