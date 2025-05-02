@@ -5,10 +5,8 @@ import SignatureUpload from "./SignatureUpload";
 
 const MoaSigningMain = ({
   stepStatusId,
-  onContinue,
 }: {
   stepStatusId: string;
-  onContinue: () => void;
 }) => {
   const { data, refetch } = useFetchMoaInfoQuery({ stepStatusId });
   const [uploadSignature,{isLoading:isUploadSignatureLoading}] = useUploadSignatureMutation();

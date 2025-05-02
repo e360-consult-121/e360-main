@@ -80,21 +80,20 @@ export const dubaiApis = baseApi.injectEndpoints({
       },
     }),
 
-
     // Medical Appointment Apis
-    
-    fetchMedicalTestInfo : build.query({
+
+    fetchMedicalTestInfo: build.query({
       query: ({ stepStatusId }) => ({
         url: `/visaApplications/common/${stepStatusId}/dubai/medical/fetchMedicalTestInfo`,
         method: "GET",
       }),
     }),
     submitMedicalDetails: build.mutation({
-      query:({stepStatusId,medicalInfo})=>({
+      query: ({ stepStatusId, medicalInfo }) => ({
         url: `/visaApplications/admin-side/${stepStatusId}/dubai/medical/uploadMedicalTestDetails`,
         method: "POST",
-        data:medicalInfo
-      })
+        data: medicalInfo,
+      }),
     }),
     sendReschedulingReq: build.mutation({
       query: ({ stepStatusId, reason }) => ({
@@ -117,7 +116,20 @@ export const dubaiApis = baseApi.injectEndpoints({
       }),
     }),
 
-
+    // Payment Apis
+    fetchPaymentInfo: build.query({
+      query: ({ stepStatusId }) => ({
+        url: `/visaApplications/common/${stepStatusId}/dubai/payment/fetchPaymentInfo`,
+        method: "GET",
+      }),
+    }),
+    sendDubaiPaymentLink: build.mutation({
+      query: ({ stepStatusId, paymentInfo }) => ({
+        url: `/visaApplications/admin-side/${stepStatusId}/dubai/payment/sendPaymentLink`,
+        method: "POST",
+        data: paymentInfo,
+      }),
+    }),
   }),
 });
 
@@ -135,11 +147,15 @@ export const {
   useUploadMoaMutation,
   useUploadSignatureMutation,
 
-
-  // Medical 
+  // Medical
   useFetchMedicalTestInfoQuery,
   useSubmitMedicalDetailsMutation,
   useSendReschedulingReqMutation,
   useApproveReschedulingReqMutation,
-  useMarkTestAsCompletedMutation
+  useMarkTestAsCompletedMutation,
+
+
+  // Payments
+  useFetchPaymentInfoQuery,
+  useSendDubaiPaymentLinkMutation,
 } = dubaiApis;

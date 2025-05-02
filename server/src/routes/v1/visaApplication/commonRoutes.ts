@@ -8,6 +8,7 @@ import * as deliveryControllers from "../../../controllers/visaApplications/dgDe
 import * as moaControllers from "../../../controllers/visaApplications/DubaiControllers/moaController";
 import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
 import * as medicalControllers from "../../../controllers/visaApplications/DubaiControllers/medicalTestController";
+import * as paymentControllers from "../../../controllers/visaApplications/DubaiControllers/paymentController";
 import {upload} from "../../../services/s3Upload"
 import { handleEligibilityForm } from "../../../controllers/visaApplications/testingEmails"
 
@@ -32,6 +33,14 @@ router.get("/:stepStatusId/dubai/moa/fetchSigAndMOA", authenticate ,  asyncHandl
 
 // Dubai -  Medical
 router.get("/:stepStatusId/dubai/medical/fetchMedicalTestInfo", authenticate ,  asyncHandler(medicalControllers.fetchMedicalTestInfo));
+
+// Dubai -  Payments
+router.get("/:stepStatusId/dubai/payment/fetchPaymentInfo", authenticate ,  asyncHandler(paymentControllers.getPaymentStepInfo));
+
+
 // route for testing emails 
 router.post('/eligibility-form', asyncHandler(handleEligibilityForm) );
+
+
+
 export default router;

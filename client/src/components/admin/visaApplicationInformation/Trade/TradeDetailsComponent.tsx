@@ -43,10 +43,6 @@ const TradeDetailsComponent = ({ stepStatusId }: { stepStatusId: string }) => {
     }
   }, [data]);
 
-  const handleSubmit = () => {
-    console.log("Submitted Trade Name:", tradeName);
-    // api call to send trade name change
-  };
 
   const handleOpenModal = () => {
     setOpenModal(true);

@@ -8,6 +8,7 @@ import * as portugalControllers from "../../../controllers/visaApplications/port
 import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
 import * as moaControllers from "../../../controllers/visaApplications/DubaiControllers/moaController";
 import * as medicalControllers from "../../../controllers/visaApplications/DubaiControllers/medicalTestController";
+import * as paymentControllers from "../../../controllers/visaApplications/DubaiControllers/paymentController";
 import {upload} from "../../../services/s3Upload"
 
 const router = Router();
@@ -37,9 +38,16 @@ router.post('/:stepStatusId/dubai/trade-name/rejectChangeReq' , authenticate , a
 // Dubai - MOA
 router.post('/:stepStatusId/dubai/MOA/moaUpload' , authenticate , authorizeAdmin ,upload.single("file"), asyncHandler(moaControllers.moaUpload) );
 router.post('/:stepStatusId/dubai/MOA/approveSignature' , authenticate , authorizeAdmin , asyncHandler(moaControllers.approveSignature) );
+
 // Dubai - Medical Test
 router.post("/:stepStatusId/dubai/medical/uploadMedicalTestDetails", authenticate ,  asyncHandler(medicalControllers.uploadMedicalTestDetails));
 router.post("/:stepStatusId/dubai/medical/markTestAsCompleted", authenticate ,  asyncHandler(medicalControllers.markTestAsCompleted));
 router.post("/:stepStatusId/dubai/medical/approveReschedulingReq", authenticate ,  asyncHandler(medicalControllers.approveReschedulingReq));
 router.post("/:stepStatusId/dubai/medical/approveReschedulingReq", authenticate ,  asyncHandler(medicalControllers.approveReschedulingReq));
+
+
+// Dubai - Payment
+router.post("/:stepStatusId/dubai/payment/sendPaymentLink", authenticate , authorizeAdmin , asyncHandler(paymentControllers.handleSendPaymentLink));
 export default router;
+
+

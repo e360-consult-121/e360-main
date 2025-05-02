@@ -118,6 +118,11 @@ export enum paymentStatus {
   SESSIONEXPIRED = "SESSIONEXPIRED"
 }
 
+export enum paymentPurpose{
+  CONSULTATION="CONSULTATION",
+  DUBAI_PAYMENT="DUBAI_PAYMENT",
+}
+
 
 export enum dgInvestStatusEnum {
   optionSelected = "optionSelected",

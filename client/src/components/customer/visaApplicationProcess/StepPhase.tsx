@@ -10,6 +10,7 @@ import VisaCompletionDetailsGrenadaDominica from "./VisaCompletionComponents/Vis
 import TradeNameMain from "./TradeName/TradeNameMain";
 import MoaSigningMain from "./MoaSigning/MoaSigningMain";
 import MedicalMain from "./Medical/MedicalMain";
+import PaymentMain from "./Payment/PaymentMain";
 
 const StepPhase: React.FC<{
   phase: Phase;
@@ -51,10 +52,13 @@ const StepPhase: React.FC<{
     return <TradeNameMain stepStatusId={stepData.currentStepStatusId} onContinue={onContinue}/>
   }
   else if(stepType==="MOA_SIGNING" && phase==="IN_PROGRESS"){
-    return <MoaSigningMain stepStatusId={stepData.currentStepStatusId} onContinue={onContinue}/>
+    return <MoaSigningMain stepStatusId={stepData.currentStepStatusId} />
   }
   else if(stepType==="MEDICAL_TEST" ){
     return <MedicalMain stepStatusId={stepData.currentStepStatusId} phase={phase} onContinue={onContinue}/>
+  }
+  else if(stepType==="DUBAI_PAYMENT" ){
+    return <PaymentMain stepStatusId={stepData.currentStepStatusId} phase={phase} onContinue={onContinue}/>
   }
   else if (phase === "APPROVED" && stepType !== "AIMA") {
     if (stepType === "BANK") {

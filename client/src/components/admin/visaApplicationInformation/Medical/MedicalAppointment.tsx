@@ -4,7 +4,6 @@ import {
   Typography,
   Box,
   Button,
-  IconButton,
   Dialog,
   DialogActions,
   DialogContent,
@@ -28,7 +27,7 @@ interface MedicalAppointmentProps {
 }
 const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId }) => {
 
-  const { data, isLoading, refetch } = useFetchMedicalTestInfoQuery({ stepStatusId });
+  const { data, refetch } = useFetchMedicalTestInfoQuery({ stepStatusId });
   const [submitMedicalDetails, { isLoading: isSubmitting }] = useSubmitMedicalDetailsMutation();
   const [approveRescheduling, { isLoading: isApproving }] = useApproveReschedulingReqMutation();
   const [markTestAsCompleted, { isLoading: isMarkingCompleted }] = useMarkTestAsCompletedMutation();

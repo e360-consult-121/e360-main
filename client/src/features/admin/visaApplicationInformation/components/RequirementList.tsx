@@ -9,6 +9,7 @@ import InvestmentOptions from "../../../../components/admin/visaApplicationInfor
 import PassportDeliveryDetails from "../../../../components/admin/visaApplicationInformation/PassportDeliveryDetails";
 import TradeDetailsComponent from "../../../../components/admin/visaApplicationInformation/Trade/TradeDetailsComponent";
 import MoaSigningComponent from "../../../../components/admin/visaApplicationInformation/MoaSigning/MoaSigningComponent";
+import PaymentComponent from "../../../../components/admin/visaApplicationInformation/Payment/PaymentComponent";
 
 type RequirementListProps = {
   requirements: RequirementTypes[];
@@ -171,6 +172,13 @@ const RequirementList = ({
         return (
           <>
             <MedicalAppointment stepStatusId={stepStatusId} />
+          </>
+        );
+      }
+       else if (stepType === "DUBAI_PAYMENT") {
+        return (
+          <>
+            <PaymentComponent stepStatusId={stepStatusId} />
           </>
         );
       }

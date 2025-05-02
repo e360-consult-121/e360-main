@@ -21,7 +21,8 @@ import {
   AccountStatusEnum,
   VisaApplicationStatusEnum,
   StepStatusEnum , 
-  visaApplicationReqStatusEnum
+  visaApplicationReqStatusEnum,
+  paymentPurpose
 } from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums";
 import { sendEmail } from "../../utils/sendEmail";
@@ -33,6 +34,7 @@ import { addToRecentUpdates } from "../../utils/addToRecentUpdates";
 import { sendPaymentLinkToLead } from "../../services/emails/triggers/leads/payment/payment-link-send";
 import { getServiceType } from "../../utils/leadToServiceType";
 import { sendPortalAccessToClient } from "../../services/emails/triggers/leads/payment/payment-successful";
+import { handleDubaiPayment } from "../visaApplications/DubaiControllers/paymentController";
 
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
@@ -46,8 +48,15 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     throw new Error("Lead not found");
   }
 
-  // 2. Create payment link using utility function
-  const paymentUrl = await createPaymentSession(leadId, amount, currency);
+
+  const productName = `Visa Consultation for ${lead.fullName.first} ${lead.fullName.last}`;
+  const metadata = {
+    leadId: lead._id?.toString(),
+    email: lead.email,
+    purpose: paymentPurpose.CONSULTATION
+  };
+
+  const paymentUrl = await createPaymentSession(productName,metadata, amount, currency);
 
 
 
@@ -261,21 +270,21 @@ export async function createVisaApplication({
   }
 }
 
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
 // // stripe webhook
+
 export const stripeWebhookHandler = async (req: Request, res: Response) => {
-  console.log("payment Webhook hit!");
+  console.log("Payment Webhook hit!");
 
   const sig = req.headers["stripe-signature"] as string;
 
   if (!sig) {
-    console.error(" Stripe signature missing in headers");
+    console.error("Stripe signature missing in headers");
     res.sendStatus(400);
     return;
   }
 
-  // signature use karke event bana lete hai -----
+  // Verify signature and construct event
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(
@@ -283,187 +292,184 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-    console.log(" Stripe event constructed successfully");
+    console.log("Stripe event constructed successfully");
   } catch (err) {
-    console.error(" Webhook signature verification failed:", err);
+    console.error("Webhook signature verification failed:", err);
     res.sendStatus(400);
     return;
   }
 
-  //  PaymentIntent , leadId , sessionId
   const paymentIntent = event.data.object as Stripe.PaymentIntent;
-  // console.log("so this is your PaymentIntent:", JSON.stringify(paymentIntent, null, 2));
+  console.log("Payment metadata:", paymentIntent.metadata);
 
-  const leadId = paymentIntent.metadata?.leadId; // undefined
-  if (!leadId) {
-    console.error(" leadId missing in metadata");
-    res.sendStatus(400);
-    return;
+  // Route to appropriate handler based on payment purpose
+  const purpose = paymentIntent.metadata?.purpose;
+
+  try {
+    switch (purpose) {
+      case paymentPurpose.CONSULTATION:
+        await handleConsultationPayment(event, paymentIntent);
+        break;
+      case paymentPurpose.DUBAI_PAYMENT:
+        await handleDubaiPayment(event, paymentIntent);
+        break;
+      default:
+        console.error("Unknown payment purpose:", purpose);
+        // Default to consultation payment for backward compatibility
+        await handleConsultationPayment(event, paymentIntent);
+    }
+    
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Error processing payment:", error);
+    // Still return 200 to prevent Stripe from retrying
+    res.sendStatus(200);
   }
-  console.log(" leadId from metadata:", leadId);
+};
 
-  // Fetch the sessionId
-  // let checkoutSessionId: string | null = null;
-  // try {
-  //   const sessions = await stripe.checkout.sessions.list({
-  //     payment_intent: paymentIntent.id,
-  //   });
-  //   const session = sessions.data[0];
-  //   if (session) {
-  //     checkoutSessionId = session.id;
-  //     console.log("Checkout Session ID:", checkoutSessionId);
-  //   }
-  // } catch (err) {
-  //   console.error("Error fetching checkout session:", err);
-  //   res.sendStatus(500); // or 200 if you want Stripe not to retry
-  //   return;
-  // }
+export const handleConsultationPayment = async (
+  event: Stripe.Event,
+  paymentIntent: Stripe.PaymentIntent
+) => {
+  const leadId = paymentIntent.metadata?.leadId;
+  if (!leadId) {
+    console.error("leadId missing in metadata");
+    throw new Error("leadId missing in metadata");
+  }
+  console.log("leadId from metadata:", leadId);
 
   const lead = await LeadModel.findById(leadId);
-
-  if (lead) {
-    console.log(`this is our lead:`, lead);
+  if (!lead) {
+    console.error("Lead not found:", leadId);
+    throw new Error("Lead not found");
   }
+  console.log("Lead found:", lead);
 
-  //extract name to store in userDb
+  // Extract name to store in userDb
   const name = [lead?.fullName?.first, lead?.fullName?.last].filter(Boolean).join(" ");
 
-  
-  
   const payment = await PaymentModel.findOne({ leadId });
   if (payment) {
-    (payment.amount = paymentIntent.amount_received / 100),
-      (payment.currency = paymentIntent.currency),
-      (payment.paymentIntentId = paymentIntent.id),
-      // payment.sessionId       =   checkoutSessionId ?? null;
-      await payment.save();
+    payment.amount = paymentIntent.amount_received / 100;
+    payment.currency = paymentIntent.currency;
+    payment.paymentIntentId = paymentIntent.id;
+    await payment.save();
   } else {
-    console.warn(" No existing payment record found for lead:", leadId);
+    console.warn("No existing payment record found for lead:", leadId);
   }
 
-  // SUCCESS case ....***......
+  // Handle different event types
   switch (event.type) {
     case "payment_intent.succeeded":
-      {
-        let invoiceUrl: string | null = null;
-        let paymentMethod: string | null = null;
-
-        if (paymentIntent.latest_charge) {
-          try {
-            const charge = await stripe.charges.retrieve(
-              paymentIntent.latest_charge as string
-            );
-            invoiceUrl = charge.receipt_url ?? null;
-            paymentMethod = charge.payment_method_details?.type ?? null;
-          } catch (err) {
-            console.error("Failed to retrieve charge:", err);
-          }
-        }
-
-        if (payment) {
-          payment.status = paymentStatus.PAID;
-          payment.invoiceUrl = invoiceUrl;
-          payment.paymentMethod = paymentMethod;
-          await payment.save();
-        }
-
-        // UPDATE STATUS OF LEAD and create account
-        if (lead) {
-          lead.leadStatus = leadStatus.PAYMENTDONE;
-          await lead.save();
-
-          // call function to create user account
-          //extract phone number to store in userDb
-          const phone = lead?.phone
-          const fullName =
-            `${lead?.fullName?.first || ""} ${lead?.fullName?.last || ""}`.trim();
-
-            console.log(fullName)
-          const user = await createUserFunction({
-            name: fullName,
-            email: lead?.email || "",
-            phone:phone,
-            serviceType: getServiceType(lead.__t || ""),
-          });
-
-          const visaType=lead.__t?.replace("Lead", "") || "Unknown";
-
-
-          const visaTypeId = VISATYPE_MAP[visaType];
-
-          const { visaApplicantInfo } = await createVisaApplication({
-            leadId : lead._id as mongoose.Types.ObjectId,
-            userId: user._id,
-            visaTypeId: visaTypeId,
-          });
-
-          //Function call to add visapplication recent updates Db
-          try {
-            const _id = visaApplicantInfo._id;
-            console.log("Attempting to add to recent updates with:", name);
-            await addToRecentUpdates({
-              caseId: _id.toString(),
-              status: "Processing",
-              name,
-            });
-            console.log("Added to recent updates");
-          } catch (error) {
-            console.error("Failed to add to recent updates:", error);
-          }
-
-          // Function to update the revenue of particular visaType for dashboard analytics
-          try {
-            console.log(
-              "Attempting to update revenue summary with:",
-              visaTypeId,
-              paymentIntent.amount_received / 100
-            );
-            await updateRevenueSummary(
-              visaTypeId,
-              paymentIntent.amount_received / 100
-            );
-            console.log("Added to revenue updates");
-          } catch (error) {
-            console.error("Failed to update revenue summary:", error);
-          }
-        }
-      }
+      await handleConsultationPaymentSuccess(paymentIntent, payment, lead, name);
       break;
 
     case "payment_intent.payment_failed":
-      {
-        if (payment) {
-          payment.status = paymentStatus.FAILED;
-          payment.invoiceUrl = null;
-          payment.paymentMethod = null;
-          await payment.save();
-        }
-
-        // UPDATE STATUS OF LEAD
-        // if(lead){
-        //   lead.leadStatus = leadStatus.PAYMENTDONE;
-        //   await lead.save();
-        // }
-      }
+      await handleConsultationPaymentFailure(payment);
       break;
 
     default:
-      console.log(" Ignored event type:", event.type);
+      console.log("Ignored event type:", event.type);
   }
-
-  res.sendStatus(200);
-  return;
 };
 
-// Note: (webhook-secret -->> used in webhook ) milta hai jab tu webhook create karta hai Stripe dashboard me.
+/**
+ * Handles successful consultation payments
+ */
+const handleConsultationPaymentSuccess = async (
+  paymentIntent: Stripe.PaymentIntent,
+  payment: any | null,
+  lead: any,
+  name: string
+) => {
+  let invoiceUrl: string | null = null;
+  let paymentMethod: string | null = null;
 
-//  2 Types of Integration:
-// PaymentIntent (Custom UI / card input on your site)
-// Checkout Session (Stripe hosted page — easier & secure)
-// payment link create ✅ Tu ye use karega
+  if (paymentIntent.latest_charge) {
+    try {
+      const charge = await stripe.charges.retrieve(
+        paymentIntent.latest_charge as string
+      );
+      invoiceUrl = charge.receipt_url ?? null;
+      paymentMethod = charge.payment_method_details?.type ?? null;
+    } catch (err) {
+      console.error("Failed to retrieve charge:", err);
+    }
+  }
 
-//  Publishable Key — for frontend (not needed in your case now)
-//  Secret Key — for backend integration
+  if (payment) {
+    payment.status = paymentStatus.PAID;
+    payment.invoiceUrl = invoiceUrl;
+    payment.paymentMethod = paymentMethod;
+    await payment.save();
+  }
 
-// we can fetch invoice  like this -->>
-// const invoice = await stripe.invoices.retrieve('in_1ABCDE12345');
+  // Update lead status and create user account
+  if (lead) {
+    lead.leadStatus = leadStatus.PAYMENTDONE;
+    await lead.save();
+
+    // Extract phone number to store in userDb
+    const phone = lead?.phone;
+    const fullName = `${lead?.fullName?.first || ""} ${lead?.fullName?.last || ""}`.trim();
+    console.log(fullName);
+
+    const user = await createUserFunction({
+      name: fullName,
+      email: lead?.email || "",
+      phone: phone,
+      serviceType: getServiceType(lead.__t || ""),
+    });
+
+    const visaType = lead.__t?.replace("Lead", "") || "Unknown";
+    const visaTypeId = VISATYPE_MAP[visaType];
+
+    const { visaApplicantInfo } = await createVisaApplication({
+      leadId: lead._id as mongoose.Types.ObjectId,
+      userId: user._id,
+      visaTypeId: visaTypeId,
+    });
+
+    // Function call to add visapplication recent updates Db
+    try {
+      const _id = visaApplicantInfo._id;
+      console.log("Attempting to add to recent updates with:", name);
+      await addToRecentUpdates({
+        caseId: _id.toString(),
+        status: "Processing",
+        name,
+      });
+      console.log("Added to recent updates");
+    } catch (error) {
+      console.error("Failed to add to recent updates:", error);
+    }
+
+    // Function to update the revenue of particular visaType for dashboard analytics
+    try {
+      console.log(
+        "Attempting to update revenue summary with:",
+        visaTypeId,
+        paymentIntent.amount_received / 100
+      );
+      await updateRevenueSummary(
+        visaTypeId,
+        paymentIntent.amount_received / 100
+      );
+      console.log("Added to revenue updates");
+    } catch (error) {
+      console.error("Failed to update revenue summary:", error);
+    }
+  }
+};
+
+/**
+ * Handles failed consultation payments
+ */
+const handleConsultationPaymentFailure = async (payment: any | null) => {
+  if (payment) {
+    payment.status = paymentStatus.FAILED;
+    payment.invoiceUrl = null;
+    payment.paymentMethod = null;
+    await payment.save();
+  }
+};
