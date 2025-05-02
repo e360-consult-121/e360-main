@@ -31,26 +31,25 @@ const CustomStepper = ({
           {/* Progress Circle */}
           <div className="relative flex items-center justify-center mr-5">
             <svg className="w-24 h-24 rotate-[-90deg]">
-              {/* 96px x 96px */}
               <circle
-                cx="50%"
-                cy="50%"
-                r="45"
+                cx="48"
+                cy="48"
+                r="40"
                 stroke="#F5F5F5"
                 strokeWidth="8"
                 fill="none"
               />
               <circle
-                cx="50%"
-                cy="50%"
-                r="45"
+                cx="48"
+                cy="48"
+                r="40"
                 stroke="#FFD700"
                 strokeWidth="6"
                 fill="none"
-                strokeDasharray={2 * Math.PI * 50} // <-- updated to 50
+                strokeDasharray={2 * Math.PI * 40}
                 strokeDashoffset={
-                  2 * Math.PI * 50 * (1 - progressPercent / 100)
-                } // <-- updated to 50
+                  2 * Math.PI * 40 * (1 - progressPercent / 100)
+                }
                 strokeLinecap="round"
               />
             </svg>
@@ -77,48 +76,58 @@ const CustomStepper = ({
         </div>
       </div>
 
-      {/* Desktop Stepper (Your existing code) */}
+      {/* Desktop Stepper */}
       <div className="hidden md:flex w-full justify-center my-10 items-center relative">
-        {Array.from({ length: stepsCount }).map((_, index) => (
-          <div key={index} className="flex items-center">
-            <div
-              className={`w-10 h-10 flex items-center justify-center rounded-full font-bold border-[5px]
-                ${
-                  index <= currentStep
-                    ? "bg-golden-yellow-300 text-black border-white"
-                    : "bg-neutrals-300 text-white border-neutrals-100"
-                }
-              `}
-            >
-              {index < currentStep ? (
-                <Icon
-                  icon="icon-park-outline:done-all"
-                  width={"17px"}
-                  height={"17px"}
-                />
-              ) : (
-                index + 1
-              )}
-              {index === currentStep && (
-                <div className="absolute top-12 w-fit max-w-[250px]">
-                  <div
-                    className={`relative px-3 py-2 w-full bg-golden-yellow-100 rounded-2xl text-center text-neutrals-950`}
-                  >
-                    {currentStepName}
-                    <div className="absolute top-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-golden-yellow-100"></div>
+        <div className="flex items-center">
+          {Array.from({ length: stepsCount }).map((_, index) => (
+            <div key={index} className="flex items-center">
+              {/* Step Circle */}
+              <div
+                className={`w-10 h-10 flex items-center justify-center rounded-full font-bold border-[5px] z-10
+                  ${
+                    index <= currentStep
+                      ? "bg-golden-yellow-300 text-black border-white"
+                      : "bg-neutrals-300 text-white border-neutrals-100"
+                  }
+                `}
+              >
+                {index < currentStep ? (
+                  <Icon
+                    icon="icon-park-outline:done-all"
+                    width={"17px"}
+                    height={"17px"}
+                  />
+                ) : (
+                  index + 1
+                )}
+                
+                {/* Current Step Label */}
+                {index === currentStep && (
+                  <div className="absolute top-12 w-fit">
+                    <div
+                      className={`relative px-3 py-2 w-max bg-golden-yellow-100 rounded-2xl text-center text-neutrals-950`}
+                    >
+                      {currentStepName}
+                      <div className="absolute top-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-golden-yellow-100"></div>
+                    </div>
                   </div>
-                </div>
+                )}
+              </div>
+              
+              {/* Connector Line */}
+              {index < stepsCount - 1 && (
+                <div 
+                  className={`h-2 ${
+                    index < currentStep ? "bg-golden-yellow-100" : "bg-neutrals-50"
+                  }`}
+                  style={{
+                    width: `${Math.max(20, Math.min(60, 150 / stepsCount))}px`
+                  }}
+                ></div>
               )}
             </div>
-            {index !== stepsCount - 1 && (
-              <div
-              className={`h-2 ${
-                stepsCount > 10 ? "w-12" : "w-30"
-              } ${index < currentStep ? "bg-golden-yellow-100" : "bg-neutrals-50"}`}
-            ></div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </>
   );

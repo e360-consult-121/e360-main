@@ -33,8 +33,7 @@ interface VisaPricingType {
 const visaPricing: VisaPricingType = {
   "Grenada": { amount: "25000", currency: "usd" },
   "Dominica": { amount: "20000", currency: "usd" },
-  "DomiGrena": { amount: "20000", currency: "usd" },
-  "Dubai Business Setup": { amount: "7000", currency: "usd" },
+  "Dubai": { amount: "7000", currency: "usd" },
   "Portugal": { amount: "12000", currency: "eur" }
 };
 
