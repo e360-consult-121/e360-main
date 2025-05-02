@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../../utils/appError";
 import { MedicalTestModel } from "../../../extraModels/medicalTestModel";
-import { medicalTestStatus } from "../../../types/enums/enums";
+import { medicalTestStatus, StepStatusEnum } from "../../../types/enums/enums";
 import mongoose, { Types } from "mongoose";
+import { EmailTrigger } from "../../../models/VisaStep";
+import { sendApplicationUpdateEmails } from "../../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
+import { VisaApplicationStepStatusModel } from "../../../models/VisaApplicationStepStatus";
 
 // For Admin
 export const uploadMedicalTestDetails = async (req: Request, res: Response) => {
@@ -25,6 +28,62 @@ export const uploadMedicalTestDetails = async (req: Request, res: Response) => {
       setDefaultsOnInsert: true,
     }
   );
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "visaStepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaApplicationId: 1,
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  if (!aggregationResult.length) {
+    console.error("Required data not found for stepStatusId:", stepStatusId);
+    throw new Error("Required data not found for stepStatusId:" + stepStatusId);
+  }
+
+
+  await sendApplicationUpdateEmails({
+    triggers: aggregationResult[0].visaStep.emailTriggers,
+    stepStatus: StepStatusEnum.SUBMITTED,
+    visaType: aggregationResult[0].visaType.visaType,
+    email: aggregationResult[0].user.email,
+    firstName: aggregationResult[0].user.name,
+  });
 
   return res.status(200).json({
     message: "Medical test added successfully",

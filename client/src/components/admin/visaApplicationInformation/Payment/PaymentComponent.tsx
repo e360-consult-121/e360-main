@@ -162,7 +162,7 @@ const PaymentComponent = ({ stepStatusId }: PaymentComponentProps) => {
   }
 
   // Payment done - show status and invoice button
-  if (data.data.status === "PAYMENT_DONE") {
+  if (data.data.status === "PAID") {
     return (
       <Box display="flex" flexDirection="column" gap={1}>
         <Typography variant="body1" fontWeight="medium" color="green">
@@ -177,6 +177,7 @@ const PaymentComponent = ({ stepStatusId }: PaymentComponentProps) => {
             borderRadius: 10,
             textTransform: "none",
             px: 4,
+            width:"max-content"
           }}
         >
           View Invoice

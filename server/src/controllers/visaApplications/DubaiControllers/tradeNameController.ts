@@ -1,44 +1,106 @@
-
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../../utils/appError";
 import { TradeNameModel } from "../../../extraModels/tradeNameModel";
-import { tradeNameStatus } from "../../../types/enums/enums";
+import { StepStatusEnum, tradeNameStatus } from "../../../types/enums/enums";
 import mongoose, { Types } from "mongoose";
+import { sendApplicationUpdateEmails } from "../../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
+import { VisaApplicationStepStatusModel } from "../../../models/VisaApplicationStepStatus";
 
 // For user
-export const uploadTradeNameOptions = async (req: Request, res: Response) => {
+export const uploadTradeNameOptions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { stepStatusId } = req.params;
   const { options } = req.body;
 
   if (!Array.isArray(options) || options.length !== 3) {
-    res.status(400);
-    throw new Error("Exactly 3 trade name options are required.");
-    return;
+    return next(
+      new AppError("Exactly 3 trade name options are required.", 400)
+    );
   }
 
   const existing = await TradeNameModel.findOne({ stepStatusId });
   if (existing) {
-    res.status(409);
-    throw new Error("Trade name options already uploaded for this stepStatusId.");
-    return;
+    return next(
+      new AppError(
+        "Trade name options already uploaded for this stepStatusId.",
+        400
+      )
+    );
   }
+
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "visaStepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaApplicationId: 1,
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  if (!aggregationResult.length) {
+    return next(new AppError("Required data not found", 404));
+  }
+
+  const data = aggregationResult[0];
 
   const tradeNameDoc = await TradeNameModel.create({
     stepStatusId,
     options,
-    status: tradeNameStatus.TradeNames_Uploaded, // or default status you'd like
+    status: tradeNameStatus.TradeNames_Uploaded,
+  });
+
+  await sendApplicationUpdateEmails({
+    triggers: data.visaStep.emailTriggers,
+    stepStatus: StepStatusEnum.SUBMITTED,
+    visaType: data.visaType.visaType,
+    email: data.user.email,
+    firstName: data.user.name,
   });
 
   res.status(201).json({
     message: "Trade name options uploaded successfully.",
     tradeNameDoc,
   });
-  return;
 };
 
-
-
-// Admin side 
+// Admin side
 export const fetchTradeNameOptions = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
 
@@ -51,16 +113,14 @@ export const fetchTradeNameOptions = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     message: "Trade name options fetched successfully.",
-    Options : tradeNameDoc.options
-  }); 
+    Options: tradeNameDoc.options,
+  });
 };
 
-
-// Admin side 
+// Admin side
 export const assignOneTradeName = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
   const { assignedName } = req.body;
-
 
   if (!assignedName) {
     res.status(400);
@@ -82,10 +142,8 @@ export const assignOneTradeName = async (req: Request, res: Response) => {
   return res.status(200).json({
     message: "Trade name assigned successfully.",
     tradeNameDoc,
-  }); 
+  });
 };
-
-
 
 // For user
 export const sendChangeRequest = async (req: Request, res: Response) => {
@@ -107,7 +165,7 @@ export const sendChangeRequest = async (req: Request, res: Response) => {
   // Find and update the document
   const tradeNameDoc = await TradeNameModel.findOneAndUpdate(
     { stepStatusId },
-    { options, reasonOfChange , status : tradeNameStatus.ChangeReq_Sent },
+    { options, reasonOfChange, status: tradeNameStatus.ChangeReq_Sent },
     { new: true } // Return the updated document
   );
 
@@ -121,8 +179,6 @@ export const sendChangeRequest = async (req: Request, res: Response) => {
     tradeNameDoc,
   });
 };
-
-
 
 // For Admin
 export const approveChangeReq = async (req: Request, res: Response) => {
@@ -153,16 +209,13 @@ export const approveChangeReq = async (req: Request, res: Response) => {
   });
 };
 
-
-
-
 // For Admin
 export const rejectChangeReq = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
 
   const tradeNameDoc = await TradeNameModel.findOneAndUpdate(
     { stepStatusId },
-    { reasonOfChange: null , status : tradeNameStatus.ChangeReq_Rejected },
+    { reasonOfChange: null, status: tradeNameStatus.ChangeReq_Rejected },
     { new: true }
   );
 
@@ -177,11 +230,7 @@ export const rejectChangeReq = async (req: Request, res: Response) => {
   });
 };
 
-
-
-
-
-// For user 
+// For user
 export const fetchAssignedTradeName = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
 
@@ -201,17 +250,23 @@ export const fetchAssignedTradeName = async (req: Request, res: Response) => {
   });
 };
 
-// for common 
+// for common
 export const fetchTradeNameInfo = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
 
   const tradeName = await TradeNameModel.findOne(
     { stepStatusId },
-    { options: 1, assignedName: 1 ,status:1,reasonOfChange:1}
-  )
+    { options: 1, assignedName: 1, status: 1, reasonOfChange: 1 }
+  );
 
   if (!tradeName) {
-    return res.status(200).json({ success: false, message: 'Preferences Not Submitted',data:null });
+    return res
+      .status(200)
+      .json({
+        success: false,
+        message: "Preferences Not Submitted",
+        data: null,
+      });
   }
 
   res.status(200).json({
@@ -225,7 +280,4 @@ export const fetchTradeNameInfo = async (req: Request, res: Response) => {
   });
 };
 
-
-
 // return wala case bhi dekhna hai ....
-

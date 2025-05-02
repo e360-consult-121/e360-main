@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../../utils/appError";
 import { moaModel } from "../../../extraModels/MOA_Model";
-import { moaStatusEnum } from "../../../types/enums/enums";
+import { moaStatusEnum, StepStatusEnum } from "../../../types/enums/enums";
 import mongoose, { Types } from "mongoose";
+import { sendApplicationUpdateEmails } from "../../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
+import { VisaApplicationStepStatusModel } from "../../../models/VisaApplicationStepStatus";
+import { EmailTrigger } from "../../../models/VisaStep";
 
 // For Admin
 export const moaUpload = async (req: Request, res: Response) => {
@@ -17,6 +20,67 @@ export const moaUpload = async (req: Request, res: Response) => {
     moaDocument: (file as any).location, // S3 URL
     status: moaStatusEnum.MOA_Uploaded,
     stepStatusId,
+  });
+
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "visaStepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaApplicationId: 1,
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  if (!aggregationResult.length) {
+    console.error("Required data not found for stepStatusId:", stepStatusId);
+    throw new Error("Required data not found for stepStatusId:" + stepStatusId);
+  }
+
+
+  const trigger = aggregationResult[0].visaStep.emailTriggers.filter(
+    (trigger: EmailTrigger) => trigger.templateId === "dubai-user-moa-submitted"
+  );
+
+  await sendApplicationUpdateEmails({
+    triggers: [trigger],
+    stepStatus: StepStatusEnum.SUBMITTED,
+    visaType: aggregationResult[0].visaType.visaType,
+    email: aggregationResult[0].user.email,
+    firstName: aggregationResult[0].user.name,
   });
 
   res.status(201).json({
@@ -65,6 +129,67 @@ export const uploadSignature = async (req: Request, res: Response) => {
     (moa.status = moaStatusEnum.Sig_Uploaded);
   await moa.save();
 
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "visaStepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaApplicationId: 1,
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  if (!aggregationResult.length) {
+    console.error("Required data not found for stepStatusId:", stepStatusId);
+    throw new Error("Required data not found for stepStatusId:" + stepStatusId);
+  }
+
+  
+  const trigger = aggregationResult[0].visaStep.emailTriggers.filter(
+    (trigger: EmailTrigger) => trigger.templateId === "dubai-admin-signature-submitted"
+  );
+
+  await sendApplicationUpdateEmails({
+    triggers: [trigger],
+    stepStatus: StepStatusEnum.SUBMITTED,
+    visaType: aggregationResult[0].visaType.visaType,
+    email: aggregationResult[0].user.email,
+    firstName: aggregationResult[0].user.name,
+  });
+
   res.status(200).json({
     message: "Signature uploaded successfully.",
     signatureFile: moa.signatureFile,
@@ -93,7 +218,7 @@ export const fetchSigAndMOA = async (req: Request, res: Response) => {
     message: "MOA and Signature fetched successfully.",
     data: {
       moaDocument: moa.moaDocument,
-      signatureFile: moa.signatureFile, 
+      signatureFile: moa.signatureFile,
       moaStatus: moa.status,
     },
   });

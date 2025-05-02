@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Modal } from "@mui/material";
+import { LinearProgress, Modal } from "@mui/material";
 
 interface FileDataType {
   fileName: string;
@@ -171,9 +171,18 @@ const UploadModal = ({
                 <p className="text-xs text-neutrals-500">
                   File Format: PNG &nbsp;&nbsp; File Size: 6MB
                 </p>
-                <div className="mt-4 w-96 h-1.5 bg-[#F6C328] rounded-full overflow-hidden">
+                <LinearProgress
+                                  sx={{
+                                    mt:2,
+                                    "& .MuiLinearProgress-bar": {
+                                      backgroundColor: "#facc15", // Tailwind's yellow-400
+                                    },
+                                    backgroundColor: "#fef9c3", // Tailwind's yellow-100 (optional, for track color)
+                                  }}
+                                />
+                {/* <div className="mt-4 w-96 h-1.5 bg-[#F6C328] rounded-full overflow-hidden">
                   <div className="bg-[#FEF6D7] h-full w-full animate-pulse" />
-                </div>
+                </div> */}
               </div>
             </div>
           ) : (

@@ -270,6 +270,8 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
             The client has requested a reschedule of their medical test. Please
             review the details and take appropriate action.
           </Typography>
+        <Typography mb={4}> <b>Reason:</b> <span className='text-gray-500'>{data.data.medicalInfo.rescheduleReason	}</span></Typography>
+
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker

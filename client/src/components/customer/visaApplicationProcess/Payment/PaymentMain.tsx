@@ -4,6 +4,7 @@ import { useFetchPaymentInfoQuery } from "../../../../features/admin/visaApplica
 
 const PaymentMain = ({
   stepStatusId,
+  phase,
   onContinue,
 }: {
   stepStatusId: string;
@@ -54,7 +55,7 @@ const PaymentMain = ({
       </Box>
 
       {/* Action buttons based on status */}
-      <Box display="flex" gap={2}>
+      <Box display="flex" gap={2} alignItems={"center"}>
         {data.data.status === "LINKSENT" && (
           <Button
             onClick={handleProceedToPayment}
@@ -71,7 +72,7 @@ const PaymentMain = ({
           </Button>
         )}
 
-        {data.data.status === "PAYMENT_DONE" && data.data.invoiceUrl && (
+        {data.data.status === "PAID" && data.data.invoiceUrl && (
           <Button
             onClick={handleViewInvoice}
             variant="contained"
@@ -87,20 +88,20 @@ const PaymentMain = ({
           </Button>
         )}
 
-        {data.data.status === "PAYMENT_DONE" && (
-          <Button
+        {data.data.status === "PAID" && (
+          phase==="APPROVED" ? (<Button
             onClick={onContinue}
-            variant="contained"
+            variant="outlined"
             sx={{
-              bgcolor: "#4CAF50",
-              color: "white",
               borderRadius: 10,
               textTransform: "none",
               px: 4,
+              color:"black",
+              borderColor: "black",
             }}
           >
             Continue
-          </Button>
+          </Button>):(<Typography>Wait for Admin Approval...</Typography>)
         )}
       </Box>
     </Box>
@@ -112,7 +113,7 @@ const formatStatus = (status: string): string => {
   switch (status) {
     case "LINKSENT":
       return "Payment Generated";
-    case "PAYMENT_DONE":
+    case "PAID":
       return "Payment Completed";
     default:
       return status;
@@ -123,7 +124,7 @@ const getStatusColor = (status: string): string => {
   switch (status) {
     case "LINKSENT":
       return "#FF9800"; // Orange
-    case "PAYMENT_DONE":
+    case "PAID":
       return "#4CAF50"; // Green
     default:
       return "inherit";
