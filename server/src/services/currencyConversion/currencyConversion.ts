@@ -19,7 +19,7 @@
         }
     
         const data = await response.json();
-        const rate = data.rates.USD;
+        const rate = data.rates[to];
     
         if (!rate) {
           throw new Error(`Exchange rate for ${to} not found.`);
