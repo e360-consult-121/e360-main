@@ -420,7 +420,8 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
             );
             await updateRevenueSummary(
               visaTypeId,
-              paymentIntent.amount_received / 100
+              paymentIntent.amount_received / 100,
+              paymentIntent.currency
             );
             console.log("Added to revenue updates");
           } catch (error) {
