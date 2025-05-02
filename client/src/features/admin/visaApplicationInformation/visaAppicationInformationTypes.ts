@@ -1,7 +1,7 @@
 export interface RequirementTypes {
     reqStatusId: string;
     question: string;
-    requirementType: "PDF"; 
+    requirementType: "PDF" | "DROPDOWN"; 
     reqCategory: "GENRAL" | "TRADE_NAME" | "BANK" | "MEDICAL"; // add others if needed
     options: any[]; 
     required: boolean;

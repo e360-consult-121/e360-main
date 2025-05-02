@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import DocumentComponent from "../../../../components/admin/visaApplicationInformation/General/DocumentComponent";
 import { RequirementTypes } from "../visaAppicationInformationTypes";
 import BankAccountOpening from "../../../../components/admin/visaApplicationInformation/BankAccountOpening/BankAccountOpening";
@@ -10,27 +10,16 @@ import PassportDeliveryDetails from "../../../../components/admin/visaApplicatio
 import TradeDetailsComponent from "../../../../components/admin/visaApplicationInformation/Trade/TradeDetailsComponent";
 import MoaSigningComponent from "../../../../components/admin/visaApplicationInformation/MoaSigning/MoaSigningComponent";
 
-//dummyclientData on stepType === DGDELIVERY
-// const clientDetails={
-//   name: "John Doe",
-//   email: "test@gmail.com",
-//   phone: "123",
-//   address: "21 Bakers Street",
-//   cityCountry: "Pune",
-//   postalCode:"123"
-// };
-
-
 type RequirementListProps = {
   requirements: RequirementTypes[];
   onMarkAsVerified: any;
   onNeedsReUpload: any;
   stepSource: string;
-  stepData:any;
+  stepData: any;
   visaApplicationId: string;
   stepType: string;
-  refetch:()=> void;
-  stepStatusId:string
+  refetch: () => void;
+  stepStatusId: string;
 };
 
 const RequirementList = ({
@@ -42,100 +31,149 @@ const RequirementList = ({
   stepType,
   visaApplicationId,
   refetch,
-  stepStatusId
+  stepStatusId,
 }: RequirementListProps) => {
-
+  // Separate dropdown requirements from other types
   const renderDocuments = () => {
-
     if (stepSource === "ADMIN") {
       if (stepType === "GENERAL") {
-        return<>
-        {requirements.map((req) => (
-          <AdminDocumentUpload
-            key={req.reqStatusId}
-            fileName={req.question}
-            fileType={req.requirementType}
-            fileSize={"12MB"} 
-            reqStatus={req.reqStatus}
-            value={req.value || ""}
-            reqStatusId={req.reqStatusId}
-            refetch={refetch}
-          />
-        ))}
-        </>
+        return (
+          <>
+            {requirements.map((req) => (
+              <AdminDocumentUpload
+                key={req.reqStatusId}
+                fileName={req.question}
+                fileType={req.requirementType}
+                fileSize={"12MB"}
+                reqStatus={req.reqStatus}
+                value={req.value || ""}
+                reqStatusId={req.reqStatusId}
+                refetch={refetch}
+              />
+            ))}
+          </>
+        );
       } else if (stepType === "BANK") {
-        return <>
-        <BankAccountOpening visaApplicationId={visaApplicationId} requirements={requirements}/>
-        </>
-      } else if (stepType === "MEDICAL") {
-        return<>
-        <MedicalAppointment/>
-        </>
-      }
-      else if(stepType === "AIMA"){
-        return <>
-        <AIMAStatusComponent stepData={stepData}/>
-        </>
-      }
-      else if (stepType === "EMPTY"){
-        return<></>
+        return (
+          <>
+            <BankAccountOpening
+              visaApplicationId={visaApplicationId}
+              requirements={requirements}
+            />
+          </>
+        );
+      } else if (stepType === "AIMA") {
+        return (
+          <>
+            <AIMAStatusComponent stepData={stepData} />
+          </>
+        );
+      } else if (stepType === "EMPTY") {
+        return <></>;
       }
     } else if (stepSource === "USER") {
       if (stepType === "GENERAL") {
-        return <>
-        {requirements.map((req) => (
-          <DocumentComponent
-            key={req.reqStatusId}
-            reqStatusId={req.reqStatusId}
-            fileName={req.question}
-            fileType={req.requirementType}
-            fileSize={"12MB"}
-            status={req.reqStatus}
-            value={req.value || ""}
-            onNeedsReUpload={onNeedsReUpload}
-            onMarkAsVerified={onMarkAsVerified}
-          />
-        ))}
-        {/* <PassportDeliveryDetails clientDetails={dummyClientDetails} /> */}
-        
-        </>
+        // Filter requirements by type
+        const fileRequirements = requirements.filter(
+          (req) => req.requirementType !== "DROPDOWN"
+        );
+        const dropdownRequirements = requirements.filter(
+          (req) => req.requirementType === "DROPDOWN"
+        );
+
+        return (
+          <>
+            {/* Render file requirements */}
+            {fileRequirements.map((req) => (
+              <DocumentComponent
+                key={req.reqStatusId}
+                reqStatusId={req.reqStatusId}
+                fileName={req.question}
+                fileType={req.requirementType}
+                fileSize={"12MB"}
+                status={req.reqStatus}
+                value={req.value || ""}
+                onNeedsReUpload={onNeedsReUpload}
+                onMarkAsVerified={onMarkAsVerified}
+              />
+            ))}
+
+            {/* Render dropdown requirements */}
+            {dropdownRequirements.length > 0 && (
+              <Box mt={2} px={3}>
+                {dropdownRequirements.map((req) => (
+                  <Box 
+                    key={req.reqStatusId} 
+                    sx={{ 
+                      display: "flex", 
+                      alignItems: "baseline",
+                      mb: 1.5
+                    }}
+                  >
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontWeight: 600, 
+                        mr: 1,
+                      }}
+                    >
+                      {req.question}:
+                    </Typography>
+                    <Typography variant="body2">
+                      {req.value || "Not selected"}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </>
+        );
       } else if (stepType === "BANK") {
-        return 
+        return;
       } else if (stepType === "TRADE_NAME") {
         return;
       } else if (stepType === "MEDICAL") {
         return;
       }
-    }
-
-    else{
-      if(stepType === "DGINVESTMENT"){
-        return <>
-          <InvestmentOptions
-          stepStatusId={stepStatusId}
-          stepData={stepData}
-          refetch={refetch}
-        />
-        </>
+    } else {
+      if (stepType === "DGINVESTMENT") {
+        return (
+          <>
+            <InvestmentOptions
+              stepStatusId={stepStatusId}
+              stepData={stepData}
+              refetch={refetch}
+            />
+          </>
+        );
+      } else if (stepType === "DGDELIVERY") {
+        return (
+          <>
+            <PassportDeliveryDetails
+              stepStatusId={stepStatusId}
+              refetch={refetch}
+            />
+          </>
+        );
+      } else if (stepType === "TRADE_NAME") {
+        return (
+          <>
+            <TradeDetailsComponent stepStatusId={stepStatusId} />
+          </>
+        );
+      } else if (stepType === "MOA_SIGNING") {
+        return (
+          <>
+            <MoaSigningComponent stepStatusId={stepStatusId} />
+          </>
+        );
+      } else if (stepType === "MEDICAL_TEST") {
+        return (
+          <>
+            <MedicalAppointment stepStatusId={stepStatusId} />
+          </>
+        );
       }
-      else if(stepType === "DGDELIVERY"){
-        return <>
-        <PassportDeliveryDetails
-        stepStatusId={stepStatusId}
-        refetch={refetch}
-        />
-        </>
-      }
-      else if (stepType === "TRADE_NAME") {
-        return <>
-        <TradeDetailsComponent stepStatusId={stepStatusId}/>        
-        </>;
-      } 
-      else if (stepType === "MOA_SIGNING") {
-        return <>
-        <MoaSigningComponent stepStatusId={stepStatusId}/>        
-        </>;
-      } 
     }
     return null;
   };

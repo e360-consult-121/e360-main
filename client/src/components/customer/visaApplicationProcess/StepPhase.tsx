@@ -54,7 +54,7 @@ const StepPhase: React.FC<{
     return <MoaSigningMain stepStatusId={stepData.currentStepStatusId} onContinue={onContinue}/>
   }
   else if(stepType==="MEDICAL_TEST" ){
-    return <MedicalMain/>
+    return <MedicalMain stepStatusId={stepData.currentStepStatusId} phase={phase} onContinue={onContinue}/>
   }
   else if (phase === "APPROVED" && stepType !== "AIMA") {
     if (stepType === "BANK") {

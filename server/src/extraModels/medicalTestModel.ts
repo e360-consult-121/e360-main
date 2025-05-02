@@ -2,10 +2,10 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { medicalTestStatus } from "../types/enums/enums";
 
 
-export interface IRequestedSlot {
-  date: Date | null;
-  time: string | null;
-}
+// export interface IRequestedSlot {
+//   date: Date | null;
+//   time: string | null;
+// }
 export interface IMedicalTest extends Document {
   date: Date;
   time: string;
@@ -13,7 +13,8 @@ export interface IMedicalTest extends Document {
   address: string;
   contactNumber: string;
   status: medicalTestStatus;
-  requestedSlot: IRequestedSlot | null;
+  rescheduleReason:string|null;
+  // requestedSlot: IRequestedSlot | null;
   stepStatusId: mongoose.Schema.Types.ObjectId;
 }
 
@@ -44,13 +45,17 @@ const MedicalTestSchema = new Schema<IMedicalTest>({
     required: true,
   },
   // nested fields ke case me aisa karna hota hai...
-  requestedSlot: {
-    type: {
-      date: { type: Date  },
-      time: { type: String  },
-    },
+  // requestedSlot: {
+  //   type: {
+  //     date: { type: Date  },
+  //     time: { type: String  },
+  //   },
+  //   default: null,
+  // },
+  rescheduleReason: {
+    type: String,
     default: null,
-  },
+  },  
   stepStatusId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'VisaApplicationStepStatus',

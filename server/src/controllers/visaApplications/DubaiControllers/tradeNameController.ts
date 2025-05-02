@@ -61,7 +61,6 @@ export const assignOneTradeName = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
   const { assignedName } = req.body;
 
-  console.log("Assigned Name:", assignedName);
 
   if (!assignedName) {
     res.status(400);

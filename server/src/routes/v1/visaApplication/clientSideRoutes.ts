@@ -29,6 +29,7 @@ router.get('/:stepStatusId/dubai/trade-name/fetchAssignedTradeName' , authentica
 // Dubai - MOA
 router.get('/:stepStatusId/dubai/MOA/moaDocumentFetch' , authenticate ,  asyncHandler(moaControllers.moaDocumentFetch) );
 router.post('/:stepStatusId/dubai/MOA/uploadSignature' , authenticate , upload.single("file"),  asyncHandler(moaControllers.uploadSignature) );
+
 //  Dubai - Medical Test
 router.post("/:stepStatusId/dubai/medical/sendReschedulingReq", authenticate ,  asyncHandler(medicalControllers.sendReschedulingReq));
 export default router;

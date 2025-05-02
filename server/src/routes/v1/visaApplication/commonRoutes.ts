@@ -28,7 +28,7 @@ router.get("/:stepStatusId/fetchBothDetails", authenticate ,  asyncHandler(deliv
 router.get("/:stepStatusId/dubai/trade-name/fetchTradeNameInfo", authenticate ,  asyncHandler(tradeNameControllers.fetchTradeNameInfo));
 
 // Dubai - MOA
-router.get("/:stepStatusId/dubai/medical/fetchSigAndMOA", authenticate ,  asyncHandler(moaControllers.fetchSigAndMOA));
+router.get("/:stepStatusId/dubai/moa/fetchSigAndMOA", authenticate ,  asyncHandler(moaControllers.fetchSigAndMOA));
 
 // Dubai -  Medical
 router.get("/:stepStatusId/dubai/medical/fetchMedicalTestInfo", authenticate ,  asyncHandler(medicalControllers.fetchMedicalTestInfo));
