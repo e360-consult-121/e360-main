@@ -12,7 +12,7 @@ import AdminLogin from "./AdminLogin";
 import { useFetchUserQuery } from "../../features/auth/authApi";
 import { useEffect } from "react";
 import VisaApplicationInformation from "./visaApplicationInformation/VisaApplicationInformation";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 
 const AdminRoutes = () => {
 
