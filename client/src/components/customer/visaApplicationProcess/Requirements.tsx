@@ -11,12 +11,10 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import MedicalDetails from "./Medical/MedicalDetails";
-import TradeDetails from "./TradeName/InitialPreferencesForm";
 import { canProceedToNextStep } from "../../../pages/customer/dashboard/VisaApplicationProcess";
 import UploadComponent from "./UploadComponent";
 import UploadModal from "../../UploadModal";
 import ProcessComponent from "./ProcessComponent";
-import TradeNameMain from "./TradeName/TradeNameMain";
 
 const Requirements = ({
   phase,
@@ -211,15 +209,7 @@ const Requirements = ({
         )}
       </div>
     );
-  } else if (stepType === "TRADE_NAME") {
-    return (
-      <div className="flex flex-col overflow-y-auto custom-scrollbar">
-        <>
-          <TradeNameMain />
-        </>
-      </div>
-    );
-  }
+  } 
 };
 
 export default Requirements;

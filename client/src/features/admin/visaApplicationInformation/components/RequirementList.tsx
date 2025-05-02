@@ -8,6 +8,7 @@ import MedicalAppointment from "../../../../components/admin/visaApplicationInfo
 import InvestmentOptions from "../../../../components/admin/visaApplicationInformation/InvestmentOptions";
 import PassportDeliveryDetails from "../../../../components/admin/visaApplicationInformation/PassportDeliveryDetails";
 import TradeDetailsComponent from "../../../../components/admin/visaApplicationInformation/Trade/TradeDetailsComponent";
+import MoaSigningComponent from "../../../../components/admin/visaApplicationInformation/MoaSigning/MoaSigningComponent";
 
 //dummyclientData on stepType === DGDELIVERY
 // const clientDetails={
@@ -66,10 +67,6 @@ const RequirementList = ({
         return <>
         <BankAccountOpening visaApplicationId={visaApplicationId} requirements={requirements}/>
         </>
-      } else if (stepType === "TRADE_NAME") {
-        return <>
-        <TradeDetailsComponent/>        
-        </>;
       } else if (stepType === "MEDICAL") {
         return<>
         <MedicalAppointment/>
@@ -129,6 +126,16 @@ const RequirementList = ({
         />
         </>
       }
+      else if (stepType === "TRADE_NAME") {
+        return <>
+        <TradeDetailsComponent stepStatusId={stepStatusId}/>        
+        </>;
+      } 
+      else if (stepType === "MOA_SIGNING") {
+        return <>
+        <MoaSigningComponent stepStatusId={stepStatusId}/>        
+        </>;
+      } 
     }
     return null;
   };

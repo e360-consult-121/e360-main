@@ -1,21 +1,27 @@
-import React from "react";
 import ProcessComponent from "../ProcessComponent";
 import InitialPreferencesForm from "./InitialPreferencesForm";
 import TradeNameApproved from "./TradeNameApproved";
+import { useFetchTradeInfoQuery } from "../../../../features/admin/visaApplication/additional/dubaiApis";
+import { useEffect } from "react";
 
-const data = {
-  status: "APPROVED",
-};
 
-const TradeNameMain = () => {
-  if (data.status === "SUBMITTED") {
+const TradeNameMain = ({stepStatusId,onContinue}:{stepStatusId:string,onContinue:()=>void}) => {
+
+  const {data,refetch}=useFetchTradeInfoQuery({stepStatusId})
+  
+  useEffect(()=>{
+    console.log("data",data)
+  },[data])
+
+
+  if (data?.data === null) {
+    return <InitialPreferencesForm stepStatusId={stepStatusId} refetch={refetch}/>;
+  }
+  if (["ChangeReq_Sent","TradeNames_Uploaded"].includes(data?.data?.status)) {
     return <ProcessComponent date="" label="Processing" status="" />;
   }
-  if (data.status === "IN_PROGRESS") {
-    return <InitialPreferencesForm />;
-  }
-  if(data.status === "APPROVED") {
-    return <TradeNameApproved onContinue={()=>null}/>
+  if(["ChangeReq_Approved","ChangeReq_Rejected","TradeName_Assigned"].includes(data?.data?.status)) {
+    return <TradeNameApproved stepStatusId={stepStatusId} data={data} onContinue={onContinue} refetch={refetch}/>
   }
   
   return <div></div>;
