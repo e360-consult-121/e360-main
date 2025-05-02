@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import VIPConciergeServiceTable from "./VIPConciergeServiceTable";
 
 export interface VIPConciergeService {
@@ -27,11 +28,11 @@ const dummyData:VIPConciergeService[] = [
 const VIPConciergeService = () => {
 
     const handleJoinNow = (consultation: any) => {
-        alert(`Joining consultation for ${consultation.name}`);
+      toast.success(`Joining consultation for ${consultation.name}`);
       };
     
       const handleReschedule = (consultation: any) => {
-        alert(`Rescheduling consultation for ${consultation.name}`);
+        toast.success(`Rescheduling consultation for ${consultation.name}`);
       };
     
   return (

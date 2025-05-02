@@ -27,35 +27,6 @@ const BankDetailsPage: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ pt: 0, pb: 0 }}>
-      {/* Search and Notification Bar */}
-      {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <TextField
-          placeholder="Search"
-          variant="outlined"
-          size="small"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ 
-            width: isMobile ? '70%' : '300px',
-            backgroundColor: 'white',
-            borderRadius: '24px',
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '6px',
-            }
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <IconButton>
-          <NotificationsIcon />
-        </IconButton>
-      </Box> */}
-
       {/* Tabs Section */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs

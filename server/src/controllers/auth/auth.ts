@@ -8,6 +8,10 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../utils/jwtUtils";
+import { sendForgotPasswordEmail } from "../../services/emails/triggers/customer/auth/forgotPassword";
+import jwt from "jsonwebtoken";
+import { PORTAL_LINK } from "../../config/configLinks";
+import mongoose from "mongoose";
 
 // sign-up
 export const registerUser = async (
@@ -220,77 +224,77 @@ export const changePassword = async (
 };
 
 // sending email with reset password url
-export const resetPasswordToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<Response | void> => {
-  const { email } = req.body;
+// export const resetPasswordToken = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<Response | void> => {
+//   const { email } = req.body;
 
-  if (!email) throw new AppError("Email not found", 404);
+//   if (!email) throw new AppError("Email not found", 404);
 
-  const user = await UserModel.findOne({ email: email });
-  if (!user) throw new AppError("Email is not registered", 401);
+//   const user = await UserModel.findOne({ email: email });
+//   if (!user) throw new AppError("Email is not registered", 401);
 
-  const resetPasswordToken = crypto.randomUUID();
+//   const resetPasswordToken = crypto.randomUUID();
 
-  const updatedUser = await UserModel.findOneAndUpdate(
-    { email: email },
-    {
-      resetPasswordToken: resetPasswordToken,
-      resetPasswordExpires: Date.now() + 10 * 60 * 1000, // 10 minutes vaidation
-    },
-    { new: true }
-  );
+//   const updatedUser = await UserModel.findOneAndUpdate(
+//     { email: email },
+//     {
+//       resetPasswordToken: resetPasswordToken,
+//       resetPasswordExpires: Date.now() + 10 * 60 * 1000, // 10 minutes vaidation
+//     },
+//     { new: true }
+//   );
 
-  const baseURL = process.env.FRONTEND_BASE_URL;
-  const url: string = `${baseURL}/reset-password/${resetPasswordToken}`;
+//   const baseURL = process.env.FRONTEND_BASE_URL;
+//   const url: string = `${baseURL}/reset-password/${resetPasswordToken}`;
 
-  if (!updatedUser) throw new AppError("Database operation error", 501);
+//   if (!updatedUser) throw new AppError("Database operation error", 501);
 
-  return res.status(200).json({
-    success: true,
-    message: "Reset Passwprd link is sended on registered email",
-  });
-};
+//   return res.status(200).json({
+//     success: true,
+//     message: "Reset Passwprd link is sended on registered email",
+//   });
+// };
 
-export const resetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { password, confirmPassword, token } = req.body;
+// export const resetPassword = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   const { password, confirmPassword, token } = req.body;
 
-  if (!password || !confirmPassword || !token)
-    throw new AppError("Field not found", 404);
+//   if (!password || !confirmPassword || !token)
+//     throw new AppError("Field not found", 404);
 
-  if (password !== confirmPassword)
-    throw new AppError("Password did'nt match", 401);
+//   if (password !== confirmPassword)
+//     throw new AppError("Password did'nt match", 401);
 
-  const userDetail = await UserModel.findOne({ resetPasswordToken: token });
-  if (!userDetail) throw new AppError("User not found", 404);
+//   const userDetail = await UserModel.findOne({ resetPasswordToken: token });
+//   if (!userDetail) throw new AppError("User not found", 404);
 
-  if (userDetail.resetPasswordExpires.getTime() < Date.now())
-    throw new AppError("Link is expired, try again", 402);
+//   if (userDetail.resetPasswordExpires.getTime() < Date.now())
+//     throw new AppError("Link is expired, try again", 402);
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+//   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const updatedUser = await UserModel.findOneAndUpdate(
-    { resetPasswordToken: token },
-    {
-      password: hashedPassword,
-      resetPasswordToken: null,
-    },
-    { new: true }
-  );
+//   const updatedUser = await UserModel.findOneAndUpdate(
+//     { resetPasswordToken: token },
+//     {
+//       password: hashedPassword,
+//       resetPasswordToken: null,
+//     },
+//     { new: true }
+//   );
 
-  if (!updatedUser) throw new AppError("Failed to update Password", 410);
+//   if (!updatedUser) throw new AppError("Failed to update Password", 410);
 
-  return res.status(200).json({
-    success: true,
-    message: "Password updated successfuly",
-  });
-};
+//   return res.status(200).json({
+//     success: true,
+//     message: "Password updated successfuly",
+//   });
+// };
 
 export const fetchUser = async (req: Request, res: Response) => {
   if (req.admin) {
@@ -313,4 +317,101 @@ export const fetchUser = async (req: Request, res: Response) => {
     success: false,
     message: "User not authenticated",
   });
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  try {
+    if (!email) {
+      return res.status(400).json({ message: "Email is required." });
+    }
+
+    // Find user by email
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User with this email does not exist." });
+    }
+
+    // Generate JWT token valid for 10 mins
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.ACCESS_TOKEN_SECRET!,
+      { expiresIn: "10m" }
+    );
+
+    // Set token and expiry in DB (optional but good for token invalidation)
+    user.forgotPasswordToken = token;
+    user.forgotPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save({ validateBeforeSave: false });
+
+    // Build reset link
+    const resetLink = `${PORTAL_LINK}/reset-password/${token}`;
+    
+    //for testing
+    // const resetLink =`http://localhost:5173/reset-password/${token}` 
+    
+
+    // Send email
+    await sendForgotPasswordEmail(
+      user.name,
+      resetLink,
+      user.email
+    );
+
+    return res.status(200).json({ message: "Password reset link sent successfully." });
+
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return res.status(500).json({ message: "Something went wrong. Please try again later." });
+  }
+};
+
+interface DecodedToken {
+  userId: string;
+  email: string;
+}
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Check if token and new password are provided
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: "Token and new password are required." });
+    }
+
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as DecodedToken;
+    // Find user by token
+    const user = await UserModel.findOne({ 
+      forgotPasswordToken: token,
+      forgotPasswordExpires: { $gt: new Date() } // Ensure the token hasn't expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token." });
+    }
+
+    // Check if token matches and hasn't expired
+    if (decoded.userId !== (user._id as mongoose.Types.ObjectId).toString()) {
+      return res.status(400).json({ message: "Token does not belong to this user." });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user password
+    user.password = hashedPassword;
+    user.forgotPasswordToken = null; 
+    user.forgotPasswordExpires = null; 
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json({ message: "Password reset successfully." });
+
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return res.status(500).json({ message: "Something went wrong. Please try again later." });
+  }
 };

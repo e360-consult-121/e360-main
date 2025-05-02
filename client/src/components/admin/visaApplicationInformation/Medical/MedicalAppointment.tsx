@@ -17,6 +17,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
+import { toast } from 'react-toastify';
 
 const MedicalAppointment: React.FC = () => {
   const [status, setStatus] = useState('');
@@ -29,7 +30,7 @@ const MedicalAppointment: React.FC = () => {
 
   const handleSubmit = () => {
     if (!status || !date || !time || !hospitalName || !address || !contactNumber) {
-      alert('Please fill all the fields!');
+      toast.info('Please fill all the fields!');
       return;
     }
 

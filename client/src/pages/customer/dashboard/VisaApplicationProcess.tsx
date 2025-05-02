@@ -13,6 +13,7 @@ import {
   useStepSubmitMutation,
 } from "../../../features/common/commonApi";
 import { CircularProgress } from "@mui/material";
+import { toast } from "react-toastify";
 
 export interface SelectDropdown {
   type: "SELECT_DROPDOWN";
@@ -93,7 +94,7 @@ const VisaApplicationProcess = () => {
     try {
       const response = await stepSubmit(visaApplicationId).unwrap();
       console.log("Step submitted:", response);
-      alert("Document submitted");
+      toast.success("Document submitted");
       refetch();
     } catch (err) {
       console.error("Failed to submit step:", err);
