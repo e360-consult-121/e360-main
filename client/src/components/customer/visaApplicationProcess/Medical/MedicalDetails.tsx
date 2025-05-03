@@ -103,20 +103,20 @@ const MedicalDetails = ({
 
           <Box mb={1} display="flex" justifyContent="space-between">
             <Typography fontWeight="bold">Time</Typography>
-            <Typography>{data.time}</Typography>
+            <Typography>{data?.time}</Typography>
           </Box>
 
           <Box mb={1} display="flex" justifyContent="space-between">
             <Typography fontWeight="bold">Hospital Name</Typography>
-            <Typography>{data.hospitalName}</Typography>
+            <Typography>{data?.hospitalName}</Typography>
           </Box>
           <Box mb={1} display="flex" justifyContent="space-between">
             <Typography fontWeight="bold">Address</Typography>
-            <Typography>{data.address}</Typography>
+            <Typography>{data?.address}</Typography>
           </Box>
           <Box mb={1} display="flex" justifyContent="space-between">
             <Typography fontWeight="bold">Contact</Typography>
-            <Typography>{data.contactNumber}</Typography>
+            <Typography>{data?.contactNumber}</Typography>
           </Box>
         </Paper>
 

@@ -31,12 +31,13 @@ export const uploadTradeNameOptions = async (
     );
   }
 
+
   const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
     {
       $lookup: {
         from: "visasteps",
-        localField: "visaStepId",
+        localField: "stepId",
         foreignField: "_id",
         as: "visaStep",
       },
@@ -73,6 +74,8 @@ export const uploadTradeNameOptions = async (
       },
     },
   ]).exec();
+
+  console.log("Aggregation Result:", aggregationResult);
 
   if (!aggregationResult.length) {
     return next(new AppError("Required data not found", 404));

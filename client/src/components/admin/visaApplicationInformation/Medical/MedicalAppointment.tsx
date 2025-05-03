@@ -45,7 +45,7 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
     if (!data?.data) {
       setStatus('Pending');
     } else {
-      const medicalData = data.data.medicalInfo;
+      const medicalData = data?.data?.medicalInfo;
       if (medicalData) {
         if (medicalData.status === "Completed") {
           setStatus("Completed");
@@ -135,7 +135,7 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
   const handleOpenModal = () => {
     // Ensure modal opens with current values
     if (data?.data?.medicalInfo) {
-      const medicalData = data.data.medicalInfo;
+      const medicalData = data?.data?.medicalInfo;
       if (medicalData.date) setDate(dayjs(medicalData.date));
       if (medicalData.time) setTime(medicalData.time);
       if (medicalData.hospitalName) setHospitalName(medicalData.hospitalName);
@@ -270,7 +270,7 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
             The client has requested a reschedule of their medical test. Please
             review the details and take appropriate action.
           </Typography>
-        <Typography mb={4}> <b>Reason:</b> <span className='text-gray-500'>{data.data.medicalInfo.rescheduleReason	}</span></Typography>
+        <Typography mb={4}> <b>Reason:</b> <span className='text-gray-500'>{data?.data?.medicalInfo.rescheduleReason	}</span></Typography>
 
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>

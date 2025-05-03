@@ -33,7 +33,7 @@ export const uploadMedicalTestDetails = async (req: Request, res: Response) => {
     {
       $lookup: {
         from: "visasteps",
-        localField: "visaStepId",
+        localField: "stepId",
         foreignField: "_id",
         as: "visaStep",
       },
