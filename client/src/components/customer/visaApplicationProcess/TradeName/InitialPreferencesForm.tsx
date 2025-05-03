@@ -7,6 +7,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useSubmitTradeNameOptionsMutation } from "../../../../features/admin/visaApplication/additional/dubaiApis";
+import { toast } from "react-toastify";
 
 const InitialPreferencesForm = ({ stepStatusId,refetch }: { stepStatusId: string ,refetch:()=>void}) => {
   const [submitOptions, { isLoading }] = useSubmitTradeNameOptionsMutation();
@@ -16,7 +17,7 @@ const InitialPreferencesForm = ({ stepStatusId,refetch }: { stepStatusId: string
 
   const handleSubmit = async () => {
     if (!tradeName.trim() || !altName1.trim() || !altName2.trim()) {
-      alert("All trade name fields are required");
+      toast.info("All trade name fields are required");
       return;
     }
 
@@ -28,11 +29,11 @@ const InitialPreferencesForm = ({ stepStatusId,refetch }: { stepStatusId: string
         options,
       }).unwrap();
 
-      alert("Trade names submitted successfully");
+      toast.success("Trade names submitted successfully");
       refetch();
     } catch (error) {
       console.error("Failed to submit trade names:", error);
-      alert("Failed to submit trade names. Please try again.");
+      toast.error("Failed to submit trade names. Please try again.");
     }
   };
 

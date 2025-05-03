@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, TextField, Typography } from "@mui/material";
 import LoadingGif from "../../../../assets/customer/Rightt.gif"
 import { useRequestTradenameChangeMutation } from "../../../../features/admin/visaApplication/additional/dubaiApis";
+import { toast } from "react-toastify";
 
 const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatusId:string,data:any,refetch:()=>void,onContinue: () => void }) => {
   const [requestChange, { isLoading: isRequestChangeLoading }] = useRequestTradenameChangeMutation();
@@ -38,7 +39,7 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
   const handleSubmit = async () => {
     // Validate that all required fields are filled
     if (!tradeName.trim() || !altName1.trim() || !altName2.trim()) {
-      alert("All trade name fields are required");
+      toast.info("All trade name fields are required");
       return;
     }
 
@@ -56,7 +57,7 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
       console.log('API Response:', response);
       
       // Show success message
-      alert("Trade name change request submitted successfully");
+      toast.success("Trade name change request submitted successfully");
       
       // Close the dialog
       handleClose();
@@ -67,7 +68,7 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
       console.error('Failed to submit trade name change request:', error);
       
       // Show error message using alert
-      alert("Failed to submit trade name change request. Please try again.");
+      toast.error("Failed to submit trade name change request. Please try again.");
     }
   };
 

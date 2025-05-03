@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useFetchMoaInfoQuery, useUploadSignatureMutation } from "../../../../features/admin/visaApplication/additional/dubaiApis";
 import ProcessComponent from "../ProcessComponent";
 import SignatureUpload from "./SignatureUpload";
+import { toast } from "react-toastify";
 
 const MoaSigningMain = ({
   stepStatusId,
@@ -18,7 +19,7 @@ const MoaSigningMain = ({
     try {
       await uploadSignature({ stepStatusId, file }).unwrap();
       await refetch();
-      alert("Upload successful");
+      toast.success("Upload successful");
     } catch (err) {
       console.error("Upload failed", err);
     }

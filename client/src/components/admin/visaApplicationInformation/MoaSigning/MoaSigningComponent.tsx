@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import {
   useFetchMoaInfoQuery,
   useUploadMoaMutation,
@@ -12,7 +13,7 @@ const MoaSigningComponent = ({ stepStatusId }: { stepStatusId: string }) => {
     try {
       await uploadMoa({ stepStatusId, file }).unwrap();
       await refetch();
-      alert("Upload successful");
+      toast.success("Upload successful");
     } catch (err) {
       console.error("Upload failed", err);
     }

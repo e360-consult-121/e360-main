@@ -12,6 +12,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const MedicalDetails = ({
   data,
@@ -39,7 +40,7 @@ const MedicalDetails = ({
 
   const handleRescheduleSubmit = async () => {
     if (!remarks.trim()) {
-      alert("Please provide a reason for rescheduling");
+      toast.info("Please provide a reason for rescheduling");
       return;
     }
 
@@ -47,7 +48,7 @@ const MedicalDetails = ({
       setIsSubmitting(true);
       await handleRescheduleRequest(remarks);
     } catch (error: any) {
-      alert("Error submitting reschedule request: " + error.message);
+      toast.error("Error submitting reschedule request: " + error.message);
     } finally {
       setIsSubmitting(false);
       handleRescheduleClose();

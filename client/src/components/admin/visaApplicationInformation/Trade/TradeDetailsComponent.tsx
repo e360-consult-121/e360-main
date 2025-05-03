@@ -19,6 +19,7 @@ import {
   useFetchTradeInfoQuery,
   useRejectChangeRequestMutation,
 } from "../../../../features/admin/visaApplication/additional/dubaiApis";
+import { toast } from "react-toastify";
 
 const TradeDetailsComponent = ({ stepStatusId }: { stepStatusId: string }) => {
   const { data, isLoading, refetch } = useFetchTradeInfoQuery({ stepStatusId });
@@ -58,7 +59,7 @@ const TradeDetailsComponent = ({ stepStatusId }: { stepStatusId: string }) => {
 
   const handleAssignTradename = async () => {
     if (!tradeName.trim()) {
-      alert("Please enter a trade name");
+      toast.info("Please enter a trade name");
       return;
     }
     
@@ -67,11 +68,11 @@ const TradeDetailsComponent = ({ stepStatusId }: { stepStatusId: string }) => {
         stepStatusId,
         assignedName: tradeName,
       }).unwrap();
-      alert("Trade Name Assigned Successfully");
+      toast.success("Trade Name Assigned Successfully");
       refetch();
     } catch (error) {
       console.error("Failed to assign trade name:", error);
-      alert("Failed to assign trade name. Please try again.");
+      toast.error("Failed to assign trade name. Please try again.");
     }
   };
 
@@ -80,7 +81,7 @@ const TradeDetailsComponent = ({ stepStatusId }: { stepStatusId: string }) => {
     let nameToApprove = useCustomName ? otherTradeName : selectedOption;
     
     if (!nameToApprove.trim()) {
-      alert("Please select a trade name or enter a custom one");
+      toast.info("Please select a trade name or enter a custom one");
       return;
     }
     
@@ -90,12 +91,12 @@ const TradeDetailsComponent = ({ stepStatusId }: { stepStatusId: string }) => {
         assignedName: nameToApprove
       }).unwrap();
       
-      alert("Trade name change request approved successfully");
+      toast.success("Trade name change request approved successfully");
       handleCloseModal();
       refetch();
     } catch (error) {
       console.error("Failed to approve trade name change:", error);
-      alert("Failed to approve trade name change. Please try again.");
+      toast.error("Failed to approve trade name change. Please try again.");
     }
   };
   
@@ -105,12 +106,12 @@ const TradeDetailsComponent = ({ stepStatusId }: { stepStatusId: string }) => {
         stepStatusId
       }).unwrap();
       
-      alert("Trade name change request rejected");
+      toast.success("Trade name change request rejected");
       handleCloseModal();
       refetch();
     } catch (error) {
       console.error("Failed to reject trade name change:", error);
-      alert("Failed to reject trade name change. Please try again.");
+      toast.error("Failed to reject trade name change. Please try again.");
     }
   };
 

@@ -85,10 +85,10 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
       
       // Refetch data after successful submission
       refetch();
-      alert('Medical details submitted successfully!');
+      toast.success('Medical details submitted successfully!');
     } catch (error) {
       console.error('Failed to submit medical details:', error);
-      alert('Failed to submit medical details. Please try again.');
+      toast.error('Failed to submit medical details. Please try again.');
     }
   };
 
@@ -100,10 +100,10 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
       
       // Refetch data after marking as completed
       refetch();
-      alert('Medical test marked as completed successfully!');
+      toast.success('Medical test marked as completed successfully!');
     } catch (error) {
       console.error('Failed to mark test as completed:', error);
-      alert('Failed to mark test as completed. Please try again.');
+      toast.error('Failed to mark test as completed. Please try again.');
     }
   };
 
@@ -124,11 +124,11 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
       
       // Refetch data after rescheduling
       refetch();
-      alert('Appointment rescheduled successfully!');
+      toast.success('Appointment rescheduled successfully!');
       handleCloseModal();
     } catch (error) {
       console.error('Failed to reschedule appointment:', error);
-      alert('Failed to reschedule appointment. Please try again.');
+      toast.error('Failed to reschedule appointment. Please try again.');
     }
   };
 
