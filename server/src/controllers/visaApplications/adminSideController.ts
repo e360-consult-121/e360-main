@@ -227,6 +227,11 @@ export const approveStep = async (req: Request, res: Response) => {
   });
 };
 
+
+
+
+
+
 // Reject click on step
 export const rejectStep = async (req: Request, res: Response) => {
   const { visaApplicationId } = req.params;
@@ -273,6 +278,11 @@ export const rejectStep = async (req: Request, res: Response) => {
   });
 };
 
+
+
+
+
+
 // verified (requirement)
 // *******Note***** (reason ko bhi null ya empty karna padega )
 export const markAsVerified = async (req: Request, res: Response) => {
@@ -297,6 +307,12 @@ export const markAsVerified = async (req: Request, res: Response) => {
     data: updatedStatus,
   });
 };
+
+
+
+
+
+
 
 // Needs Reupload (requirement) updated the trim part-Aditya!!!
 export const needsReupload = async (req: Request, res: Response) => {

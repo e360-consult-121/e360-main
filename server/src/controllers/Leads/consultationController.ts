@@ -149,7 +149,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
   // const endTime = payload?.scheduled_event?.end_time;
   const rescheduleUrl = payload?.reschedule_url;
 
-  // ✅ Proceed only if source is EEE360
+  //  Proceed only if source is EEE360
   if (source !== "EEE360") {
     console.log(`Webhook source is not EEE360. Ignoring this event.`);
     res

@@ -8,6 +8,7 @@ import { VisaApplicationStepStatusModel } from "../../../models/VisaApplicationS
 import mongoose from "mongoose";
 import { sendApplicationUpdateEmails } from "../../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
 
+// For Admin
 export const handleSendPaymentLink = async (
   req: Request,
   res: Response,
@@ -24,15 +25,8 @@ export const handleSendPaymentLink = async (
 
   const paymentDocument = await dubaiPaymentModel.findOne({ stepStatusId });
 
-  const paymentLink = await createPaymentSession(
-    "Dubai Business Setup Payment",
-    { stepStatusId, purpose: paymentPurpose.DUBAI_PAYMENT },
-    amount,
-    currency
-  );
-
   if (paymentDocument) {
-    paymentDocument.paymentLink = paymentLink;
+    paymentDocument.paymentLink = null; 
     paymentDocument.amount = amount;
     paymentDocument.currency = currency;
     paymentDocument.status = paymentStatus.LINKSENT;
@@ -42,7 +36,6 @@ export const handleSendPaymentLink = async (
       stepStatusId,
       amount,
       currency,
-      paymentLink,
       status: paymentStatus.LINKSENT,
     });
     await newPaymentDocument.save();
@@ -51,12 +44,50 @@ export const handleSendPaymentLink = async (
   res.status(200).json({
     status: "success",
     message: "Payment link sent successfully",
-    data: {
-      paymentLink,
-    },
+    paymentDocument
   });
+  return;
 };
 
+
+// For User
+export const proceedToPayment = async (req: Request, res: Response) => {
+  const stepStatusId = req.params.leadId;
+
+   // 1. Validate lead existence
+   const paymentDoc = await dubaiPaymentModel.findOne({stepStatusId});
+
+  if (!paymentDoc) {
+    res.status(404);
+    throw new Error("No payment record found for this stepStatusId");
+    return;
+  }
+
+  const { amount, currency } = paymentDoc;
+  if (!amount || !currency) {
+    res.status(400);
+    throw new Error("Amount or currency not set in payment document");
+    return;
+  }
+
+  // prepare data and metaData (to send in cretaeSession function)
+  const paymentLink = await createPaymentSession(
+    "Dubai Business Setup Payment",
+    { stepStatusId, purpose: paymentPurpose.DUBAI_PAYMENT },  // this is meta-data
+    amount,
+    currency , 
+  );
+
+  paymentDoc.paymentLink = paymentLink;
+  await paymentDoc.save();
+
+  res.status(200).json({ paymentLink });
+  return;
+
+};
+
+
+// For Common
 export const getPaymentStepInfo = async (
   req: Request,
   res: Response,
@@ -90,6 +121,9 @@ export const getPaymentStepInfo = async (
     data: paymentDetails,
   });
 };
+
+
+
 
 export const handleDubaiPayment = async (
   event: Stripe.Event,
@@ -238,3 +272,10 @@ const handleDubaiPaymentFailure = async (payment: any | null) => {
     await payment.save();
   }
 };
+
+
+
+// consultation   -->>  Admin clike kare and link( website page ka link ) email ho jaye user ko 
+//                      proceed to payment per api call -->> create payment session , and all 
+
+// dubai payment -->> user already ussi page per hai , toh proceed to payment per (ek api call ayegi ) 

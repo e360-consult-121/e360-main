@@ -14,7 +14,7 @@ export interface IPayment extends Document {
 
   status: paymentStatus;
 
-  paymentLink: string;
+  paymentLink: string | null;
   invoiceUrl: string | null;
   paymentIntentId: string | null;
   // sessionId : string | null ;
@@ -46,7 +46,7 @@ const PaymentSchema = new Schema<IPayment>(
         required : true
       },
 
-    paymentLink: { type: String, required: true },
+    paymentLink: { type: String },
     invoiceUrl: { type: String  , default : null},
     paymentIntentId: { type: String , default : null},
     // sessionId : {type : String , default : null} ,
