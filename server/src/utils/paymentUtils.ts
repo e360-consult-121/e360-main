@@ -57,16 +57,11 @@ export async function createPaymentLink(
 
 
 export async function createPaymentSession(
-  leadId: string | Types.ObjectId,
+  productName:string,
+  metadata: any,
   amount: number,
   currency: string
 ): Promise<string> {
-
-  // 1. Fetch lead document
-  const lead = await LeadModel.findById(leadId).lean();
-  if (!lead) {
-    throw new Error(`Lead with ID ${leadId} not found.`);
-  }
 
   // 2. Create Checkout Session
   const session = await stripe.checkout.sessions.create({
@@ -79,7 +74,7 @@ export async function createPaymentSession(
           currency,
           unit_amount: amount * 100, // amount in paisa
           product_data: {
-            name: `Visa Consultation for ${lead.fullName.first} ${lead.fullName.last}`,
+            name: productName,
           },
         },
         quantity: 1,
@@ -93,17 +88,11 @@ export async function createPaymentSession(
 
     // 4. Metadata you want to receive back in webhook
     payment_intent_data: {
-      metadata: {
-        leadId: lead._id.toString(),
-        email: lead.email,
-      },
+      metadata: metadata,
     },
 
     // Optional: Add to session metadata too
-    metadata: {
-      leadId: lead._id.toString(),
-      email: lead.email,
-    },
+    metadata: metadata,
   });
 
   console.log('Checkout Session URL:', session.url);

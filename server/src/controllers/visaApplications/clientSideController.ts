@@ -91,6 +91,8 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
   // handle when domiGrena
   const stepStatusId = stepStatusDoc?._id as Types.ObjectId;
 
+
+  // We have to handle this condition differently 
   if (!stepStatusId) {
     return res.status(400).json({ message: "Missing stepStatusId." });
   }
@@ -265,54 +267,80 @@ export const submitRequirements = async (req: Request, res: Response) => {
   const errors = [];
 
   for (const requirement of requirements) {
-    const { reqStatusId, value } = requirement;
+    try {
+      const { reqStatusId, value } = requirement;
 
-    if (!reqStatusId) {
-      errors.push(
-        `Missing reqStatusId for requirement: ${JSON.stringify(requirement)}`
-      );
-      continue;
+      if (!reqStatusId) {
+        errors.push(`Missing reqStatusId for: ${JSON.stringify(requirement)}`);
+        continue;
+      }
+
+      if (value === undefined) {
+        errors.push(`Missing value for requirement with ID: ${reqStatusId}`);
+        continue;
+      }
+
+      const reqStatusDoc = await reqStatusModel.findById(reqStatusId);
+      if (!reqStatusDoc) {
+        errors.push(`Requirement status not found for ID: ${reqStatusId}`);
+        continue;
+      }
+
+      const step = await stepModel.findById(reqStatusDoc.stepId);
+      if (!step) {
+        errors.push(`Associated step not found for requirement: ${reqStatusId}`);
+        continue;
+      }
+
+      const stepSource = step.stepSource;
+      if (
+        (stepSource === DocumentSourceEnum.USER && !req.user) ||
+        (stepSource === DocumentSourceEnum.ADMIN && !req.admin)
+      ) {
+        errors.push(`Not authorized to submit requirement: ${reqStatusId}`);
+        continue;
+      }
+
+      reqStatusDoc.value = value;
+      reqStatusDoc.status = visaApplicationReqStatusEnum.UPLOADED;
+      await reqStatusDoc.save();
+
+      const relatedRequirement = await reqModel.findById(reqStatusDoc.reqId);
+      if (!relatedRequirement) {
+        errors.push(`Related requirement not found for ID: ${reqStatusId}`);
+        continue;
+      }
+
+      if (relatedRequirement.required) {
+        const stepStatusDoc = await stepStatusModel.findOne({
+          visaApplicationId: reqStatusDoc.visaApplicationId,
+          stepId: reqStatusDoc.stepId,
+        });
+
+        if (stepStatusDoc) {
+          stepStatusDoc.reqFilled.set(
+            reqStatusDoc.reqId.toString(),
+            true
+          );
+          await stepStatusDoc.save();
+        }
+      }
+
+      updateResults.push({
+        reqStatusId,
+        success: true,
+        message: "Requirement submitted successfully",
+      });
+
+    } catch (err: any) {
+      console.error(`Error processing requirement: ${JSON.stringify(requirement)}`, err);
+      errors.push(`Unhandled error for reqStatusId ${requirement?.reqStatusId || 'unknown'}`);
     }
-
-    if (value === undefined) {
-      errors.push(`Missing value for requirement with ID: ${reqStatusId}`);
-      continue;
-    }
-
-    const reqStatusDoc = await reqStatusModel.findById(reqStatusId);
-    if (!reqStatusDoc) {
-      errors.push(`Requirement status not found for ID: ${reqStatusId}`);
-      continue;
-    }
-
-    const step = await stepModel.findById(reqStatusDoc.stepId);
-    if (!step) {
-      errors.push(`Associated step not found for requirement: ${reqStatusId}`);
-      continue;
-    }
-
-    const stepSource = step.stepSource;
-    if (
-      (stepSource === DocumentSourceEnum.USER && !req.user) ||
-      (stepSource === DocumentSourceEnum.ADMIN && !req.admin)
-    ) {
-      errors.push(`Not authorized to submit requirement: ${reqStatusId}`);
-      continue;
-    }
-
-    reqStatusDoc.value = value;
-    reqStatusDoc.status = visaApplicationReqStatusEnum.UPLOADED;
-    await reqStatusDoc.save();
-    updateResults.push({
-      reqStatusId,
-      success: true,
-      message: "Requirement submitted successfully",
-    });
   }
 
   return res.status(200).json({
     message: "Requirements processing completed",
-    processed: updateResults.length,
+    processed: requirements.length,
     successful: updateResults.length,
     failed: errors.length,
     results: updateResults,

@@ -4,6 +4,7 @@ import { EmailService } from "../../../EmailService";
 import { VisaTypeEnum } from "../../../../../types/enums/enums";
 import { getDgUserSubject } from "../../../templates/customer/application/DominicaGrenada/dg-subjects";
 import { getPortugalUserSubject } from "../../../templates/customer/application/Portugal/portugal-subject";
+import { getDubaiUserSubject } from "../../../templates/customer/application/Dubai/dubai-subjects";
 
 export const userApplicationUpdateSend = async (
   triggers: EmailTrigger[],
@@ -22,6 +23,7 @@ export const userApplicationUpdateSend = async (
     subjectFn= getPortugalUserSubject
   } else if (visaType === VisaTypeEnum.DUBAI) {
     templateCategory = "customer/application/Dubai";
+    subjectFn=getDubaiUserSubject
   }
 
   const emailPromises = triggers.map(async (trigger) => {
