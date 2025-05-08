@@ -7,6 +7,7 @@ import * as deliveryControllers from "../../../controllers/visaApplications/dgDe
 import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
 import * as moaControllers from "../../../controllers/visaApplications/DubaiControllers/moaController";
 import * as medicalControllers from "../../../controllers/visaApplications/DubaiControllers/medicalTestController";
+import * as paymentControllers from "../../../controllers/visaApplications/DubaiControllers/paymentController";
 import {upload} from "../../../services/s3Upload"
 
 const router = Router();
@@ -32,4 +33,6 @@ router.post('/:stepStatusId/dubai/MOA/uploadSignature' , authenticate , upload.s
 
 //  Dubai - Medical Test
 router.post("/:stepStatusId/dubai/medical/sendReschedulingReq", authenticate ,  asyncHandler(medicalControllers.sendReschedulingReq));
+// Dubai - Payment 
+router.post("/:stepStatusId/dubai/payment/proceedToPayment", authenticate ,  asyncHandler(paymentControllers.proceedToPayment));
 export default router;

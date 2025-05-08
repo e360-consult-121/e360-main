@@ -7,7 +7,7 @@ export interface IDubaiPayment extends Document {
   currency: string | null;
   paymentMethod: string | null;
   status: paymentStatus;
-  paymentLink: string;
+  paymentLink: string | null;
   invoiceUrl: string | null;
   paymentIntentId: string | null;
   stepStatusId: mongoose.Schema.Types.ObjectId;
@@ -23,7 +23,7 @@ const DubaiPaymentSchema: Schema = new Schema({
     enum: Object.values(paymentStatus),
     required: true,
   },
-  paymentLink: { type: String, required: true },
+  paymentLink: { type: String , default : null },
   invoiceUrl: { type: String, default: null },
   paymentIntentId: { type: String, default: null },
 

@@ -48,8 +48,8 @@ export enum QuestionTypeEnum {
 export enum VisaApplicationStatusEnum {
   PENDING = "PENDING",
   IN_PROGRESS = "IN_PROGRESS",
-  REJECTED = "REJECTED",
-  APPROVED="APPROVED",
+  REJECTED = "REJECTED", // when admin mark this as Rejected 
+  COMPLETED="COMPLETED",
   CANCELED="CANCELED"
 }
 
@@ -169,5 +169,11 @@ export enum medicalTestStatus{
   RescheduleReq_Rejected = "RescheduleReq_Rejected"
 }
 
+export enum CustomFieldTypeEnum {
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  DROPDOWN = 'dropdown'
+}
 
 
