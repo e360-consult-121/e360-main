@@ -237,8 +237,8 @@ export const getPortugalPriority = (data: ParsedPortugalData): leadPriority => {
   if (averageScore > 2.5) {
     return leadPriority.HIGH;
   } else if (averageScore >= 1.5) {
-    return leadPriority.LOW;
-  } else {
     return leadPriority.MEDIUM;
+  } else {
+    return leadPriority.LOW;
   }
 };
