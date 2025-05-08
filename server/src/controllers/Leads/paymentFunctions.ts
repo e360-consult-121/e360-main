@@ -45,7 +45,8 @@ export interface createUserOptions {
     email: string;
     role?: RoleEnum;
     UserStatus?: AccountStatusEnum;
-    phone:string
+    phone:string;
+    nationality : string;
     serviceType:string
   }
   
@@ -53,6 +54,7 @@ export interface createUserOptions {
     name,
     email,
     phone,
+    nationality , 
     serviceType
   }: createUserOptions): Promise<any> {
     try {
@@ -125,7 +127,7 @@ export interface createUserOptions {
   interface CreateVisaApplicationOptions {
     userId: mongoose.Types.ObjectId | string;
     visaTypeId: mongoose.Types.ObjectId | string;
-    leadId: mongoose.Types.ObjectId | string;
+    leadId ?: mongoose.Types.ObjectId | string | null;
     currentStep?: number; // optional, default 1
     visaApplicationStatus?: VisaApplicationStatusEnum;
   }
@@ -140,7 +142,7 @@ export interface createUserOptions {
         // step : 1 
         const newApplication = await VisaApplicationModel.create({
           userId: userId ,
-          leadId:leadId, 
+          leadId:leadId || null, 
           visaTypeId : new mongoose.Types.ObjectId(visaTypeId),
           currentStep : 1 ,
           status: VisaApplicationStatusEnum.PENDING,

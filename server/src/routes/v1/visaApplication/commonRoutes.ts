@@ -9,6 +9,7 @@ import * as moaControllers from "../../../controllers/visaApplications/DubaiCont
 import * as tradeNameControllers from "../../../controllers/visaApplications/DubaiControllers/tradeNameController";
 import * as medicalControllers from "../../../controllers/visaApplications/DubaiControllers/medicalTestController";
 import * as paymentControllers from "../../../controllers/visaApplications/DubaiControllers/paymentController";
+import * as docVaultControllers from "../../../controllers/visaApplications/docVaultController";
 import {upload} from "../../../services/s3Upload"
 import { handleEligibilityForm } from "../../../controllers/visaApplications/testingEmails"
 
@@ -19,8 +20,8 @@ router.post("/submitRequirements" ,authenticate,asyncHandler(clientSideControlle
 router.post("/:reqStatusId/uploadDocument", authenticate , upload.single("file"), asyncHandler(clientSideControllers.uploadDocument));
 router.post("/:visaApplicationId/stepSubmit", authenticate ,  asyncHandler(clientSideControllers.stepSubmit));
 router.post("/:visaApplicationId/approveStep", authenticate ,  asyncHandler(adminSideControllers.approveStep) );
-
-// domiGrena investment API'S
+// Document Vault
+router.get("/:visaApplicationId/fetchVaultDocS",authenticate ,asyncHandler(docVaultControllers.fetchVaultDocS)  )
 
 // domiGrena Delivery and Shipping API'S
 router.get("/:stepStatusId/fetchBothDetails", authenticate ,  asyncHandler(deliveryControllers.fetchBothDetails));
@@ -36,6 +37,9 @@ router.get("/:stepStatusId/dubai/medical/fetchMedicalTestInfo", authenticate ,  
 
 // Dubai -  Payments
 router.get("/:stepStatusId/dubai/payment/fetchPaymentInfo", authenticate ,  asyncHandler(paymentControllers.getPaymentStepInfo));
+
+// Documents vault
+
 
 
 // route for testing emails 

@@ -284,6 +284,7 @@ const handleConsultationPaymentSuccess = async (
 
     // Extract phone number to store in userDb
     const phone = lead?.phone;
+    const nationality = lead?.nationality;
     const fullName = `${lead?.fullName?.first || ""} ${lead?.fullName?.last || ""}`.trim();
     console.log(fullName);
 
@@ -291,6 +292,7 @@ const handleConsultationPaymentSuccess = async (
       name: fullName,
       email: lead?.email || "",
       phone: phone,
+      nationality : nationality ,
       serviceType: getServiceType(lead.__t || ""),
     });
 
@@ -349,5 +351,5 @@ const handleConsultationPaymentFailure = async (payment: any | null) => {
 
 
 
-// consultation   -->>  Admin clike kare and link( website page ka link ) email ho jaye user ko 
+// consultation   -->>  Admin clike kare and link( website page ka link ) mail ho jaye user ko 
 //                      proceed to payment per api call -->> create payment session , and all 
