@@ -27,6 +27,11 @@ export const fetchAllClients = async (req: Request, res: Response) => {
           totalApplications: total,
           completedApplications: completed,
           pendingApplications: pending,
+          caseId:"E360-DXB-001",
+          lastService:"Portugal D7 Visa",
+          startingDate:"2023-10-01",
+          totalRevenue:"$12000",
+          status:"Application Approved",
         };
       })
     );
