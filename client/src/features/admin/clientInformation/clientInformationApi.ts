@@ -9,11 +9,15 @@ export const clientInformationApi = baseApi.injectEndpoints({
             method:"POST",
             data:body 
         })
+    }),
+    proceedToPayment: build.mutation({
+        query:({leadid })=>({
+            url:`/admin/payment/${leadid}/proceedToPayment`,
+            method:"POST", 
+        })
     })
-    
-    
     })
 
 })
 
-export const { useSendPaymentLinkMutation } = clientInformationApi
+export const { useSendPaymentLinkMutation,useProceedToPaymentMutation } = clientInformationApi

@@ -38,6 +38,7 @@ import { sendPortalAccessToClient } from "../../services/emails/triggers/leads/p
 import { handleDubaiPayment } from "../visaApplications/DubaiControllers/paymentController";
 // import functions
 import {createUserFunction , createVisaApplication} from "./paymentFunctions"
+import { PORTAL_LINK } from "../../config/configLinks";
 
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
@@ -52,7 +53,9 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     return;
   }
 
-  const pageUrl = "https://app.e360consult.com/payments/:leadId"
+  const pageUrl = `http://localhost:5173/payments/${lead._id}`
+
+  // const pageUrl = `${PORTAL_LINK}/payments/${lead._id}`
   //  send link to the customer / lead 
   await sendPaymentLinkToLead(lead.email,lead.fullName.first,getServiceType(lead.__t??""),pageUrl)
 
@@ -328,7 +331,8 @@ const handleConsultationPaymentSuccess = async (
       );
       await updateRevenueSummary(
         visaTypeId,
-        paymentIntent.amount_received / 100
+        paymentIntent.amount_received / 100,
+        paymentIntent.currency
       );
       console.log("Added to revenue updates");
     } catch (error) {

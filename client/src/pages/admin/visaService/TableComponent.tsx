@@ -16,41 +16,27 @@ import {
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
-// interface TableData {
-//   CaseID: string;
-//   name: string;
-//   email: string;
-//   phone: string;
-//   status: string;
-// }
-
-// interface Props {
-//   data: TableData[];
-// }
-
-const TableComponent: React.FC<any> = ({ data }) => {
-  const {type} = useParams()
+const TableComponent: React.FC<any> = ({ data, stepsData }) => {
+  const { type } = useParams();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("All");
 
   const navigate = useNavigate();
 
-  console.log(data)
+  // console.log(data);
 
   const handleNavigation = (row: any) => {
     const newRow = {
       ...row,
-      leadId: row.leadId._id, // flatten leadId to top level
+      leadId: row.leadId._id,
     };
     navigate(`/admin/application/${row._id}`, { state: { row: newRow } });
   };
-  
-  
+
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
-
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -64,43 +50,42 @@ const TableComponent: React.FC<any> = ({ data }) => {
   };
 
   const filteredData =
-    statusFilter === "All"
-      ? data
-      : data.filter((row:any) => row.status === statusFilter);
+  statusFilter === "All"
+    ? data
+    : data.filter((row: any) => {
+        const stepName = stepsData[row.currentStep - 1];
+        return stepName === statusFilter;
+      });
 
   return (
     <Paper sx={{ p: 2, boxShadow: "none" }}>
-      
-      <Box 
-      sx={{
-        display:"flex",
-        justifyContent:"space-between",
-        alignItems:"center"
-      }}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
       >
-      {type && (
-  <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
-    {type.charAt(0).toUpperCase() + type.slice(1)} Passport
-  </Typography>
-)}
-      
-      <Select
-        value={statusFilter}
-        onChange={handleStatusFilterChange}
-        displayEmpty
-        sx={{ mb: 2, float: "right" }}
-      >
-        <MenuItem value="All">All</MenuItem>
-        <MenuItem value="Documents Uploaded">Documents Uploaded</MenuItem>
-        <MenuItem value="Investment Documents Uploaded">
-          Investment Documents Uploaded
-        </MenuItem>
-        <MenuItem value="Pending Investment">Pending Investment</MenuItem>
-        <MenuItem value="Passport Delivered">Passport Delivered</MenuItem>
-      </Select>
+        {type && (
+          <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
+            {type.charAt(0).toUpperCase() + type.slice(1)} Passport
+          </Typography>
+        )}
 
+        <Select
+          value={statusFilter}
+          onChange={handleStatusFilterChange}
+          displayEmpty
+          sx={{ mb: 2, float: "right" }}
+        >
+          <MenuItem value="All">All</MenuItem>
+          {stepsData.map((step: string, index: number) => (
+            <MenuItem key={index} value={step}>
+              {step}
+            </MenuItem>
+          ))}
+        </Select>
       </Box>
-      
 
       <TableContainer>
         <Table>
@@ -118,7 +103,7 @@ const TableComponent: React.FC<any> = ({ data }) => {
                   key={index}
                   align={header === "View" ? "right" : "left"}
                   sx={{
-                    color:"#8D8883"
+                    color: "#8D8883",
                   }}
                 >
                   {header}
@@ -127,45 +112,57 @@ const TableComponent: React.FC<any> = ({ data }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-  {filteredData.length === 0 ? (
-    <TableRow>
-      <TableCell colSpan={6} align="center">
-        No applications going on right now.
-      </TableCell>
-    </TableRow>
-  ) : (
-    filteredData
-      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      .map((row: any, index: any) => (
-        <TableRow key={index} sx={{ borderBottom: "none" }}>
-          <TableCell sx={{ borderBottom: "none" }}>{row?._id}</TableCell>
-          <TableCell sx={{ borderBottom: "none" }}>{row?.leadId?.fullName?.first +" "+row?.leadId?.fullName?.last }</TableCell>
-          <TableCell sx={{ borderBottom: "none" }}>{row?.leadId?.email}</TableCell>
-          <TableCell sx={{ borderBottom: "none" }}>{row?.leadId?.phone}</TableCell>
-          <TableCell
-            sx={{
-              borderBottom: "none",
-              color: row.status === "Passport Delivered" ? "green" : "black",
-            }}
-          >
-            {row?.status}
-          </TableCell>
-          <TableCell
-            align="right"
-            sx={{ borderBottom: "none", cursor: "pointer" }}
-          >
-            <Button
-              onClick={() => handleNavigation(row)}
-              sx={{ color: "black", textTransform: "none" }}
-            >
-              View &gt;
-            </Button>
-          </TableCell>
-        </TableRow>
-      ))
-  )}
-</TableBody>
-
+            {filteredData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No applications going on right now.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredData
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row: any, index: any) => (
+                  <TableRow key={index} sx={{ borderBottom: "none" }}>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {row?.leadId?.caseId}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {row?.leadId?.fullName?.first +
+                        " " +
+                        row?.leadId?.fullName?.last}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {row?.leadId?.email}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {row?.leadId?.phone}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        borderBottom: "none",
+                        color:
+                          row.status === "Passport Delivered"
+                            ? "green"
+                            : "black",
+                      }}
+                    >
+                      {row?.status}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ borderBottom: "none", cursor: "pointer" }}
+                    >
+                      <Button
+                        onClick={() => handleNavigation(row)}
+                        sx={{ color: "black", textTransform: "none" }}
+                      >
+                        View &gt;
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+            )}
+          </TableBody>
         </Table>
       </TableContainer>
 

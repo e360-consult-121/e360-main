@@ -9,7 +9,14 @@ export const visaApplicationApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    fetchAllStepsOfParticularVisaType: build.query({
+      // Accept visaType as an argument
+      query: (visaType) => ({
+        url: `/admin/visaapplication/fetchAllStepsOfParticularVisaType?visaType=${visaType}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useFetchParticularVisaApplicationQuery } = visaApplicationApi;
+export const { useFetchParticularVisaApplicationQuery,useFetchAllStepsOfParticularVisaTypeQuery } = visaApplicationApi;

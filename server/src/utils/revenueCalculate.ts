@@ -1,11 +1,15 @@
 import { RevenueModel } from "../leadModels/revenueModel";
 import { VisaTypeModel } from "../models/VisaType";
+import { currencyConversion } from "../services/currencyConversion/currencyConversion";
 import { VisaTypeEnum } from "../types/enums/enums";
 
-export const updateRevenueSummary = async (visaTypeId: string, amount: number) => {
-  
+export const updateRevenueSummary = async (
+  visaTypeId: string,
+  amount: number,
+  currencyType: string
+) => {
   try {
-    console.log("Inside updateRevenueSummary", visaTypeId, amount);
+    console.log("Inside updateRevenueSummary", visaTypeId, amount, currencyType);
 
     const visaTypeInfo = await VisaTypeModel.findById(visaTypeId);
     if (!visaTypeInfo) {
@@ -14,11 +18,23 @@ export const updateRevenueSummary = async (visaTypeId: string, amount: number) =
     }
 
     const visaTypeName = visaTypeInfo.visaType as VisaTypeEnum;
-    console.log("Updating revenue for:", visaTypeName);
+
+    let amountInUSD = amount;
+    if (currencyType !== "USD") {
+      const normalizedCurrencyType = currencyType.trim().toUpperCase() 
+      const converted = await currencyConversion(normalizedCurrencyType, "USD", amount);
+      if (converted === null) {
+        console.error("Currency conversion failed. Aborting revenue update.");
+        return;
+      }
+      amountInUSD = converted;
+    }
+
+    console.log(`Updating revenue for: ${visaTypeName}, USD Amount: ${amountInUSD}`);
 
     await RevenueModel.findOneAndUpdate(
       { visaType: visaTypeName },
-      { $inc: { totalRevenue: amount } },
+      { $inc: { totalRevenue: amountInUSD } },
       { upsert: true, new: true }
     );
 
@@ -28,3 +44,5 @@ export const updateRevenueSummary = async (visaTypeId: string, amount: number) =
     console.error("Error updating revenue summary:", error);
   }
 };
+
+

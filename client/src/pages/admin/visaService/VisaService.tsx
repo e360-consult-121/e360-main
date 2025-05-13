@@ -1,7 +1,7 @@
 import  { useEffect, useState } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import TableComponent from "./TableComponent"; // adjust the path
-import { useFetchParticularVisaApplicationQuery } from "../../../features/admin/visaApplication/visApplicationApi";
+import { useFetchAllStepsOfParticularVisaTypeQuery, useFetchParticularVisaApplicationQuery } from "../../../features/admin/visaApplication/visApplicationApi";
 import { useParams } from "react-router-dom";
 
 const VisaService = () => {
@@ -11,6 +11,8 @@ const VisaService = () => {
   const visaType = type ? type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() : '';
 
   const { data, isLoading, isError } = useFetchParticularVisaApplicationQuery(visaType);
+
+  const {data:stepsData} = useFetchAllStepsOfParticularVisaTypeQuery(visaType)
 
   useEffect(() => {
     // console.log(data)
@@ -30,7 +32,7 @@ const VisaService = () => {
           Something went wrong while fetching data.
         </Typography>
       ) : (
-        <TableComponent data={applications} />
+        <TableComponent data={applications}  stepsData={stepsData.stepNames} />
       )}
     </Box>
   );

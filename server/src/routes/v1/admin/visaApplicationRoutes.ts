@@ -6,5 +6,6 @@ import * as visaApplication from "../../../controllers/Leads/visaApplicationCont
 const router = Router();
 
 router.get("/fetchParticularVisaApplication", authenticate ,authorizeAdmin, asyncHandler(visaApplication.fetchParticularVisaApplication))
+router.get("/fetchAllStepsOfParticularVisaType", authenticate ,authorizeAdmin, asyncHandler(visaApplication.fetchAllStepsOfParticularVisaType))
 
 export default router;
