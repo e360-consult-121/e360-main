@@ -20,8 +20,8 @@ router.post("/submitRequirements" ,authenticate,asyncHandler(clientSideControlle
 router.post("/:reqStatusId/uploadDocument", authenticate , upload.single("file"), asyncHandler(clientSideControllers.uploadDocument));
 router.post("/:visaApplicationId/stepSubmit", authenticate ,  asyncHandler(clientSideControllers.stepSubmit));
 router.post("/:visaApplicationId/approveStep", authenticate ,  asyncHandler(adminSideControllers.approveStep) );
-// Document Vault
-router.get("/:visaApplicationId/fetchVaultDocS",authenticate ,asyncHandler(docVaultControllers.fetchVaultDocS)  )
+
+
 
 // domiGrena Delivery and Shipping API'S
 router.get("/:stepStatusId/fetchBothDetails", authenticate ,  asyncHandler(deliveryControllers.fetchBothDetails));
