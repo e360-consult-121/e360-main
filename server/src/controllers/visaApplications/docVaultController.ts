@@ -137,10 +137,32 @@ export const fetchVaultDocS = async (req: Request, res: Response) => {
         }
       }
     }
+
+    // Now , also return category wise documents 
+    const categoryWiseDocs = await categoryModel.aggregate([
+      {
+        $match: {
+          visaApplicationId: new mongoose.Types.ObjectId(visaApplicationId),
+        },
+      },
+      {
+        $lookup: {
+          from: "categorydocuments", // this must be the collection name (usually lowercase and plural)
+          localField: "_id",
+          foreignField: "categoryId",
+          as: "documents",
+        },
+      },
+      {
+        $sort: { createdAt: -1 }
+      }
+    ]);
+  
   
     return res.status(200).json({
       success: true,
-      result
+      result , 
+      categoryWiseDocs,
     });
   };
 
@@ -151,14 +173,14 @@ export const fetchVaultDocS = async (req: Request, res: Response) => {
 // Add category  -->> {only admin }
 export const createCategory = async (req: Request, res: Response) => {
   const { visaApplicationId } = req.params;
-  const { name } = req.body;
+  const { categoryName } = req.body;
 
-  if (!name || !visaApplicationId) {
+  if (!categoryName || !visaApplicationId) {
       res.status(400);
       throw new Error("Name and visaApplicationId are required.");
   }
 
-  const category = await categoryModel.create({ name, visaApplicationId });
+  const category = await categoryModel.create({ categoryName, visaApplicationId });
   res.status(201).json({ message: "Category created successfully", category });
 };
 
@@ -185,7 +207,8 @@ export const getOrCreateAdditionalDocsCategory = async (visaApplicationId: strin
 
 // Upload Document...(Only User can do this)
 export const docUploadByUser = async (req: Request, res: Response) => {
-  const { visaApplicationId,  name } = req.body;
+  const { visaApplicationId } = req.params;
+  const { documentName } = req.body;
   const file = req.file;
 
   if (!visaApplicationId) {
@@ -198,7 +221,7 @@ export const docUploadByUser = async (req: Request, res: Response) => {
   const doc = await catDocModel.create({
       categoryId: category._id,
       url : (file as any).location ,
-      name,
+      documentName,
       uploadedBy: req.user.role // isko check karna hai...
   });
 
@@ -209,7 +232,7 @@ export const docUploadByUser = async (req: Request, res: Response) => {
   // upload in particular category... (Only Admin can do this )
   export const uploadDocumentToCategory = async (req: Request, res: Response) => {
     const { categoryId } = req.params;
-    const { name } = req.body;
+    const { documentName } = req.body;
     const file = req.file;
   
     const category = await categoryModel.findById(categoryId);
@@ -220,7 +243,7 @@ export const docUploadByUser = async (req: Request, res: Response) => {
     const newDoc = await catDocModel.create({
       categoryId,
       url: (file as any).location ,
-      name,
+      documentName,
       uploadedBy:DocumentSourceEnum.ADMIN
     });
   
@@ -256,6 +279,6 @@ export const docUploadByUser = async (req: Request, res: Response) => {
     });
   };
 
-  // 
+
         
   
