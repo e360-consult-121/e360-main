@@ -9,7 +9,7 @@ import { useFetchVaultDocsQuery } from "../../../features/customer/documentVault
 import {
   VaultDocsResponse,
 } from "../../../features/customer/documentVault/doumentVaultTypes";
-import { DocumentVaultAccordion } from "../../../components/DocumentVaultAccordion";
+import DocumentVaultAccordion from "../../../components/DocumentVaultAccordion";
 
 const ClientDocumentVault = () => {
   const { visaApplicationId } = useParams<{ visaApplicationId: string }>();
@@ -51,10 +51,20 @@ const ClientDocumentVault = () => {
         Document Vault
       </Typography>
       <div className="px-2">
-        {vaultDocs.adminUploaded &&
-          DocumentVaultAccordion("Admin Uploaded", vaultDocs.adminUploaded)}
-        {vaultDocs.userUploaded &&
-          DocumentVaultAccordion("User Uploaded", vaultDocs.userUploaded)}
+         {vaultDocs.adminUploaded && (
+  <DocumentVaultAccordion
+    title="Admin Uploaded"
+    stepsData={vaultDocs.adminUploaded}
+    source="Client"
+  />
+)}
+{vaultDocs.userUploaded && (
+  <DocumentVaultAccordion
+    title="User Uploaded"
+    stepsData={vaultDocs.userUploaded}
+    source="Client"
+  />
+)}
       </div>
     </Box>
   );

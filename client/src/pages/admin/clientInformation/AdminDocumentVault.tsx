@@ -3,7 +3,7 @@ import { useFetchVaultDocsQuery } from "../../../features/customer/documentVault
 import { useEffect, useState } from "react";
 import { VaultDocsResponse } from "../../../features/customer/documentVault/doumentVaultTypes";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import { DocumentVaultAccordion } from "../../../components/DocumentVaultAccordion";
+import DocumentVaultAccordion from "../../../components/DocumentVaultAccordion";
 
 const AdminDocumentVault = () => {
   const { visatype } = useParams();
@@ -33,7 +33,7 @@ const AdminDocumentVault = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
         <Button
           variant="contained"
           sx={{
@@ -45,12 +45,34 @@ const AdminDocumentVault = () => {
         >
           Upload Document
         </Button>
+        <Button
+          variant="outlined"
+          sx={{
+            borderColor:"black",
+            textTransform: "none",
+            color: "black",
+            borderRadius: "20px",
+            boxShadow: "none",
+          }}
+        >
+          Add category
+        </Button>
       </div>
       <div className="px-2">
-        {vaultDocs.adminUploaded &&
-          DocumentVaultAccordion("Admin Uploaded", vaultDocs.adminUploaded)}
-        {vaultDocs.userUploaded &&
-          DocumentVaultAccordion("User Uploaded", vaultDocs.userUploaded)}
+       {vaultDocs.adminUploaded && (
+  <DocumentVaultAccordion
+    title="Admin Uploaded"
+    stepsData={vaultDocs.adminUploaded}
+    source="Admin"
+  />
+)}
+{vaultDocs.userUploaded && (
+  <DocumentVaultAccordion
+    title="User Uploaded"
+    stepsData={vaultDocs.userUploaded}
+    source="Admin"
+  />
+)}
       </div>
     </Box>
   );
