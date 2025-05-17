@@ -180,7 +180,7 @@ export const createCategory = async (req: Request, res: Response) => {
       throw new Error("Name and visaApplicationId are required.");
   }
 
-  const category = await categoryModel.create({ categoryName, visaApplicationId });
+  const category = await categoryModel.create({ name : categoryName, visaApplicationId });
   res.status(201).json({ message: "Category created successfully", category });
 };
 
