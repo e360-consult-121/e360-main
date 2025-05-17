@@ -7,6 +7,8 @@ export interface IVisaApplication extends Document {
     leadId?: mongoose.Schema.Types.ObjectId; // Optional reference to Lead
     currentStep: number;
     status: VisaApplicationStatusEnum;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 const VisaApplicationSchema = new Schema<IVisaApplication>(

@@ -173,7 +173,8 @@ export enum CustomFieldTypeEnum {
   TEXT = 'text',
   NUMBER = 'number',
   DATE = 'date',
-  DROPDOWN = 'dropdown'
+  DROPDOWN = 'dropdown',
+  CHECKBOX = "CheckBox"
 }
 
 

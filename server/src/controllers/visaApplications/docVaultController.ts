@@ -6,10 +6,9 @@ import { VisaApplicationModel as visaApplicationModel } from "../../models/VisaA
 import { VisaStepModel as stepModel } from "../../models/VisaStep";
 import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
 import { VisaApplicationReqStatusModel as reqStatusModel } from "../../models/VisaApplicationReqStatus";
-import { StepStatusEnum } from "../../types/enums/enums";
-
-
-
+import { StepStatusEnum , DocumentSourceEnum } from "../../types/enums/enums";
+import { CategoryModel as categoryModel } from "../../extraModels/categoryModel";
+import { CatDocModel as catDocModel } from "../../extraModels/catDocModel";
 
 export const fetchVaultDocS = async (req: Request, res: Response) => {
 
@@ -146,8 +145,117 @@ export const fetchVaultDocS = async (req: Request, res: Response) => {
   };
 
 
-  // first -->> documents (reqS ka structure)
-  // second -->> vo visaApp jisme saari docS field ho 
-  // third -->> kya saare steps bhejne hai ..?? (even there is no docuemnts needed )
 
+
+
+// Add category  -->> {only admin }
+export const createCategory = async (req: Request, res: Response) => {
+  const { visaApplicationId } = req.params;
+  const { name } = req.body;
+
+  if (!name || !visaApplicationId) {
+      res.status(400);
+      throw new Error("Name and visaApplicationId are required.");
+  }
+
+  const category = await categoryModel.create({ name, visaApplicationId });
+  res.status(201).json({ message: "Category created successfully", category });
+};
+
+
+
+// this is kind of utility function
+export const getOrCreateAdditionalDocsCategory = async (visaApplicationId: string) => {
+  let category = await categoryModel.findOne({
+      visaApplicationId,
+      name: "Additional Docs"
+  });
+
+  if (!category) {
+      category = await categoryModel.create({
+          visaApplicationId,
+          name: "Additional Docs"
+      });
+  }
+
+  return category;
+};
+
+
+
+// Upload Document...(Only User can do this)
+export const docUploadByUser = async (req: Request, res: Response) => {
+  const { visaApplicationId,  name } = req.body;
+  const file = req.file;
+
+  if (!visaApplicationId) {
+      res.status(400);
+      throw new Error("visaApplicationId and url are required.");
+  }
+
+  const category = await getOrCreateAdditionalDocsCategory(visaApplicationId);
+
+  const doc = await catDocModel.create({
+      categoryId: category._id,
+      url : (file as any).location ,
+      name,
+      uploadedBy: req.user.role // isko check karna hai...
+  });
+
+  res.status(201).json({ message: "Document uploaded successfully", doc });
+};
+
+
+  // upload in particular category... (Only Admin can do this )
+  export const uploadDocumentToCategory = async (req: Request, res: Response) => {
+    const { categoryId } = req.params;
+    const { name } = req.body;
+    const file = req.file;
+  
+    const category = await categoryModel.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
+  
+    const newDoc = await catDocModel.create({
+      categoryId,
+      url: (file as any).location ,
+      name,
+      uploadedBy:DocumentSourceEnum.ADMIN
+    });
+  
+    res.status(201).json({
+      success: true,
+      message: "Document uploaded successfully",
+      data: newDoc,
+    });
+  };
+
+  // move to category....(Only Admin can do this )
+  export const moveDocumentToAnotherCategory = async (req: Request, res: Response) => {
+    const { documentId } = req.params;
+    const { newCategoryId } = req.body;
+  
+    const document = await catDocModel.findById(documentId);
+    if (!document) {
+      return res.status(404).json({ success: false, message: "Document not found" });
+    }
+  
+    const newCategory = await categoryModel.findById(newCategoryId);
+    if (!newCategory) {
+      return res.status(404).json({ success: false, message: "Target category not found" });
+    }
+  
+    document.categoryId = newCategoryId;
+    await document.save();
+  
+    res.status(200).json({
+      success: true,
+      message: "Document moved successfully",
+      data: document,
+    });
+  };
+
+  // 
+        
   

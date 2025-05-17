@@ -3,8 +3,10 @@ import { VisaTypeModel } from '../../models/VisaType';
 import { UserModel } from '../../models/Users';
 import { VisaApplicationModel } from '../../models/VisaApplication';
 import { VisaStepModel as stepModel } from '../../models/VisaStep';
+import { LeadModel as leadModel } from '../../leadModels/leadModel';
+import { PaymentModel as paymentModel } from '../../leadModels/paymentModel';
 import { VisaStepRequirementModel as reqModel } from '../../models/VisaStepRequirement';
-import { VisaTypeEnum } from '../../types/enums/enums';
+import { VisaTypeEnum , paymentStatus } from '../../types/enums/enums';
 import AppError from '../../utils/appError';
 import { ObjectId } from 'mongoose';
 import {RoleEnum } from "../../types/enums/enums";
@@ -19,6 +21,44 @@ export const fetchAllClients = async (req: Request, res: Response) => {
         const total = await VisaApplicationModel.countDocuments({ userId: user._id });
         const completed = await VisaApplicationModel.countDocuments({ userId: user._id, status: "COMPLETED" });
         const pending = await VisaApplicationModel.countDocuments({ userId: user._id, status: "PENDING" });
+
+        const latestApplication = await VisaApplicationModel.findOne({ userId: user._id })
+                                                             .sort({ createdAt: -1 }).lean();
+            
+
+          let visaTypeName = "N/A";
+          let startingDate = "N/A"; 
+          let caseId = "N/A";
+
+
+          if (latestApplication?.visaTypeId) {
+            const visaTypeDoc = await VisaTypeModel.findById(latestApplication.visaTypeId).lean();
+            visaTypeName = visaTypeDoc?.visaType || "N/A";
+            
+          }
+          if (latestApplication?.createdAt) {
+            startingDate = new Date(latestApplication.createdAt).toISOString().split("T")[0]; 
+          }
+
+          if (latestApplication?.leadId) {
+            const leadDoc = await leadModel.findById(latestApplication.leadId).lean();
+            caseId = leadDoc?.caseId || "N/A";
+          }
+
+          // 3. Revenue Calculation
+          const applications = await VisaApplicationModel.find({ userId: user._id }).select("leadId").lean();
+          const leadIds = applications.map((app) => app.leadId).filter(Boolean);
+
+          let totalRevenue = 0;
+
+          if (leadIds.length > 0) {
+            const payments = await paymentModel.find({
+              leadId: { $in: leadIds },
+              status: "PAID",
+            }).select("amount").lean();
+
+            totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+          }
   
         return {
           name: user.name,
@@ -27,11 +67,14 @@ export const fetchAllClients = async (req: Request, res: Response) => {
           totalApplications: total,
           completedApplications: completed,
           pendingApplications: pending,
-          caseId:"E360-DXB-001",
-          lastService:"Portugal D7 Visa",
-          startingDate:"2023-10-01",
-          totalRevenue:"$12000",
-          status:"Application Approved",
+
+          caseId:caseId,  // latest application ki caseId
+          lastService:visaTypeName,
+          startingDate:startingDate,  
+
+          totalRevenue,
+
+          status:latestApplication?.status || "N/A"
         };
       })
     );
@@ -42,6 +85,31 @@ export const fetchAllClients = async (req: Request, res: Response) => {
       data: enrichedUsers,
     });
   };
+
+
+// fetch All applications of a particular client 
+export const getAllApplications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+
+  const { clientId } = req.params;
+
+  const applications = await VisaApplicationModel.find({
+    userId: clientId,
+  })
+    .sort({ createdAt: -1 })
+    .populate({ path: "userId" })
+    .populate({ path: "visaTypeId", select: "visaType" })
+    .exec();
+
+  res.status(200).json({
+    success: true,
+    data: applications,
+  });
+};
+
 
 
 
