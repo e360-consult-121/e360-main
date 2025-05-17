@@ -1,13 +1,15 @@
 import { useLocation } from "react-router-dom";
 import { useFetchParticularLeadQuery } from "../../../features/admin/leadManagement/leadManagementApi";
-import { ClientInfoType, leadStatus } from "../../../features/admin/leadManagement/leadManagementTypes";
+import { ClientInfoType } from "../../../features/admin/leadManagement/leadManagementTypes";
 import { useEffect, useState } from "react";
-import { Box, Card, CardContent, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import ClientConsultation from "../clientInformation/ClientConsultation";
+import ClientInfoCard from "../../../components/admin/ClientInfoCard";
 
 const VisaApplicationInformation = () => {
 
     const location = useLocation();
+    console.log(location);
     const row = location.state?.row;
     const leadid = row.leadId 
     // const { visatype } = useParams();
@@ -54,75 +56,7 @@ const VisaApplicationInformation = () => {
   
     return (
       <>
-        <Card
-          sx={{
-            mx: 5,
-            pl: 3,
-            pr: 5,
-            boxShadow: "none",
-            bgcolor: "#F6F5F5",
-            borderRadius: "15px",
-          }}
-        >
-          <CardContent>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Client Information
-              </Typography>
-              <Typography sx={{ fontSize: "14px" }}>
-                <span className="text-[#F6C328]"> ● </span>
-                {clientInfo?.leadStatus === leadStatus.INITIATED
-                  ? "Eligibility Form Under Review"
-                  : clientInfo?.leadStatus === leadStatus.CONSULTATIONLINKSENT ||
-                    clientInfo?.leadStatus === leadStatus.CONSULTATIONSCHEDULED
-                  ? "Consultation Pending"
-                  : clientInfo?.leadStatus === leadStatus.CONSULTATIONDONE ||
-                    clientInfo?.leadStatus === leadStatus.PAYMENTLINKSENT
-                  ? "Payment Pending"
-                  : clientInfo?.leadStatus === leadStatus.PAYMENTDONE
-                  ? "Payment Completed"
-                  : clientInfo?.leadStatus === leadStatus.REJECTED
-                  ? "Rejected"
-                  : ""}
-              </Typography>
-            </Box>
-  
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Box>
-                <Typography>Name: {clientInfo?.leadInfo?.name}</Typography>
-                <Typography>
-                  Applied for: <strong>{clientInfo?.leadInfo?.appliedFor}</strong>
-                </Typography>
-                <Typography>Email: {clientInfo?.leadInfo?.email}</Typography>
-              </Box>
-  
-              <Box>
-                <Typography>Case ID: {clientInfo?.leadInfo?.caseId}</Typography>
-                <Typography>Number: {clientInfo?.leadInfo?.phone}</Typography>
-                {clientInfo?.paymentInfo?.status === "PAID" && (
-                  <Typography>
-                    Payment Status:{" "}
-                    <span style={{ color: "green", fontWeight: "bold" }}>
-                      Completed
-                    </span>
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
+        <ClientInfoCard clientInfo={clientInfo} />
         <ClientConsultation
           onRefreshLead={refetch}
           leadStatus={clientInfo?.leadStatus || ""}

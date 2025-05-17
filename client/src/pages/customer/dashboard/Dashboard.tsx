@@ -4,7 +4,7 @@ import { formatDate } from "../../../utils/FormateDate";
 
 const Dashboard = () => {
   const { data, isLoading, isError } = useGetApplicationsQuery(undefined);
-  console.log(data)
+  // console.log(data)
   return (
     <div className="w-full h-full overflow-y-auto pb-44 px-5 custom-scrollbar">
       {/* Ongoing applications section */}

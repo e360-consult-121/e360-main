@@ -36,7 +36,6 @@ export const getAllApplications = async (
       userId: userData.id,
     })
       .sort({ createdAt: -1 })
-      .populate({ path: "userId" })
       .populate({ path: "visaTypeId", select: "visaType" })
       .exec();
 

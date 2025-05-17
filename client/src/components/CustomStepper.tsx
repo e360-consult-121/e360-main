@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useNavigate } from "react-router-dom";
 
 type CustomStepperProps = {
   visaType: string;
@@ -16,9 +17,16 @@ const CustomStepper = ({
   currentStepName,
 }: CustomStepperProps) => {
   const progressPercent = ((currentStep + 1) / stepsCount) * 100;
-
+  const navigate = useNavigate()
   return (
     <>
+      <div className="hidden md:flex justify-end items-center mb-[-35px]">
+      <button 
+      onClick={()=> navigate(`/documentVault/${visaApplicationId}`)}
+      className="text-[#BFBFBE] border border-[#BFBFBE] px-4 py-1 rounded-2xl cursor-pointer font-medium hover:bg-zinc-100 ">
+        Document Vault
+      </button>
+      </div>
       {/* Common Header */}
       <div className="w-full flex flex-col items-start md:items-center text-[#282827] mt-3">
         <h1 className="text-[#282827] text-xl font-bold">{visaType}</h1>
@@ -129,7 +137,7 @@ const CustomStepper = ({
           ))}
         </div>
       </div>
-    </>
+      </>
   );
 };
 

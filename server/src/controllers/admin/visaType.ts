@@ -21,6 +21,7 @@ export const fetchAllClients = async (req: Request, res: Response) => {
         const pending = await VisaApplicationModel.countDocuments({ userId: user._id, status: "PENDING" });
   
         return {
+          userId:user._id,
           name: user.name,
           email: user.email,
           phone: user.phone,
@@ -43,6 +44,30 @@ export const fetchAllClients = async (req: Request, res: Response) => {
     });
   };
 
+//fetch all the visa appliactions of a client  
+export const fetchClientVisaApplications = async (req: Request, res: Response) => {
+  const { userid } = req.params;
+
+  if (!userid) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  try {
+    const applications = await VisaApplicationModel.find({ userId: userid }).populate({
+      path:"visaTypeId",
+      select:"visaType"
+    });
+
+    if (!applications.length) {
+      return res.status(404).json({ message: "No visa applications found for this user" });
+    }
+
+    return res.status(200).json({ data: applications });
+  } catch (error) {
+    console.error("Error fetching visa applications:", error);
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
 
 
 

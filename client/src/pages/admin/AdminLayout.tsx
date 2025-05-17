@@ -55,6 +55,11 @@ const tabs:TAB[] = [
     label: "Manage Bank Details",
     route: "admin/bankdetails",
   },
+  {
+    icon: "meteor-icons:user",
+    label: "My Clients",
+    route: "admin/myclient",
+  },
   // {
   //   icon: "grommet-icons:visa",
   //   label: "Eligibility Form Leads",

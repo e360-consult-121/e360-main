@@ -12,6 +12,8 @@ import AdminLogin from "./AdminLogin";
 import { useFetchUserQuery } from "../../features/auth/authApi";
 import { useEffect } from "react";
 import VisaApplicationInformation from "./visaApplicationInformation/VisaApplicationInformation";
+import MyClients from "./MyClients/MyClients";
+import ClientVisaApplications from "./MyClients/ClientVisaApplications";
 // import { toast } from "react-toastify";
 
 const AdminRoutes = () => {
@@ -50,6 +52,8 @@ const AdminRoutes = () => {
         <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/leadmanagement/:leadid" element={<ClientInformation />} />
         <Route path="/application/:visatype" element={<VisaApplicationInformation />} />
+        <Route path="/myclient" element={<MyClients />} />
+        <Route path="/myclient/:userid" element={<ClientVisaApplications />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>

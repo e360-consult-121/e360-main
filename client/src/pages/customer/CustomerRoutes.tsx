@@ -7,6 +7,7 @@ import Settings from "./settings/Settings";
 import { useFetchUserQuery } from "../../features/auth/authApi";
 import { useEffect } from "react";
 import VisaApplicationProcess from "./dashboard/VisaApplicationProcess";
+import ClientDocumentVault from "./documentVault/ClientDocumentVault";
 
 const CustomerRoutes = () => {
 
@@ -28,6 +29,7 @@ const CustomerRoutes = () => {
         <Route path="/notification" element={<Notification />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/application/:visaApplicationId" element={<VisaApplicationProcess />} />
+        <Route path="/documentVault/:visaApplicationId" element={<ClientDocumentVault />} />
       </Route>
     </Routes>
   );

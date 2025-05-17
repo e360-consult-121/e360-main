@@ -5,6 +5,7 @@ import Consultations from "./Consultations";
 import PaymentAndInvoiceManagement from "./PaymentAndInvoiceManagement";
 import { ConsultationInfoTypes, EligibilityFormTypes, PaymentInfoTypes } from "../../../features/admin/clientInformation/clientInformationTypes";
 import ApplicationProcess from "../../../features/admin/visaApplicationInformation/components/ApplicationProcess";
+import AdminDocumentVault from "./AdminDocumentVault";
 // import DocumentationManagement from "../../../features/admin/visaApplicationInformation/components/DocumentManagement";
 
 interface TabPanelProps {
@@ -62,12 +63,12 @@ function a11yProps(index: number) {
         content: <ApplicationProcess/>,
         show: showExtraTabs, 
       },
-      // {
-      //   //this is admin component only will show is show Extra is sent true
-      //   label: "Documentation Management",
-      //   content: <DocumentationManagement/>,
-      //   show: showExtraTabs, 
-      // },
+      //this is admin component only will show is show Extra is sent true
+      {
+        label: "Document Vault",
+        content:<AdminDocumentVault/>,
+        show: showExtraTabs, 
+      },
       {
         label: "Client Eligibility Form",
         content: <ClientEligibilityForm onRefreshLead={onRefreshLead} leadStatus={leadStatus} formSubmisionDate={formSubmisionDate} eligibilityForm={eligibilityForm} />,
