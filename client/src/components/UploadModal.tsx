@@ -4,6 +4,11 @@ import { Icon } from "@iconify/react";
 import { useUploadDocumentMutation } from "../features/common/commonApi";
 import { toast } from "react-toastify";
 
+ // utility to get readable size
+export const getFileSizeInMB = (size: number) => {
+    return (size / (1024 * 1024)).toFixed(2);
+  };
+
 interface UploadModalProps {
   isUploadModalOpen: boolean;
   setIsUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,10 +45,8 @@ const UploadModal = ({
     }
   };
 
-  // utility to get readable size
-  const getFileSizeInMB = (size: number) => {
-    return (size / (1024 * 1024)).toFixed(2); // convert bytes to MB
-  };
+ 
+  
 
   return (
     <Modal open={isUploadModalOpen}>

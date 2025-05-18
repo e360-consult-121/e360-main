@@ -93,6 +93,13 @@ export const commonApi = baseApi.injectEndpoints({
         };
       },
     }),
+
+    fetchVaultDocs: build.query({
+        query: (visaApplicationId) => ({
+          url: `/visaApplications/docVault/${visaApplicationId}/fetchVaultDocS`,
+          method: "GET",
+        }),
+      }), 
   }),
 });
 
@@ -104,4 +111,5 @@ export const {
   useSubmitRequirementsMutation,
   useStepSubmitMutation,
   useMoveToNextStepMutation,
+  useFetchVaultDocsQuery
 } = commonApi;

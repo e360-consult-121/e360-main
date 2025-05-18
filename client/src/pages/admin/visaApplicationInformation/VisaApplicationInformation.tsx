@@ -9,7 +9,7 @@ import ClientInfoCard from "../../../components/admin/ClientInfoCard";
 const VisaApplicationInformation = () => {
 
     const location = useLocation();
-    console.log(location);
+    // console.log(location);
     const row = location.state?.row;
     const leadid = row.leadId 
     // const { visatype } = useParams();
