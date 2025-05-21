@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import {LeadModel } from "./leadModel";
-import { paymentStatus } from "../types/enums/enums";
+import { paymentStatus , PaymentSourceEnum} from "../types/enums/enums";
 import { LeadDomiGrenaModel } from './domiGrenaModel';
 
 export interface IPayment extends Document {
@@ -18,6 +18,7 @@ export interface IPayment extends Document {
   invoiceUrl: string | null;
   paymentIntentId: string | null;
   // sessionId : string | null ;
+  source : PaymentSourceEnum ;
 
 
 }
@@ -50,6 +51,11 @@ const PaymentSchema = new Schema<IPayment>(
     invoiceUrl: { type: String  , default : null},
     paymentIntentId: { type: String , default : null},
     // sessionId : {type : String , default : null} ,
+    source : {
+      type:String , 
+      required :true ,
+      enum : Object.values(PaymentSourceEnum) 
+    }
   },
 );
 

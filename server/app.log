@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"401\",\"responseTime\":\"37.362\"}","timestamp":"2025-04-28T07:55:57.521Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchRecentUpdates\",\"status\":\"401\",\"responseTime\":\"33.501\"}","timestamp":"2025-04-28T07:55:57.620Z"}
@@ -8935,3 +8936,25 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/6815a986482c8bc37023f6b2/fetchParticularLead\",\"status\":\"304\",\"responseTime\":\"175.595\"}","timestamp":"2025-05-21T13:00:18.101Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6815a9db482c8bc37023f6d1/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"273.963\"}","timestamp":"2025-05-21T13:00:18.388Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/common/6815a9db482c8bc37023f6d1/getCurrentStepInfo\",\"status\":\"304\",\"responseTime\":\"482.844\"}","timestamp":"2025-05-21T13:00:18.603Z"}
+=======
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"2049.412\"}","timestamp":"2025-05-14T09:37:47.056Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/clientsInfo/fetchAllClients\",\"status\":\"200\",\"responseTime\":\"2255.612\"}","timestamp":"2025-05-14T09:37:58.141Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1893.552\"}","timestamp":"2025-05-17T07:19:33.322Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/common/68123746134c366a6a069376/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"561.551\"}","timestamp":"2025-05-17T07:19:47.944Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/68123746134c366a6a069376/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"447.882\"}","timestamp":"2025-05-17T07:26:39.534Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1259.245\"}","timestamp":"2025-05-17T08:38:24.555Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/addCategory\",\"status\":\"500\",\"responseTime\":\"324.836\"}","timestamp":"2025-05-17T08:41:14.642Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/addCategory\",\"status\":\"500\",\"responseTime\":\"57.051\"}","timestamp":"2025-05-17T08:43:04.180Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/addCategory\",\"status\":\"500\",\"responseTime\":\"28.422\"}","timestamp":"2025-05-17T08:45:50.063Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/addCategory\",\"status\":\"400\",\"responseTime\":\"395.778\"}","timestamp":"2025-05-17T08:46:13.302Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/addCategory\",\"status\":\"500\",\"responseTime\":\"41.728\"}","timestamp":"2025-05-17T08:46:54.306Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/addCategory\",\"status\":\"500\",\"responseTime\":\"31.248\"}","timestamp":"2025-05-17T08:48:52.968Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/addCategory\",\"status\":\"201\",\"responseTime\":\"706.168\"}","timestamp":"2025-05-17T08:52:46.293Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"341.964\"}","timestamp":"2025-05-17T08:53:46.445Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/fetchVaultDocS\",\"status\":\"401\",\"responseTime\":\"76.532\"}","timestamp":"2025-05-21T06:20:33.508Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1975.602\"}","timestamp":"2025-05-21T06:20:50.128Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"444.329\"}","timestamp":"2025-05-21T06:20:58.869Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"645.928\"}","timestamp":"2025-05-21T06:31:11.306Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6815a9db482c8bc37023f6d1/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"262.698\"}","timestamp":"2025-05-21T06:31:44.050Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6815a9db482c8bc37023f6d1/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"580.632\"}","timestamp":"2025-05-21T06:49:33.596Z"}
+>>>>>>> 0469348e098ea5e59ff6308c7585c68d3c016202

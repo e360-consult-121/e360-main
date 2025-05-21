@@ -130,12 +130,14 @@ export interface createUserOptions {
     leadId ?: mongoose.Types.ObjectId | string | null;
     currentStep?: number; // optional, default 1
     visaApplicationStatus?: VisaApplicationStatusEnum;
+    paymentId : mongoose.Types.ObjectId ;
   }
   
   export async function createVisaApplication({
     userId,
     visaTypeId,
-    leadId
+    paymentId ,
+    leadId 
   }: CreateVisaApplicationOptions): Promise<{ visaApplicantInfo: any }> {
     try {
       
@@ -146,6 +148,8 @@ export interface createUserOptions {
           visaTypeId : new mongoose.Types.ObjectId(visaTypeId),
           currentStep : 1 ,
           status: VisaApplicationStatusEnum.PENDING,
+          paymentId : paymentId as mongoose.Types.ObjectId
+
         });
     
         // 2. Get the visaStep with stepNumber = 1 for this visaTypeId

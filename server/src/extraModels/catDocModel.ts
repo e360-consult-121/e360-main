@@ -4,7 +4,7 @@ import { DocumentSourceEnum } from "../types/enums/enums";
 export interface ICategoryDocument extends Document {
     categoryId: mongoose.Schema.Types.ObjectId;
     url: string;
-    name: string;
+    docName: string;
     uploadedBy: DocumentSourceEnum;
 }
 
@@ -19,8 +19,9 @@ const CategoryDocumentSchema = new Schema<ICategoryDocument>(
             type: String,
             required: true
         },
-        name: {
-            type: String
+        docName: {
+            type: String ,
+            required: true
         },
         uploadedBy: {
             type: String,

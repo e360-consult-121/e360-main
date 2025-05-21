@@ -19,7 +19,7 @@ export interface ILead extends Document {
   createdAt?: Date;
   updatedAt?: Date;
 
-  caseId?: string;
+  nanoLeadId?: string;
   __t?: string; 
 }
 
@@ -49,19 +49,22 @@ const LeadSchema = new Schema<ILead>({
     default: null 
   },
 
-  caseId: {
+  nanoLeadId: {
     type: String,
     unique: true,
     // required: true,
   }
 }, { timestamps: true });
 
+
+
+// Pre save hook
 LeadSchema.pre("save", async function (next) {
   const lead = this as ILead;
 
   // Only generate caseId if it's a new document
   if (lead.isNew) {
-    let caseId;
+    let nanoLeadId;
     let exists = true;
 
     do {
@@ -69,13 +72,13 @@ LeadSchema.pre("save", async function (next) {
       const { nanoid } = await import('nanoid');
       const shortId = nanoid(6).toUpperCase(); // e.g., A7C8X9
       const year = new Date().getFullYear();
-      caseId = `E360-${year}-${shortId}`;
+      nanoLeadId = `E360-L-${shortId}`;
 
-      const existing = await LeadModel.exists({ caseId });
+      const existing = await LeadModel.exists({ nanoLeadId });
       exists = existing !== null;
     } while (exists);
 
-    lead.caseId = caseId;
+    lead.nanoLeadId = nanoLeadId;
   }
 
   next();

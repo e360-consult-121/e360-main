@@ -177,4 +177,9 @@ export enum CustomFieldTypeEnum {
   CHECKBOX = "CheckBox"
 }
 
+export enum PaymentSourceEnum {
+  STRIPE = 'Stripe',
+  DIRECT = 'Direct'
+}
+
 
