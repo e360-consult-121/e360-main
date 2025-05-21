@@ -23,7 +23,8 @@ import {
   VisaApplicationStatusEnum,
   StepStatusEnum , 
   visaApplicationReqStatusEnum,
-  paymentPurpose
+  paymentPurpose , 
+  PaymentSourceEnum
 } from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums";
 import { sendEmail } from "../../utils/sendEmail";
@@ -68,6 +69,7 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     currency ,
     paymentLink: null, // yaha isko null rakh denge 
     status: paymentStatus.LINKSENT,
+    source : PaymentSourceEnum.STRIPE
   });
 
   await payment.save();
@@ -306,6 +308,7 @@ const handleConsultationPaymentSuccess = async (
       leadId: lead._id as mongoose.Types.ObjectId,
       userId: user._id,
       visaTypeId: visaTypeId,
+      paymentId : payment._id
     });
 
     // Function call to add visapplication recent updates Db

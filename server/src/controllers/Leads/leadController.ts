@@ -84,7 +84,7 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
         phone: lead.phone,
         appliedFor: visaType, // isko sahi se handle karna hai 
         createdAt : lead.createdAt,
-        caseId : lead.caseId
+        caseId : lead.nanoLeadId
       },
 
       leadStatus: lead.leadStatus,

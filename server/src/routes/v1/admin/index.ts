@@ -9,6 +9,7 @@ import visaApplicationRoutes from "./visaApplicationRoutes"
 import bankdetailsRoutes from "./bankdetailsRoutes"
 import clientsInfoRoutes from "./clientsInfoRoutes"
 import adminControlRoutes from "./adminControlRoutes"
+import rbacRoutes from "./RBACroutes"
 const router = Router();
 
 // router.use("/visaType", visaTypeRoutes);
@@ -20,4 +21,5 @@ router.use("/visaapplication",visaApplicationRoutes)
 router.use("/bankdetails",bankdetailsRoutes)
 router.use("/clientsInfo" , clientsInfoRoutes);
 router.use("/adminControl" , adminControlRoutes);
+router.use("/rbac" , rbacRoutes);
 export default router;

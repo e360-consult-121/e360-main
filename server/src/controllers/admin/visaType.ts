@@ -5,6 +5,7 @@ import { VisaApplicationModel } from '../../models/VisaApplication';
 import { VisaStepModel as stepModel } from '../../models/VisaStep';
 import { LeadModel as leadModel } from '../../leadModels/leadModel';
 import { PaymentModel as paymentModel } from '../../leadModels/paymentModel';
+import { currencyConversion } from "../../services/currencyConversion/currencyConversion";
 import { VisaStepRequirementModel as reqModel } from '../../models/VisaStepRequirement';
 import { VisaTypeEnum , paymentStatus } from '../../types/enums/enums';
 import AppError from '../../utils/appError';
@@ -42,22 +43,42 @@ export const fetchAllClients = async (req: Request, res: Response) => {
 
           if (latestApplication?.leadId) {
             const leadDoc = await leadModel.findById(latestApplication.leadId).lean();
-            caseId = leadDoc?.caseId || "N/A";
+            caseId = leadDoc?.nanoLeadId || "N/A";
           }
 
           // 3. Revenue Calculation
-          const applications = await VisaApplicationModel.find({ userId: user._id }).select("leadId").lean();
-          const leadIds = applications.map((app) => app.leadId).filter(Boolean);
+          const applications = await VisaApplicationModel.find({ userId: user._id }).select("paymentId").lean();
+          const paymentIds = applications.map((app) => app.paymentId).filter(Boolean);
 
+          // yaha currency ka bhi dekhna hoga ...
           let totalRevenue = 0;
 
-          if (leadIds.length > 0) {
+          if (paymentIds.length > 0) {
             const payments = await paymentModel.find({
-              leadId: { $in: leadIds },
+              _id: { $in: paymentIds },
               status: "PAID",
-            }).select("amount").lean();
+            }).select("amount currency").lean(); 
 
-            totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+            // totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+            // Now handle by for loop
+            for (const payment of payments) {
+              if (!payment.amount) continue;
+          
+              const currency = payment.currency?.trim().toUpperCase() || "USD";
+              let amountInUSD = payment.amount;
+          
+              if (currency !== "USD") {
+                const converted = await currencyConversion(currency, "USD", payment.amount);
+                if (converted === null) {
+                  console.error(`Skipping payment due to failed conversion from ${currency}`);
+                  continue;
+                }
+                amountInUSD = converted;
+              }
+          
+              totalRevenue += amountInUSD;
+            }
           }
   
         return {

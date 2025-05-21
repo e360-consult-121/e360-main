@@ -147,7 +147,7 @@ export const fetchVaultDocS = async (req: Request, res: Response) => {
       },
       {
         $lookup: {
-          from: "categorydocuments", // this must be the collection name (usually lowercase and plural)
+          from: "categorydocuments", 
           localField: "_id",
           foreignField: "categoryId",
           as: "documents",
@@ -216,12 +216,17 @@ export const docUploadByUser = async (req: Request, res: Response) => {
       throw new Error("visaApplicationId and url are required.");
   }
 
+  if (!documentName) {
+    res.status(400);
+    throw new Error("documentName is required.");
+  }
+
   const category = await getOrCreateAdditionalDocsCategory(visaApplicationId);
 
   const doc = await catDocModel.create({
       categoryId: category._id,
       url : (file as any).location ,
-      documentName,
+      docName:documentName,
       uploadedBy: req.user.role // isko check karna hai...
   });
 
@@ -239,11 +244,16 @@ export const docUploadByUser = async (req: Request, res: Response) => {
     if (!category) {
       return res.status(404).json({ success: false, message: "Category not found" });
     }
+
+    if (!documentName) {
+      res.status(400);
+      throw new Error("documentName is required.");
+    }
   
     const newDoc = await catDocModel.create({
       categoryId,
       url: (file as any).location ,
-      documentName,
+      docName:documentName,
       uploadedBy:DocumentSourceEnum.ADMIN
     });
   

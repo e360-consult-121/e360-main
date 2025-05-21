@@ -6,10 +6,13 @@ import bcrypt from "bcryptjs";
 import {
   RoleEnum,
   AccountStatusEnum,
+  paymentStatus , 
+  PaymentSourceEnum
 } from "../../../types/enums/enums";
 import { sendPortalAccessToClient } from "../../../services/emails/triggers/leads/payment/payment-successful";
 import {createVisaApplication} from "../../Leads/paymentFunctions";
-
+import { updateRevenueSummary } from "../../../utils/revenueCalculate";
+import { PaymentModel } from "../../../leadModels/paymentModel"
 
 const VISATYPE_MAP: Record<string, string> = {
   "Portugal": "6803644993e23a8417963622",
@@ -18,21 +21,40 @@ const VISATYPE_MAP: Record<string, string> = {
   "Grenada": "6803644993e23a8417963621", 
 };
 
+
+// isme currency and Amount store karwana hai...
+// and invoice bhi store karwani hai....
 export const addNewClient = async (req: Request, res: Response) => {
     
-    const { name, email, phone ,nationality, serviceType } = req.body;
-  
+    const { name, email, phone ,nationality, serviceType , amount , currency } = req.body;
+    const file = req.file;
+
     // 1. Check if user already exists
     const existingUser = await userModel.findOne({ email });
     const visaTypeId = VISATYPE_MAP[serviceType];
 
     if (existingUser) {
+
+      const payment = await PaymentModel.create({
+        leadId : null , 
+        name :  name ,
+        email:  email ,
+        amount :  amount ,
+        currency : currency ,
+        status :  paymentStatus.PAID,
+        paymentLink : null , 
+        invoiceUrl : (file as any).location ,
+        paymentIntentId : null  ,
+        source : PaymentSourceEnum.DIRECT
+      })
+
         const { visaApplicantInfo } = await createVisaApplication({
           userId: (existingUser._id as mongoose.Types.ObjectId).toString(),
           visaTypeId,
+          paymentId : payment._id  as mongoose.Types.ObjectId
         });
 
-        return res.status(200).json({
+        return res.status(200).json({   // change response status 
           message: "User already exists. New visa application created.",
           newApplication : visaApplicantInfo,
         });
@@ -58,12 +80,36 @@ export const addNewClient = async (req: Request, res: Response) => {
     // Send email with credentials
     await sendPortalAccessToClient(user.email, user.name,serviceType , randomPassword)
 
+    
+
+    // update revenueSummary
+    await updateRevenueSummary(
+      visaTypeId,
+      amount ,
+      currency
+    );
+
+    // store payment in payment model , with source
+    const payment = await PaymentModel.create({
+      leadId : null , 
+      name :  name ,
+      email:  email ,
+      amount :  amount ,
+      currency : currency ,
+      status :  paymentStatus.PAID,
+      paymentLink : null , 
+      invoiceUrl : (file as any).location ,
+      paymentIntentId : null  ,
+      source : PaymentSourceEnum.DIRECT
+    })
+
     // create new visaApplication 
     const { visaApplicantInfo } = await createVisaApplication({
       userId: (user._id as mongoose.Types.ObjectId).toString(),
       visaTypeId,
+      paymentId : payment._id  as mongoose.Types.ObjectId
     });
-  
+
     res.status(201).json({
       message: "Client added successfully and credentials sent via email and newApplication is also created.",
       newUser: user,
