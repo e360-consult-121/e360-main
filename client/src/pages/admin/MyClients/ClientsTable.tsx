@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import countryList from "react-select-country-list";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -37,29 +38,29 @@ const modalStyle = {
 };
 
 const customStyles = {
-  control: (base:any) => ({
+  control: (base: any) => ({
     ...base,
-    padding: '9px 10px', // y = 6px, x = 10px
-    minHeight: '40px',
+    padding: "9px 10px", // y = 6px, x = 10px
+    minHeight: "40px",
   }),
-  menu: (base:any) => ({
+  menu: (base: any) => ({
     ...base,
     zIndex: 9999,
   }),
 };
 
-
 interface TableProps {
   data: any[] | undefined;
-  onAddClient:any
+  onAddClient: any;
 }
 
-const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
+const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All");
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -68,6 +69,7 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
     serviceType: "",
     nationality: "",
     amount: "",
+    currencyType: "",
   });
 
   const countryOptions = useMemo(() => countryList().getData(), []);
@@ -84,15 +86,27 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
     setFormData((prev) => ({ ...prev, [name!]: value }));
   };
 
-  const handleAddClient = async() => {
-    // console.log("Form Data:", formData);
-    setOpenModal(false);
-   try {
-      await onAddClient(formData).unwrap(); 
+  const handleAddClient = async () => {
+    // console.log("Form Data:", formData,selectedFile);
+    try {
+      setIsLoading(true);
+      // await onAddClient(formData).unwrap();
       toast.success("Client added successfully!");
     } catch (err) {
       console.error("Failed to add client:", err);
       toast.error("Failed to add client.");
+    } finally {
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        serviceType: "",
+        nationality: "",
+        amount: "",
+        currencyType: "",
+      });
+      setIsLoading(false);
+      setOpenModal(false);
     }
   };
 
@@ -122,10 +136,10 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
         return item.status === statusFilter;
       })
       .filter((item) => {
-        const consultationDate = dayjs(item?.startTime).format("YYYY-MM-DD");
+        const startingDate = dayjs(item?.startTime).format("YYYY-MM-DD");
         if (dateFilter === "All") return true;
-        if (dateFilter === "Today") return consultationDate === today;
-        if (dateFilter === "Yesterday") return consultationDate === yesterday;
+        if (dateFilter === "Today") return startingDate === today;
+        if (dateFilter === "Yesterday") return startingDate === yesterday;
         return false;
       }) || [];
 
@@ -275,12 +289,14 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      {/* Add client Modal */}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} textAlign="center" fontWeight="bold">
             Add a New Client
           </Typography>
 
+          {/* First Row */}
           <Box display="flex" gap={2} mb={2}>
             <TextField
               fullWidth
@@ -305,6 +321,7 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
             />
           </Box>
 
+          {/* Second Row */}
           <Box display="flex" gap={2} mb={2}>
             <FormControl fullWidth>
               <InputLabel>Service Taken</InputLabel>
@@ -322,7 +339,6 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
             </FormControl>
 
             <FormControl fullWidth>
-              {/* <InputLabel>Nationality</InputLabel> */}
               <Box>
                 <ReactSelect
                   styles={customStyles}
@@ -339,6 +355,22 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
                 />
               </Box>
             </FormControl>
+          </Box>
+
+          <Box display="flex" gap={2} mb={2}>
+            <FormControl fullWidth>
+              <InputLabel>Currency Type</InputLabel>
+              <Select
+                name="currencyType"
+                value={formData.currencyType}
+                label="Currency Type"
+                onChange={(e: any) => handleInputChange(e)}
+              >
+                <MenuItem value="inr">₹ (INR)</MenuItem>
+                <MenuItem value="usd">$ (USD)</MenuItem>
+                <MenuItem value="eur">€ (EUR)</MenuItem>
+              </Select>
+            </FormControl>
 
             <TextField
               fullWidth
@@ -346,10 +378,42 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
               name="amount"
               value={formData.amount}
               onChange={handleInputChange}
-              InputProps={{ startAdornment: <span>$</span> }}
             />
           </Box>
 
+          {/* ✅ File Upload Section */}
+          <Box display="flex" alignItems="center" gap={2} mb={2}>
+            <Button
+              variant="outlined"
+              component="label"
+              sx={{
+                color: "black",
+                border: "1px solid gray",
+                borderRadius: "20px",
+                px: 3,
+                textTransform: "none",
+              }}
+              startIcon={<FileUploadIcon sx={{ color: "black" }} />}
+            >
+              Upload Payment Invoice
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setSelectedFile(file);
+                  }
+                }}
+              />
+            </Button>
+            <Typography variant="body2">
+              {selectedFile ? selectedFile.name : "No file selected"}
+            </Typography>
+          </Box>
+
+          {/* Buttons */}
           <Box display="flex" justifyContent="center" gap={2} mt={2}>
             <Button
               onClick={() => setOpenModal(false)}
@@ -364,16 +428,25 @@ const ClientsTable: React.FC<TableProps> = ({ data,onAddClient }) => {
               Cancel
             </Button>
             <Button
+              variant="contained"
               onClick={handleAddClient}
+              disabled={
+                !formData.name ||
+                !formData.email ||
+                !formData.phone ||
+                !formData.serviceType ||
+                !formData.nationality ||
+                !formData.amount ||
+                !selectedFile
+              }
               sx={{
+                boxShadow: "none",
                 borderRadius: "20px",
-                px: 4,
+                px: 5,
                 textTransform: "none",
-                bgcolor: "#F6C328",
-                color: "#282827",
               }}
             >
-              Add client
+              {isLoading ? "Adding client..." : "Add client"}
             </Button>
           </Box>
         </Box>

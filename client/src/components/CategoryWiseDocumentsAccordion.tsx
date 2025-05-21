@@ -14,7 +14,7 @@ import {
   FormControl,
   InputLabel,
   Box,
-  ListItemIcon,
+  ListItemIcon
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
@@ -104,15 +104,33 @@ const CategoryDocumentsAccordion: React.FC<Props> = ({
                       }}
                     >
                       <ListItemIcon>
-                                              <div className="bg-neutrals-200 text-white p-3 rounded-xl">
-                                                <Icon
-                                                  icon={"carbon:document"}
-                                                  width="24"
-                                                  height="24"
-                                                />
-                                              </div>
-                    </ListItemIcon>
-                      <ListItemText primary={fileName} />
+                        <div className="bg-neutrals-200 text-white p-3 rounded-xl">
+                          <Icon
+                            icon={"carbon:document"}
+                            width="24"
+                            height="24"
+                          />
+                        </div>
+                      </ListItemIcon>
+                      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                        <ListItemText
+                          primary={
+                            <span
+                              style={{
+                                display: "inline-block",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "100%",
+                                cursor: "default",
+                              }}
+                              title={fileName}
+                            >
+                              {fileName}
+                            </span>
+                          }
+                        />
+                      </Box>
 
                       <Stack direction="row" spacing={1} alignItems="center">
                         <Button
@@ -162,14 +180,14 @@ const CategoryDocumentsAccordion: React.FC<Props> = ({
                                       setSelectedOption(e.target.value)
                                     }
                                   >
-                                    {categoryWiseDocs.map((category: any) => (
-                                      <MenuItem
-                                        key={category._id}
-                                        value={category._id}
-                                      >
-                                        {category.name}
-                                      </MenuItem>
-                                    ))}
+                                    {categoryWiseDocs.map((c: any) => {
+                                      if (category.name === c.name) return null;
+                                      return (
+                                        <MenuItem key={c._id} value={c._id}>
+                                          {c.name}
+                                        </MenuItem>
+                                      );
+                                    })}
                                   </Select>
                                 </FormControl>
                                 <Button

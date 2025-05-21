@@ -1,21 +1,23 @@
 import { EmailService } from '../../../EmailService';
 
 export const sendForgotPasswordEmail = async (
-  name: string, 
-  resetLink:string,
-  email:string,
+  name: string | undefined,
+  resetLink: string,
+  email: string,
 ) => {
-  const subject = `New Password – ${name}`;
+  const fallbackName = 'there';   
+  const displayName = name?.trim() || fallbackName;
 
-  const templateName="forgot-password"
+  const subject = `New Password`;
+
   await EmailService.getInstance().sendEmail({
-    to:email,
+    to: email,
     subject,
-    templateName,
+    templateName: 'forgot-password',
     templateCategory: 'customer/auth',
     variables: {
-      Name:name,
-      ResetLink:resetLink
+      Name: displayName,
+      ResetLink: resetLink,
     },
   });
 };

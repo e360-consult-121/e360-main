@@ -182,8 +182,8 @@ const AdminDocumentVault = () => {
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}
         PaperProps={{
         sx: {
-          width: "500px", // Set your desired width
-          maxWidth: "90%", // Optional: responsive max width
+          width: "500px", 
+          maxWidth: "90%",
         },
       }}
         >
