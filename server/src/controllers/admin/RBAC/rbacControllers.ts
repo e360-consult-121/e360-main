@@ -23,14 +23,14 @@ export const createRoleWithOptionalPermissions = async (
   roleName: string,
   actionIds: string[] = []
 ) => {
-  const existingRole = await roleModel.findOne({ name: roleName });
+  const existingRole = await roleModel.findOne({ roleName: roleName });
 
   if (existingRole) {
     return { role: existingRole, alreadyExisted: true };
   }
 
   // Create new role
-  const newRole = await roleModel.create({ name: roleName });
+  const newRole = await roleModel.create({ roleName: roleName });
 
   // If actionIds are provided, create permissions
   if (actionIds.length > 0) {

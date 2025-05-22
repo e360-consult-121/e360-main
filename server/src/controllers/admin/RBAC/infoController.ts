@@ -70,7 +70,7 @@ export const fetchAllAdminUsers = async (req: Request, res: Response) => {
 
 
 export const fetchAllRoles = async (req: Request, res: Response) => {
-    const roles = await roleModel.find().sort({ name: 1 }); // sorted alphabetically
+    const roles = await roleModel.find().sort({ roleName: 1 }); // sorted alphabetically
   
     res.status(200).json({
       success: true,
