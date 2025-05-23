@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { VisaApplicationStatusEnum } from "../types/enums/enums";
+import { generateShortId } from "../utils/generateShortId";
 
 export interface IVisaApplication extends Document {
     userId: mongoose.Schema.Types.ObjectId;
@@ -64,9 +65,8 @@ VisaApplicationSchema.pre("save", async function (next) {
       let exists = true;
   
       do {
-        // Using dynamic import for nanoid
-        const { nanoid } = await import('nanoid');
-        const shortId = nanoid(6).toUpperCase(); // e.g., A7C8X9
+        // const { nanoid } = await import('nanoid');
+        const shortId = generateShortId(6); // e.g., A7C8X9
         const year = new Date().getFullYear();
         nanoVisaApplicationId = `E360-L-${shortId}`;
   

@@ -1,5 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 import { leadStatus } from "../types/enums/enums"; 
+import { generateShortId } from "../utils/generateShortId";
 
 export interface ILead extends Document {
   formId: string;
@@ -68,9 +69,7 @@ LeadSchema.pre("save", async function (next) {
     let exists = true;
 
     do {
-      // Using dynamic import for nanoid
-      const { nanoid } = await import('nanoid');
-      const shortId = nanoid(6).toUpperCase(); // e.g., A7C8X9
+      const shortId = generateShortId(6); // e.g., A7C8X9
       const year = new Date().getFullYear();
       nanoLeadId = `E360-L-${shortId}`;
 

@@ -43,7 +43,7 @@ export const addNewClient = async (req: Request, res: Response) => {
         currency : currency ,
         status :  paymentStatus.PAID,
         paymentLink : null , 
-        invoiceUrl : (file as any).location ,
+        invoiceUrl : (file as any)?.location ,
         paymentIntentId : null  ,
         source : PaymentSourceEnum.DIRECT
       })
@@ -99,7 +99,7 @@ export const addNewClient = async (req: Request, res: Response) => {
       currency : currency ,
       status :  paymentStatus.PAID,
       paymentLink : null , 
-      invoiceUrl : (file as any).location ,
+      invoiceUrl : (file as any)?.location ,
       paymentIntentId : null  ,
       source : PaymentSourceEnum.DIRECT
     })
