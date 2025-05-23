@@ -26,6 +26,7 @@ import { Icon } from "@iconify/react";
 interface Document {
   _id: string;
   url: string;
+  docName:string
 }
 
 interface Category {
@@ -90,9 +91,6 @@ const CategoryDocumentsAccordion: React.FC<Props> = ({
             ) : (
               <List>
                 {category.documents.map((doc) => {
-                  const fileName = decodeURIComponent(
-                    doc.url.split("/").pop() || ""
-                  );
 
                   return (
                     <ListItem
@@ -124,9 +122,9 @@ const CategoryDocumentsAccordion: React.FC<Props> = ({
                                 maxWidth: "100%",
                                 cursor: "default",
                               }}
-                              title={fileName}
+                              title={doc.docName}
                             >
-                              {fileName}
+                              {doc.docName}
                             </span>
                           }
                         />
