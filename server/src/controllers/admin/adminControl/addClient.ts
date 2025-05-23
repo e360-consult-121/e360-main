@@ -75,6 +75,7 @@ export const addNewClient = async (req: Request, res: Response) => {
       password: hashedPassword,
       role: RoleEnum.USER,
       status: AccountStatusEnum.ACTIVE,
+      roleId: null
     });
   
     // Send email with credentials
