@@ -8957,6 +8957,19 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6807a1fa490bf804c1ae76df/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"645.928\"}","timestamp":"2025-05-21T06:31:11.306Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6815a9db482c8bc37023f6d1/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"262.698\"}","timestamp":"2025-05-21T06:31:44.050Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/docVault/6815a9db482c8bc37023f6d1/fetchVaultDocS\",\"status\":\"200\",\"responseTime\":\"580.632\"}","timestamp":"2025-05-21T06:49:33.596Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"401\",\"responseTime\":\"18.609\"}","timestamp":"2025-05-23T07:52:33.179Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"190.886\"}","timestamp":"2025-05-23T07:53:19.192Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"750.900\"}","timestamp":"2025-05-23T07:56:29.760Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"631.120\"}","timestamp":"2025-05-23T07:57:03.230Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"2378.977\"}","timestamp":"2025-05-23T08:02:41.709Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"437.027\"}","timestamp":"2025-05-23T08:03:56.666Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"70.277\"}","timestamp":"2025-05-23T08:04:29.318Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"67.307\"}","timestamp":"2025-05-23T08:04:33.196Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"143.374\"}","timestamp":"2025-05-23T08:04:41.215Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"200\",\"responseTime\":\"793.455\"}","timestamp":"2025-05-23T08:15:41.433Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"500\",\"responseTime\":\"3174.254\"}","timestamp":"2025-05-23T08:18:10.631Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"200\",\"responseTime\":\"1344.886\"}","timestamp":"2025-05-23T08:19:32.400Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/adminControl/addNewClient\",\"status\":\"201\",\"responseTime\":\"3481.920\"}","timestamp":"2025-05-23T08:19:51.930Z"}
 >>>>>>> 0469348e098ea5e59ff6308c7585c68d3c016202
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"304\",\"responseTime\":\"4.303\"}","timestamp":"2025-05-21T13:48:36.584Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/visaapplication/fetchAllStepsOfParticularVisaType?visaType=Dubai\",\"status\":\"304\",\"responseTime\":\"140.988\"}","timestamp":"2025-05-21T13:48:36.713Z"}

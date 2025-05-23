@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 
 // instance of Stripe
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-    apiVersion: '2025-03-31.basil', // new Basil SDK version (version compatability issue aa sakte hai)
+    apiVersion: '2025-04-30.basil', // new Basil SDK version (version compatability issue aa sakte hai)
 });
 // secret key from dashboard
 

@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document , Types } from "mongoose";
 import { AccountStatusEnum, RoleEnum } from "../types/enums/enums";
+import { generateShortId } from "../utils/generateShortId";
 
 
 export interface IUser extends Document {
@@ -65,8 +66,10 @@ UserSchema.pre("save", async function (next) {
 
     do {
       // Using dynamic import for nanoid
-      const { nanoid } = await import('nanoid');
-      const shortId = nanoid(6).toUpperCase(); // e.g., A7C8X9
+      // const { nanoid } = await import('nanoid');
+      // const shortId = nanoid(6).toUpperCase(); // e.g., A7C8X9
+
+      const shortId=generateShortId(6)
       const year = new Date().getFullYear();
       nanoUserId = `E360-L-${shortId}`;
 
