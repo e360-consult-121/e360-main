@@ -4,7 +4,7 @@ import { paymentStatus , PaymentSourceEnum} from "../types/enums/enums";
 import { LeadDomiGrenaModel } from './domiGrenaModel';
 
 export interface IPayment extends Document {
-  leadId: mongoose.Types.ObjectId;
+  leadId: mongoose.Types.ObjectId | null;
 
   name: string;
   email: string;
@@ -28,7 +28,7 @@ const PaymentSchema = new Schema<IPayment>(
     leadId: {
         type: Schema.Types.ObjectId,
         ref: LeadModel.modelName,
-        required: true,
+        default: null
       },
 
     name: { type: String, required: true },
