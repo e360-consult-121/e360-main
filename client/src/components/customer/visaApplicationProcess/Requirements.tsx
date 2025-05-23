@@ -275,7 +275,7 @@ const Requirements = ({
       )}
 
       {/* Single Submit button for all requirements */}
-      <div className="flex justify-start mx-2 mt-6">
+      <div className="flex justify-start mx-12 md:mx-2 mt-6">
         {stepStatus !== "SUBMITTED" && (
           <button
             onClick={onSubmit}

@@ -69,7 +69,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
     serviceType: "",
     nationality: "",
     amount: "",
-    currencyType: "",
+    currency: "",
   });
 
   const countryOptions = useMemo(() => countryList().getData(), []);
@@ -90,7 +90,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
     // console.log("Form Data:", formData,selectedFile);
     try {
       setIsLoading(true);
-      // await onAddClient(formData).unwrap();
+      await onAddClient({data:formData,file: selectedFile}).unwrap();
       toast.success("Client added successfully!");
     } catch (err) {
       console.error("Failed to add client:", err);
@@ -103,7 +103,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
         serviceType: "",
         nationality: "",
         amount: "",
-        currencyType: "",
+        currency: "",
       });
       setIsLoading(false);
       setOpenModal(false);
@@ -361,8 +361,8 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
             <FormControl fullWidth>
               <InputLabel>Currency Type</InputLabel>
               <Select
-                name="currencyType"
-                value={formData.currencyType}
+                name="currency"
+                value={formData.currency}
                 label="Currency Type"
                 onChange={(e: any) => handleInputChange(e)}
               >
@@ -437,7 +437,8 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
                 !formData.serviceType ||
                 !formData.nationality ||
                 !formData.amount ||
-                !selectedFile
+                !selectedFile ||
+                isLoading === true
               }
               sx={{
                 boxShadow: "none",

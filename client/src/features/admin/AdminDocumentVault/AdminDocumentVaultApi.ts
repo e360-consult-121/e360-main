@@ -11,7 +11,7 @@ export const AdminDocumentVaultApi = baseApi.injectEndpoints({
     }),
     docUploadByAdmin: build.mutation({
       query: ({ categoryId, documentName, file }) => {
-        console.log(categoryId, documentName, file)
+        // console.log(categoryId, documentName, file)
         const formData = new FormData();
         formData.append("documentName", documentName);
         formData.append("file", file);

@@ -15,6 +15,8 @@ import {
 import { CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
 
+import ChatbotPanel from "../../../components/customer/ChatbotPanel";
+
 export interface SelectDropdown {
   type: "SELECT_DROPDOWN";
   label: string;
@@ -47,6 +49,8 @@ const VisaApplicationProcess = () => {
   const navigate = useNavigate();
   const [currentStepInfo, setCurrentStepInfo] = useState<StepData>();
   const [commonInfo, setCommonInfo] = useState<any>(null);
+
+  const [chatVisible, setChatVisible] = useState(false);
 
   const { data, refetch, error, isLoading } =
     useGetCurrentStepInfoQuery(visaApplicationId);
@@ -102,50 +106,56 @@ const VisaApplicationProcess = () => {
   };
 
   return (
-    <>
-      <Chatbot />
-  
-      <div className="w-full relative overflow-y-auto custom-scrollbar px-5 pb-16">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-full mt-[70%] md:mt-[20%]">
-            <CircularProgress />
-          </div>
-        ) : (
-          <>
-            {/* Custom Stepper */}
-            {commonInfo && (
-              <CustomStepper
-                visaType={commonInfo.visaTypeName}
-                visaApplicationId={visaApplicationId}
-                currentStepName={commonInfo.currentStepName}
-                currentStep={commonInfo.currentStepNumber - 1}
-                stepsCount={commonInfo.totalSteps}
-              />
-            )}
-  
-            {/* Main Content based on phase and src */}
-            {currentStepInfo && (
-              <StepPhase
-                visaApplicationId={visaApplicationId ?? ""}
-                visaType={commonInfo.visaTypeName}
-                currentStepName={commonInfo.currentStepName}
-                stepType={commonInfo.stepType}
-                phase={
-                  currentStepInfo.stepStatus as "IN_PROGRESS" | "SUBMITTED" | "APPROVED"
-                }
-                stepData={currentStepInfo}
-                requirementData={currentStepInfo.requirements}
-                onContinue={handleContinueClick}
-                stepSource={currentStepInfo.stepSource}
-                stepStatus={currentStepInfo.stepStatus}
-                onSubmit={handleSubmitDocButton}
-                refetch={refetch}
-              />
-            )}
-          </>
-        )}
+    <div className="flex w-full h-full">
+      {/* Main Content Area */}
+      <div className={`w-full transition-all duration-500 ${chatVisible ? "md:w-3/4" : "w-full"}`}>
+        <div className="w-full relative overflow-y-auto custom-scrollbar px-5 pb-16">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full mt-[70%] md:mt-[20%]">
+              <CircularProgress />
+            </div>
+          ) : (
+            <>
+              {commonInfo && (
+                <CustomStepper
+                  visaType={commonInfo.visaTypeName}
+                  visaApplicationId={visaApplicationId}
+                  currentStepName={commonInfo.currentStepName}
+                  currentStep={commonInfo.currentStepNumber - 1}
+                  stepsCount={commonInfo.totalSteps}
+                />
+              )}
+
+              {currentStepInfo && (
+                <StepPhase
+                  visaApplicationId={visaApplicationId ?? ""}
+                  visaType={commonInfo.visaTypeName}
+                  currentStepName={commonInfo.currentStepName}
+                  stepType={commonInfo.stepType}
+                  phase={
+                    currentStepInfo.stepStatus as "IN_PROGRESS" | "SUBMITTED" | "APPROVED"
+                  }
+                  stepData={currentStepInfo}
+                  requirementData={currentStepInfo.requirements}
+                  onContinue={handleContinueClick}
+                  stepSource={currentStepInfo.stepSource}
+                  stepStatus={currentStepInfo.stepStatus}
+                  onSubmit={handleSubmitDocButton}
+                  refetch={refetch}
+                />
+              )}
+            </>
+          )}
+        </div>
+        {!chatVisible && <Chatbot onToggle={() => setChatVisible((prev) => !prev)} />}
       </div>
-    </>
+{chatVisible && (
+  <ChatbotPanel
+    chatVisible={chatVisible}
+    setChatVisible={setChatVisible}
+  />
+)}
+    </div>
   );
 };
 

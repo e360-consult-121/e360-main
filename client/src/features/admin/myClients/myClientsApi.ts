@@ -15,11 +15,16 @@ export const myClientsApi = baseApi.injectEndpoints({
       }),
     }),
     addNewClient: build.mutation({
-      query: (data) => ({
+      query: ({file,data}) => {
+        console.log(file,data);
+        const formData = new FormData();
+        formData.append("data", data);
+        formData.append("file", file);
+        return {
         url: `/admin/adminControl/addNewClient`,
         method: "POST",
-        data:data
-      }),
+        data:formData
+      }},
     }),
   }),
 });
