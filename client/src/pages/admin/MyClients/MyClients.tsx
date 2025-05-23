@@ -5,7 +5,7 @@ import { CircularProgress } from "@mui/material";
 
 const MyClients = () => {
 
-    const {data , isLoading ,isError} = useFetchAllClientsQuery(undefined);
+    const {data , isLoading ,isError,refetch} = useFetchAllClientsQuery(undefined);
     const [clientsData , setClientsData] = useState();
   // console.log(data)
     const [addNewClient] = useAddNewClientMutation();
@@ -26,7 +26,7 @@ const MyClients = () => {
 
   return (
     <div>
-        <ClientsTable data={clientsData} onAddClient={addNewClient}
+        <ClientsTable data={clientsData} onAddClient={addNewClient} refetch={refetch}
 />
     </div>
   )

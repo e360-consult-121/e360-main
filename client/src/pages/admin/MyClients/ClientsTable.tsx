@@ -52,9 +52,10 @@ const customStyles = {
 interface TableProps {
   data: any[] | undefined;
   onAddClient: any;
+  refetch:()=> void;
 }
 
-const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
+const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("All");
@@ -92,6 +93,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
       setIsLoading(true);
       await onAddClient({data:formData,file: selectedFile}).unwrap();
       toast.success("Client added successfully!");
+      refetch();
     } catch (err) {
       console.error("Failed to add client:", err);
       toast.error("Failed to add client.");
@@ -107,6 +109,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient }) => {
       });
       setIsLoading(false);
       setOpenModal(false);
+      setSelectedFile(null);
     }
   };
 
