@@ -16,7 +16,7 @@ export interface IUser extends Document {
   forgotPasswordToken: string | null;
   forgotPasswordExpires: Date | null;
   nanoUserId : string;
-  roleId: Types.ObjectId;
+  roleId: Types.ObjectId | null;
 }
 
 const UserSchema: Schema = new Schema <IUser> ({
@@ -47,7 +47,7 @@ const UserSchema: Schema = new Schema <IUser> ({
   roleId: { 
     type: Schema.Types.ObjectId,    //optional  (no need , only 1 entry in DB )
     ref: "Role", 
-    required: true
+    // required: true
   },
 },
 {
