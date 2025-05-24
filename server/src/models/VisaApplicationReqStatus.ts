@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document, Mixed } from "mongoose";
 import { visaApplicationReqStatusEnum} from "../types/enums/enums";
 
-
 // Interface 
 export interface IVisaApplicationRequirementStatus extends Document {
     userId: mongoose.Schema.Types.ObjectId; 
