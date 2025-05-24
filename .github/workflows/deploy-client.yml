@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - staging
     paths:
       - 'client/**'
 
@@ -16,6 +17,30 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set Target Directory and Secrets
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "TARGET_DIR=e360-main" >> $GITHUB_ENV
+            echo "AWS_HOST=${{ secrets.AWS_HOST_PROD }}" >> $GITHUB_ENV
+            echo "AWS_USER=${{ secrets.AWS_USER_PROD }}" >> $GITHUB_ENV
+            echo "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL_PROD }}" >> $GITHUB_ENV
+            {
+              echo 'AWS_PRIVATE_KEY<<EOF'
+              echo '${{ secrets.AWS_PRIVATE_KEY_PROD }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" = "staging" ]; then
+            echo "TARGET_DIR=e360-staging" >> $GITHUB_ENV
+            echo "AWS_HOST=${{ secrets.AWS_HOST }}" >> $GITHUB_ENV
+            echo "AWS_USER=${{ secrets.AWS_USER }}" >> $GITHUB_ENV
+            echo "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL }}" >> $GITHUB_ENV
+            {
+              echo 'AWS_PRIVATE_KEY<<EOF'
+              echo '${{ secrets.AWS_PRIVATE_KEY }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+          fi
+
       - name: Cache Client Dependencies
         uses: actions/cache@v3
         with:
@@ -27,40 +52,40 @@ jobs:
       - name: Build Client
         run: |
           cd client
-          echo -e "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL }}" > .env
+          echo -e "VITE_BACKEND_BASE_URL=${{ env.VITE_BACKEND_BASE_URL }}" > .env
           npm ci
           npm run build
 
       - name: Clean and Prepare Remote Client Directory
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
-            sudo rm -rf /home/ubuntu/e360consult/e360-main/client/dist
-            mkdir -p /home/ubuntu/e360consult/e360-main/client/
+            sudo rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client/dist
+            mkdir -p /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client/
 
       - name: Deploy Client Build Files
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           source: "client/dist/"
-          target: "/home/ubuntu/e360consult/e360-main/client"
+          target: "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client"
           strip_components: 1
 
       - name: Set Permissions and Verify Deployment
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/client
-            if [ ! -f "/home/ubuntu/e360consult/e360-main/client/dist/index.html" ]; then
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client
+            if [ ! -f "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client/dist/index.html" ]; then
               echo "Client deployment verification failed - index.html not found in dist folder"
               exit 1
             fi
-            echo "Client deployment completed successfully"
+            echo "Client deployment to ${{ env.TARGET_DIR }} completed successfully"
