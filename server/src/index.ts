@@ -103,7 +103,6 @@ const PRIORITY_MAP: Record<string, (data: any) => leadPriority> = {
   [JOTFORM_ID_DOMINICA_GRENADA]: getDomiGrenaPriority,
 };
 
-
 // webhook endpoint
 app.post(
   "/api/v1/webhook",
