@@ -50,8 +50,41 @@ export const createRoleWithOptionalPermissions = async (
 export const addNewRole = async (req: Request, res: Response) => {
   const { name, actionIds } = req.body;
 
-  
+  if (!name || typeof name !== 'string') {
+    res.status(400);
+    throw new Error('Role name is required and must be a string.');
+  }
+
+  if (!Array.isArray(actionIds) || actionIds.some(id => typeof id !== 'string')) {
+    res.status(400);
+    throw new Error('actionIds must be an array of strings.');
+  }
+
+  // Check for existing role
+  const existingRole = await roleModel.findOne({ name });
+  if (existingRole) {
+    res.status(409);
+    throw new Error('Role already exists.');
+  }
+
+  // Create new role
+  const newRole = await roleModel.create({ name });
+
+  // Create permission for each actionId
+  const permissions = actionIds.map(actionId => ({
+    roleId: newRole._id,
+    actionId,
+  }));
+
+  await permissionModel.insertMany(permissions);
+
+  res.status(201).json({
+    message: 'Role and permissions created successfully.',
+    role: newRole,
+    permissionsCreated: permissions.length,
+  });
 };
+
 
   
 // 2nd
@@ -117,11 +150,61 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
 };
 
 // 3rd
-  export const assignActionsToRole = async (req: Request, res: Response) => {
-    const { roleId, actionIds } = req.body;
-  
-  
-  };
+export const assignActionsToRole = async (req: Request, res: Response) => {
+  const { roleId, actionIds } = req.body;
+
+  if (!roleId || !Array.isArray(actionIds)) {
+    res.status(400);
+    throw new Error("roleId and actionIds array are required");
+  }
+
+  if (actionIds.length === 0) {
+    res.status(400);
+    throw new Error("actionIds array cannot be empty");
+  }
+
+  // Check if role exists
+  const role = await roleModel.findById(roleId);
+  if (!role) {
+    res.status(404);
+    throw new Error("Role not found");
+  }
+
+  // Validate all actionIds exist
+  const validActions = await actionModel.find({ _id: { $in: actionIds } });
+  const validActionIds = validActions.map(action => String(action._id));
+
+  if (validActionIds.length !== actionIds.length) {
+    res.status(400);
+    throw new Error("One or more actionIds are invalid");
+  }
+
+  // Filter out already existing permissions
+  const existingPermissions = await permissionModel.find({
+    roleId,
+    actionId: { $in: validActionIds },
+  });
+
+  // existingId's pata kar lo (vakid Id's me se filter kar lenge )
+  const existingActionIds = new Set(existingPermissions.map(p => String(p.actionId)));
+
+  const newPermissionsData = validActionIds
+    .filter(id => !existingActionIds.has(id))
+    .map(actionId => ({
+      roleId,
+      actionId,
+    }));
+
+  // Insert only the new (non-duplicate) permissions
+  const insertedPermissions = await permissionModel.insertMany(newPermissionsData);
+
+  res.status(201).json({
+    success: true,
+    message: `${insertedPermissions.length} permission(s) assigned to role.`,
+    permissions: insertedPermissions,
+    skipped: validActionIds.length - insertedPermissions.length,
+  });
+};
   
   
 
@@ -130,6 +213,34 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
 export const changeRole = async (req: Request, res: Response) => {
   const { userId, newRoleName } = req.body;
 
-  
+  // Input validation
+  if (!userId || !newRoleName) {
+    res.status(400);
+    throw new Error("userId and newRoleName are required.");
+  }
+
+  // Find user by ID
+  const user = await userModel.findById(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found.");
+  }
+
+  // Find role by name
+  const role = await roleModel.findOne({ name: newRoleName });
+  if (!role) {
+    res.status(404);
+    throw new Error("Specified role does not exist.");
+  }
+
+  // Update user's roleId
+  user.roleId = role._id as Types.ObjectId;;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "User role updated successfully.",
+    user,
+  });
 };
 
