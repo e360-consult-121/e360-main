@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - staging
     paths:
       - 'server/**'
 
@@ -19,6 +20,28 @@ jobs:
         with:
           fetch-depth: 1  # Shallow clone for faster checkout
 
+      - name: Set Target Directory, App Name, and Secrets
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "TARGET_DIR=e360-main" >> $GITHUB_ENV
+            echo "APP_NAME=e360-consult" >> $GITHUB_ENV
+            echo "AWS_HOST=${{ secrets.AWS_HOST_PROD }}" >> $GITHUB_ENV
+            echo "AWS_USER=${{ secrets.AWS_USER_PROD }}" >> $GITHUB_ENV
+            echo "AWS_PRIVATE_KEY=${{ secrets.AWS_PRIVATE_KEY_PROD }}" >> $GITHUB_ENV
+            echo "SERVER_PORT=${{ secrets.SERVER_PORT_PROD }}" >> $GITHUB_ENV
+            echo "DB_URL=${{ secrets.DB_URL_PROD }}" >> $GITHUB_ENV
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET_PROD }}" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" = "staging" ]; then
+            echo "TARGET_DIR=e360-staging" >> $GITHUB_ENV
+            echo "APP_NAME=e360-consult-staging" >> $GITHUB_ENV
+            echo "AWS_HOST=${{ secrets.AWS_HOST }}" >> $GITHUB_ENV
+            echo "AWS_USER=${{ secrets.AWS_USER }}" >> $GITHUB_ENV
+            echo "AWS_PRIVATE_KEY=${{ secrets.AWS_PRIVATE_KEY }}" >> $GITHUB_ENV
+            echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> $GITHUB_ENV
+            echo "DB_URL=${{ secrets.DB_URL }}" >> $GITHUB_ENV
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          fi
+
       - name: Cache Server Dependencies
         uses: actions/cache@v3
         with:
@@ -32,9 +55,9 @@ jobs:
           cd server
           # Create .env file with necessary environment variables
           echo -e "NODE_ENV=production" > .env
-          echo -e "PORT=${{ secrets.SERVER_PORT }}" >> .env
-          echo -e "DB_URL=${{ secrets.DB_URL }}" >> .env
-          echo -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo -e "PORT=${{ env.SERVER_PORT }}" >> .env
+          echo -e "DB_URL=${{ env.DB_URL }}" >> .env
+          echo -e "JWT_SECRET=${{ env.JWT_SECRET }}" >> .env
           # Add other environment variables as needed
 
           npm ci
@@ -53,45 +76,44 @@ jobs:
           echo "HBS template files copied:"
           find dist/services/emails/templates -name "*.hbs" | wc -l
 
-
       - name: Clean and Prepare Remote Server Directory
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ubuntu/e360consult/e360-main/server-new
-            rm -rf /home/ubuntu/e360consult/e360-main/server-old
+            mkdir -p /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new
+            rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
 
       - name: Deploy Server Files
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           source: "server/dist/, server/package*.json, server/.env"
-          target: "/home/ubuntu/e360consult/e360-main/server-new/"
+          target: "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new/"
           strip_components: 1
           concurrency: 10  # Increase concurrency for faster file transfer
 
       - name: Install Dependencies and Restart PM2
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/e360consult/e360-main/server-new
+            cd /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new
             npm ci --production --no-audit --prefer-offline
             
             # Setup PM2 config if needed
-            cd /home/ubuntu/e360consult/e360-main/
+            cd /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/
             if [ ! -f "ecosystem.config.js" ]; then
               echo "Creating PM2 ecosystem config file"
               echo 'module.exports = {
                 apps: [{
-                  name: "e360-consult",
+                  name: "${{ env.APP_NAME }}",
                   script: "server/dist/index.js",
                   env: {
                     NODE_ENV: "production",
@@ -103,14 +125,14 @@ jobs:
             fi
             
             # Swap directories and restart app
-            if [ -d "/home/ubuntu/e360consult/e360-main/server" ]; then
-              mv /home/ubuntu/e360consult/e360-main/server /home/ubuntu/e360consult/e360-main/server-old
+            if [ -d "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server" ]; then
+              mv /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
             fi
-            mv /home/ubuntu/e360consult/e360-main/server-new /home/ubuntu/e360consult/e360-main/server
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/server
+            mv /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server
             
             # Restart the application
-            pm2 reload ecosystem.config.js --only e360-consult
+            pm2 reload ecosystem.config.js --only ${{ env.APP_NAME }}
             
             # Clean up old directory after successful deployment
-            rm -rf /home/ubuntu/e360consult/e360-main/server-old
+            rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old

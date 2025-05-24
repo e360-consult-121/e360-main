@@ -34,6 +34,7 @@ import { sendHighPriorityLeadEmail } from "./services/emails/triggers/leads/elig
 import { sendMediumPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
 import { sendLowPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/lowPriority";
 import { leadEmailToAdmin } from "./services/emails/triggers/admin/eligibility-form-filled/priorityTrigger";
+import { JOTFORM_ID_DOMINICA_GRENADA, JOTFORM_ID_DUBAI, JOTFORM_ID_PORTUGAL } from "./utils/jotformIds";
 // import priority functions
 
 dotenv.config();
@@ -91,15 +92,15 @@ app.get("/health", (req: Request, res: Response): void => {
 });
 
 const FORM_ID_MAP: Record<string, (data: any) => any> = {
-  "250912382847462": parsePortugalData,
-  "250901425096454": parseDubaiData,
-  "250912364956463": parseDomiGrenaData,
+  [JOTFORM_ID_PORTUGAL]: parsePortugalData,
+  [JOTFORM_ID_DUBAI]: parseDubaiData,
+  [JOTFORM_ID_DOMINICA_GRENADA]: parseDomiGrenaData,
 };
 
 const PRIORITY_MAP: Record<string, (data: any) => leadPriority> = {
-  "250912382847462": getPortugalPriority,
-  "250901425096454": getDubaiPriority,
-  "250912364956463": getDomiGrenaPriority,
+  [JOTFORM_ID_PORTUGAL]: getPortugalPriority,
+  [JOTFORM_ID_DUBAI]: getDubaiPriority,
+  [JOTFORM_ID_DOMINICA_GRENADA]: getDomiGrenaPriority,
 };
 
 // webhook endpoint
