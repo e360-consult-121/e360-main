@@ -108,7 +108,7 @@ const VisaApplicationProcess = () => {
   return (
     <div className="flex w-full h-full">
       {/* Main Content Area */}
-      <div className={`w-full transition-all duration-500 ${chatVisible ? "md:w-3/4" : "w-full"}`}>
+      <div className={`w-full transition-all duration-500`}>
         <div className="w-full relative overflow-y-auto custom-scrollbar px-5 pb-16">
           {isLoading ? (
             <div className="flex justify-center items-center h-full mt-[70%] md:mt-[20%]">

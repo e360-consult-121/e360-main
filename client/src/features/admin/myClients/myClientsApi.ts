@@ -16,9 +16,15 @@ export const myClientsApi = baseApi.injectEndpoints({
     }),
     addNewClient: build.mutation({
       query: ({file,data}) => {
-        console.log(file,data);
+        // console.log(file,data);
         const formData = new FormData();
-        formData.append("data", data);
+        formData.append("name", data.name);
+        formData.append("email", data.email);
+        formData.append("phone", data.phone);
+        formData.append("nationality", data.nationality);
+        formData.append("serviceType", data.serviceType);
+        formData.append("amount", data.amount);
+        formData.append("currency", data.currency);
         formData.append("file", file);
         return {
         url: `/admin/adminControl/addNewClient`,
