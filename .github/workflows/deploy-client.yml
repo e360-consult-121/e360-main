@@ -23,12 +23,22 @@ jobs:
             echo "TARGET_DIR=e360-main" >> $GITHUB_ENV
             echo "AWS_HOST=${{ secrets.AWS_HOST_PROD }}" >> $GITHUB_ENV
             echo "AWS_USER=${{ secrets.AWS_USER_PROD }}" >> $GITHUB_ENV
-            echo "AWS_PRIVATE_KEY=${{ secrets.AWS_PRIVATE_KEY_PROD }}" >> $GITHUB_ENV
+            echo "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL_PROD }}" >> $GITHUB_ENV
+            {
+              echo 'AWS_PRIVATE_KEY<<EOF'
+              echo '${{ secrets.AWS_PRIVATE_KEY_PROD }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" = "staging" ]; then
             echo "TARGET_DIR=e360-staging" >> $GITHUB_ENV
             echo "AWS_HOST=${{ secrets.AWS_HOST }}" >> $GITHUB_ENV
             echo "AWS_USER=${{ secrets.AWS_USER }}" >> $GITHUB_ENV
-            echo "AWS_PRIVATE_KEY=${{ secrets.AWS_PRIVATE_KEY }}" >> $GITHUB_ENV
+            echo "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL }}" >> $GITHUB_ENV
+            {
+              echo 'AWS_PRIVATE_KEY<<EOF'
+              echo '${{ secrets.AWS_PRIVATE_KEY }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
           fi
 
       - name: Cache Client Dependencies
@@ -42,7 +52,7 @@ jobs:
       - name: Build Client
         run: |
           cd client
-          echo -e "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL }}" > .env
+          echo -e "VITE_BACKEND_BASE_URL=${{ env.VITE_BACKEND_BASE_URL }}" > .env
           npm ci
           npm run build
 
