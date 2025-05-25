@@ -34,7 +34,11 @@ import { sendHighPriorityLeadEmail } from "./services/emails/triggers/leads/elig
 import { sendMediumPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
 import { sendLowPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/lowPriority";
 import { leadEmailToAdmin } from "./services/emails/triggers/admin/eligibility-form-filled/priorityTrigger";
-import { JOTFORM_ID_DOMINICA_GRENADA, JOTFORM_ID_DUBAI, JOTFORM_ID_PORTUGAL } from "./utils/jotformIds";
+import {
+  JOTFORM_ID_DOMINICA_GRENADA,
+  JOTFORM_ID_DUBAI,
+  JOTFORM_ID_PORTUGAL,
+} from "./utils/jotformIds";
 // import priority functions
 
 dotenv.config();
@@ -227,11 +231,7 @@ app.post(
 
       const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${newLead._id}&utm_source=EEE360`;
 
-      await leadEmailToAdmin(
-        newLead.fullName.first,
-        serviceType,
-        priority
-      );
+      await leadEmailToAdmin(newLead.fullName.first, serviceType, priority);
       if (priority === leadPriority.HIGH) {
         await sendHighPriorityLeadEmail(
           newLead.email,
@@ -284,4 +284,5 @@ const PORT =
     ? Number(args[portArgIndex + 1])
     : Number(process.env.PORT) || 5000;
 
+    
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
