@@ -3,7 +3,7 @@ import AdminRoutes from "./pages/admin/AdminRoutes";
 import CustomerRoutes from "./pages/customer/CustomerRoutes";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import AuthPage from "./pages/auth/AuthPage";
-import AdminLogin from "./pages/admin/AdminLogin"
+import AdminLogin from "./pages/admin/AdminLogin";
 import ForgotPassword from "./features/auth/components/ForgotPassword";
 import ResetPassword from "./features/auth/components/ResetPasword";
 import ClientPaymentComponent from "./components/ClientPaymentComponent";

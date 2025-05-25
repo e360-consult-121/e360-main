@@ -63,6 +63,12 @@ jobs:
           username: ${{ env.AWS_USER }}
           key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
+            # Source the profile to load Node.js PATH (if needed for any commands)
+            source ~/.bashrc || source ~/.bash_profile || true
+            
+            # Alternative: Add common Node.js paths manually
+            export PATH="$PATH:/usr/local/bin:/usr/bin:$HOME/.nvm/versions/node/*/bin"
+            
             sudo rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client/dist
             mkdir -p /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client/
 
@@ -83,6 +89,12 @@ jobs:
           username: ${{ env.AWS_USER }}
           key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
+            # Source the profile to load Node.js PATH (if needed for any commands)
+            source ~/.bashrc || source ~/.bash_profile || true
+            
+            # Alternative: Add common Node.js paths manually
+            export PATH="$PATH:/usr/local/bin:/usr/bin:$HOME/.nvm/versions/node/*/bin"
+            
             sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client
             if [ ! -f "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/client/dist/index.html" ]; then
               echo "Client deployment verification failed - index.html not found in dist folder"
