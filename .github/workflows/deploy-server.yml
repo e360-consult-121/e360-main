@@ -137,7 +137,16 @@ jobs:
             # Check if we can find npm and node
             which npm || echo "npm not found in PATH"
             which node || echo "node not found in PATH"
+            
+            # Check for PM2 in various locations
             which pm2 || echo "pm2 not found in PATH"
+            ls -la /usr/local/bin/pm2 2>/dev/null || echo "pm2 not in /usr/local/bin/"
+            ls -la ~/.npm-global/bin/pm2 2>/dev/null || echo "pm2 not in ~/.npm-global/bin/"
+            ls -la /usr/bin/pm2 2>/dev/null || echo "pm2 not in /usr/bin/"
+            
+            # Try to find PM2 installation
+            find /usr -name "pm2" 2>/dev/null | head -5 || echo "pm2 not found in /usr"
+            find $HOME -name "pm2" 2>/dev/null | head -5 || echo "pm2 not found in home"
             
             cd /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new
             npm ci --production --no-audit --prefer-offline
@@ -169,7 +178,24 @@ jobs:
             sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server
             
             # Restart the application
-            pm2 reload ecosystem.config.js --only ${{ env.APP_NAME }}
+            # Try to find and use PM2
+            PM2_PATH=""
+            if command -v pm2 >/dev/null 2>&1; then
+              PM2_PATH="pm2"
+            elif [ -f "/usr/local/bin/pm2" ]; then
+              PM2_PATH="/usr/local/bin/pm2"
+            elif [ -f "$HOME/.npm-global/bin/pm2" ]; then
+              PM2_PATH="$HOME/.npm-global/bin/pm2"
+            elif [ -f "/usr/bin/pm2" ]; then
+              PM2_PATH="/usr/bin/pm2"
+            else
+              echo "PM2 not found, installing globally..."
+              npm install -g pm2
+              PM2_PATH="pm2"
+            fi
+            
+            echo "Using PM2 at: $PM2_PATH"
+            $PM2_PATH reload ecosystem.config.js --only ${{ env.APP_NAME }}
             
             # Clean up old directory after successful deployment
             rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
