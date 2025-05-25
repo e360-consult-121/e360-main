@@ -128,26 +128,30 @@ jobs:
           username: ${{ env.AWS_USER }}
           key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
-            # Source the profile to load Node.js PATH
-            source ~/.bashrc || source ~/.bash_profile || true
+            # Load environment variables - try multiple profile files
+            source ~/.bashrc 2>/dev/null || true
+            source ~/.bash_profile 2>/dev/null || true
+            source ~/.profile 2>/dev/null || true
             
-            # Alternative: Add common Node.js paths manually
-            export PATH="$PATH:/usr/local/bin:/usr/bin:$HOME/.nvm/versions/node/*/bin"
+            # Load NVM if it exists
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
             
-            # Check if we can find npm and node
-            which npm || echo "npm not found in PATH"
-            which node || echo "node not found in PATH"
+            # Add common Node.js paths to PATH
+            export PATH="$PATH:/usr/local/bin:/usr/bin:/opt/node/bin:$HOME/.npm-global/bin:$HOME/.local/bin"
             
-            # Check for PM2 in various locations
-            which pm2 || echo "pm2 not found in PATH"
-            ls -la /usr/local/bin/pm2 2>/dev/null || echo "pm2 not in /usr/local/bin/"
-            ls -la ~/.npm-global/bin/pm2 2>/dev/null || echo "pm2 not in ~/.npm-global/bin/"
-            ls -la /usr/bin/pm2 2>/dev/null || echo "pm2 not in /usr/bin/"
+            # If NVM is available, use the default node version
+            if command -v nvm >/dev/null 2>&1; then
+              nvm use default 2>/dev/null || nvm use node 2>/dev/null || true
+            fi
             
-            # Try to find PM2 installation
-            find /usr -name "pm2" 2>/dev/null | head -5 || echo "pm2 not found in /usr"
-            find $HOME -name "pm2" 2>/dev/null | head -5 || echo "pm2 not found in home"
+            echo "=== Environment Debug Info ==="
+            echo "PATH: $PATH"
+            echo "Node location: $(which node 2>/dev/null || echo 'not found')"
+            echo "NPM location: $(which npm 2>/dev/null || echo 'not found')"
             
+            # Install dependencies
             cd /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new
             npm ci --production --no-audit --prefer-offline
             
@@ -170,32 +174,71 @@ jobs:
             EOL
             fi
             
-            # Swap directories and restart app
+            # Swap directories
             if [ -d "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server" ]; then
               mv /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
             fi
             mv /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server
             sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server
             
-            # Restart the application
-            # Try to find and use PM2
-            PM2_PATH=""
-            if command -v pm2 >/dev/null 2>&1; then
-              PM2_PATH="pm2"
-            elif [ -f "/usr/local/bin/pm2" ]; then
-              PM2_PATH="/usr/local/bin/pm2"
-            elif [ -f "$HOME/.npm-global/bin/pm2" ]; then
-              PM2_PATH="$HOME/.npm-global/bin/pm2"
-            elif [ -f "/usr/bin/pm2" ]; then
-              PM2_PATH="/usr/bin/pm2"
-            else
+            # Handle PM2 - Install if not found, then use it
+            echo "=== PM2 Setup ==="
+            
+            # Check if PM2 is available
+            if ! command -v pm2 >/dev/null 2>&1; then
               echo "PM2 not found, installing globally..."
               npm install -g pm2
-              PM2_PATH="pm2"
+              
+              # Update PATH to include global npm bin
+              NPM_GLOBAL_PATH=$(npm root -g 2>/dev/null | sed 's/node_modules$/bin/' 2>/dev/null || echo "")
+              if [ -n "$NPM_GLOBAL_PATH" ] && [ -d "$NPM_GLOBAL_PATH" ]; then
+                export PATH="$PATH:$NPM_GLOBAL_PATH"
+                echo "Added to PATH: $NPM_GLOBAL_PATH"
+              fi
+              
+              # Try to find PM2 after installation
+              if ! command -v pm2 >/dev/null 2>&1; then
+                # Manual search for pm2
+                PM2_LOCATIONS="/usr/local/bin/pm2 /usr/bin/pm2 $HOME/.npm-global/bin/pm2 $NPM_GLOBAL_PATH/pm2"
+                PM2_FOUND=""
+                for location in $PM2_LOCATIONS; do
+                  if [ -f "$location" ]; then
+                    PM2_FOUND="$location"
+                    break
+                  fi
+                done
+                
+                if [ -n "$PM2_FOUND" ]; then
+                  echo "Found PM2 at: $PM2_FOUND"
+                  PM2_CMD="$PM2_FOUND"
+                else
+                  echo "ERROR: PM2 still not found after installation"
+                  exit 1
+                fi
+              else
+                PM2_CMD="pm2"
+              fi
+            else
+              PM2_CMD="pm2"
             fi
             
-            echo "Using PM2 at: $PM2_PATH"
-            $PM2_PATH reload ecosystem.config.js --only ${{ env.APP_NAME }}
+            echo "Using PM2 command: $PM2_CMD"
+            echo "PM2 version: $($PM2_CMD --version)"
+            
+            # Start or reload the application
+            if $PM2_CMD list | grep -q "${{ env.APP_NAME }}"; then
+              echo "Reloading existing PM2 process..."
+              $PM2_CMD reload ecosystem.config.js --only ${{ env.APP_NAME }}
+            else
+              echo "Starting new PM2 process..."
+              $PM2_CMD start ecosystem.config.js --only ${{ env.APP_NAME }}
+            fi
+            
+            # Show PM2 status
+            $PM2_CMD list
+            $PM2_CMD save
             
             # Clean up old directory after successful deployment
             rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
+            
+            echo "=== Deployment completed successfully ==="

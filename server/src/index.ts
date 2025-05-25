@@ -277,6 +277,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
+
 const args = process.argv.slice(2);
 const portArgIndex = args.indexOf("--port");
 const PORT =
