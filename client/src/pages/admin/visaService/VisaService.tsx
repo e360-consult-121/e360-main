@@ -32,7 +32,7 @@ const VisaService = () => {
           Something went wrong while fetching data.
         </Typography>
       ) : (
-        <TableComponent data={applications}  stepsData={stepsData.stepNames} />
+        <TableComponent data={applications}  stepsData={stepsData?.stepNames} />
       )}
     </Box>
   );

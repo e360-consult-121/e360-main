@@ -41,10 +41,10 @@ const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
           </TableHead>
           <TableBody>
             {data.map((id) => (
-              <TableRow key={id.caseId._id}>
-                <TableCell>{id._id}</TableCell>
-                <TableCell>{id.name}</TableCell>
-                <TableCell>{id.status}</TableCell>
+              <TableRow key={id?.caseId?._id}>
+                <TableCell>{id?._id}</TableCell>
+                <TableCell>{id?.name}</TableCell>
+                <TableCell>{id?.status}</TableCell>
                 <TableCell>
                   <Button
                     onClick={() =>
