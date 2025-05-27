@@ -186,18 +186,18 @@ app.post(
       let LeadModelToUse;
 
       switch (formID) {
-        case "250912382847462":
+        case JOTFORM_ID_PORTUGAL:
           LeadModelToUse = LeadPortugalModel;
           serviceType = "Portugal D7 Visa";
           break;
-        case "250901425096454":
+        case JOTFORM_ID_DUBAI:
           LeadModelToUse = LeadDubaiModel;
           serviceType = "Dubai Business Setup";
           break;
         // case "250912364956463":
         //   LeadModelToUse = LeadDomiGrenaModel;
         //   break;
-        case "250912364956463":
+        case JOTFORM_ID_DOMINICA_GRENADA:
           // Check visaType inside parsed data
           if (parsedData.visaTypeName === "DOMINICA") {
             LeadModelToUse = LeadDominicaModel;
