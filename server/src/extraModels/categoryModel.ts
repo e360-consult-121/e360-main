@@ -10,7 +10,8 @@ const CategorySchema = new Schema<ICategory>(
         name: {
             type: String,
             required: true,
-            trim: true
+            trim: true , 
+            unique : true
         },
         visaApplicationId: {
             type: Schema.Types.ObjectId,

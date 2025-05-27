@@ -3,6 +3,9 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 import axios from "axios";
 import { senderTypeEnum , messageTypeEnum} from "../../types/enums/enums";
 import { MessageModel} from "../../models/chatModels/msgModel";
+import { CategoryModel as categoryModel } from "../../extraModels/categoryModel";
+import { CatDocModel as catDocModel } from "../../extraModels/catDocModel";
+import {  DocumentSourceEnum } from "../../types/enums/enums";
 import moment from "moment"; 
 // Temp saare docs store karwane 
 
@@ -108,12 +111,82 @@ export const fetchAllMsg = async (req: Request, res: Response) => {
 
 // API for moving document to document vault
 export const moveToDocVault = async (req: Request, res: Response) => {
-  
+  const { messageId } = req.params;
+  const { categoryName, docName } = req.body;
+
+  if (!messageId || !categoryName || !docName) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  // Aggregate message info with required fields
+  const result = await MessageModel.aggregate([
+    {
+      $match: {
+        _id: new Types.ObjectId(messageId),
+        fileUrl: { $ne: null }
+      }
+    },
+    {
+      $project: {
+        visaApplicationId: 1,
+        fileUrl: 1,
+        senderType: 1   // uploaded by misko rakhna hai ..??
+      }
+    }
+  ]);
+
+  if (result.length === 0) {
+    return res.status(404).json({ success: false, message: "Message not found or has no file" });
+  }
+
+  const { visaApplicationId, fileUrl, senderType } = result[0];
+
+  //  Check or create category using visaApplicationId and categoryName
+  let category = await categoryModel.findOne({
+    name: categoryName,
+    visaApplicationId
+  });
+
+  // if (!category) {
+  //   category = await CategoryModel.create({
+  //     name: categoryName,
+  //     visaApplicationId
+  //   });
+  // }
+
+  if (!category) {
+    return res.status(404).json({ success: false, message: `Category not found for this categoryName: ${categoryName}`});
+  }
+
+  // Prevent duplicate documents (optional)
+  const alreadyExists = await catDocModel.findOne({
+    categoryId: category._id,
+    url: fileUrl
+  });
+
+  if (alreadyExists) {
+    return res.status(409).json({ success: false, message: "Document already moved to vault" });
+  }
+
+  //  Create document in vault
+  const newDoc = await catDocModel.create({
+    categoryId: category._id,
+    url: fileUrl,
+    docName,
+    uploadedBy: senderType
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: "Document moved to Document Vault successfully",
+    data: newDoc
+  });
 };
 
 
+
 // API for sending file 
-export const uploadFile = async (req: Request, res: Response) => {
+export const sendFile = async (req: Request, res: Response) => {
   const { visaApplicationId } = req.params;
 
   if (!visaApplicationId || !req.file) {
