@@ -22,7 +22,7 @@ export const getRecentUpdates = async (req: Request, res: Response) => {
       .limit(5)
       .populate({
         path: 'caseId',
-        select: 'leadId', // only fetch leadId from VisaApplication
+        select: 'leadId nanoVisaApplicationId', // only fetch leadId from VisaApplication
       });
 
     res.status(200).json({ updates: recentUpdates });

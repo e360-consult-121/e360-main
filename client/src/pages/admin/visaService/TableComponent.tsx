@@ -124,18 +124,18 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
                 .map((row: any, index: any) => (
                   <TableRow key={index} sx={{ borderBottom: "none" }}>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row?.leadId?.caseId}
+                      {row?.nanoVisaApplicationId}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row?.leadId?.fullName?.first +
+                      {row.leadId === undefined ?  row?.leadId?.fullName?.first +
                         " " +
-                        row?.leadId?.fullName?.last}
+                        row?.leadId?.fullName?.last : row?.userId?.name}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row?.leadId?.email}
+                      {row.leadId === undefined ? row?.leadId?.email : row.userId.email}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row?.leadId?.phone}
+                      {row.leadId === undefined ? row?.leadId?.phone : row?.userId.phone}
                     </TableCell>
                     <TableCell
                       sx={{
