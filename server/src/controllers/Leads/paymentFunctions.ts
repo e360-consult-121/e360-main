@@ -14,7 +14,7 @@ import { VisaStepModel as stepModel } from "../../models/VisaStep";
 import { VisaApplicationStepStatusModel as stepStatusModel } from "../../models/VisaApplicationStepStatus";
 import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
 import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus"
-
+import { RoleModel } from "../../models/rbacModels/roleModel";
 import {
   leadStatus,
   RoleEnum,
@@ -70,6 +70,12 @@ export interface createUserOptions {
   
       // 2. Hash the password
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      // Get the roleId for CUSTOMER
+      const customerRole = await RoleModel.findOne({ name: "Customer" });
+      if (!customerRole) {
+        return res.status(500).json({ message: "Customer role not found in roles collection." });
+      }
   
       // 3. Create user in DB
       const user = await UserModel.create({
@@ -78,7 +84,8 @@ export interface createUserOptions {
         password: hashedPassword,
         role: RoleEnum.USER,
         status: AccountStatusEnum.ACTIVE,
-        phone
+        phone, 
+        roleId : customerRole._id
       });
   
       console.log(`User-Account created : `, user);

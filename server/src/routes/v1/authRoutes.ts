@@ -15,5 +15,5 @@ router.put("/change-password", authenticate, asyncHandler(authControllers.change
 router.get("/fetch-user", authenticate, asyncHandler(authControllers.fetchUser))
 router.post("/forgot-password",  asyncHandler(authControllers.forgotPassword))
 router.post("/reset-password",  asyncHandler(authControllers.resetPassword))
-
+router.post("/migrate" ,authControllers.fixMissingRoleIds);
 export default router

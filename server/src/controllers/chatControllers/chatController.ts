@@ -130,7 +130,7 @@ export const moveToDocVault = async (req: Request, res: Response) => {
       $project: {
         visaApplicationId: 1,
         fileUrl: 1,
-        senderType: 1   // uploaded by misko rakhna hai ..??
+        senderType: 1   // uploaded by kisko rakhna hai ..??
       }
     }
   ]);

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { VisaTypeModel } from "../../models/VisaType";
 import { VisaApplicationModel } from "../../models/VisaApplication";
 import { VisaStepModel } from "../../models/VisaStep";
-
+import mongoose, { Schema, Document , Types } from "mongoose";
 
 
 export const fetchAllStepsOfParticularVisaType = async (req: Request, res: Response) =>{
@@ -31,7 +31,7 @@ export const fetchAllStepsOfParticularVisaType = async (req: Request, res: Respo
 
 }
 
-
+// API for fetching all apllications of a particular type 
 export const fetchParticularVisaApplication = async (req: Request, res: Response) => {
     const { visaType } = req.query;
   
@@ -64,4 +64,103 @@ export const fetchParticularVisaApplication = async (req: Request, res: Response
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
+
+
+
+
+// get info of particular visaApplication 
+export const getParticularVisaInfo = async (req: Request, res: Response) => {
+  const { visaApplicationId } = req.params;
+
+  if (!visaApplicationId) {
+    return res.status(400).json({ message: "visaApplicationId is required" });
+  }
+
+  const visaData = await VisaApplicationModel.aggregate([
+    {
+      $match: {
+        _id: new Types.ObjectId(visaApplicationId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $unwind: "$user",
+    },
+    {
+      $lookup: {
+        from: "payments",
+        localField: "paymentId",
+        foreignField: "_id",
+        as: "payment",
+      },
+    },
+    {
+      $unwind: {
+        path: "$payment",
+        preserveNullAndEmptyArrays: true, 
+      },
+    },
+    {
+      $lookup: {
+        from: "visatypes", 
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    {
+      $unwind: {
+        path: "$visaType",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        nanoVisaApplicationId : 1,
+        createdAt: 1,
+        "user.name": 1,
+        "user.email": 1,
+        "user.phone": 1,
+        "payment.status": 1,
+        "payment.paymentMethod": 1,
+        "payment.invoiceUrl": 1,
+        "visaType.visaType": 1, 
+      },
+    },
+  ]);
+
+  if (!visaData || visaData.length === 0) {
+    return res.status(404).json({ message: "Visa application not found" });
+  }
+
+  const data = visaData[0];
+
+  const response = {
+    basicInfo: {
+      name: data.user.name,
+      email: data.user.email,
+      phone: data.user.phone,
+      appliedFor: data.visaType?.visaType || "N/A",
+      createdAt: data.createdAt,
+      caseId: data.nanoVisaApplicationId, // You can change to `nanoLeadId` if it exists
+    },
+    paymentInfo: data.payment
+      ? {
+          status: data.payment.status,
+          method: data.payment.paymentMethod, 
+          invoice: data.payment.invoiceUrl,
+        }
+      : null,
+  };
+
+  res.status(200).json({ success: true, data: response });
+};
   

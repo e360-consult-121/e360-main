@@ -10,7 +10,7 @@ export interface IPayment extends Document {
   email: string;
   amount: number | null;
   currency: string | null;
-  paymentMethod: string | null;
+  paymentMethod: string;
 
   status: paymentStatus;
 
@@ -39,7 +39,7 @@ const PaymentSchema = new Schema<IPayment>(
       default : null
     },
       
-    paymentMethod: { type: String , default : null},
+    paymentMethod: { type: String },
 
     status: {
         type: String,
