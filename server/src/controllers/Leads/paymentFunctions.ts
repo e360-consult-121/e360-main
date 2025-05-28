@@ -74,7 +74,7 @@ export interface createUserOptions {
       // Get the roleId for CUSTOMER
       const customerRole = await RoleModel.findOne({ name: "Customer" });
       if (!customerRole) {
-        return res.status(500).json({ message: "Customer role not found in roles collection." });
+        console.log("Customer role not found in roles collection.") ;
       }
   
       // 3. Create user in DB
@@ -85,7 +85,7 @@ export interface createUserOptions {
         role: RoleEnum.USER,
         status: AccountStatusEnum.ACTIVE,
         phone, 
-        roleId : customerRole._id
+        roleId : customerRole?._id
       });
   
       console.log(`User-Account created : `, user);

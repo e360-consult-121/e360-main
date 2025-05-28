@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import mongoose, { Schema, Document, Types } from "mongoose";
 import { ActionModel } from "../models/rbacModels/actionModel";
 import { PermissionModel } from "../models/rbacModels/permissionModel";
 
@@ -8,7 +9,7 @@ export const checkPermission = (actionName: string) => {
     const roleId = req.user?.roleId || req.admin?.roleId;
 
     if (!roleId) {
-      return res.status(401).json({ message: "User role not found" });
+      return res.status(401).json({ message: "User role not found in permission middleware" });
     }
 
     const action = await ActionModel.findOne({ action: actionName });
@@ -17,7 +18,7 @@ export const checkPermission = (actionName: string) => {
     }
 
     const permission = await PermissionModel.findOne({
-      roleId,
+      roleId : new Types.ObjectId(roleId) ,
       actionId: action._id,
     });
 

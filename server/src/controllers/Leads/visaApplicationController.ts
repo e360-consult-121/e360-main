@@ -32,7 +32,7 @@ export const fetchAllStepsOfParticularVisaType = async (req: Request, res: Respo
 }
 
 // API for fetching all apllications of a particular type 
-export const fetchParticularVisaApplication = async (req: Request, res: Response) => {
+export const fetchApplicationsOfParticularType = async (req: Request, res: Response) => {
     const { visaType } = req.query;
   
     if (!visaType) {
