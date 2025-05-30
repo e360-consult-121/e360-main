@@ -41,8 +41,8 @@ const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
           </TableHead>
           <TableBody>
             {data.map((id) => (
-              <TableRow key={id.caseId.nanoVisaApplicationId}>
-                <TableCell>{id.caseId.nanoVisaApplicationId}</TableCell>
+              <TableRow key={id.caseId?.nanoVisaApplicationId}>
+                <TableCell>{id.caseId?.nanoVisaApplicationId}</TableCell>
                 <TableCell>{id.name}</TableCell>
                 <TableCell>{id.status}</TableCell>
                 <TableCell>
