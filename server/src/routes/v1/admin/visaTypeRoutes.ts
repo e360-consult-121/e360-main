@@ -1,5 +1,6 @@
 // import { Router } from "express";
 // import { authenticate } from "../../../middlewares/authenticate";
+// import { checkPermission } from "../../../middlewares/permissionMiddleware";
 // import asyncHandler from "../../../utils/asyncHandler";
 // import * as visaTypeController from "../../../controllers/admin/visaType";
 

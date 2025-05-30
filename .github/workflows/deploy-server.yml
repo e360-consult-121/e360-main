@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - staging
     paths:
       - 'server/**'
 
@@ -19,6 +20,52 @@ jobs:
         with:
           fetch-depth: 1  # Shallow clone for faster checkout
 
+      - name: Set Target Directory, App Name, and Secrets
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "TARGET_DIR=e360-main" >> $GITHUB_ENV
+            echo "APP_NAME=e360-consult" >> $GITHUB_ENV
+            echo "AWS_HOST=${{ secrets.AWS_HOST_PROD }}" >> $GITHUB_ENV
+            echo "AWS_USER=${{ secrets.AWS_USER_PROD }}" >> $GITHUB_ENV
+            echo "SERVER_PORT=${{ secrets.SERVER_PORT_PROD }}" >> $GITHUB_ENV
+            {
+              echo 'AWS_PRIVATE_KEY<<EOF'
+              echo '${{ secrets.AWS_PRIVATE_KEY_PROD }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+            {
+              echo 'DB_URL<<EOF'
+              echo '${{ secrets.DB_URL_PROD }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+            {
+              echo 'JWT_SECRET<<EOF'
+              echo '${{ secrets.JWT_SECRET_PROD }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" = "staging" ]; then
+            echo "TARGET_DIR=e360-staging" >> $GITHUB_ENV
+            echo "APP_NAME=e360-consult-staging" >> $GITHUB_ENV
+            echo "AWS_HOST=${{ secrets.AWS_HOST }}" >> $GITHUB_ENV
+            echo "AWS_USER=${{ secrets.AWS_USER }}" >> $GITHUB_ENV
+            echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> $GITHUB_ENV
+            {
+              echo 'AWS_PRIVATE_KEY<<EOF'
+              echo '${{ secrets.AWS_PRIVATE_KEY }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+            {
+              echo 'DB_URL<<EOF'
+              echo '${{ secrets.DB_URL }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+            {
+              echo 'JWT_SECRET<<EOF'
+              echo '${{ secrets.JWT_SECRET }}'
+              echo 'EOF'
+            } >> $GITHUB_ENV
+          fi
+
       - name: Cache Server Dependencies
         uses: actions/cache@v3
         with:
@@ -32,9 +79,9 @@ jobs:
           cd server
           # Create .env file with necessary environment variables
           echo -e "NODE_ENV=production" > .env
-          echo -e "PORT=${{ secrets.SERVER_PORT }}" >> .env
-          echo -e "DB_URL=${{ secrets.DB_URL }}" >> .env
-          echo -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo -e "PORT=${{ env.SERVER_PORT }}" >> .env
+          echo -e "DB_URL=${{ env.DB_URL }}" >> .env
+          echo -e "JWT_SECRET=${{ env.JWT_SECRET }}" >> .env
           # Add other environment variables as needed
 
           npm ci
@@ -53,64 +100,145 @@ jobs:
           echo "HBS template files copied:"
           find dist/services/emails/templates -name "*.hbs" | wc -l
 
-
       - name: Clean and Prepare Remote Server Directory
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ubuntu/e360consult/e360-main/server-new
-            rm -rf /home/ubuntu/e360consult/e360-main/server-old
+            mkdir -p /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new
+            rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
 
       - name: Deploy Server Files
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           source: "server/dist/, server/package*.json, server/.env"
-          target: "/home/ubuntu/e360consult/e360-main/server-new/"
+          target: "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new/"
           strip_components: 1
           concurrency: 10  # Increase concurrency for faster file transfer
 
       - name: Install Dependencies and Restart PM2
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          host: ${{ env.AWS_HOST }}
+          username: ${{ env.AWS_USER }}
+          key: ${{ env.AWS_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/e360consult/e360-main/server-new
+            # Load environment variables - try multiple profile files
+            source ~/.bashrc 2>/dev/null || true
+            source ~/.bash_profile 2>/dev/null || true
+            source ~/.profile 2>/dev/null || true
+            
+            # Load NVM if it exists
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            
+            # Add common Node.js paths to PATH
+            export PATH="$PATH:/usr/local/bin:/usr/bin:/opt/node/bin:$HOME/.npm-global/bin:$HOME/.local/bin"
+            
+            # If NVM is available, use the default node version
+            if command -v nvm >/dev/null 2>&1; then
+              nvm use default 2>/dev/null || nvm use node 2>/dev/null || true
+            fi
+            
+            echo "=== Environment Debug Info ==="
+            echo "PATH: $PATH"
+            echo "Node location: $(which node 2>/dev/null || echo 'not found')"
+            echo "NPM location: $(which npm 2>/dev/null || echo 'not found')"
+            
+            # Install dependencies
+            cd /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new
             npm ci --production --no-audit --prefer-offline
             
             # Setup PM2 config if needed
-            cd /home/ubuntu/e360consult/e360-main/
+            cd /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/
             if [ ! -f "ecosystem.config.js" ]; then
               echo "Creating PM2 ecosystem config file"
-              echo 'module.exports = {
-                apps: [{
-                  name: "e360-consult",
-                  script: "server/dist/index.js",
-                  env: {
-                    NODE_ENV: "production",
-                  },
-                  watch: false,
-                  max_memory_restart: "300M"
-                }]
-              }' > ecosystem.config.js
+              cat > ecosystem.config.js << 'EOL'
+            module.exports = {
+              apps: [{
+                name: "${{ env.APP_NAME }}",
+                script: "server/dist/index.js",
+                env: {
+                  NODE_ENV: "production",
+                },
+                watch: false,
+                max_memory_restart: "300M"
+              }]
+            }
+            EOL
             fi
             
-            # Swap directories and restart app
-            if [ -d "/home/ubuntu/e360consult/e360-main/server" ]; then
-              mv /home/ubuntu/e360consult/e360-main/server /home/ubuntu/e360consult/e360-main/server-old
+            # Swap directories
+            if [ -d "/home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server" ]; then
+              mv /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
             fi
-            mv /home/ubuntu/e360consult/e360-main/server-new /home/ubuntu/e360consult/e360-main/server
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/e360-main/server
+            mv /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-new /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server
             
-            # Restart the application
-            pm2 reload ecosystem.config.js --only e360-consult
+            # Handle PM2 - Install if not found, then use it
+            echo "=== PM2 Setup ==="
+            
+            # Check if PM2 is available
+            if ! command -v pm2 >/dev/null 2>&1; then
+              echo "PM2 not found, installing globally..."
+              npm install -g pm2
+              
+              # Update PATH to include global npm bin
+              NPM_GLOBAL_PATH=$(npm root -g 2>/dev/null | sed 's/node_modules$/bin/' 2>/dev/null || echo "")
+              if [ -n "$NPM_GLOBAL_PATH" ] && [ -d "$NPM_GLOBAL_PATH" ]; then
+                export PATH="$PATH:$NPM_GLOBAL_PATH"
+                echo "Added to PATH: $NPM_GLOBAL_PATH"
+              fi
+              
+              # Try to find PM2 after installation
+              if ! command -v pm2 >/dev/null 2>&1; then
+                # Manual search for pm2
+                PM2_LOCATIONS="/usr/local/bin/pm2 /usr/bin/pm2 $HOME/.npm-global/bin/pm2 $NPM_GLOBAL_PATH/pm2"
+                PM2_FOUND=""
+                for location in $PM2_LOCATIONS; do
+                  if [ -f "$location" ]; then
+                    PM2_FOUND="$location"
+                    break
+                  fi
+                done
+                
+                if [ -n "$PM2_FOUND" ]; then
+                  echo "Found PM2 at: $PM2_FOUND"
+                  PM2_CMD="$PM2_FOUND"
+                else
+                  echo "ERROR: PM2 still not found after installation"
+                  exit 1
+                fi
+              else
+                PM2_CMD="pm2"
+              fi
+            else
+              PM2_CMD="pm2"
+            fi
+            
+            echo "Using PM2 command: $PM2_CMD"
+            echo "PM2 version: $($PM2_CMD --version)"
+            
+            # Start or reload the application
+            if $PM2_CMD list | grep -q "${{ env.APP_NAME }}"; then
+              echo "Reloading existing PM2 process..."
+              $PM2_CMD reload ecosystem.config.js --only ${{ env.APP_NAME }}
+            else
+              echo "Starting new PM2 process..."
+              $PM2_CMD start ecosystem.config.js --only ${{ env.APP_NAME }}
+            fi
+            
+            # Show PM2 status
+            $PM2_CMD list
+            $PM2_CMD save
             
             # Clean up old directory after successful deployment
-            rm -rf /home/ubuntu/e360consult/e360-main/server-old
+            rm -rf /home/ubuntu/e360consult/${{ env.TARGET_DIR }}/server-old
+            
+            echo "=== Deployment completed successfully ==="

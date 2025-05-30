@@ -157,6 +157,9 @@ export const getAllApplications = async (
 };
 
 
+// new api for all info of visaApplication for new created client and application
+// visaApplication -->> payment ki info 
+
 
 
 

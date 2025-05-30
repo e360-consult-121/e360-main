@@ -10,7 +10,10 @@ client/dist
 client/.env
 server/.env
 
+.env.*
+
 /server/app.log
+
 
 
 server/app.log
