@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
   const navigate = useNavigate();
-  // console.log(data);
+  console.log(data);
   return (
     <Card
       sx={{
@@ -41,8 +41,8 @@ const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
           </TableHead>
           <TableBody>
             {data.map((id) => (
-              <TableRow key={id.caseId._id}>
-                <TableCell>{id._id}</TableCell>
+              <TableRow key={id.caseId.nanoVisaApplicationId}>
+                <TableCell>{id.caseId.nanoVisaApplicationId}</TableCell>
                 <TableCell>{id.name}</TableCell>
                 <TableCell>{id.status}</TableCell>
                 <TableCell>

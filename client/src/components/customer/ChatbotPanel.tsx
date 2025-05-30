@@ -1,9 +1,8 @@
+import React, { useRef } from "react";
 import { IconButton, Drawer } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { Icon } from "@iconify/react";
-import { useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 
 const dummyMessages = [
   { sender: "admin", message: "Hello! How can I assist you today?" },
@@ -17,8 +16,19 @@ interface ChatbotPanelProps {
 }
 
 const ChatbotPanel = ({ chatVisible, setChatVisible }: ChatbotPanelProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // true on < md
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log("Uploaded file:", file);
+      // Handle file upload logic here (e.g., send to backend)
+    }
+  };
 
   const panelContent = (
     <div className="flex flex-col h-full w-full md:w-[400px] rounded-3xl bg-white shadow-lg">
@@ -53,44 +63,40 @@ const ChatbotPanel = ({ chatVisible, setChatVisible }: ChatbotPanelProps) => {
         <IconButton>
           <SendIcon sx={{ color: "black" }} />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={handleFileUploadClick}>
           <FileUploadIcon sx={{ color: "black" }} />
         </IconButton>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.png,.jpeg,.jpg"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </div>
     </div>
   );
 
   return (
-    <>
-      {/* Mobile Drawer */}
-      {isMobile ? (
-        <Drawer
-          anchor="right"
-          open={chatVisible}
-          onClose={() => setChatVisible(false)}
-          PaperProps={{
-            sx: {
-              transition: "transform 0.4s ease-in-out !important",
-              width: "100%",
-              maxWidth: "100vw",
-              borderTopLeftRadius: "24px",
-              borderBottomLeftRadius: "24px",
-            },
-          }}
-        >
-          {panelContent}
-        </Drawer>
-      ) : (
-        // Desktop Panel
-        <div
-          className={`hidden md:flex flex-col w-1/3 h-full transition-transform duration-500 rounded-3xl ${
-            chatVisible ? "translate-x-0" : "translate-x-full"
-          } bg-white shadow-lg`}
-        >
-          {panelContent}
-        </div>
-      )}
-    </>
+    <Drawer
+      anchor="right"
+      open={chatVisible}
+      onClose={() => setChatVisible(false)}
+      PaperProps={{
+        sx: {
+          transition: "transform 0.4s ease-in-out !important",
+          width: {
+            xs: "100%",
+            sm: "100%",
+            md: "400px",
+          },
+          borderTopLeftRadius: "24px",
+          borderBottomLeftRadius: "24px",
+        },
+      }}
+    >
+      {panelContent}
+    </Drawer>
   );
 };
 

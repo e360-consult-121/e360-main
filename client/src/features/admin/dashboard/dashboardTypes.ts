@@ -3,6 +3,7 @@ export interface RecentUpdatesTypes {
   caseId:{
       _id:string,
       leadId:string
+      nanoVisaApplicationId:string
     }
     name:string;
     status:string;
