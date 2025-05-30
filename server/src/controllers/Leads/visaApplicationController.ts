@@ -51,12 +51,14 @@ export const fetchParticularVisaApplication = async (req: Request, res: Response
       .populate({
         path: 'leadId',
         select: '_id caseId fullName email phone', 
-      });  
+      }).populate({
+        path:'userId',
+        select:"_id name phone email"
+      })
       // .populate({
       //   path: 'visaTypeId',
       //   select: 'visaType country',
       // })
-        // .populate('userId')
   
       return res.status(200).json({visaApplications:applications});
     } catch (error) {
