@@ -10,19 +10,15 @@ export const commonApi = baseApi.injectEndpoints({
       }),
     }),
 
-    
-
     submitRequirements: build.mutation({
       query: (requirements) => {
         return {
           url: `/visaApplications/common/submitRequirements`,
           method: "POST",
-          data: {requirements},
+          data: { requirements },
         };
       },
     }),
-
-
 
     //lots of changes here
     uploadDocument: build.mutation({
@@ -66,6 +62,15 @@ export const commonApi = baseApi.injectEndpoints({
       },
     }),
 
+    removeDocument: build.mutation({
+      query: (reqStatusId) => {
+        return {
+          url: `/visaApplications/common/${reqStatusId}/removeDocument`,
+          method: "POST",
+        };
+      },
+    }),
+
     stepSubmit: build.mutation({
       query: (visaApplicationId) => {
         return {
@@ -83,10 +88,8 @@ export const commonApi = baseApi.injectEndpoints({
       },
     }),
 
-
-
     fetchDeliveryDetails: build.query({
-      query: ({stepStatusId}) => {
+      query: ({ stepStatusId }) => {
         return {
           url: `visaApplications/common/${stepStatusId}/fetchBothDetails`,
           method: "GET",
@@ -95,11 +98,11 @@ export const commonApi = baseApi.injectEndpoints({
     }),
 
     fetchVaultDocs: build.query({
-        query: (visaApplicationId) => ({
-          url: `/visaApplications/docVault/${visaApplicationId}/fetchVaultDocS`,
-          method: "GET",
-        }),
-      }), 
+      query: (visaApplicationId) => ({
+        url: `/visaApplications/docVault/${visaApplicationId}/fetchVaultDocS`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -107,9 +110,10 @@ export const {
   useFetchDeliveryDetailsQuery,
   useGetCurrentStepInfoQuery,
   useLazyGetCurrentStepInfoQuery,
+  useRemoveDocumentMutation,
   useUploadDocumentMutation,
   useSubmitRequirementsMutation,
   useStepSubmitMutation,
   useMoveToNextStepMutation,
-  useFetchVaultDocsQuery
+  useFetchVaultDocsQuery,
 } = commonApi;

@@ -169,7 +169,7 @@ const UploadModal = ({
                   {selectedFileName}
                 </p>
                 <p className="text-xs text-neutrals-500">
-                  File Format: PNG &nbsp;&nbsp; File Size: 6MB
+                  File Format: PNG &nbsp;&nbsp; File Size: 12MB
                 </p>
                 <LinearProgress
                                   sx={{

@@ -5,6 +5,7 @@ const SignatureUpload = ({
   isLoading,
   signatureDocument,
   uploadSignature,
+  
 }: {
   moaDocument: string;
   isLoading: boolean;

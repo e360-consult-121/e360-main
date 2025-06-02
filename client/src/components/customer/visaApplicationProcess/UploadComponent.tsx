@@ -8,7 +8,7 @@ const UploadComponent = ({ d ,phase , refetch}: { d: any,phase:string,refetch:()
       return <FileUpload
       reqStatusId={d.reqStatusId}
       fileName={d.question}
-      fileSize="12"
+      fileSize="12MB"
       fileType={d.requirementType}
       reqStatus={d.reqStatus}
       phase={phase}

@@ -13,8 +13,10 @@ import ProcessComponent from "../ProcessComponent";
 
 const VisaCompletionDetailsGrenadaDominica = ({
   stepStatusId,
+  stepData
 }: {
   stepStatusId: string;
+  stepData: any;
 }) => {
   const { data, isLoading, isError, refetch } = useFetchDeliveryDetailsQuery({
     stepStatusId,
@@ -43,7 +45,7 @@ const VisaCompletionDetailsGrenadaDominica = ({
   }
 
   if (data.data.delivery && !data.data.shipping) {
-    return <ProcessComponent label="Processing" date="" status="" />;
+    return <ProcessComponent label="Processing" date="" status="" message={stepData.inProgressMessage} />;
   }
 
   const deliveryDetails = data.data.delivery;

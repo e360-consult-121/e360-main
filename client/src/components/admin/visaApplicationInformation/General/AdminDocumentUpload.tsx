@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import UploadModal from "../../../UploadModal";
+import { useRemoveDocumentMutation } from "../../../../features/common/commonApi";
 
 interface FileDataType {
   fileName: string;
@@ -26,6 +27,19 @@ const AdminDocumentUpload = ({
 
   // console.log(reqStatusId)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
+  const [removeDocument, { isLoading: isRemoving }] =
+    useRemoveDocumentMutation();
+
+  const handleDeleteDocument = async () => {
+    try {
+      await removeDocument(reqStatusId).unwrap();
+      refetch(); 
+    } catch (error) {
+      console.error("Error deleting document:", error);
+    }
+  }
+
+
 
   return (
     <div className="w-full flex items-center justify-between border-b border-neutrals-50 p-3">
@@ -82,6 +96,27 @@ const AdminDocumentUpload = ({
                   onClick={() => setIsUploadModalOpen(true)}
                 >
                   Re-Upload
+                </button>
+                <button
+                  onClick={handleDeleteDocument}
+                  disabled={isRemoving}
+                  className="border border-red-500 disabled:bg-red-300 py-2 md:py-1 px-10 md:px-3 text-red-500 text-sm rounded-xl cursor-pointer flex items-center gap-1 transition-colors"
+                >
+                  {isRemoving ? (
+                    <>
+                      <Icon icon="eos-icons:loading" width="16" height="16" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Icon
+                        icon="material-symbols:delete-outline"
+                        width="16"
+                        height="16"
+                      />
+                      Delete
+                    </>
+                  )}
                 </button>
 
                 <a href={value} target="_blank">

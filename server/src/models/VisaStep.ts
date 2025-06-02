@@ -19,6 +19,7 @@ export interface IVisaStep extends Document {
   stepType: StepTypeEnum;
   visaTypeId: mongoose.Schema.Types.ObjectId;
   emailTriggers?: EmailTrigger[];
+  inProgressMessage?: string;
 }
 
 const VisaStepSchema = new Schema<IVisaStep>(
@@ -67,6 +68,9 @@ const VisaStepSchema = new Schema<IVisaStep>(
         },
       ],
       required: false,
+    },
+    inProgressMessage: {
+      type: String,
     },
   },
   { timestamps: true }

@@ -5,7 +5,7 @@ import { useFetchTradeInfoQuery } from "../../../../features/admin/visaApplicati
 import { useEffect } from "react";
 
 
-const TradeNameMain = ({stepStatusId,onContinue}:{stepStatusId:string,onContinue:()=>void}) => {
+const TradeNameMain = ({stepStatusId,stepData,onContinue}:{stepStatusId:string,stepData:any,onContinue:()=>void}) => {
 
   const {data,refetch}=useFetchTradeInfoQuery({stepStatusId})
   
@@ -18,7 +18,7 @@ const TradeNameMain = ({stepStatusId,onContinue}:{stepStatusId:string,onContinue
     return <InitialPreferencesForm stepStatusId={stepStatusId} refetch={refetch}/>;
   }
   if (["ChangeReq_Sent","TradeNames_Uploaded"].includes(data?.data?.status)) {
-    return <ProcessComponent date="" label="Processing" status="" />;
+    return <ProcessComponent date="" label="Processing" status="" message={stepData.inProcessMessage || ""} />;
   }
   if(["ChangeReq_Approved","ChangeReq_Rejected","TradeName_Assigned"].includes(data?.data?.status)) {
     return <TradeNameApproved stepStatusId={stepStatusId} data={data} onContinue={onContinue} refetch={refetch}/>

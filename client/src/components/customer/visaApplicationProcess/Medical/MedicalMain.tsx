@@ -5,7 +5,7 @@ import {
 import ProcessComponent from "../ProcessComponent";
 import MedicalDetails from "./MedicalDetails";
 
-const MedicalMain = ({ stepStatusId,phase,onContinue }: { stepStatusId: string,phase:string,onContinue:()=>void }) => {
+const MedicalMain = ({ stepStatusId,phase,onContinue,stepData }: { stepStatusId: string,phase:string,onContinue:()=>void,stepData:any }) => {
   const { data, refetch } = useFetchMedicalTestInfoQuery({
     stepStatusId,
   });
@@ -24,7 +24,7 @@ const MedicalMain = ({ stepStatusId,phase,onContinue }: { stepStatusId: string,p
 
 
   if (!data?.data || data?.data?.medicalInfo?.status === "RescheduleReq_Sent") {
-    return <ProcessComponent label="Processing" date={""} status="" />;
+    return <ProcessComponent label="Processing" date={""} status="" message={stepData.inProgressMessage} />;
   }
   return (
     <div>

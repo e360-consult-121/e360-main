@@ -1,7 +1,7 @@
 import { Phase } from "../../../pages/customer/dashboard/VisaApplicationProcess";
 import Requirements from "./Requirements";
 import Approved from "./Approved";
-import AdminStepSource from "./ProcessComponent";
+import ProcessComponent from "./ProcessComponent";
 import MedicalApproved from "./Medical/MedicalApproved";
 import AIMAClientComponent from "./AIMA_Appointment/AIMAClientComponent";
 import BankDetails from "./Bank/BankDetails";
@@ -42,23 +42,23 @@ const StepPhase: React.FC<{
   if (stepType === "DGDELIVERY") {
     return (
       <>
-        <VisaCompletionDetailsGrenadaDominica stepStatusId={stepData.currentStepStatusId} />
+        <VisaCompletionDetailsGrenadaDominica stepStatusId={stepData.currentStepStatusId} stepData={stepData} />
       </>
     );
   } else if (stepType === "DGINVESTMENT") {
     return <DGInvestmentMain visaApplicationId={visaApplicationId} visaType={visaType} stepData={stepData} onContinue={onContinue} currentStepName={currentStepName} />;
   } 
   else if(stepType==="TRADE_NAME"){
-    return <TradeNameMain stepStatusId={stepData.currentStepStatusId} onContinue={onContinue}/>
+    return <TradeNameMain stepStatusId={stepData.currentStepStatusId} stepData={stepData} onContinue={onContinue}/>
   }
   else if(stepType==="MOA_SIGNING" && phase==="IN_PROGRESS"){
-    return <MoaSigningMain stepStatusId={stepData.currentStepStatusId} />
+    return <MoaSigningMain stepStatusId={stepData.currentStepStatusId} stepData={stepData}/>
   }
   else if(stepType==="MEDICAL_TEST" ){
-    return <MedicalMain stepStatusId={stepData.currentStepStatusId} phase={phase} onContinue={onContinue}/>
+    return <MedicalMain stepStatusId={stepData.currentStepStatusId} phase={phase} stepData={stepData} onContinue={onContinue}/>
   }
   else if(stepType==="DUBAI_PAYMENT" ){
-    return <PaymentMain stepStatusId={stepData.currentStepStatusId} phase={phase} onContinue={onContinue}/>
+    return <PaymentMain stepStatusId={stepData.currentStepStatusId} stepData={stepData} phase={phase} onContinue={onContinue}/>
   }
   else if (phase === "APPROVED" && stepType !== "AIMA") {
     if (stepType === "BANK") {
@@ -100,10 +100,11 @@ const StepPhase: React.FC<{
     } else if (stepSource === "ADMIN") {
       return (
         <div>
-          <AdminStepSource
+          <ProcessComponent
             label="Request in Progress"
             date="13 Feb 2025, 12:30 P.M."
             status="in_progress"
+            message={stepData.inProgressMessage || "Your request is being processed by our team. We will notify you once it is completed."}
           />
         </div>
       );

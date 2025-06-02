@@ -6,8 +6,10 @@ import { toast } from "react-toastify";
 
 const MoaSigningMain = ({
   stepStatusId,
+  stepData
 }: {
   stepStatusId: string;
+  stepData:any;
 }) => {
   const { data, refetch } = useFetchMoaInfoQuery({ stepStatusId });
   const [uploadSignature,{isLoading:isUploadSignatureLoading}] = useUploadSignatureMutation();
@@ -26,7 +28,7 @@ const MoaSigningMain = ({
   }
 
   if (data?.data === null || data?.data?.moaStatus === "Sig_Uploaded") {
-    return <ProcessComponent date="" label="Processing" status="" />;
+    return <ProcessComponent date="" label="Processing" status="" message={stepData.inProgressMessage} />;
   }
   else if(data?.data?.moaStatus === "MOA_Uploaded") {
     return <SignatureUpload moaDocument={data?.data?.moaDocument} isLoading={isUploadSignatureLoading} signatureDocument={data?.data?.signatureFile} uploadSignature={handleUploadMoa}/>

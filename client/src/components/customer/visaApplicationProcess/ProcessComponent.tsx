@@ -2,7 +2,7 @@ import { Box, Typography, Stack, Avatar } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import CircleIcon from '@mui/icons-material/Circle';
 
-const ProcessComponent = ({ label, date, status }:{ label:string; date:string; status:string }) => {
+const ProcessComponent = ({ label, date, status ,message}:{ label:string; date:string; status:string,message?:string }) => {
   {date}
   
   return (
@@ -50,9 +50,9 @@ const ProcessComponent = ({ label, date, status }:{ label:string; date:string; s
             <Typography sx={{ fontWeight: 500, fontSize: 16, color: '#222' }}>
               {label}
             </Typography>
-            {/* <Typography sx={{ fontSize: 14, color: '#555' }}>
-              Date - {date}
-            </Typography> */}
+            <Typography sx={{ fontSize: 14, color: '#555' }}>
+              {message}
+            </Typography>
           </Box>
         </Stack>
       </Stack>

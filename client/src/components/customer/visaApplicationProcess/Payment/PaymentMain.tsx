@@ -5,10 +5,12 @@ import { useFetchPaymentInfoQuery } from "../../../../features/admin/visaApplica
 const PaymentMain = ({
   stepStatusId,
   phase,
+  stepData,
   onContinue,
 }: {
   stepStatusId: string;
   phase: string;
+  stepData: any;
   onContinue: () => void;
 }) => {
   const { data, isLoading: isPaymentInfoLoading } = useFetchPaymentInfoQuery({
@@ -36,7 +38,14 @@ const PaymentMain = ({
   }
 
   if (!data?.data) {
-    return <ProcessComponent label="Processing... " date="" status="" />;
+    return (
+      <ProcessComponent
+        label="Processing"
+        message={stepData.inProgressMessage}
+        date=""
+        status=""
+      />
+    );
   }
 
   // Display based on payment status
@@ -47,9 +56,18 @@ const PaymentMain = ({
           Payment Details
         </Typography>
         <Typography variant="body1">
-          Amount: {data.data.currency === "inr" ? "₹" : data.data.currency === "usd" ? "$" : "€"} {data.data.amount}
+          Amount:{" "}
+          {data.data.currency === "inr"
+            ? "₹"
+            : data.data.currency === "usd"
+            ? "$"
+            : "€"}{" "}
+          {data.data.amount}
         </Typography>
-        <Typography variant="body1" sx={{ color: getStatusColor(data.data.status) }}>
+        <Typography
+          variant="body1"
+          sx={{ color: getStatusColor(data.data.status) }}
+        >
           Status: {formatStatus(data.data.status)}
         </Typography>
       </Box>
@@ -88,21 +106,24 @@ const PaymentMain = ({
           </Button>
         )}
 
-        {data.data.status === "PAID" && (
-          phase==="APPROVED" ? (<Button
-            onClick={onContinue}
-            variant="outlined"
-            sx={{
-              borderRadius: 10,
-              textTransform: "none",
-              px: 4,
-              color:"black",
-              borderColor: "black",
-            }}
-          >
-            Continue
-          </Button>):(<Typography>Wait for Admin Approval...</Typography>)
-        )}
+        {data.data.status === "PAID" &&
+          (phase === "APPROVED" ? (
+            <Button
+              onClick={onContinue}
+              variant="outlined"
+              sx={{
+                borderRadius: 10,
+                textTransform: "none",
+                px: 4,
+                color: "black",
+                borderColor: "black",
+              }}
+            >
+              Continue
+            </Button>
+          ) : (
+            <Typography>Wait for Admin Approval...</Typography>
+          ))}
       </Box>
     </Box>
   );

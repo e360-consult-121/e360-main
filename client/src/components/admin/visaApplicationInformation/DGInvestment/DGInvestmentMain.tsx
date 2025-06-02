@@ -54,7 +54,7 @@ const DGInvestmentMain = ({
   };
 
   if (stepData.stepStatus === "SUBMITTED") {
-    return <ProcessComponent label="Processing" date="" status="" />;
+    return <ProcessComponent label="Processing" date="" status="" message={stepData.inProgressMessage}/>;
   }
   
   if (stepData.stepStatus === "APPROVED") {

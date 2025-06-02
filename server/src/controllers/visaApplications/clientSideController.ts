@@ -16,6 +16,7 @@ import { getDgInvestmentStepResponse } from "./exceptionUtility";
 import { VisaTypeModel } from "../../models/VisaType";
 import mongoose, { Types } from "mongoose";
 import { sendApplicationUpdateEmails } from "../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
+import { deleteImageFromS3 } from "../../services/s3Upload";
 
 export const getCurrentStepInfo = async (req: Request, res: Response) => {
   console.log(`getCurrentStepInfo api hit`);
@@ -91,8 +92,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
   // handle when domiGrena
   const stepStatusId = stepStatusDoc?._id as Types.ObjectId;
 
-
-  // We have to handle this condition differently 
+  // We have to handle this condition differently
   if (!stepStatusId) {
     return res.status(400).json({ message: "Missing stepStatusId." });
   }
@@ -106,6 +106,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
       stepData: {
         stepType: step.stepType,
         currentStepStatusId: stepStatusId,
+        inProgressMessage: step.inProgressMessage || "",
         stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
         stepSource: step.stepSource,
         dgInvestmentData: response.dgInvestmentData,
@@ -125,6 +126,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
       commonInfo,
       stepData: {
         stepType: step.stepType,
+        inProgressMessage: step.inProgressMessage || "",
         stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
         aimaDocs,
         stepSource: step.stepSource,
@@ -161,6 +163,7 @@ export const getCurrentStepInfo = async (req: Request, res: Response) => {
       currentStepStatusId: stepStatusId,
       currentStepNumber: currentStep,
       stepType: step.stepType,
+      inProgressMessage: step.inProgressMessage || "",
       stepSource: step.stepSource,
       stepStatus: stepStatusDoc?.status || "IN_PROGRESS",
       requirements: formattedRequirements,
@@ -250,6 +253,94 @@ export const uploadDocument = async (req: Request, res: Response) => {
   return;
 };
 
+export const removeDocument = async (req: Request, res: Response) => {
+  const { reqStatusId } = req.params;
+
+  if (!reqStatusId || reqStatusId === "null" || reqStatusId === "undefined") {
+    res.status(400).json({ error: "Requirement Status ID is required." });
+    return;
+  }
+
+  try {
+    const reqStatusDoc = await reqStatusModel.findById(reqStatusId);
+    if (!reqStatusDoc) {
+      res.status(404).json({ error: "Requirement status not found." });
+      return;
+    }
+
+    if (!reqStatusDoc.value) {
+      res.status(400).json({ error: "No document found to remove." });
+      return;
+    }
+
+    const step = await stepModel.findById(reqStatusDoc.stepId);
+    if (!step) {
+      return res.status(500).json({ error: "Associated step not found." });
+    }
+
+    const stepSource = step.stepSource;
+    if (
+      (stepSource === DocumentSourceEnum.USER && !req.user) ||
+      (stepSource === DocumentSourceEnum.ADMIN && !req.admin)
+    ) {
+      return res.status(403).json({
+        error: "You are not authorized to remove document for this step.",
+      });
+    }
+
+    const currentValue = String(reqStatusDoc.value);
+    const isS3Url =
+      currentValue.includes(".s3.") || currentValue.includes("amazonaws.com");
+
+    if (isS3Url) {
+      try {
+        await deleteImageFromS3(currentValue);
+        console.log(`Document deleted from S3: ${currentValue}`);
+      } catch (error) {
+        console.error("Error deleting document from S3:", error);
+      }
+    }
+
+    reqStatusDoc.value = null;
+    reqStatusDoc.status = visaApplicationReqStatusEnum.NOT_UPLOADED;
+    reqStatusDoc.reason = null;
+    await reqStatusDoc.save();
+
+    const requirement = await reqModel.findById(reqStatusDoc.reqId);
+    if (!requirement) {
+      return res.status(500).json({ error: "Related requirement not found." });
+    }
+
+    if (requirement.required) {
+      const stepStatusDoc = await stepStatusModel.findOne({
+        visaApplicationId: reqStatusDoc.visaApplicationId,
+        stepId: reqStatusDoc.stepId,
+      });
+
+      if (stepStatusDoc) {
+        stepStatusDoc.reqFilled.set(reqStatusDoc.reqId.toString(), false);
+        await stepStatusDoc.save();
+        console.log(
+          `Updated reqFilled map for stepStatus: ${stepStatusDoc._id}`
+        );
+      }
+    }
+
+    res.status(200).json({
+      message: "Document removed successfully.",
+      updatedStatus: reqStatusDoc,
+    });
+    return;
+  } catch (error) {
+    console.error("Error removing document:", error);
+    res.status(500).json({
+      error: "An error occurred while removing the document.",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+    return;
+  }
+};
+
 export const submitRequirements = async (req: Request, res: Response) => {
   const { requirements } = req.body;
 
@@ -288,7 +379,9 @@ export const submitRequirements = async (req: Request, res: Response) => {
 
       const step = await stepModel.findById(reqStatusDoc.stepId);
       if (!step) {
-        errors.push(`Associated step not found for requirement: ${reqStatusId}`);
+        errors.push(
+          `Associated step not found for requirement: ${reqStatusId}`
+        );
         continue;
       }
 
@@ -318,10 +411,7 @@ export const submitRequirements = async (req: Request, res: Response) => {
         });
 
         if (stepStatusDoc) {
-          stepStatusDoc.reqFilled.set(
-            reqStatusDoc.reqId.toString(),
-            true
-          );
+          stepStatusDoc.reqFilled.set(reqStatusDoc.reqId.toString(), true);
           await stepStatusDoc.save();
         }
       }
@@ -331,10 +421,14 @@ export const submitRequirements = async (req: Request, res: Response) => {
         success: true,
         message: "Requirement submitted successfully",
       });
-
     } catch (err: any) {
-      console.error(`Error processing requirement: ${JSON.stringify(requirement)}`, err);
-      errors.push(`Unhandled error for reqStatusId ${requirement?.reqStatusId || 'unknown'}`);
+      console.error(
+        `Error processing requirement: ${JSON.stringify(requirement)}`,
+        err
+      );
+      errors.push(
+        `Unhandled error for reqStatusId ${requirement?.reqStatusId || "unknown"}`
+      );
     }
   }
 
@@ -356,13 +450,13 @@ export const stepSubmit = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "visaApplicationId is required." });
   }
 
-  console.log("visaApplicationId",visaApplicationId)
+  console.log("visaApplicationId", visaApplicationId);
 
   const appData = await visaApplicationModel.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(visaApplicationId) } },
     {
       $lookup: {
-        from: "users", 
+        from: "users",
         localField: "userId",
         foreignField: "_id",
         as: "user",
@@ -400,7 +494,7 @@ export const stepSubmit = async (req: Request, res: Response) => {
     { $unwind: "$currentStepDoc" },
     {
       $lookup: {
-        from: "visaapplicationstepstatuses", 
+        from: "visaapplicationstepstatuses",
         let: {
           stepId: "$currentStepDoc._id",
           visaAppId: "$_id",
