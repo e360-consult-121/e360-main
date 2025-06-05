@@ -54,7 +54,7 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     return;
   }
 
-  const pageUrl = `http://localhost:5173/payments/${lead._id}`
+  const pageUrl = `${process.env.FRONTEND_URL}/payments/${lead._id}`
 
   // const pageUrl = `${PORTAL_LINK}/payments/${lead._id}`
   //  send link to the customer / lead 
