@@ -4,10 +4,10 @@ import { Icon } from "@iconify/react";
 import { useUploadDocumentMutation } from "../features/common/commonApi";
 import { toast } from "react-toastify";
 
- // utility to get readable size
+// utility to get readable size
 export const getFileSizeInMB = (size: number) => {
-    return (size / (1024 * 1024)).toFixed(2);
-  };
+  return (size / (1024 * 1024)).toFixed(2);
+};
 
 interface UploadModalProps {
   isUploadModalOpen: boolean;
@@ -44,9 +44,6 @@ const UploadModal = ({
       setSelectedFile(null);
     }
   };
-
- 
-  
 
   return (
     <Modal open={isUploadModalOpen}>
@@ -90,7 +87,7 @@ const UploadModal = ({
                 </p>
                 <LinearProgress
                   sx={{
-                    mt:2,
+                    mt: 2,
                     "& .MuiLinearProgress-bar": {
                       backgroundColor: "#facc15", // Tailwind's yellow-400
                     },

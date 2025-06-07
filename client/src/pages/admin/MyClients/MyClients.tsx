@@ -7,7 +7,7 @@ const MyClients = () => {
 
     const {data , isLoading ,isError,refetch} = useFetchAllClientsQuery(undefined);
     const [clientsData , setClientsData] = useState();
-  // console.log(data)
+  console.log(data)
     const [addNewClient] = useAddNewClientMutation();
     
     useEffect(() => {

@@ -14,7 +14,6 @@ import {
 } from "../../../features/common/commonApi";
 import { CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
-
 import ChatbotPanel from "../../../components/customer/ChatbotPanel";
 
 export interface SelectDropdown {
@@ -56,6 +55,7 @@ const VisaApplicationProcess = () => {
     useGetCurrentStepInfoQuery(visaApplicationId);
   const [stepSubmit] = useStepSubmitMutation();
   const [moveToNextStep] = useMoveToNextStepMutation();
+
 
   useEffect(() => {
     // console.log(data)
@@ -153,6 +153,7 @@ const VisaApplicationProcess = () => {
   <ChatbotPanel
     chatVisible={chatVisible}
     setChatVisible={setChatVisible}
+    visaApplicationId={visaApplicationId}
   />
 )}
     </div>

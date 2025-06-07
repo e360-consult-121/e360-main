@@ -3,4 +3,5 @@ export interface ApplicationCardProps {
     status: string;
     submissionDate: string;
     title: string;
+    visaApplicationId:string;
   }
