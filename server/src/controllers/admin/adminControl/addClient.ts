@@ -63,7 +63,7 @@ export const addNewClient = async (req: Request, res: Response) => {
     }
 
     // Get the roleId for CUSTOMER
-    const customerRole = await RoleModel.findOne({ name: "Customer" });
+    const customerRole = await RoleModel.findOne({ roleName: "Customer" });
     if (!customerRole) {
       return res.status(500).json({ message: "Customer role not found in roles collection." });
     }

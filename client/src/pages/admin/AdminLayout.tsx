@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import Sidebar, { TAB } from "../../components/Sidebar";
 import AdminHeader from "../../components/AdminHeader";
 
-const tabs:TAB[] = [
+const tabs: TAB[] = [
   {
     icon: "icon-park-outline:dashboard",
     label: "Dashboard",
@@ -46,9 +46,26 @@ const tabs:TAB[] = [
     route: "admin/leadmanagement",
   },
   {
-    icon: "vaadin:lines-list",
-    label: "Service Management",
-    route: "admin/servicemanagement",
+    icon: "mingcute:idcard-fill",
+    label: "Role and Permission",
+    route: "admin/roleandpermission",
+    children: [
+      {
+        label: "All Employee",
+        route: "admin/roleandpermission/allemployee",
+        icon: "",
+      },
+      {
+        icon: "",
+        label: "Manage Roles",
+        route: "admin/roleandpermission/manageroles",
+      },
+    ],
+  },
+  {
+    icon: "fa-solid:tasks",
+    label: "Task Managment",
+    route: "admin/taskmanagement",
   },
   {
     icon: "icon-park-outline:bank",
@@ -78,8 +95,6 @@ const tabs:TAB[] = [
 ];
 
 const AdminLayout = () => {
-
-  
   return (
     <div className="h-screen flex ">
       {/* Sidebar portion */}

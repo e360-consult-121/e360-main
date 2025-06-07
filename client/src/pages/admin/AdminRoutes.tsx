@@ -14,6 +14,8 @@ import { useEffect } from "react";
 import VisaApplicationInformation from "./visaApplicationInformation/VisaApplicationInformation";
 import MyClients from "./MyClients/MyClients";
 import ClientVisaApplications from "./MyClients/ClientVisaApplications";
+import RoleAndPermission from "./roleandPermission/RoleAndPermission";
+import TaskManagment from "./taskManagement/TaskManagment";
 // import { toast } from "react-toastify";
 
 const AdminRoutes = () => {
@@ -54,6 +56,8 @@ const AdminRoutes = () => {
         <Route path="/application/:visatype" element={<VisaApplicationInformation />} />
         <Route path="/myclient" element={<MyClients />} />
         <Route path="/myclient/:userid" element={<ClientVisaApplications />} />
+        <Route path="/roleandpermission/:type" element={<RoleAndPermission />} />
+        <Route path="/taskmanagement" element={<TaskManagment />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>

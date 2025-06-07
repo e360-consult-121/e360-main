@@ -128,6 +128,7 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
     const segments = location.pathname.split("/").filter(Boolean); // removes empty strings from splitting
     const basePath = segments.slice(0, 2).join("/"); // ["admin", "leadmanagement"] => "admin/leadmanagement"
     setCurrentTab(basePath);
+    // console.log(currentTab)
   }, [location.pathname]);
 
   return (
