@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import TaskManagementTable from "../../../features/admin/taskManagement/components/TaskManagementTable";
 import AddNewTaskDrawer from "../../../features/admin/taskManagement/components/AddNewTaskDrawer";
 
-const MyTasks = () => <div>My Tasks Content</div>;
-const UpcomingTasks = () => <div>Upcoming Tasks Content</div>;
-const DueTasks = () => <div>Due Tasks Content</div>;
-const OverdueTasks = () => <div>Overdue Tasks Content</div>;
+// const MyTasks = () => <div>My Tasks Content</div>;
+// const UpcomingTasks = () => <div>Upcoming Tasks Content</div>;
+// const DueTasks = () => <div>Due Tasks Content</div>;
+// const OverdueTasks = () => <div>Overdue Tasks Content</div>;
 
 const taskTabs = [
   {
@@ -18,25 +18,29 @@ const taskTabs = [
   {
     label: "My Tasks",
     value: "mytasks",
-    component: <MyTasks />,
+    // component: <MyTasks />,
+    component: <TaskManagementTable />,
     visible: true,
   },
   {
     label: "Upcoming Tasks",
     value: "upcomingtasks",
-    component: <UpcomingTasks />,
+    // component: <UpcomingTasks />,
+    component: <TaskManagementTable />,
     visible: true,
   },
   {
     label: "Due Tasks",
     value: "duetasks",
-    component: <DueTasks />,
+    // component: <DueTasks />,
+    component: <TaskManagementTable />,
     visible: true,
   },
   {
     label: "Overdue",
     value: "overdue",
-    component: <OverdueTasks />,
+    // component: <OverdueTasks />,
+    component: <TaskManagementTable />,
     visible: true,
   },
 ];
