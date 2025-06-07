@@ -50,7 +50,7 @@ const UserSchema: Schema = new Schema <IUser> ({
   roleId: { 
     type: Schema.Types.ObjectId,    //optional  (no need , only 1 entry in DB )
     ref: "Role", 
-    // required: true
+    required: true
   },
   employeeId: {
     type: String,     
@@ -115,6 +115,12 @@ UserSchema.pre("save", async function (next) {
 });
 
 export const UserModel = mongoose.model<IUser>("User", UserSchema);
+
+
+
+
+
+
 
 
 

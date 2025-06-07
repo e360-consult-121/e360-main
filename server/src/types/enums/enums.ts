@@ -182,6 +182,10 @@ export enum PaymentSourceEnum {
   DIRECT = 'Direct'
 }
 
+export enum senderTypeEnum {
+  ADMIN = 'Admin',
+  USER = 'User'
+}
 
 export enum messageTypeEnum {
   FileMsg = 'fileMsg',

@@ -146,6 +146,7 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
   let refreshToken = generateRefreshToken({
     id: String(newUser._id),
     role: newUser.role,
+    roleId: String(newUser.roleId)
   });
 
   await userModel.findByIdAndUpdate(newUser._id, { refreshToken });

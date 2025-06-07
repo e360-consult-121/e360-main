@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate ,authorizeAdmin } from "../../../middlewares/authenticate";
+import { checkPermission } from "../../../middlewares/permissionMiddleware";
 import asyncHandler from "../../../utils/asyncHandler";
 import * as dashboard from "../../../controllers/Leads/dashboardController"
 
@@ -21,8 +22,7 @@ authenticate , authorizeAdmin ,
 // addArrayForStaff("Leads")
 asyncHandler(dashboard.fetchRecentLeads));
 
-router.get("/fetchRecentConsultions",
-authenticate , authorizeAdmin ,
+router.get("/fetchRecentConsultions" ,
 //  checkPermission("View-Consultations"),
 //  addArrayForStaff("Consultations")
 asyncHandler(dashboard.fetchRecentConsultions));

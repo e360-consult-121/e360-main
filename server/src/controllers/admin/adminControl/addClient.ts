@@ -13,6 +13,7 @@ import { sendPortalAccessToClient } from "../../../services/emails/triggers/lead
 import {createVisaApplication} from "../../Leads/paymentFunctions";
 import { updateRevenueSummary } from "../../../utils/revenueCalculate";
 import { PaymentModel } from "../../../leadModels/paymentModel"
+import {RoleModel} from "../../../models/rbacModels/roleModel"
 
 const VISATYPE_MAP: Record<string, string> = {
   "Portugal": "6803644993e23a8417963622",
@@ -45,7 +46,8 @@ export const addNewClient = async (req: Request, res: Response) => {
         paymentLink : null , 
         invoiceUrl : (file as any)?.location ,
         paymentIntentId : null  ,
-        source : PaymentSourceEnum.DIRECT
+        source : PaymentSourceEnum.DIRECT,
+        paymentMethod : "Directly"
       })
 
         const { visaApplicantInfo } = await createVisaApplication({
@@ -59,6 +61,13 @@ export const addNewClient = async (req: Request, res: Response) => {
           newApplication : visaApplicantInfo,
         });
     }
+
+    // Get the roleId for CUSTOMER
+    const customerRole = await RoleModel.findOne({ roleName: "Customer" });
+    if (!customerRole) {
+      return res.status(500).json({ message: "Customer role not found in roles collection." });
+    }
+
   
     //  Generate random password
     const randomPassword = Math.random().toString(36).slice(-5); 
@@ -75,7 +84,7 @@ export const addNewClient = async (req: Request, res: Response) => {
       password: hashedPassword,
       role: RoleEnum.USER,
       status: AccountStatusEnum.ACTIVE,
-      roleId: null
+      roleId: customerRole._id
     });
   
     // Send email with credentials
@@ -101,7 +110,8 @@ export const addNewClient = async (req: Request, res: Response) => {
       paymentLink : null , 
       invoiceUrl : (file as any)?.location ,
       paymentIntentId : null  ,
-      source : PaymentSourceEnum.DIRECT
+      source : PaymentSourceEnum.DIRECT,
+      paymentMethod : "Directly"
     })
 
     // create new visaApplication 

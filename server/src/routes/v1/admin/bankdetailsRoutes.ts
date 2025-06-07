@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate ,authorizeAdmin } from "../../../middlewares/authenticate";
+import { checkPermission } from "../../../middlewares/permissionMiddleware";
 import asyncHandler from "../../../utils/asyncHandler";
 import * as bankDetails from "../../../controllers/manageBankDetails/bankDetailsControllers"
 
@@ -14,5 +15,3 @@ router.put("/editBankDetails/:visaTypeName",
 authenticate ,authorizeAdmin,
     // checkPermission("Edit Bank Details"),
  asyncHandler(bankDetails.editBankDetails))
-
-export default router;

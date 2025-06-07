@@ -44,10 +44,12 @@ export const registerUser = async (
   let accessToken = generateAccessToken({
     id: String(user._id),
     role: user.role,
+    roleId : String(user.roleId)
   });
   let refreshToken = generateRefreshToken({
     id: String(user._id),
     role: user.role,
+    roleId : String(user.roleId)
   });
 
   // Store the refresh token in user document (Optional)
@@ -80,10 +82,12 @@ export const login = async (
   let accessToken = generateAccessToken({
     id: String(user._id),
     role: user.role,
+    roleId : String(user.roleId)
   });
   let refreshToken = generateRefreshToken({
     id: String(user._id),
     role: user.role,
+    roleId : String(user.roleId)
   });
 
   await UserModel.findByIdAndUpdate(user._id, { refreshToken });
@@ -130,6 +134,7 @@ export const refreshToken = async (
     const newAccessToken = generateAccessToken({
       id: payload.id,
       role: payload.role,
+      roleId : String(user.roleId)
     });
 
     res.cookie("accessToken", newAccessToken, {
@@ -415,8 +420,47 @@ export const resetPassword = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Something went wrong. Please try again later." });
   }
 };
-<<<<<<< Updated upstream
-=======
 
 
->>>>>>> Stashed changes
+
+// Migrate roleId's
+const ROLE_IDS = {
+  CUSTOMER: new mongoose.Types.ObjectId("6836a43eec5535328b7e61c5"),
+  STAFF: new mongoose.Types.ObjectId("682ecefa53822350b0533a0d"),
+  MANAGER: new mongoose.Types.ObjectId("682ecefa53822350b0533a0e"),
+  ROOTADMIN: new mongoose.Types.ObjectId("682ecefa53822350b0533a10"),
+};
+
+
+export const fixMissingRoleIds = async (req: Request, res: Response) => {
+  const usersWithMissingRoleId = await UserModel.find({
+    $or: [{ roleId: null }, { roleId: { $exists: false } }],
+  });
+
+  let updatedCount = 0;
+
+  for (const user of usersWithMissingRoleId) {
+    let newRoleId;
+
+    switch (user.role) {
+      case "USER":
+        newRoleId = ROLE_IDS.CUSTOMER;
+        break;
+      case "ADMIN":
+        newRoleId = ROLE_IDS.ROOTADMIN;
+        break;
+      default:
+        console.warn(`Unknown role for user ${user._id}: ${user.role}`);
+        continue;
+    }
+
+    user.roleId = newRoleId;
+    await user.save({ validateBeforeSave: false });
+    updatedCount++;
+  }
+
+  res.status(200).json({
+    message: `RoleId successfully updated for ${updatedCount} users.`,
+  });
+};
+

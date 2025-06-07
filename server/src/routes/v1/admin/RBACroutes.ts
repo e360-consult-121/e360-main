@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate ,authorizeAdmin } from "../../../middlewares/authenticate";
+import { checkPermission } from "../../../middlewares/permissionMiddleware";
 import asyncHandler from "../../../utils/asyncHandler";
 import * as rbacControllers from "../../../controllers/admin/RBAC/rbacControllers"
 import * as rbacInfoControllers from "../../../controllers/admin/RBAC/infoController"

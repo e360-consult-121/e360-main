@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/bankdetails/fetchBankDetails?visaTypeName=DOMINICA\",\"status\":\"401\",\"responseTime\":\"931.066\"}","timestamp":"2025-05-24T11:44:50.247Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/refresh-token\",\"status\":\"401\",\"responseTime\":\"971.423\"}","timestamp":"2025-05-24T11:44:51.258Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"401\",\"responseTime\":\"5.818\"}","timestamp":"2025-05-24T11:44:51.398Z"}
@@ -815,3 +816,5 @@
 =======
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/migrate\",\"status\":\"200\",\"responseTime\":\"2506.403\"}","timestamp":"2025-05-28T07:11:15.148Z"}
 >>>>>>> Stashed changes
+=======
+>>>>>>> c0c9800edec9dc604d603219b481c26216dbe821
