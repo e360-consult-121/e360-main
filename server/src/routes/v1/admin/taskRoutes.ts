@@ -1,0 +1,52 @@
+import { Router } from "express";
+import { authenticate ,authorizeAdmin } from "../../../middlewares/authenticate";
+import { checkPermission } from "../../../middlewares/permissionMiddleware";
+import asyncHandler from "../../../utils/asyncHandler";
+import * as taskControllers from "../../../controllers/admin/teamAndTaskControllers/taskController"
+import * as taskInfoControllers from "../../../controllers/admin/teamAndTaskControllers/taskInfoController"
+import * as otherInfoControllers from "../../../controllers/admin/teamAndTaskControllers/otherInfoController"
+import { addArrayForStaff } from "../../../middlewares/addArrayForStaff";
+
+
+const router = Router();
+
+router.post("/addNewTask",
+ authenticate ,authorizeAdmin,
+//  checkPermission("Create_task"),
+ asyncHandler(taskControllers.addNewTask));
+
+router.post("/editTask/:taskId",
+ authenticate ,authorizeAdmin,
+ //  checkPermission("Edit_task"),
+ asyncHandler(taskControllers.editTask));
+
+router.delete("/deleteTask/:taskId",
+ authenticate ,authorizeAdmin,
+  //  checkPermission("Delete_task"),
+ asyncHandler(taskControllers.deleteTask));
+
+//  Fetch  Tasks
+router.get("/fetchAllTasks"       , authenticate , authorizeAdmin , asyncHandler(taskInfoControllers.fetchAllTasks));
+router.get("/fetchMyTasks"        , authenticate , authorizeAdmin , asyncHandler(taskInfoControllers.fetchMyTasks));
+
+
+router.get("/fetchUpcomingTasks",
+ authenticate , authorizeAdmin ,
+//  addArrayForStaff("Tasks"),
+ asyncHandler(taskInfoControllers.fetchUpcomingTasks));
+
+router.get("/fetchDueTasks" ,
+ authenticate , authorizeAdmin ,
+//  addArrayForStaff("Tasks"),
+ asyncHandler(taskInfoControllers.fetchDueTasks));
+
+router.get("/fetchOverdueTasks"   ,
+ authenticate , authorizeAdmin ,
+//  addArrayForStaff("Tasks"),
+ asyncHandler(taskInfoControllers.fetchOverdueTasks));
+
+// Fetch Helping Details
+router.get("/fetchAllLeads"             , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAllLeads));
+router.get("/fetchAllVisaApplications"  , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAllVisaApplications));
+router.get("/fetchAssigneeList"         , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAssigneeList));
+export default router;

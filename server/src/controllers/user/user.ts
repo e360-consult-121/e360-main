@@ -15,7 +15,7 @@ export const userProfile= async(
 
 
 export const editProfile = async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user?.id;
   
   // Get all custom fields from DB
   const customFields = await customFieldModel.find({});
@@ -55,7 +55,7 @@ export const editProfile = async (req: Request, res: Response) => {
 
 // fetch userProfile 
 export const fetchUserProfile = async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user?.id;
 
   const user = await userModel.findById(userId).select("name email phone nationality");
   if (!user) {

@@ -14,7 +14,9 @@ import { VisaStepModel as stepModel } from "../../models/VisaStep";
 import { VisaApplicationStepStatusModel as stepStatusModel } from "../../models/VisaApplicationStepStatus";
 import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
 import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus"
-
+import { RoleModel } from "../../models/rbacModels/roleModel";
+import {TaskModel } from "../../models/teamAndTaskModels/taskModel"
+import {AssignmentModel } from "../../models/teamAndTaskModels/assignModel"
 import {
   leadStatus,
   RoleEnum,
@@ -35,7 +37,7 @@ import { sendPaymentLinkToLead } from "../../services/emails/triggers/leads/paym
 import { getServiceType } from "../../utils/leadToServiceType";
 import { sendPortalAccessToClient } from "../../services/emails/triggers/leads/payment/payment-successful";
 import { handleDubaiPayment } from "../visaApplications/DubaiControllers/paymentController";
-
+import {assignDefaultLead , assignDefaultVisaApplication } from "../../utils/defaultTaskAssign"
 
 
 
@@ -204,7 +206,14 @@ export interface createUserOptions {
         }));
   
         await reqStatusModel.insertMany(reqStatusDocs); 
-  
+
+        // DEFAULT TASK ASSIGNMENT LOGIC
+        await assignDefaultVisaApplication(
+          newApplication._id as mongoose.Types.ObjectId,
+          userId as mongoose.Types.ObjectId
+        );
+      
+
         console.log("Visa application & step status created successfully:", newApplication._id);
         console.log("Visa application created successfully:", newApplication);
       

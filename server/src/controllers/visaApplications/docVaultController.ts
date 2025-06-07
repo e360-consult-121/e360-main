@@ -227,7 +227,7 @@ export const docUploadByUser = async (req: Request, res: Response) => {
       categoryId: category._id,
       url : (file as any).location ,
       docName:documentName,
-      uploadedBy: req.user.role // isko check karna hai...
+      uploadedBy: req.user?.role // isko check karna hai...
   });
 
   res.status(201).json({ message: "Document uploaded successfully", doc });

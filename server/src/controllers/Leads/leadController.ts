@@ -10,8 +10,14 @@ import { leadStatus } from "../../types/enums/enums";
 
 // pagination lagana hai 
 export const getAllLeads = async (req: Request, res: Response) => {
-    const leads = await LeadModel.find();
-    res.status(200).json({ leads });
+  const filter: any = {};
+
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    filter._id = { $in: req.assignedIds };
+  }
+
+  const leads = await LeadModel.find(filter);
+  res.status(200).json({ leads });
 };
 
 

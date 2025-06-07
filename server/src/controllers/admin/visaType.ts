@@ -15,7 +15,15 @@ import {RoleEnum } from "../../types/enums/enums";
 
 // API for fetchAllClients
 export const fetchAllClients = async (req: Request, res: Response) => {
-    const users = await UserModel.find({ role: RoleEnum.USER }).select("name email phone");
+
+  // Prepare filter for users (clients)
+  const filter: any = { role: RoleEnum.USER };
+
+  // If assignedIds exist, filter users by assignedIds
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    filter._id = { $in: req.assignedIds };
+  }
+    const users = await UserModel.find( filter ).select("name email phone");
   
     const enrichedUsers = await Promise.all(
       users.map(async (user) => {
@@ -27,7 +35,7 @@ export const fetchAllClients = async (req: Request, res: Response) => {
                                                              .sort({ createdAt: -1 }).lean();
             
 
-          let visaTypeName = "N/A";
+          let visaTypeName = "N/A";   
           let startingDate = "N/A"; 
           let caseId = "N/A";
 
@@ -117,9 +125,15 @@ export const fetchClientVisaApplications = async (req: Request, res: Response) =
   }
 
   try {
-    const applications = await VisaApplicationModel.find({ userId: userid }).populate({
-      path:"visaTypeId",
-      select:"visaType"
+    const filter: any = { userId: userid };
+
+    if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+      filter._id = { $in: req.assignedIds };
+    }
+
+    const applications = await VisaApplicationModel.find(filter).populate({
+      path: "visaTypeId",
+      select: "visaType",
     });
 
     if (!applications.length) {
@@ -132,6 +146,7 @@ export const fetchClientVisaApplications = async (req: Request, res: Response) =
     return res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 // fetch All applications of a particular client 
 export const getAllApplications = async (

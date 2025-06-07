@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import mongoose, { Schema, Document, Types } from "mongoose";
 import dotenv from "dotenv";
 import morgan from "morgan";
 // import helmet from "helmet";
@@ -34,6 +35,7 @@ import { sendHighPriorityLeadEmail } from "./services/emails/triggers/leads/elig
 import { sendMediumPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
 import { sendLowPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/lowPriority";
 import { leadEmailToAdmin } from "./services/emails/triggers/admin/eligibility-form-filled/priorityTrigger";
+import {assignDefaultLead , assignDefaultVisaApplication } from "./utils/defaultTaskAssign"
 import {
   JOTFORM_ID_DOMINICA_GRENADA,
   JOTFORM_ID_DUBAI,
@@ -228,6 +230,8 @@ app.post(
       });
 
       await newLead.save();
+
+      assignDefaultLead(newLead._id as mongoose.Types.ObjectId);
 
       const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${newLead._id}&utm_source=EEE360`;
 

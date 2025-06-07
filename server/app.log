@@ -99,6 +99,7 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchAllRevenue\",\"status\":\"200\",\"responseTime\":\"102.953\"}","timestamp":"2025-05-24T11:58:37.252Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchRecentUpdates\",\"status\":\"200\",\"responseTime\":\"182.968\"}","timestamp":"2025-05-24T11:58:37.325Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchAnalytics\",\"status\":\"200\",\"responseTime\":\"276.991\"}","timestamp":"2025-05-24T11:58:37.436Z"}
+<<<<<<< Updated upstream
 {"level":"info","message":"{\"method\":\"OPTIONS\",\"url\":\"/api/v1/auth/login\",\"status\":\"204\",\"responseTime\":\"2.538\"}","timestamp":"2025-05-26T13:43:42.730Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"478.949\"}","timestamp":"2025-05-26T13:43:43.221Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"200\",\"responseTime\":\"6.466\"}","timestamp":"2025-05-26T13:43:43.432Z"}
@@ -811,3 +812,6 @@
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/visaApplications/common/683dab797f60fb57e9d79b01/uploadDocument\",\"status\":\"200\",\"responseTime\":\"3549.976\"}","timestamp":"2025-06-02T13:49:14.715Z"}
 {"level":"info","message":"{\"method\":\"OPTIONS\",\"url\":\"/api/v1/visaApplications/common/683daa327f60fb57e9d79700/getCurrentStepInfo\",\"status\":\"204\",\"responseTime\":\"0.338\"}","timestamp":"2025-06-02T13:49:14.725Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/common/683daa327f60fb57e9d79700/getCurrentStepInfo\",\"status\":\"200\",\"responseTime\":\"500.846\"}","timestamp":"2025-06-02T13:49:15.229Z"}
+=======
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/migrate\",\"status\":\"200\",\"responseTime\":\"2506.403\"}","timestamp":"2025-05-28T07:11:15.148Z"}
+>>>>>>> Stashed changes

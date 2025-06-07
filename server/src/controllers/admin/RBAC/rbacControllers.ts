@@ -6,6 +6,7 @@ import { UserModel as userModel } from "../../../models/Users";
 import { RoleModel as roleModel } from "../../../models/rbacModels/roleModel";
 import { ActionModel as actionModel } from "../../../models/rbacModels/actionModel";
 import { FeatureModel as featureModel } from "../../../models/rbacModels/featureModel";
+import { AssignmentModel  } from "../../../models/teamAndTaskModels/assignModel";
 import { PermissionModel as permissionModel } from "../../../models/rbacModels/permissionModel";
 import bcrypt from "bcryptjs";
 import {
@@ -95,12 +96,12 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
     email,
     phone,
     nationality,
-    password,
+    password, //optional
     roleName , 
-    actionIds = [], // optional
+    actionIds = [], //  Optional (Required only when admin sends a non existing RoleName )
   } = req.body;
 
-  if (!name || !email || !phone || !password || !roleName) {
+  if (!name || !email || !phone ||  !roleName) {
     res.status(400);
     throw new Error("Missing required fields.");
   }
@@ -112,8 +113,14 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
     throw new Error("User with this email already exists.");
   }
 
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
+  // Use provided password or generate a 5-digit one
+  const plainPassword = password || Math.floor(10000 + Math.random() * 90000).toString();
+  const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+  // Send a mail to employee , that your admin account has beed created (credetails , and roleName also )
+  // ..........
+  // ..........
+  // ..........
   
 
   // Create role or get existing one
@@ -209,38 +216,103 @@ export const assignActionsToRole = async (req: Request, res: Response) => {
   
 
 
-// 4th
-export const changeRole = async (req: Request, res: Response) => {
-  const { userId, newRoleName } = req.body;
+// 4th  -->> Edit Employee
+// req type -->> patch 
+// And send only thise fields which are updated 
+export const editAdminUser = async (req: Request, res: Response) => {
+  const { employeeId } = req.params;
+  const {
+    name,
+    phone,
+    nationality,
+    roleName,
+    password, 
+  } = req.body;
 
-  // Input validation
-  if (!userId || !newRoleName) {
+  if (!name && !phone && !nationality && !roleName && !password) {
     res.status(400);
-    throw new Error("userId and newRoleName are required.");
+    throw new Error("At least one field is required to update.");
   }
 
-  // Find user by ID
-  const user = await userModel.findById(userId);
+  const user = await userModel.findById( employeeId );
   if (!user) {
     res.status(404);
-    throw new Error("User not found.");
+    throw new Error("Admin user not found.");
   }
 
-  // Find role by name
-  const role = await roleModel.findOne({ name: newRoleName });
-  if (!role) {
-    res.status(404);
-    throw new Error("Specified role does not exist.");
+  let updatedFields: any = {};
+
+  if (name) updatedFields.name = name;
+  if (phone) updatedFields.phone = phone;
+  if (nationality) updatedFields.nationality = nationality;
+
+  if (roleName) {
+    const existingRole = await roleModel.findOne({ roleName });
+    if (!existingRole) {
+      res.status(400);
+      throw new Error("Provided roleName does not exist.");
+    }
+    updatedFields.roleId = existingRole._id;
   }
 
-  // Update user's roleId
-  user.roleId = role._id as Types.ObjectId;;
-  await user.save();
+  if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    updatedFields.password = hashedPassword;
+
+    // Send a email to that employee , for Password change 
+    // ...........
+    // ...........
+    // ...........
+
+  }
+
+  const updatedUser = await userModel.findByIdAndUpdate(employeeId, {
+    $set: updatedFields,
+  }, { new: true });
 
   res.status(200).json({
-    success: true,
-    message: "User role updated successfully.",
-    user,
+    message: "Admin user updated successfully.",
+    updatedUser,
   });
 };
 
+
+
+// Delete the ADMIN USER
+export const deleteAdminUser = async (req: Request, res: Response): Promise<Response> => {
+  // Get the authenticated admin's ID from the JWT payload
+  const adminId = req.admin?.id;
+  if (!adminId) {
+    throw new AppError("Admin not authenticated", 401);
+  }
+
+  // Get userId from request parameters
+  const { userId } = req.params;
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw new AppError("Valid userId is required", 400);
+  }
+
+  // Prevent admin from deleting themselves
+  if (userId === adminId) {
+    throw new AppError("Cannot delete your own account", 403);
+  }
+
+  // Check if the user exists and has ADMIN role
+  const user = await userModel.findOne({ _id: userId, role: "ADMIN" });
+  if (!user) {
+    throw new AppError("Admin user not found", 404);
+  }
+
+  // Delete the user
+  await userModel.findByIdAndDelete(userId);
+
+  // Delete all assignments where the user is assignee (memberId) 
+  await AssignmentModel.deleteMany({
+    memberId: userId,
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Admin user and associated assignments deleted successfully",
+  });
+};

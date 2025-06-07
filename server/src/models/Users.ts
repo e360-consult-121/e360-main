@@ -17,7 +17,9 @@ export interface IUser extends Document {
   forgotPasswordToken: string | null;
   forgotPasswordExpires: Date | null;
   nanoUserId : string;
-  roleId: Types.ObjectId | null;
+  // roleId: Types.ObjectId | null;
+  roleId: Types.ObjectId ;
+  employeeId : string | null;
 }
 
 const UserSchema: Schema = new Schema <IUser> ({
@@ -50,6 +52,11 @@ const UserSchema: Schema = new Schema <IUser> ({
     ref: "Role", 
     // required: true
   },
+  employeeId: {
+    type: String,     
+    unique: true,
+    default : null
+  } ,
 },
 {
   timestamps: true
@@ -78,6 +85,30 @@ UserSchema.pre("save", async function (next) {
     } while (exists);
 
     user.nanoUserId = nanoUserId;
+  }
+
+  next();
+});
+
+// Pre-save hook for generating employeeId for ADMIN users
+UserSchema.pre("save", async function (next) {
+  const user = this;
+
+  if (user.isNew && user.role === RoleEnum.ADMIN) {
+    let employeeId;
+    let exists = true;
+
+    do {
+      const shortId = generateShortId(6); // e.g., B9D2Y4
+      employeeId = `E360-E-${shortId}`;
+
+      const existing = await UserModel.exists({ employeeId });
+      exists = existing !== null;
+    } while (exists);
+
+    user.employeeId = employeeId;
+  } else if (user.isNew && user.role !== RoleEnum.ADMIN) {
+    user.employeeId = null; // Ensure employeeId remains null for non-ADMIN users
   }
 
   next();

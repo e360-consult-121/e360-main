@@ -10,5 +10,6 @@ const router = Router();
 
 router.post("/addNewClient",
     //  authenticate ,authorizeAdmin,
+    // checkPermission("Add new Client"),
       upload.single("file") , asyncHandler(adminControl.addNewClient));
 export default router;

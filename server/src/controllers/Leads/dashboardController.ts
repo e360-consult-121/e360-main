@@ -34,32 +34,42 @@ export const getRecentUpdates = async (req: Request, res: Response) => {
 
 
 // Fetch 5 recent leads 
-export const fetchRecentLeads = async(req: Request, res: Response) => {
-   const leads = await LeadModel.find().sort({createdAt : -1}).limit(5);
-   res.status(200).json({ leads });
-}
+export const fetchRecentLeads = async (req: Request, res: Response) => {
+  const filter: any = {};
+
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    filter._id = { $in: req.assignedIds };
+  }
+
+  const leads = await LeadModel.find(filter).sort({ createdAt: -1 }).limit(5);
+
+  res.status(200).json({ leads });
+};
 
 //Fetch 5 recent consultations
-export const fetchRecentConsultions = async(req: Request, res: Response) => {
+export const fetchRecentConsultions = async (req: Request, res: Response) => {
+  //  Build a $match stage 
+  const match: any = {
+    status: "SCHEDULED",
+    startTime: { $gte: new Date() }          // only upcoming consultations
+  };
+
+  // If the middleware set req.assignedIds, filter by those IDs
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    match._id = { $in: req.assignedIds };    // show only assigned consultations
+  }
+
+  // Run the aggregation 
   const consultations = await ConsultationModel.aggregate([
-    {
-      $match: {
-        status: "SCHEDULED",
-        startTime: { $gte: new Date() }
-      }
-    },
-    {
-      $sort: {
-        startTime: -1 
-      }
-    },
-    {
-      $limit: 5
-    }
+    { $match: match },
+    { $sort:  { startTime: -1 } },           // newest (closest) first
+    { $limit: 5 }
   ]);
 
+  //  Respond 
   res.status(200).json({ consultations });
-}
+};
+
 
 // returns last 30 Days leads ,%conversions ,pending and completed.  
 export const fetchAnalytics =  async (req: Request, res: Response) => {

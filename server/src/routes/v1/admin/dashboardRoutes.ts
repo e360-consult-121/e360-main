@@ -5,10 +5,32 @@ import * as dashboard from "../../../controllers/Leads/dashboardController"
 
 const router = Router();
 
-router.get("/fetchAllRevenue", authenticate , authorizeAdmin , asyncHandler(dashboard.getAllRevenue));
-router.get("/fetchRecentUpdates",authenticate , authorizeAdmin , asyncHandler(dashboard.getRecentUpdates));
-router.get("/fetchRecentLeads",authenticate , authorizeAdmin , asyncHandler(dashboard.fetchRecentLeads));
-router.get("/fetchRecentConsultions",authenticate , authorizeAdmin , asyncHandler(dashboard.fetchRecentConsultions));
-router.get("/fetchAnalytics",authenticate , authorizeAdmin , asyncHandler(dashboard.fetchAnalytics));
+router.get("/fetchAllRevenue",
+ authenticate , authorizeAdmin ,
+//  checkPermission("Revenue By Location"),
+ asyncHandler(dashboard.getAllRevenue));
+
+router.get("/fetchRecentUpdates",
+ authenticate , authorizeAdmin ,
+ //  checkPermission("Recent Data"),
+ asyncHandler(dashboard.getRecentUpdates));
+ 
+router.get("/fetchRecentLeads",
+authenticate , authorizeAdmin ,
+//  checkPermission("View-Leads"),
+// addArrayForStaff("Leads")
+asyncHandler(dashboard.fetchRecentLeads));
+
+router.get("/fetchRecentConsultions",
+authenticate , authorizeAdmin ,
+//  checkPermission("View-Consultations"),
+//  addArrayForStaff("Consultations")
+asyncHandler(dashboard.fetchRecentConsultions));
+
+
+router.get("/fetchAnalytics",
+authenticate , authorizeAdmin ,
+ //  checkPermission("Dashboard Analytics"),
+asyncHandler(dashboard.fetchAnalytics));
 
 export default router;

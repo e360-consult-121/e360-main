@@ -1,5 +1,7 @@
 import express, { Router } from "express";
 import { authenticate ,authorizeAdmin } from "../../../middlewares/authenticate";
+import { checkPermission } from "../../../middlewares/permissionMiddleware";
+import { isAssigned } from "../../../middlewares/isAssigned";
 import asyncHandler from "../../../utils/asyncHandler";
 import * as clientSideControllers from "../../../controllers/visaApplications/clientSideController";
 import * as adminSideControllers from "../../../controllers/visaApplications/adminSideController";
@@ -15,29 +17,28 @@ import { handleEligibilityForm } from "../../../controllers/visaApplications/tes
 
 const router = Router();
 
-router.get("/:visaApplicationId/getCurrentStepInfo", authenticate ,  asyncHandler(clientSideControllers.getCurrentStepInfo));
-router.post("/submitRequirements" ,authenticate,asyncHandler(clientSideControllers.submitRequirements));
-router.post("/:reqStatusId/uploadDocument", authenticate , upload.single("file"), asyncHandler(clientSideControllers.uploadDocument));
-router.post("/:reqStatusId/removeDocument", authenticate , asyncHandler(clientSideControllers.removeDocument));
-router.post("/:visaApplicationId/stepSubmit", authenticate ,  asyncHandler(clientSideControllers.stepSubmit));
-router.post("/:visaApplicationId/approveStep", authenticate ,  asyncHandler(adminSideControllers.approveStep) );
+router.get("/:visaApplicationId/getCurrentStepInfo" , authenticate ,  checkPermission("Read-V") ,                         asyncHandler(clientSideControllers.getCurrentStepInfo));
+router.post("/submitRequirements"                   , authenticate ,  checkPermission("Write-V"),                         asyncHandler(clientSideControllers.submitRequirements));
+router.post("/:reqStatusId/uploadDocument"          , authenticate ,  checkPermission("Write-V"),  upload.single("file"), asyncHandler(clientSideControllers.uploadDocument));
+router.post("/:visaApplicationId/stepSubmit"        , authenticate ,  checkPermission("Write-V"),                         asyncHandler(clientSideControllers.stepSubmit));
+router.post("/:visaApplicationId/approveStep"       , authenticate ,  checkPermission("Write-V"),                         asyncHandler(adminSideControllers.approveStep) );
 
 
 
 // domiGrena Delivery and Shipping API'S
-router.get("/:stepStatusId/fetchBothDetails", authenticate ,  asyncHandler(deliveryControllers.fetchBothDetails));
+router.get("/:stepStatusId/fetchBothDetails"                    , authenticate , checkPermission("Read-V") ,  asyncHandler(deliveryControllers.fetchBothDetails));
 
 // Dubai - TradeName
-router.get("/:stepStatusId/dubai/trade-name/fetchTradeNameInfo", authenticate ,  asyncHandler(tradeNameControllers.fetchTradeNameInfo));
+router.get("/:stepStatusId/dubai/trade-name/fetchTradeNameInfo" , authenticate , checkPermission("Read-V") ,  asyncHandler(tradeNameControllers.fetchTradeNameInfo));
 
 // Dubai - MOA
-router.get("/:stepStatusId/dubai/moa/fetchSigAndMOA", authenticate ,  asyncHandler(moaControllers.fetchSigAndMOA));
+router.get("/:stepStatusId/dubai/moa/fetchSigAndMOA"            , authenticate , checkPermission("Read-V") ,  asyncHandler(moaControllers.fetchSigAndMOA));
 
 // Dubai -  Medical
-router.get("/:stepStatusId/dubai/medical/fetchMedicalTestInfo", authenticate ,  asyncHandler(medicalControllers.fetchMedicalTestInfo));
+router.get("/:stepStatusId/dubai/medical/fetchMedicalTestInfo"  , authenticate , checkPermission("Read-V") ,  asyncHandler(medicalControllers.fetchMedicalTestInfo));
 
 // Dubai -  Payments
-router.get("/:stepStatusId/dubai/payment/fetchPaymentInfo", authenticate ,  asyncHandler(paymentControllers.getPaymentStepInfo));
+router.get("/:stepStatusId/dubai/payment/fetchPaymentInfo"      , authenticate , checkPermission("Read-V") ,  asyncHandler(paymentControllers.getPaymentStepInfo));
 
 // Documents vault
 

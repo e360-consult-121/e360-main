@@ -23,14 +23,14 @@ export const fetchAllFeatures = async (req: Request, res: Response) => {
     const featuresWithActions = await featureModel.aggregate([
       {
         $lookup: {
-          from: "actions", // collection name in MongoDB (must be lowercase plural of the model name)
+          from: "actions", 
           localField: "_id",
           foreignField: "featureId",
           as: "actions",
         },
       },
       {
-        $sort: { name: 1 }, // sort by feature name
+        $sort: { name: 1 }, 
       },
       {
         $project: {
@@ -54,19 +54,52 @@ export const fetchAllFeatures = async (req: Request, res: Response) => {
   };
 
 
-// ftechAllAdminUsers
-export const fetchAllAdminUsers = async (req: Request, res: Response) => {
-    const adminUsers = await userModel.find({ role: RoleEnum.ADMIN })
-      .populate<{ roleId: { _id: string; name: string } }>("roleId", "name") // safe populate with type
-      .select("-password -refreshToken -forgotPasswordToken -forgotPasswordExpires")
-      .sort({ createdAt: -1 });
+  // Fetch all AdminUsers gruped by roleName  -->> Check needed details 
+  export const fetchAllAdminUsers = async (req: Request, res: Response) => {
+    const result = await userModel.aggregate([
+      {
+        $match: { role: RoleEnum.ADMIN }
+      },
+      {
+        $lookup: {
+          from: "roles", 
+          localField: "roleId",
+          foreignField: "_id",
+          as: "roleInfo"
+        }
+      },
+      {
+        $unwind: "$roleInfo"
+      },
+      {
+        $project: {
+          password: 0,
+          refreshToken: 0,
+          forgotPasswordToken: 0,
+          forgotPasswordExpires: 0
+        }
+      },
+      {
+        $group: {
+          _id: "$roleInfo.roleName",
+          users: { $push: "$$ROOT" }
+        }
+      },
+      {
+        $project: {
+          roleName: "$_id",
+          users: 1,
+          _id: 0
+        }
+      }
+    ]);
   
     res.status(200).json({
       success: true,
-      count: adminUsers.length,
-      users: adminUsers,
+      groupedByRoleName: result
     });
-};
+  };
+  
 
 
 export const fetchAllRoles = async (req: Request, res: Response) => {
@@ -79,6 +112,73 @@ export const fetchAllRoles = async (req: Request, res: Response) => {
     });
 };
 
+
+
+// Fetch RoleWise Permission
+export const fetchRoleWisePermissions = async (req: Request, res: Response) => {
+  const roles = await roleModel.find();
+
+  const result = await Promise.all(
+    roles.map(async (role) => {
+      const permissions = await permissionModel.aggregate([
+        {
+          $match: { roleId: role._id }
+        },
+        {
+          $lookup: {
+            from: "actions",
+            localField: "actionId",
+            foreignField: "_id",
+            as: "action"
+          }
+        },
+        { $unwind: "$action" },
+        {
+          $lookup: {
+            from: "features",
+            localField: "action.featureId",
+            foreignField: "_id",
+            as: "feature"
+          }
+        },
+        { $unwind: "$feature" },
+        {
+          $group: {
+            _id: "$feature._id",
+            name: { $first: "$feature.name" },
+            code: { $first: "$feature.code" },
+            actions: {
+              $push: {
+                actionId: "$action._id",
+                action: "$action.action"
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            featureId: "$_id",
+            name: 1,
+            code: 1,
+            actions: 1
+          }
+        }
+      ]);
+
+      return {
+        roleId: role._id,
+        roleName: role.roleName,
+        features: permissions
+      };
+    })
+  );
+
+  res.status(200).json(result);
+};
+
+
+// Asssign Single Permission
 export const assignPermission = async (req: Request, res: Response) => {
     const { roleId, actionId } = req.body;
   
@@ -120,7 +220,7 @@ export const assignPermission = async (req: Request, res: Response) => {
     });
   };
   
-  
+// Ṛevoke Single Permission
   export const revokePermission = async (req: Request, res: Response) => {
     const { roleId, actionId } = req.body;
   
@@ -162,3 +262,6 @@ export const assignPermission = async (req: Request, res: Response) => {
     });
   };
   
+
+
+

@@ -9,11 +9,18 @@ import { sendMediumPriorityLeadEmail } from "../../services/emails/triggers/lead
 import { consultationCallScheduledAdmin } from "../../services/emails/triggers/admin/consultation/consultation-call-scheduled";
 import { getServiceType } from "../../utils/leadToServiceType";
 import { constultationCallScheduled } from "../../services/emails/triggers/leads/consultation/consultation-call-scheduled";
-
+import { TaskModel } from "../../models/teamAndTaskModels/taskModel";
 // get all consultations
 // pagination bhi lagana hai
 export const getAllConsultations = async (req: Request, res: Response) => {
+  const matchStage: any = {};
+
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    matchStage._id = { $in: req.assignedIds };
+  }
+    
   const consultations = await ConsultationModel.aggregate([
+    { $match: matchStage },
     {
       $addFields: {
         statusOrder: {
@@ -215,6 +222,12 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       // caseId: lead.caseId,
     });
 
+    // Update the  consultation id in taskModel
+    await TaskModel.updateMany(
+      { attachedLead: leadId }, // condition: jis task me ye leadId ho
+      { $set: { attachedConsultation: newConsultation._id } } 
+    );
+
     console.log(
       `Consultation created: ${JSON.stringify(newConsultation, null, 2)}`
     );
@@ -246,6 +259,12 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       console.log(`Consultation deleted for this  event: ${calendlyEventUrl}`);
       console.log(`Consultation deleted for this  event: ${calendlyEventUrl}`);
     }
+
+     // Update the  consultation id in taskModel
+     await TaskModel.updateMany(
+      { attachedLead: leadId }, // condition: jis task me ye leadId ho
+      { $set: { attachedConsultation: null } } 
+    );
 
     // Optional: Update lead status
     // lead.leadStatus = leadStatus.CONSULTATIONCANCELLED || "PENDING";

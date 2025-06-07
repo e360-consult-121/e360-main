@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwtUtils';
+import mongoose from "mongoose";
 import { JwtPayload } from 'jsonwebtoken';
 import AppError from '../utils/appError';
 import { RoleEnum } from '../types/enums/enums';
@@ -7,14 +8,38 @@ import { RoleEnum } from '../types/enums/enums';
 interface TokenPayload {
   id: string;
   role: string;
+  roleId : string;
 }
+
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       user?: any;
+//       admin?: JwtPayload;
+//       organization?: any;
+//     }
+//   }
+// }
 
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
-      admin?: JwtPayload;
+      user?: TokenPayload;
+      admin?: TokenPayload;
       organization?: any;
+      assignedIds?: mongoose.Types.ObjectId[];
+
+      // RBAC-based flags
+      readAllLeads?: boolean;
+      readAllVisaApplications?: boolean;
+      writeOnAllLeads?: boolean;
+      writeOnAllVisaApplications?: boolean;
+      
+      // For the Admin side table tabs
+      isViewAllLeads? : boolean;
+      isViewAllConsultations? : boolean;
+      isViewAllClients? : boolean;
+      isViewAllVisaApplications ? : boolean;
     }
   }
 }

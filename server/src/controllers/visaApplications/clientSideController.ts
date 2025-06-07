@@ -196,7 +196,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
     return;
   }
 
-  // 🔐 Authorization check based on stepSource
+  //  Authorization check based on stepSource
   const step = await stepModel.findById(reqStatusDoc.stepId);
   if (!step) {
     return res.status(500).json({ error: "Associated step not found." });

@@ -183,3 +183,25 @@ export enum PaymentSourceEnum {
 }
 
 
+export enum messageTypeEnum {
+  FileMsg = 'fileMsg',
+  TextMsg = 'textMsg'
+}
+
+export enum logTypeEnum {
+  LeadLogs = 'leadLogs',
+  ActivityLogs = 'activityLogs',
+  VisaApplicationLogs = 'visaApplicationLogs'
+}
+
+export enum taskPriorityEnum {
+  HIGH = 'High',
+  MEDIUM = 'Medium',
+  LOW = 'Low'
+}
+
+export enum taskStatusEnum {
+  COMPLETED = 'Completed',
+  DUE = 'Due',
+  OVERDUE = 'Overdue'
+}
