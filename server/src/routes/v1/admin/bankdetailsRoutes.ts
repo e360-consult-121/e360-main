@@ -15,3 +15,6 @@ router.put("/editBankDetails/:visaTypeName",
 authenticate ,authorizeAdmin,
     // checkPermission("Edit Bank Details"),
  asyncHandler(bankDetails.editBankDetails))
+
+
+export default router;
