@@ -114,7 +114,7 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
       },
       {
         $lookup: {
-          from: "Tasks",
+          from: "tasks",
           localField: "taskId",
           foreignField: "_id",
           as: "taskDetails",
@@ -125,7 +125,7 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
       // Get all users assigned to the same task
       {
         $lookup: {
-          from: "Assignments",
+          from: "assignments",
           let: { currentTaskId: "$taskId" },
           pipeline: [
             {
@@ -135,7 +135,7 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
             },
             {
               $lookup: {
-                from: "Users",
+                from: "users",
                 localField: "memberId",
                 foreignField: "_id",
                 as: "memberDetails",
@@ -146,6 +146,7 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
               $project: {
                 userId: "$memberDetails._id",
                 email: "$memberDetails.email",
+                name : "$memberDetails.name"
               },
             },
           ],
@@ -156,7 +157,7 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
       // Get info of the one who assigned this task
       {
         $lookup: {
-          from: "Users",
+          from: "users",
           localField: "assignedBy",
           foreignField: "_id",
           as: "assignedByDetails",
@@ -171,11 +172,11 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
   
       {
         $project: {
-          taskId: "$taskDetails._id",
           taskName: "$taskDetails.taskName",
           assignedBy: {
             userId: "$assignedByDetails._id",
             email: "$assignedByDetails.email",
+            name : "$assignedByDetails.name"
           },
           assignedTo: "$assignedToUsers", // all users this task is assigned to
           status: "$taskDetails.status",
@@ -196,6 +197,9 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
 
 // Fetch Upcoming Taks -->> start date will start after now 
 export const fetchUpcomingTasks = async (req: Request, res: Response) => {
+
+  console.log(`these are assignedIds for Upcoming tasks :`, req.assignedIds );
+
   const now = new Date();
   const { sortBy = "startDate", order = "asc" } = req.query;
 
@@ -407,7 +411,7 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
   const sortOrder = order === "desc" ? -1 : 1;
 
   const matchStage: any = {
-    endDate: { $lt: now },  // Overdue = End date is before now
+    endDate: { $lt: now },  
   };
 
   if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
@@ -483,5 +487,119 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     tasks,
+  });
+};
+
+
+// Fetch Particular Task
+export const fetchParticularTask = async (req: Request, res: Response) => {
+  const { taskId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    throw new AppError("Invalid task ID", 400);
+  }
+
+  const tasks = await TaskModel.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(taskId),
+      },
+    },
+    {
+      $lookup: {
+        from: "assignments",
+        localField: "_id",
+        foreignField: "taskId",
+        as: "assignments",
+      },
+    },
+    {
+      $unwind: {
+        path: "$assignments",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "assignments.memberId",
+        foreignField: "_id",
+        as: "assignedUser",
+      },
+    },
+    {
+      $unwind: {
+        path: "$assignedUser",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        taskName: { $first: "$taskName" },
+        description: { $first: "$description" },
+        status: { $first: "$status" },
+        priority: { $first: "$priority" },
+        startDate: { $first: "$startDate" },
+        endDate: { $first: "$endDate" },
+        assignedBy: { $first: "$assignedBy" },
+        attachedLead: { $first: "$attachedLead" },
+        attachedClient: { $first: "$attachedClient" },
+        attachedVisaApplication: { $first: "$attachedVisaApplication" },
+        attachedConsultation: { $first: "$attachedConsultation" },
+        assignedTo: {
+          $push: {
+            userId: "$assignedUser._id",
+            email: "$assignedUser.email",
+            name: "$assignedUser.name",
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "assignedBy",
+        foreignField: "_id",
+        as: "assigner",
+      },
+    },
+    {
+      $unwind: {
+        path: "$assigner",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        taskId: "$_id",
+        taskName: 1,
+        description: 1,
+        status: 1,
+        priority: 1,
+        startDate: 1,
+        endDate: 1,
+        attachedLead: 1,
+        attachedClient: 1,
+        attachedVisaApplication: 1,
+        attachedConsultation: 1,
+        assignedTo: 1,
+        assignedBy: {
+          userId: "$assigner._id",
+          email: "$assigner.email",
+          name: "$assigner.name",
+        },
+      },
+    },
+  ]);
+
+  if (!tasks.length) {
+    throw new AppError("Task not found", 404);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Task fetched successfully",
+    data: tasks[0],
   });
 };

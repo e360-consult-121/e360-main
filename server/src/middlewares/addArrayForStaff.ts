@@ -60,6 +60,7 @@ export const addArrayForStaff = (modelName: string) => {
 
         case "Tasks":
           assignedIds = assignedTaskIds.filter((id): id is mongoose.Types.ObjectId => !!id);
+          console.log(`Assigned taskIds in addArray middleware` ,assignedIds );
           break;
 
         default:

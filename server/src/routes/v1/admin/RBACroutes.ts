@@ -22,14 +22,14 @@ router.post("/assignActionsToRole",
   //  checkPermission("Assign actions to existing Role"),
  asyncHandler(rbacControllers.assignActionsToRole));
 
-router.post("/editAdminUser/:employeeId",
+router.patch("/editAdminUser/:employeeId",
  authenticate ,authorizeAdmin,
-   //  checkPermission("Change Role of existing Admin User"),
+   //  checkPermission("Edit Details of an Admin User"),
  asyncHandler(rbacControllers.editAdminUser));
 
  router.delete("/deleteAdminUser/:userId",
  authenticate ,authorizeAdmin,
-   //  checkPermission("Change Role of existing Admin User"),
+   //  checkPermission("Delete an Admin User"),
  asyncHandler(rbacControllers.deleteAdminUser));
 
 router.get("/fetchAllFeatures"   , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllFeatures));

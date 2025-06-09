@@ -81,7 +81,7 @@ export const addNewTask = async (req: Request, res: Response) => {
   // Create assignments
   const assignments = assignedTo.map((userId: string) => ({
     taskId: savedTask._id,
-    assignedTo: userId,
+    memberId: userId,
     assignedBy: req.admin?.id, // assumes `req.admin.id` exists via auth middleware
   }));
 
