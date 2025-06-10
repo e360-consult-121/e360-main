@@ -10,29 +10,23 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useRef, useState } from "react";
 import dayjs from "dayjs";
 import { MultiSelect } from "react-multi-select-component";
-
-const assigneeOptions = [
-  { label: "Alice", value: "alice", role: "Manager" },
-  { label: "Bob", value: "bob", role: "Staff" },
-  { label: "Charlie", value: "charlie", role: "Staff" },
-];
-const leadOptions = [
-  { label: "Lead A", value: "leadA" },
-  { label: "Lead B", value: "leadB" },
-  { label: "Lead C", value: "leadC" },
-];
-const applicationOptions = [
-  { label: "Application A", value: "ApplicationA" },
-  { label: "Application B", value: "ApplicationB" },
-  { label: "Application C", value: "ApplicationC" },
-];
+import { useFetchAllLeadsQuery } from "../../leadManagement/leadManagementApi";
+import {
+  useAddNewTaskMutation,
+  useFetchAllVisaApplicationsQuery,
+  useFetchAssigneeListQuery,
+} from "../taskManagementApi";
+import { toast } from "react-toastify";
+import Select from "react-select";
 
 const AddNewTaskDrawer = ({
   open,
   onClose,
+  refetchAllTasks,
 }: {
   open: boolean;
   onClose: () => void;
+  refetchAllTasks: () => void;
 }) => {
   const today = dayjs().format("YYYY-MM-DD");
   const [startDate, setStartDate] = useState(today);
@@ -40,24 +34,55 @@ const AddNewTaskDrawer = ({
   const [priority, setPriority] = useState("");
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
-  const [assignee, setAssignee] = useState([]);
-  const [lead, setLead] = useState([]);
-  const [application, setApplication] = useState([]);
+  const [assignedTo, setAssignedTo] = useState([]);
+  const [attachedLead, setAttachedLead] = useState("");
+  const [application, setApplication] = useState("");
   const [media, setMedia] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleAddTask = () => {
-    console.log({
-      taskName,
-      description,
-      priority,
-      startDate,
-      endDate,
-      assignee,
-      lead,
-      application,
-      media,
-    });
+  const { data: allLeads } = useFetchAllLeadsQuery(undefined);
+  const { data: allVisaApplication } =
+    useFetchAllVisaApplicationsQuery(undefined);
+  const { data: allAssignee } = useFetchAssigneeListQuery(undefined);
+
+  const [addNewTask] = useAddNewTaskMutation();
+
+  const leadOptions = allLeads?.leads?.map((lead: any) => ({
+    label: `${lead.fullName?.first ?? ""} ${lead.fullName?.last ?? ""}`,
+    value: lead._id,
+  }));
+
+  const applicationOptions = allVisaApplication?.visaApplications?.map(
+    (visa: any) => ({
+      label: visa._id,
+      value: visa._id,
+    })
+  );
+  const assigneeOptions = allAssignee?.data?.map((assignee: any) => ({
+    label: assignee.email,
+    value: assignee._id,
+    role: assignee.role,
+  }));
+
+  const handleAddTask = async () => {
+    try {
+      const body = {
+        taskName,
+        description,
+        priority,
+        startDate,
+        endDate,
+        attachedLead,
+        assignedTo: assignedTo.map((id: any) => id.value),
+        attchedVisaApplication:application
+      };
+      console.log(body);
+      await addNewTask({ file: media, body }).unwrap();
+      toast.success("Task Added Sucessfully");
+      refetchAllTasks();
+    } catch (err) {
+      toast.error("Something went wrong ");
+    }
   };
 
   return (
@@ -178,84 +203,111 @@ const AddNewTaskDrawer = ({
           />
         </Box>
 
-       <Box>
-      <Typography mb={1}>Assigned To*</Typography>
-      <MultiSelect
-        options={assigneeOptions}
-        value={assignee}
-        onChange={setAssignee}
-        labelledBy="Select Assignees"
-        overrideStrings={{
-          selectSomeItems: "Select Assignees...",
-        }}
-        ItemRenderer={({ checked, option, onClick }:{checked:any, option:any, onClick:any}) => (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "8px",
-              cursor: "pointer",
-              backgroundColor: checked ? "#f9f9f9" : "white",
-              borderBottom: "1px solid #eee",
+        <Box>
+          <Typography mb={1}>Assigned To*</Typography>
+          <MultiSelect
+            options={assigneeOptions}
+            value={assignedTo}
+            onChange={setAssignedTo}
+            labelledBy="Select Assignees"
+            overrideStrings={{
+              selectSomeItems: "Select Assignees...",
             }}
-            onClick={onClick}
-          >
-            <div>
-              <input
-              type="checkbox"
-              checked={checked}
-              onChange={onClick}
-              style={{ marginRight: "8px" }}
-            />
-            <span>{option.label}</span>
-            </div>
-             <Box
-              sx={{
-                ml:1,
-                padding: "2px 6px",
-                borderRadius: "12px",
-                fontSize: "12px",
-                color: "white",
-                backgroundColor:
-                  option.role === "Manager" ? "#1976d2" : "#43a047",
-                marginRight: "8px",
-              }}
-            >
-              {option.role}
-            </Box>
-          </div>
-        )}
-      />
-    </Box>
+            ItemRenderer={({
+              checked,
+              option,
+              onClick,
+            }: {
+              checked: any;
+              option: any;
+              onClick: any;
+            }) => {
+              return (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "8px",
+                    cursor: "pointer",
+                    borderBottom: "1px solid #eee",
+                  }}
+                  onClick={onClick}
+                >
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={onClick}
+                      style={{ marginRight: "12px" }}
+                    />
+                    <span>{option.label}</span>
+                  </div>
+                  {option.label !== "Select All" ? (
+                    <Box
+                      sx={{
+                        ml: 1,
+                        padding: "4px 8px",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        color:
+                          option.role === "Manager"
+                            ? "#017BFF"
+                            : option.role === "Staff"
+                            ? "#31B0C6"
+                            : "#8e24aa",
+                        backgroundColor:
+                          option.role === "Manager"
+                            ? "#EFF7FF"
+                            : option.role === "Staff"
+                            ? "#ECF6F8"
+                            : "#f3e5f5",
+                        marginRight: "8px",
+                      }}
+                    >
+                      {"• " + option.role}
+                    </Box>
+                  ) : null}
+                </div>
+              );
+            }}
+          />
+        </Box>
 
-        <Box sx={{
-        display:"flex",
-        justifyContent:"space-between",
-        gap:1
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 1,
+          }}
+        >
           <Box minWidth={"230px"}>
             <Typography mb={1}>Attach Lead*</Typography>
-            <MultiSelect
-              options={leadOptions}
-              value={lead}
-              onChange={setLead}
-              labelledBy="Select Leads"
-              overrideStrings={{
-                selectSomeItems: "Select Leads...",
-              }}
+            <Select
+              options={leadOptions || []}
+              value={(leadOptions || []).find(
+                (option: any) => option.value === attachedLead
+              )}
+              onChange={(selectedOption) =>
+                setAttachedLead(selectedOption?.value)
+              }
+              placeholder="Select Lead..."
+              isSearchable
             />
           </Box>
 
           <Box minWidth={200}>
             <Typography mb={1}>Attach Application</Typography>
-            <MultiSelect
-              options={applicationOptions}
-              value={application}
-              onChange={setApplication}
-              labelledBy="Select Applications"
-              overrideStrings={{
-                selectSomeItems: "Select Applications...",
-              }}
+            <Select
+              options={applicationOptions || []}
+              value={(applicationOptions || []).find(
+                (option: any) => option.value === application
+              )}
+              onChange={(selectedOption: any) =>
+                setApplication(selectedOption?.value)
+              }
+              placeholder="Select Lead..."
             />
           </Box>
         </Box>
@@ -272,6 +324,14 @@ const AddNewTaskDrawer = ({
           <Typography color="text.secondary" fontSize="14px">
             Upload media/Documents
           </Typography>
+
+          {/* Display file name if media is selected */}
+          {media && (
+            <Typography mt={1} fontSize="14px" color="primary.main">
+              Selected: {media.name}
+            </Typography>
+          )}
+
           <input
             type="file"
             ref={fileInputRef}
@@ -306,6 +366,15 @@ const AddNewTaskDrawer = ({
               boxShadow: "none",
             }}
             onClick={handleAddTask}
+            disabled={
+              !taskName ||
+              !description ||
+              !priority ||
+              !startDate ||
+              !endDate ||
+              !attachedLead ||
+              !assignedTo
+            }
           >
             Add Task
           </Button>

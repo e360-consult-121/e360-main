@@ -22,6 +22,8 @@ export const addNewTask = async (req: Request, res: Response) => {
     assignedTo
   } = req.body;
 
+  console.log(req.body);
+
   // Validate required fields
   if (!taskName || !priority || !startDate || !endDate) {
     res.status(400);

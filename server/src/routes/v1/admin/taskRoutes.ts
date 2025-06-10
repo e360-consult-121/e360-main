@@ -6,6 +6,7 @@ import * as taskControllers from "../../../controllers/admin/teamAndTaskControll
 import * as taskInfoControllers from "../../../controllers/admin/teamAndTaskControllers/taskInfoController"
 import * as otherInfoControllers from "../../../controllers/admin/teamAndTaskControllers/otherInfoController"
 import { addArrayForStaff } from "../../../middlewares/addArrayForStaff";
+import { upload } from "../../../services/s3Upload";
 
 
 const router = Router();
@@ -13,6 +14,7 @@ const router = Router();
 router.post("/addNewTask",
  authenticate ,authorizeAdmin,
 //  checkPermission("Create_task"),
+upload.single("file"),
  asyncHandler(taskControllers.addNewTask));
 
 router.post("/editTask/:taskId",

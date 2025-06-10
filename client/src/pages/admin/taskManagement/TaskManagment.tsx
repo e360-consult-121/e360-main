@@ -1,59 +1,126 @@
-import { Box, Button, MenuItem, Select, Tab, Tabs } from "@mui/material";
 import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import TaskManagementTable from "../../../features/admin/taskManagement/components/TaskManagementTable";
 import AddNewTaskDrawer from "../../../features/admin/taskManagement/components/AddNewTaskDrawer";
 
-// const MyTasks = () => <div>My Tasks Content</div>;
-// const UpcomingTasks = () => <div>Upcoming Tasks Content</div>;
-// const DueTasks = () => <div>Due Tasks Content</div>;
-// const OverdueTasks = () => <div>Overdue Tasks Content</div>;
-
-const taskTabs = [
-  {
-    label: "All Tasks",
-    value: "alltasks",
-    component: <TaskManagementTable />,
-    visible: true,
-  },
-  {
-    label: "My Tasks",
-    value: "mytasks",
-    // component: <MyTasks />,
-    component: <TaskManagementTable />,
-    visible: true,
-  },
-  {
-    label: "Upcoming Tasks",
-    value: "upcomingtasks",
-    // component: <UpcomingTasks />,
-    component: <TaskManagementTable />,
-    visible: true,
-  },
-  {
-    label: "Due Tasks",
-    value: "duetasks",
-    // component: <DueTasks />,
-    component: <TaskManagementTable />,
-    visible: true,
-  },
-  {
-    label: "Overdue",
-    value: "overdue",
-    // component: <OverdueTasks />,
-    component: <TaskManagementTable />,
-    visible: true,
-  },
-];
+import {
+  useFetchAllTasksQuery,
+  useFetchMyTasksQuery,
+  useFetchUpcomingTasksQuery,
+  useFetchDueTasksQuery,
+  useFetchOverdueTasksQuery,
+} from "../../../features/admin/taskManagement/taskManagementApi";
 
 const TaskManagment = () => {
-  const visibleTabs = taskTabs.filter((tab) => tab.visible);
-//   const [sortBy, setSortBy] = useState("");
   const [employeeDrawerOpen, setEmployeeDrawerOpen] = useState(false);
-  const [tab, setTab] = useState(visibleTabs[0]?.value || "");
+  const [tab, setTab] = useState("alltasks");
+
+  const {
+    data: allTasks,
+    isLoading: isLoadingAll,
+    isError: isErrorAll,
+  } = useFetchAllTasksQuery(undefined, { skip: tab !== "alltasks" });
+
+  const {
+    data: myTasks,
+    isLoading: isLoadingMy,
+    isError: isErrorMy,
+    refetch
+  } = useFetchMyTasksQuery(undefined, { skip: tab !== "mytasks" });
+
+  const {
+    data: upcomingTasks,
+    isLoading: isLoadingUpcoming,
+    isError: isErrorUpcoming,
+  } = useFetchUpcomingTasksQuery(undefined, { skip: tab !== "upcomingtasks" });
+
+  const {
+    data: dueTasks,
+    isLoading: isLoadingDue,
+    isError: isErrorDue,
+  } = useFetchDueTasksQuery(undefined, { skip: tab !== "duetasks" });
+
+  const {
+    data: overdueTasks,
+    isLoading: isLoadingOverdue,
+    isError: isErrorOverdue,
+  } = useFetchOverdueTasksQuery(undefined, { skip: tab !== "overdue" });
+
+  const taskTabs = [
+    {
+      label: "All Tasks",
+      value: "alltasks",
+      component: isLoadingAll ? (
+        <div className="ml-[45%] mt-[15%]"><CircularProgress/></div>
+      ) : isErrorAll || !allTasks?.tasks ? (
+        <Typography color="error">Failed to load tasks.</Typography>
+      ) : (
+        <TaskManagementTable tasks={allTasks.tasks} />
+      ),
+      visible: true,
+    },
+    {
+      label: "My Tasks",
+      value: "mytasks",
+      component: isLoadingMy ? (
+        <div className="ml-[45%] mt-[15%]"><CircularProgress/></div>
+      ) : isErrorMy || !myTasks?.tasks ? (
+        <Typography color="error">Failed to load tasks.</Typography>
+      ) : (
+        <TaskManagementTable tasks={myTasks.tasks} />
+      ),
+      visible: true,
+    },
+    {
+      label: "Upcoming Tasks",
+      value: "upcomingtasks",
+      component: isLoadingUpcoming ? (
+        <div className="ml-[45%] mt-[15%]"><CircularProgress/></div>
+      ) : isErrorUpcoming || !upcomingTasks?.tasks ? (
+        <Typography color="error">Failed to load tasks.</Typography>
+      ) : (
+        <TaskManagementTable tasks={upcomingTasks.tasks} />
+      ),
+      visible: true,
+    },
+    {
+      label: "Due Tasks",
+      value: "duetasks",
+      component: isLoadingDue ? (
+        <div className="ml-[45%] mt-[15%]"><CircularProgress/></div>
+      ) : isErrorDue || !dueTasks?.tasks ? (
+        <Typography color="error">Failed to load tasks.</Typography>
+      ) : (
+        <TaskManagementTable tasks={dueTasks.tasks} />
+      ),
+      visible: true,
+    },
+    {
+      label: "Overdue",
+      value: "overdue",
+      component: isLoadingOverdue ? (
+        <div className="ml-[45%] mt-[15%]"><CircularProgress/></div>
+      ) : isErrorOverdue || !overdueTasks?.tasks ? (
+        <Typography color="error">Failed to load tasks.</Typography>
+      ) : (
+        <TaskManagementTable tasks={overdueTasks.tasks} />
+      ),
+      visible: true,
+    },
+  ];
+
+  const visibleTabs = taskTabs.filter((tab) => tab.visible);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     setTab(newValue);
-  }
+  };
 
   const activeTab = taskTabs.find((t) => t.value === tab);
 
@@ -76,23 +143,8 @@ const TaskManagment = () => {
           ))}
         </Tabs>
       </Box>
-      {/* Header Controls */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        <Select
-        //   value={sortBy}
-        //   onChange={handleSortChange}
-          displayEmpty
-          size="small"
-        >
-          <MenuItem value="Sort">Sort By</MenuItem>
-          <MenuItem value="name">Name</MenuItem>
-          <MenuItem value="role">Role</MenuItem>
-        </Select>
+
+      <Box display="flex" justifyContent="end" alignItems="center" mb={2}>
         <Button
           variant="contained"
           onClick={() => setEmployeeDrawerOpen(true)}
@@ -101,16 +153,19 @@ const TaskManagment = () => {
             borderRadius: 20,
             backgroundColor: "#FFC107",
             color: "#000",
-            boxShadow:"none"
+            boxShadow: "none",
           }}
         >
           Add New Task
         </Button>
       </Box>
+
       {activeTab?.component}
+
       <AddNewTaskDrawer
-      open={employeeDrawerOpen}
-      onClose={() => setEmployeeDrawerOpen(false)}
+        refetchAllTasks = {refetch}
+        open={employeeDrawerOpen}
+        onClose={() => setEmployeeDrawerOpen(false)}
       />
     </div>
   );

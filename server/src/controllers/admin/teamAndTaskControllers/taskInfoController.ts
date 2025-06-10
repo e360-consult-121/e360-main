@@ -189,7 +189,7 @@ export const fetchMyTasks = async (req: Request, res: Response): Promise<Respons
     return res.status(200).json({
       success: true,
       message: "Tasks fetched successfully",
-      data: tasks,
+      tasks,
     });
   };
 
