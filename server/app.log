@@ -818,3 +818,37 @@
 >>>>>>> Stashed changes
 =======
 >>>>>>> c0c9800edec9dc604d603219b481c26216dbe821
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"401\",\"responseTime\":\"195.291\"}","timestamp":"2025-06-09T08:15:35.040Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"2152.440\"}","timestamp":"2025-06-09T08:17:27.154Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"190.291\"}","timestamp":"2025-06-09T08:17:34.960Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/task-management/addNewTask\",\"status\":\"500\",\"responseTime\":\"607.584\"}","timestamp":"2025-06-09T08:26:45.121Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/task-management/addNewTask\",\"status\":\"500\",\"responseTime\":\"260.101\"}","timestamp":"2025-06-09T08:27:35.293Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/task-management/addNewTask\",\"status\":\"201\",\"responseTime\":\"795.346\"}","timestamp":"2025-06-09T09:27:33.926Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllTasks\",\"status\":\"200\",\"responseTime\":\"109.196\"}","timestamp":"2025-06-09T09:28:01.596Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"77.999\"}","timestamp":"2025-06-09T09:28:22.254Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"71.149\"}","timestamp":"2025-06-09T09:29:22.813Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"76.724\"}","timestamp":"2025-06-09T09:29:33.180Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"70.726\"}","timestamp":"2025-06-09T09:30:39.168Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"131.633\"}","timestamp":"2025-06-09T09:36:57.517Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"133.069\"}","timestamp":"2025-06-09T09:42:51.529Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"137.090\"}","timestamp":"2025-06-09T09:46:10.587Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchDueTasks\",\"status\":\"200\",\"responseTime\":\"85.602\"}","timestamp":"2025-06-09T09:47:52.973Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchOverdueTasks\",\"status\":\"200\",\"responseTime\":\"75.347\"}","timestamp":"2025-06-09T09:48:07.232Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchDueTasks\",\"status\":\"200\",\"responseTime\":\"77.046\"}","timestamp":"2025-06-09T09:49:18.370Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchOverdueTasks\",\"status\":\"200\",\"responseTime\":\"74.591\"}","timestamp":"2025-06-09T09:50:00.702Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllTasks\",\"status\":\"200\",\"responseTime\":\"128.728\"}","timestamp":"2025-06-09T10:02:27.977Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"91.000\"}","timestamp":"2025-06-09T10:02:56.701Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"654.408\"}","timestamp":"2025-06-09T10:05:02.914Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"199.022\"}","timestamp":"2025-06-09T10:05:20.766Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"368.611\"}","timestamp":"2025-06-09T10:08:17.592Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"340.014\"}","timestamp":"2025-06-09T10:16:23.114Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"401\",\"responseTime\":\"193.894\"}","timestamp":"2025-06-09T10:35:33.076Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1057.480\"}","timestamp":"2025-06-09T10:36:17.146Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"350.815\"}","timestamp":"2025-06-09T10:36:41.464Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"222.548\"}","timestamp":"2025-06-09T10:36:49.606Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"229.107\"}","timestamp":"2025-06-09T10:37:02.992Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"323.020\"}","timestamp":"2025-06-09T10:45:23.645Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"299.443\"}","timestamp":"2025-06-09T10:56:55.644Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchDueTasks\",\"status\":\"200\",\"responseTime\":\"334.457\"}","timestamp":"2025-06-09T10:59:10.169Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchOverdueTasks\",\"status\":\"200\",\"responseTime\":\"215.484\"}","timestamp":"2025-06-09T10:59:39.336Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchParticularTask/:6846a905262fe7595a611466\",\"status\":\"200\",\"responseTime\":\"532.538\"}","timestamp":"2025-06-09T11:18:18.042Z"}

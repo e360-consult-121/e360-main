@@ -12,17 +12,17 @@ const router = Router();
 
 router.post("/addNewTask",
  authenticate ,authorizeAdmin,
-//  checkPermission("Create_task"),
+ checkPermission("Create_task"),
  asyncHandler(taskControllers.addNewTask));
 
-router.post("/editTask/:taskId",
+router.patch("/editTask/:taskId",
  authenticate ,authorizeAdmin,
- //  checkPermission("Edit_task"),
+  checkPermission("Edit_task"),
  asyncHandler(taskControllers.editTask));
 
 router.delete("/deleteTask/:taskId",
  authenticate ,authorizeAdmin,
-  //  checkPermission("Delete_task"),
+   checkPermission("Delete_task"),
  asyncHandler(taskControllers.deleteTask));
 
 //  Fetch  Tasks
@@ -32,17 +32,22 @@ router.get("/fetchMyTasks"        , authenticate , authorizeAdmin , asyncHandler
 
 router.get("/fetchUpcomingTasks",
  authenticate , authorizeAdmin ,
-//  addArrayForStaff("Tasks"),
+ addArrayForStaff("Tasks"),
  asyncHandler(taskInfoControllers.fetchUpcomingTasks));
 
 router.get("/fetchDueTasks" ,
  authenticate , authorizeAdmin ,
-//  addArrayForStaff("Tasks"),
+ addArrayForStaff("Tasks"),
  asyncHandler(taskInfoControllers.fetchDueTasks));
 
 router.get("/fetchOverdueTasks"   ,
  authenticate , authorizeAdmin ,
-//  addArrayForStaff("Tasks"),
+ addArrayForStaff("Tasks"),
+ asyncHandler(taskInfoControllers.fetchOverdueTasks));
+
+router.get("/fetchParticularTask/:taskId"   ,
+ authenticate , authorizeAdmin ,
+ addArrayForStaff("Tasks"),
  asyncHandler(taskInfoControllers.fetchOverdueTasks));
 
 // Fetch Helping Details

@@ -158,17 +158,69 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
 };
 
 // 3rd
+// export const assignActionsToRole = async (req: Request, res: Response) => {
+//   const { roleId, actionIds } = req.body;
+
+//   if (!roleId || !Array.isArray(actionIds)) {
+//     res.status(400);
+//     throw new Error("roleId and actionIds array are required");
+//   }
+
+//   if (actionIds.length === 0) {
+//     res.status(400);
+//     throw new Error("actionIds array cannot be empty");
+//   }
+
+//   // Check if role exists
+//   const role = await roleModel.findById(roleId);
+//   if (!role) {
+//     res.status(404);
+//     throw new Error("Role not found");
+//   }
+
+//   // Validate all actionIds exist
+//   const validActions = await actionModel.find({ _id: { $in: actionIds } });
+//   const validActionIds = validActions.map(action => String(action._id));
+
+//   if (validActionIds.length !== actionIds.length) {
+//     res.status(400);
+//     throw new Error("One or more actionIds are invalid");
+//   }
+
+//   // Filter out already existing permissions
+//   const existingPermissions = await permissionModel.find({
+//     roleId,
+//     actionId: { $in: validActionIds },
+//   });
+
+//   // find existing Id's (so we can filter  filter kar lenge )
+//   const existingActionIds = new Set(existingPermissions.map(p => String(p.actionId)));
+
+//   const newPermissionsData = validActionIds
+//     .filter(id => !existingActionIds.has(id))
+//     .map(actionId => ({
+//       roleId,
+//       actionId,
+//     }));
+
+//   // Insert only the new (non-duplicate) permissions
+//   const insertedPermissions = await permissionModel.insertMany(newPermissionsData);
+
+//   res.status(201).json({
+//     success: true,
+//     message: `${insertedPermissions.length} permission(s) assigned to role.`,
+//     permissions: insertedPermissions,
+//     skipped: validActionIds.length - insertedPermissions.length,
+//   });
+// };
+
 export const assignActionsToRole = async (req: Request, res: Response) => {
-  const { roleId, actionIds } = req.body;
+  
+  const { roleId, addIds = [], deleteIds = [] } = req.body;
 
-  if (!roleId || !Array.isArray(actionIds)) {
+  if (!roleId || (!Array.isArray(addIds) && !Array.isArray(deleteIds))) {
     res.status(400);
-    throw new Error("roleId and actionIds array are required");
-  }
-
-  if (actionIds.length === 0) {
-    res.status(400);
-    throw new Error("actionIds array cannot be empty");
+    throw new Error("roleId, addIds and/or deleteIds array are required");
   }
 
   // Check if role exists
@@ -178,48 +230,69 @@ export const assignActionsToRole = async (req: Request, res: Response) => {
     throw new Error("Role not found");
   }
 
-  // Validate all actionIds exist
-  const validActions = await actionModel.find({ _id: { $in: actionIds } });
-  const validActionIds = validActions.map(action => String(action._id));
+  const result: any = {
+    added: 0,
+    deleted: 0,
+    skipped: 0,
+  };
 
-  if (validActionIds.length !== actionIds.length) {
-    res.status(400);
-    throw new Error("One or more actionIds are invalid");
+  // Handle addIds
+  if (Array.isArray(addIds) && addIds.length > 0) {
+    const validAddActions = await actionModel.find({ _id: { $in: addIds } });
+    const validAddActionIds = validAddActions.map(action => String(action._id));
+
+    if (validAddActionIds.length !== addIds.length) {
+      res.status(400);
+      throw new Error("One or more addIds are invalid");
+    }
+
+    const existingPermissions = await permissionModel.find({
+      roleId,
+      actionId: { $in: validAddActionIds },
+    });
+
+    const existingActionIds = new Set(existingPermissions.map(p => String(p.actionId)));
+
+    const newPermissions = validAddActionIds
+      .filter(id => !existingActionIds.has(id))
+      .map(actionId => ({ roleId, actionId }));
+
+    const inserted = await permissionModel.insertMany(newPermissions);
+    result.added = inserted.length;
+    result.skipped = validAddActionIds.length - inserted.length;
   }
 
-  // Filter out already existing permissions
-  const existingPermissions = await permissionModel.find({
-    roleId,
-    actionId: { $in: validActionIds },
-  });
+  // Handle deleteIds
+  if (Array.isArray(deleteIds) && deleteIds.length > 0) {
+    const validDeleteActions = await actionModel.find({ _id: { $in: deleteIds } });
+    const validDeleteActionIds = validDeleteActions.map(action => String(action._id));
 
-  // existingId's pata kar lo (vakid Id's me se filter kar lenge )
-  const existingActionIds = new Set(existingPermissions.map(p => String(p.actionId)));
+    if (validDeleteActionIds.length !== deleteIds.length) {
+      res.status(400);
+      throw new Error("One or more deleteIds are invalid");
+    }
 
-  const newPermissionsData = validActionIds
-    .filter(id => !existingActionIds.has(id))
-    .map(actionId => ({
+    const deleteResult = await permissionModel.deleteMany({
       roleId,
-      actionId,
-    }));
+      actionId: { $in: validDeleteActionIds },
+    });
 
-  // Insert only the new (non-duplicate) permissions
-  const insertedPermissions = await permissionModel.insertMany(newPermissionsData);
+    result.deleted = deleteResult.deletedCount || 0;
+  }
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
-    message: `${insertedPermissions.length} permission(s) assigned to role.`,
-    permissions: insertedPermissions,
-    skipped: validActionIds.length - insertedPermissions.length,
+    message: "Permissions updated successfully",
+    ...result,
   });
 };
   
-  
+
 
 
 // 4th  -->> Edit Employee
 // req type -->> patch 
-// And send only thise fields which are updated 
+// And send only those fields which are updated 
 export const editAdminUser = async (req: Request, res: Response) => {
   const { employeeId } = req.params;
   const {
