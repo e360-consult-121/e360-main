@@ -5,6 +5,8 @@ export interface ILog extends Document {
   logMsg: string;
   doneBy: Types.ObjectId | null;
   logType: logTypeEnum; 
+  leadId : Types.ObjectId | null;
+  visaApplicationId : Types.ObjectId | null;
 }
 
 const LogSchema = new Schema<ILog>({
@@ -15,11 +17,11 @@ const LogSchema = new Schema<ILog>({
     required: true,
     enum: Object.values(logTypeEnum),
   },
+  leadId: { type : Schema.Types.ObjectId, ref: "Lead", default: null },
+  visaApplicationId: { type : Schema.Types.ObjectId, ref: "VisaApplication", default: null },
 },
  {
     timestamps: true 
   });
 
 export const LogModel = mongoose.model<ILog>("Log", LogSchema);
-
-// DO we need to store visaApplicationId 

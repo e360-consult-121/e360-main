@@ -492,6 +492,7 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
 
 
 // Fetch Particular Task
+// isme vo bhi handle karna hai , jab ye taskId , incoming array me se hi ek ho ....
 export const fetchParticularTask = async (req: Request, res: Response) => {
   const { taskId } = req.params;
 
@@ -547,6 +548,7 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
         attachedClient: { $first: "$attachedClient" },
         attachedVisaApplication: { $first: "$attachedVisaApplication" },
         attachedConsultation: { $first: "$attachedConsultation" },
+        files: { $first: "$files" }, 
         assignedTo: {
           $push: {
             userId: "$assignedUser._id",
@@ -583,6 +585,7 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
         attachedClient: 1,
         attachedVisaApplication: 1,
         attachedConsultation: 1,
+        files: 1, 
         assignedTo: 1,
         assignedBy: {
           userId: "$assigner._id",
@@ -596,6 +599,27 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
   if (!tasks.length) {
     throw new AppError("Task not found", 404);
   }
+
+  const task = tasks[0];
+
+  // Post-process files to add name
+  task.files = (task.files || []).map((url: string) => {
+    // Extract the encoded file name from URL
+    const encodedFileName = url.split("/").pop() || "unknown";
+
+    // Decode to convert %5B → [, %5D → ], etc.
+    const decodedFileName = decodeURIComponent(encodedFileName);
+
+    // Remove the prefix timestamp (e.g., "1749641879307-")
+    const parts = decodedFileName.split("-");
+    const hasTimestamp = parts.length > 1 && /^\d+$/.test(parts[0]);
+    const originalName = hasTimestamp ? parts.slice(1).join("-") : decodedFileName;
+
+    return {
+      url,
+      name: originalName,
+    };
+  });
 
   return res.status(200).json({
     success: true,

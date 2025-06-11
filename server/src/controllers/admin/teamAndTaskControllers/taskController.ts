@@ -19,13 +19,18 @@ export const addNewTask = async (req: Request, res: Response) => {
     endDate,
     attachedLead,
     attchedVisaApplication,
-    assignedTo
   } = req.body;
 
+  let { assignedTo } = req.body;
+
   // Validate required fields
-  if (!taskName || !priority || !startDate || !endDate) {
+  if (!taskName || !priority || !startDate || !endDate || !assignedTo) {
     res.status(400);
     throw new Error("Required fields are missing.");
+  }
+
+  if (typeof assignedTo === "string") {
+    assignedTo = JSON.parse(assignedTo); // Convert JSON string to array
   }
 
   // Ensure assignedTo is an array

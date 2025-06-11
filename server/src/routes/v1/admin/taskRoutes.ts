@@ -6,6 +6,7 @@ import * as taskControllers from "../../../controllers/admin/teamAndTaskControll
 import * as taskInfoControllers from "../../../controllers/admin/teamAndTaskControllers/taskInfoController"
 import * as otherInfoControllers from "../../../controllers/admin/teamAndTaskControllers/otherInfoController"
 import { addArrayForStaff } from "../../../middlewares/addArrayForStaff";
+import { upload } from "../../../services/s3Upload";
 
 
 const router = Router();
@@ -13,6 +14,7 @@ const router = Router();
 router.post("/addNewTask",
  authenticate ,authorizeAdmin,
  checkPermission("Create_task"),
+ upload.array("files"),
  asyncHandler(taskControllers.addNewTask));
 
 router.patch("/editTask/:taskId",
@@ -48,7 +50,7 @@ router.get("/fetchOverdueTasks"   ,
 router.get("/fetchParticularTask/:taskId"   ,
  authenticate , authorizeAdmin ,
  addArrayForStaff("Tasks"),
- asyncHandler(taskInfoControllers.fetchOverdueTasks));
+ asyncHandler(taskInfoControllers.fetchParticularTask));
 
 // Fetch Helping Details
 router.get("/fetchAllLeads"             , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAllLeads));
