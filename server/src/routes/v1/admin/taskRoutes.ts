@@ -53,7 +53,12 @@ router.get("/fetchParticularTask/:taskId"   ,
  asyncHandler(taskInfoControllers.fetchParticularTask));
 
 // Fetch Helping Details
-router.get("/fetchAllLeads"             , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAllLeads));
+router.get("/fetchAllLeads"             ,
+ authenticate , authorizeAdmin , 
+ addArrayForStaff("Leads"),
+ asyncHandler(otherInfoControllers.getAllLeads));
+
+
 
 router.get("/fetchAllVisaApplications"  ,
  authenticate , authorizeAdmin , 
