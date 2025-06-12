@@ -16,6 +16,7 @@ import MyClients from "./MyClients/MyClients";
 import ClientVisaApplications from "./MyClients/ClientVisaApplications";
 import RoleAndPermission from "./roleandPermission/RoleAndPermission";
 import TaskManagment from "./taskManagement/TaskManagment";
+import ParticularTask from "./taskManagement/ParticularTask";
 // import { toast } from "react-toastify";
 
 const AdminRoutes = () => {
@@ -58,6 +59,7 @@ const AdminRoutes = () => {
         <Route path="/myclient/:userid" element={<ClientVisaApplications />} />
         <Route path="/roleandpermission/:type" element={<RoleAndPermission />} />
         <Route path="/taskmanagement" element={<TaskManagment />} />
+        <Route path="/taskmanagement/:taskid" element={<ParticularTask />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>

@@ -18,15 +18,21 @@ import {
 } from "../taskManagementApi";
 import { toast } from "react-toastify";
 import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 
 const AddNewTaskDrawer = ({
   open,
   onClose,
   refetchAllTasks,
+  attachLead,
+  attachVisaApplication
+
 }: {
   open: boolean;
   onClose: () => void;
-  refetchAllTasks: () => void;
+  refetchAllTasks?: () => void;
+  attachLead?:string;
+  attachVisaApplication?:string
 }) => {
   const today = dayjs().format("YYYY-MM-DD");
   const [startDate, setStartDate] = useState(today);
@@ -35,17 +41,19 @@ const AddNewTaskDrawer = ({
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
   const [assignedTo, setAssignedTo] = useState([]);
-  const [attachedLead, setAttachedLead] = useState("");
-  const [application, setApplication] = useState("");
+  const [attachedLead, setAttachedLead] = useState(attachLead ?? "");
+  const [application, setApplication] = useState(attachVisaApplication ?? "");
   const [media, setMedia] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const navigate = useNavigate()
 
   const { data: allLeads } = useFetchAllLeadsQuery(undefined);
   const { data: allVisaApplication } =
     useFetchAllVisaApplicationsQuery(undefined);
   const { data: allAssignee } = useFetchAssigneeListQuery(undefined);
 
-  const [addNewTask] = useAddNewTaskMutation();
+  const [addNewTask, { isLoading }] = useAddNewTaskMutation();
 
   const leadOptions = allLeads?.leads?.map((lead: any) => ({
     label: `${lead.fullName?.first ?? ""} ${lead.fullName?.last ?? ""}`,
@@ -74,14 +82,26 @@ const AddNewTaskDrawer = ({
         endDate,
         attachedLead,
         assignedTo: assignedTo.map((id: any) => id.value),
-        attchedVisaApplication:application
+        attchedVisaApplication: application,
       };
-      console.log(body);
+      // console.log(body);
       await addNewTask({ file: media, body }).unwrap();
       toast.success("Task Added Sucessfully");
-      refetchAllTasks();
+      refetchAllTasks?.();
     } catch (err) {
       toast.error("Something went wrong ");
+    } finally {
+      setStartDate(today);
+      setEndDate("");
+      setPriority("");
+      setTaskName("");
+      setDescription("");
+      setApplication("");
+      setAttachedLead("");
+      setAssignedTo([]);
+      setMedia(null);
+      onClose();
+      navigate("/admin/taskmanagement")
     }
   };
 
@@ -373,10 +393,12 @@ const AddNewTaskDrawer = ({
               !startDate ||
               !endDate ||
               !attachedLead ||
-              !assignedTo
+              !media ||
+              assignedTo.length === 0 ||
+              isLoading
             }
           >
-            Add Task
+            {isLoading ?  "Adding Task..." : "Add Task"}
           </Button>
         </Box>
       </Box>

@@ -24,7 +24,7 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
 
   const navigate = useNavigate();
 
-  // console.log(data);
+  console.log(data);
 
   const handleNavigation = (row: any) => {
     const newRow = {
@@ -127,15 +127,15 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
                       {row?.nanoVisaApplicationId}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row.leadId === undefined ?  row?.leadId?.fullName?.first +
+                      {row.leadId !== null ? row?.leadId?.fullName?.first +
                         " " +
                         row?.leadId?.fullName?.last : row?.userId?.name}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row.leadId === undefined ? row?.leadId?.email : row.userId.email}
+                      {row.leadId !== null ? row?.leadId?.email : row.userId.email}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row.leadId === undefined ? row?.leadId?.phone : row?.userId.phone}
+                      {row.leadId !== null ? row?.leadId?.phone : row?.userId.phone}
                     </TableCell>
                     <TableCell
                       sx={{

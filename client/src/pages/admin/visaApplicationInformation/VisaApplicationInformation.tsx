@@ -1,31 +1,33 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useFetchParticularLeadQuery } from "../../../features/admin/leadManagement/leadManagementApi";
 import { ClientInfoType } from "../../../features/admin/leadManagement/leadManagementTypes";
 import { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import ClientConsultation from "../clientInformation/ClientConsultation";
 import ClientInfoCard from "../../../components/admin/ClientInfoCard";
+import Chatbot from "../../../components/Chatbot"; 
+import ChatbotPanel from "../../../components/ChatbotPanel"; 
+import AddNewTaskDrawer from "../../../features/admin/taskManagement/components/AddNewTaskDrawer";
 
 const VisaApplicationInformation = () => {
+  const location = useLocation();
+  const row = location.state?.row;
+  const leadid = row?.leadId;
+  const {visatype} = useParams();
+  const { data, isLoading, isError, refetch } = useFetchParticularLeadQuery(leadid);
+  const [clientInfo, setClientInfo] = useState<ClientInfoType>();
+  const [chatVisible, setChatVisible] = useState(false);
+  const [employeeDrawerOpen, setEmployeeDrawerOpen] = useState(false);
 
-    const location = useLocation();
-    // console.log(location);
-    const row = location.state?.row;
-    const leadid = row.leadId 
-    // const { visatype } = useParams();
-    const { data, isLoading, isError,refetch } = useFetchParticularLeadQuery(leadid);
-    const [clientInfo, setClientInfo] = useState<ClientInfoType>();
-  
-    useEffect(() => {
-      if (data && !isLoading && !isError) {
-        // console.log(data.data)
-        setClientInfo(data.data);
-      }
-    }, [data, isLoading, isError]);
-  
-    if (isLoading) {
-      return( 
-        <Box
+  useEffect(() => {
+    if (data && !isLoading && !isError) {
+      setClientInfo(data.data);
+    }
+  }, [data, isLoading, isError]);
+
+  if (isLoading) {
+    return (
+      <Box
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -35,40 +37,84 @@ const VisaApplicationInformation = () => {
       >
         <CircularProgress />
       </Box>
-      )
-      
-    }
-  
-    if (isError || !data) {
-      return (
-      <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-      }}
-      >
-      <Typography color="error">Failed to load client data.</Typography>
-      </Box>
-      )
-    }
-  
-    return (
-      <>
-        <ClientInfoCard clientInfo={clientInfo} />
-        <ClientConsultation
-          onRefreshLead={refetch}
-          leadStatus={clientInfo?.leadStatus || ""}
-          consultationInfo={clientInfo?.consultationInfo}
-          paymentInfo={clientInfo?.paymentInfo}
-          eligibilityForm={clientInfo?.eligibilityForm}
-          visaType={clientInfo?.leadInfo?.appliedFor ?? ""}
-          formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
-          showExtraTabs={true}
-        />
-      </>
     );
-}
+  }
 
-export default VisaApplicationInformation
+  if (isError || !data) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Typography color="error">Failed to load client data.</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ position: "relative",mt:2 }}>
+      <ClientInfoCard clientInfo={clientInfo} />
+       <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "end",
+                mx: 5,
+                pl: 3,
+                pr: 5,
+                mt: 3,
+              }}
+            >
+              <Button
+                variant="contained"
+                sx={{
+                  boxShadow: "none",
+                  textTransform: "none",
+                  borderRadius: "20px",
+                }}
+                onClick={() => setEmployeeDrawerOpen(true)}
+              >
+                          + Add this as task
+              </Button>
+            </Box>
+      <ClientConsultation
+        onRefreshLead={refetch}
+        leadStatus={clientInfo?.leadStatus || ""}
+        consultationInfo={clientInfo?.consultationInfo}
+        paymentInfo={clientInfo?.paymentInfo}
+        eligibilityForm={clientInfo?.eligibilityForm}
+        visaType={clientInfo?.leadInfo?.appliedFor ?? ""}
+        formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
+        showExtraTabs={true}
+      />
+
+      <AddNewTaskDrawer
+              attachVisaApplication={visatype}
+              open={employeeDrawerOpen}
+              onClose={() => setEmployeeDrawerOpen(false)}
+      />
+
+
+      {!chatVisible && (
+        <Box sx={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
+          <Chatbot onToggle={() => setChatVisible((prev) => !prev)} />
+        </Box>
+      )}
+
+      {chatVisible && (
+        <ChatbotPanel
+          chatVisible={chatVisible}
+          setChatVisible={setChatVisible}
+          visaApplicationId={leadid}
+          source={"Admin"}
+        />
+      )}
+    </Box>
+  );
+};
+
+export default VisaApplicationInformation;

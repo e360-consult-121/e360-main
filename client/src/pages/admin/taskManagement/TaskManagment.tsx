@@ -26,31 +26,35 @@ const TaskManagment = () => {
     data: allTasks,
     isLoading: isLoadingAll,
     isError: isErrorAll,
+    refetch:refetchAllTasks
   } = useFetchAllTasksQuery(undefined, { skip: tab !== "alltasks" });
 
   const {
     data: myTasks,
     isLoading: isLoadingMy,
     isError: isErrorMy,
-    refetch
+    refetch:refetchMyTasks
   } = useFetchMyTasksQuery(undefined, { skip: tab !== "mytasks" });
 
   const {
     data: upcomingTasks,
     isLoading: isLoadingUpcoming,
     isError: isErrorUpcoming,
+    refetch:refetchUpcomingTasks
   } = useFetchUpcomingTasksQuery(undefined, { skip: tab !== "upcomingtasks" });
 
   const {
     data: dueTasks,
     isLoading: isLoadingDue,
     isError: isErrorDue,
+    refetch:refetchDueTasks
   } = useFetchDueTasksQuery(undefined, { skip: tab !== "duetasks" });
 
   const {
     data: overdueTasks,
     isLoading: isLoadingOverdue,
     isError: isErrorOverdue,
+    refetch:refetchOverdueTasks
   } = useFetchOverdueTasksQuery(undefined, { skip: tab !== "overdue" });
 
   const taskTabs = [
@@ -62,7 +66,7 @@ const TaskManagment = () => {
       ) : isErrorAll || !allTasks?.tasks ? (
         <Typography color="error">Failed to load tasks.</Typography>
       ) : (
-        <TaskManagementTable tasks={allTasks.tasks} />
+        <TaskManagementTable tasks={allTasks.tasks} refetchTasks={refetchAllTasks} />
       ),
       visible: true,
     },
@@ -74,7 +78,7 @@ const TaskManagment = () => {
       ) : isErrorMy || !myTasks?.tasks ? (
         <Typography color="error">Failed to load tasks.</Typography>
       ) : (
-        <TaskManagementTable tasks={myTasks.tasks} />
+        <TaskManagementTable tasks={myTasks.tasks} refetchTasks={refetchMyTasks} />
       ),
       visible: true,
     },
@@ -86,7 +90,7 @@ const TaskManagment = () => {
       ) : isErrorUpcoming || !upcomingTasks?.tasks ? (
         <Typography color="error">Failed to load tasks.</Typography>
       ) : (
-        <TaskManagementTable tasks={upcomingTasks.tasks} />
+        <TaskManagementTable tasks={upcomingTasks.tasks} refetchTasks={refetchUpcomingTasks}/>
       ),
       visible: true,
     },
@@ -98,7 +102,7 @@ const TaskManagment = () => {
       ) : isErrorDue || !dueTasks?.tasks ? (
         <Typography color="error">Failed to load tasks.</Typography>
       ) : (
-        <TaskManagementTable tasks={dueTasks.tasks} />
+        <TaskManagementTable tasks={dueTasks.tasks} refetchTasks={refetchDueTasks}/>
       ),
       visible: true,
     },
@@ -110,7 +114,7 @@ const TaskManagment = () => {
       ) : isErrorOverdue || !overdueTasks?.tasks ? (
         <Typography color="error">Failed to load tasks.</Typography>
       ) : (
-        <TaskManagementTable tasks={overdueTasks.tasks} />
+        <TaskManagementTable tasks={overdueTasks.tasks} refetchTasks={refetchOverdueTasks}/>
       ),
       visible: true,
     },
@@ -125,7 +129,7 @@ const TaskManagment = () => {
   const activeTab = taskTabs.find((t) => t.value === tab);
 
   return (
-    <div className="px-5">
+    <div className="px-3">
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <Tabs
           value={tab}
@@ -144,7 +148,7 @@ const TaskManagment = () => {
         </Tabs>
       </Box>
 
-      <Box display="flex" justifyContent="end" alignItems="center" mb={2}>
+      <Box display="flex" justifyContent="end" alignItems="center">
         <Button
           variant="contained"
           onClick={() => setEmployeeDrawerOpen(true)}
@@ -163,7 +167,7 @@ const TaskManagment = () => {
       {activeTab?.component}
 
       <AddNewTaskDrawer
-        refetchAllTasks = {refetch}
+        refetchAllTasks = {refetchAllTasks}
         open={employeeDrawerOpen}
         onClose={() => setEmployeeDrawerOpen(false)}
       />

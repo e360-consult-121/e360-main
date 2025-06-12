@@ -196,6 +196,7 @@ export enum logTypeEnum {
   LeadLogs = 'leadLogs',
   ActivityLogs = 'activityLogs',
   VisaApplicationLogs = 'visaApplicationLogs'
+  
 }
 
 export enum taskPriorityEnum {
@@ -209,3 +210,4 @@ export enum taskStatusEnum {
   DUE = 'Due',
   OVERDUE = 'Overdue'
 }
+

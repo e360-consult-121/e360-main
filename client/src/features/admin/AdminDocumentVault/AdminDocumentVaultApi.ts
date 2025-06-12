@@ -29,7 +29,13 @@ export const AdminDocumentVaultApi = baseApi.injectEndpoints({
         data: body,
       }),
     }),
+    fetchAllExtraCategories: build.query({
+      query: (visaApplicationId) => ({
+        url: `/visaApplications/docVault/${visaApplicationId}/fetchAllExtraCategories`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useAddCategoryMutation,useDocUploadByAdminMutation,useMoveToAnotherCategoryMutation } = AdminDocumentVaultApi;
+export const { useAddCategoryMutation,useDocUploadByAdminMutation,useMoveToAnotherCategoryMutation,useFetchAllExtraCategoriesQuery } = AdminDocumentVaultApi;

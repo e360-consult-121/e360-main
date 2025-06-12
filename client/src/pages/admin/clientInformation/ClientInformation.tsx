@@ -4,6 +4,7 @@ import {
   CardContent,
   Box,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import ClientConsultation from "./ClientConsultation";
 import { useParams } from "react-router-dom";
@@ -13,11 +14,14 @@ import {
   ClientInfoType,
   leadStatus,
 } from "../../../features/admin/leadManagement/leadManagementTypes";
+import AddNewTaskDrawer from "../../../features/admin/taskManagement/components/AddNewTaskDrawer";
 
 const ClientInformation = () => {
   const { leadid } = useParams();
-  const { data, isLoading, isError,refetch } = useFetchParticularLeadQuery(leadid);
+  const { data, isLoading, isError, refetch } =
+    useFetchParticularLeadQuery(leadid);
   const [clientInfo, setClientInfo] = useState<ClientInfoType>();
+  const [employeeDrawerOpen, setEmployeeDrawerOpen] = useState(false);
 
   useEffect(() => {
     if (data && !isLoading && !isError) {
@@ -27,34 +31,33 @@ const ClientInformation = () => {
   }, [data, isLoading, isError]);
 
   if (isLoading) {
-    return( 
+    return (
       <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-      }}
-    >
-      <CircularProgress />
-    </Box>
-    )
-    
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (isError || !data) {
     return (
-    <Box
-    sx={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
-    }}
-    >
-    <Typography color="error">Failed to load client data.</Typography>
-    </Box>
-    )
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Typography color="error">Failed to load client data.</Typography>
+      </Box>
+    );
   }
 
   return (
@@ -128,15 +131,43 @@ const ClientInformation = () => {
           </Box>
         </CardContent>
       </Card>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "end",
+          mx: 5,
+          pl: 3,
+          pr: 5,
+          mt: 3,
+        }}
+      >
+        <Button
+          variant="contained"
+          sx={{
+            boxShadow: "none",
+            textTransform: "none",
+            borderRadius: "20px",
+          }}
+          onClick={() => setEmployeeDrawerOpen(true)}
+        >
+          + Add this as task
+        </Button>
+      </Box>
       <ClientConsultation
         onRefreshLead={refetch}
         leadStatus={clientInfo?.leadStatus || ""}
         consultationInfo={clientInfo?.consultationInfo}
         paymentInfo={clientInfo?.paymentInfo}
-        visaType={clientInfo?.leadInfo?.appliedFor??""}
+        visaType={clientInfo?.leadInfo?.appliedFor ?? ""}
         eligibilityForm={clientInfo?.eligibilityForm}
         formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
         showExtraTabs={false}
+      />
+      <AddNewTaskDrawer
+        attachLead={leadid}
+        open={employeeDrawerOpen}
+        onClose={() => setEmployeeDrawerOpen(false)}
       />
     </>
   );

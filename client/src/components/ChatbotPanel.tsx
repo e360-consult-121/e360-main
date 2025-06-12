@@ -8,19 +8,20 @@ import {
   useMoveToDocVaultMutation,
   useSendFileMutation,
   useSendTextMessageMutation,
-} from "../../features/chat/chatApi";
-import { formatDate } from "../../utils/FormateDate";
-import ChatMessage from "../ChatMessage";
+} from "../features/chat/chatApi";
+import { formatDate } from "../utils/FormateDate";
+import ChatMessage from "./ChatMessage";
 import { toast } from "react-toastify";
 
 interface ChatbotPanelProps {
   chatVisible: boolean;
   setChatVisible: React.Dispatch<React.SetStateAction<boolean>>;
   visaApplicationId: string | undefined;
+  source: string;
 }
 
 interface Message {
-  _id:string;
+  _id: string;
   textMsg: string;
   senderType: "User" | "Admin";
   createdAt: string;
@@ -32,11 +33,14 @@ const ChatbotPanel = ({
   chatVisible,
   setChatVisible,
   visaApplicationId,
+  source,
 }: ChatbotPanelProps) => {
+
   const [chatData, setChatData] = useState<Record<string, Message[]> | null>(
     null
   );
-  const [message, setMessage] = useState(""); // message input state
+  const [message, setMessage] = useState("");
+  const [isPendingMessage, setIsPendingMessage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +55,7 @@ const ChatbotPanel = ({
 
   const [sendFile] = useSendFileMutation();
 
-  const[moveToDocVault]  = useMoveToDocVaultMutation();
+  const [moveToDocVault] = useMoveToDocVaultMutation();
 
   useEffect(() => {
     if (chatVisible && fetchedChatData?.success && fetchedChatData.data) {
@@ -71,11 +75,14 @@ const ChatbotPanel = ({
   ) => {
     const file = event.target.files?.[0];
     if (file && visaApplicationId) {
+      setIsPendingMessage(true);
       try {
         await sendFile({ file, visaApplicationId }).unwrap();
-        await refetch(); // refresh chat to show uploaded file
+        await refetch();
       } catch (error) {
         console.error("Failed to upload file:", error);
+      } finally {
+        setIsPendingMessage(false);
       }
     }
   };
@@ -83,6 +90,7 @@ const ChatbotPanel = ({
   const handleSendMessage = async () => {
     if (!message.trim() || !visaApplicationId) return;
 
+    setIsPendingMessage(true);
     try {
       await sendTextMessage({
         visaApplicationId,
@@ -93,6 +101,8 @@ const ChatbotPanel = ({
       await refetch();
     } catch (error) {
       console.error("Failed to send message:", error);
+    } finally {
+      setIsPendingMessage(false);
     }
   };
 
@@ -102,20 +112,23 @@ const ChatbotPanel = ({
     }
   };
 
-  const handleMoveToVault = async(messageId: string, fileName: string | undefined,categoryName:string) => {
+  const handleMoveToVault = async (
+    messageId: string,
+    fileName: string | undefined,
+    categoryName: string
+  ) => {
     try {
-      const body ={
-        docName:fileName,
-        categoryName
-      }
-      await moveToDocVault({body,messageId})
-      toast.success(`File moved to Document Vault ${categoryName}.`)
+      const body = {
+        docName: fileName,
+        categoryName,
+      };
+      await moveToDocVault({ body, messageId });
+      toast.success(`File moved to Document Vault ${categoryName}.`);
     } catch (err) {
-      console.log(err)
-      toast.error("Something went wrong. Try again.")
+      console.log(err);
+      toast.error("Something went wrong. Try again.");
     }
   };
-
 
   const panelContent = (
     <div className="flex flex-col h-full w-full md:w-[400px] rounded-3xl bg-white shadow-lg">
@@ -172,26 +185,32 @@ const ChatbotPanel = ({
                   )
                   .map((msg, index) => (
                     <ChatMessage
-                    messageId={msg._id}
+                      visaApplicationId={visaApplicationId || ""}
+                      messageId={msg._id}
                       key={index}
                       sender={msg.senderType.toLowerCase()}
                       message={msg.textMsg}
-                      timeOfMsg={new Date(msg.createdAt).toLocaleTimeString(
-                        [],
-                        {
+                      timeOfMsg={new Date(msg.createdAt)
+                        .toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                           hour12: true,
-                        }
-                      ).toUpperCase()}
+                        })
+                        .toUpperCase()}
                       fileName={msg.fileName}
                       fileUrl={msg.fileUrl}
                       handleMoveToVault={handleMoveToVault}
+                      source={source}
                     />
                   ))}
-              </div>
-            ))
+              </div>  
+          ))   
         )}
+        {isPendingMessage && (
+    <div className="flex justify-end mt-2">
+      <div className="h-14 bg-gray-300 rounded-xl w-[60%] animate-pulse" />
+    </div>
+  )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -246,5 +265,3 @@ const ChatbotPanel = ({
 };
 
 export default ChatbotPanel;
-
-

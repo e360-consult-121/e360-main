@@ -1,8 +1,11 @@
 import {
   Box,
+  Button,
   Checkbox,
+  Chip,
   IconButton,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -15,13 +18,58 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import AssignmentIcon from "@mui/icons-material/Assignment";
+import { useDeleteTaskMutation, useEditTaskMutation } from "../taskManagementApi";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
-const TaskManagementTable = ({ tasks }: { tasks: any[] }) => {
+const TaskManagementTable = ({
+  tasks,
+  refetchTasks,
+}: {
+  tasks: any[];
+  refetchTasks: () => void;
+}) => {
   // console.log(tasks);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
+  const [deleteTask] = useDeleteTaskMutation();
+  const [editTask] = useEditTaskMutation();
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      setDeletingTaskId(taskId);
+      await deleteTask(taskId).unwrap();
+      toast.success("Task deleted successfully");
+      refetchTasks();
+    } catch (err) {
+      toast.error("Failed to delete task");
+    } finally {
+      setDeletingTaskId(null);
+    }
+  };
+
+  const handleTaskComplete = async(taskid:string)=> {
+    try {
+      const body = {
+        status:"Completed"
+      }
+      await editTask({taskId:taskid,body}).unwrap();
+      toast.success("Marked as completed");
+      refetchTasks();
+    } catch (err) {
+      toast.error("Something went wrong")
+    }
+  }
+
+  const handleparticularTaskNavigation = (taskId: string) => {
+    navigate(`/admin/taskmanagement/${taskId}`);
+  };
 
   const handleCheckboxChange = (id: string) => {
     const updatedSelected = selectedIds.includes(id)
@@ -93,7 +141,13 @@ const TaskManagementTable = ({ tasks }: { tasks: any[] }) => {
               </TableRow>
             ) : (
               currentData.map((task) => (
-                <TableRow key={task._id}>
+                <TableRow
+                  key={task._id}
+                  sx={{
+                    opacity: deletingTaskId === task._id ? 0.5 : 1,
+                    transition: "opacity 0.3s ease",
+                  }}
+                >
                   <TableCell padding="checkbox" sx={{ borderBottom: "none" }}>
                     <Checkbox
                       checked={selectedIds.includes(task._id)}
@@ -125,31 +179,80 @@ const TaskManagementTable = ({ tasks }: { tasks: any[] }) => {
                     </Tooltip>
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
-                    {task.assignedBy?.email || "Unassigned"}
+                    {Array.isArray(task.assignedTo) &&
+                    task.assignedTo.length > 0 ? (
+                      <Stack direction="column" spacing={1} flexWrap="wrap">
+                        {task.assignedTo.map((user: any) => (
+                          <Tooltip title={user.email} key={user._id}>
+                            <Chip
+                              label={user.email}
+                              size="small"
+                              sx={{
+                                maxWidth: 150,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            />
+                          </Tooltip>
+                        ))}
+                      </Stack>
+                    ) : (
+                      "Unassigned"
+                    )}
                   </TableCell>
+
                   <TableCell sx={{ borderBottom: "none" }}>
                     {task.assignedBy?.email || "Unassigned"}
                   </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
+                  <TableCell sx={{ borderBottom: "none",
+                    color:
+                          task.status === "Completed"
+                            ? "green"
+                            : task.status === "Due"
+                            ? "orange"
+                            : "red",
+                   }}>
                     {task.status}
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
                     {new Date(task.dueDate).toLocaleDateString()}
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
-                                    <Typography 
-                                      sx={{ color: task.priority === "High" ? "red" : task.priority === "Medium" ? "orange" : "green" }}
-                                    >
-                                      {task.priority}
-                                    </Typography>
-                                  </TableCell>
+                    <Typography
+                      sx={{
+                        color:
+                          task.priority === "High"
+                            ? "red"
+                            : task.priority === "Medium"
+                            ? "orange"
+                            : "green",
+                      }}
+                    >
+                      {task.priority}
+                    </Typography>
+                  </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
-                    <IconButton>
-                      <AssignmentIcon fontSize="small" />
+                    <IconButton
+                    disabled={task.status === "Completed"}
+                    onClick={()=> handleTaskComplete(task._id)}
+                    >
+                      <AssignmentTurnedInIcon sx={{color:task.status === "Completed" ? "green":"gray"}}/>
                     </IconButton>
-                    <IconButton color="error">
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDeleteTask(task._id)}
+                    >
                       <DeleteOutlinedIcon fontSize="small" />
                     </IconButton>
+                     <Button
+                      sx={{
+                        color:"black",
+                        textTransform:"none"
+                      }}
+                      onClick={() => handleparticularTaskNavigation(task._id)}
+                    >
+                      View &gt;
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

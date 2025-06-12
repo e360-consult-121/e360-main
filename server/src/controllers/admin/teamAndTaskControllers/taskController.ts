@@ -83,7 +83,7 @@ export const addNewTask = async (req: Request, res: Response) => {
   // Create assignments
   const assignments = assignedTo.map((userId: string) => ({
     taskId: savedTask._id,
-    assignedTo: userId,
+    memberId: userId,
     assignedBy: req.admin?.id, // assumes `req.admin.id` exists via auth middleware
   }));
 
@@ -116,6 +116,7 @@ export const editTask = async (req: Request, res: Response) => {
     attachedLead,
     attachedVisaApplication,
     assignedTo,
+    status
   } = req.body;
 
   // Validate assignedTo as an array
@@ -165,6 +166,7 @@ export const editTask = async (req: Request, res: Response) => {
   if (attachedVisaApplication !== undefined) task.attachedVisaApplication = attachedVisaApplication;
   if (attachedClient !== undefined) task.attachedClient = attachedClient;
   if (attachedConsultation !== undefined) task.attachedConsultation = attachedConsultation;
+  if(status !== undefined) task.status = status
 
   // Merge & deduplicate files
   task.files = Array.from(new Set([...task.files, ...newFiles]));

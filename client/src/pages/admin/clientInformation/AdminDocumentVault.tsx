@@ -16,13 +16,11 @@ import {
 import DocumentVaultAccordion from "../../../components/DocumentVaultAccordion";
 import { toast } from "react-toastify";
 import { useFetchVaultDocsQuery } from "../../../features/common/commonApi";
-import {
-  useAddCategoryMutation,
-  useDocUploadByAdminMutation,
-} from "../../../features/admin/AdminDocumentVault/AdminDocumentVaultApi";
+
 import { Icon } from "@iconify/react";
 import { getFileSizeInMB } from "../../../components/UploadModal";
 import CategoryDocumentsAccordion from "../../../components/CategoryWiseDocumentsAccordion";
+import { useAddCategoryMutation, useDocUploadByAdminMutation } from "../../../features/admin/adminDocumentVault/adminDocumentVaultApi";
 
 const AdminDocumentVault = () => {
   const { visatype } = useParams();

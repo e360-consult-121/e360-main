@@ -289,6 +289,23 @@ export const docUploadByUser = async (req: Request, res: Response) => {
     });
   };
 
+export const fetchAllExtraCategories = async (req: Request, res: Response) => {
+  const { visaApplicationId } = req.params;
+
+  try {
+    if (!visaApplicationId) {
+      return res.status(400).json({ message: "visaApplicationId is required" });
+    }
+
+    const categories = await categoryModel.find({ visaApplicationId });
+
+    res.status(200).json({ success: true, data: categories });
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}; 
+
 
         
   

@@ -106,7 +106,7 @@ function a11yProps(index: number) {
 
   
     return (
-      <Box sx={{ px: 5, mt: 5, width: "100%" }}>
+      <Box sx={{ px: 5,mt:2,width: "100%" }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={value}

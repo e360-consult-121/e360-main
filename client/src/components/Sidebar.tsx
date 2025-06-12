@@ -155,7 +155,7 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-[310px] bg-neutrals-950 z-50 transform ${
+        className={`fixed top-0 left-0 h-full w-[310px] bg-neutrals-950 z-50 transform overflow-y-auto ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-auto`}
       >

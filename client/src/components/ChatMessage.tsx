@@ -13,6 +13,8 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
+import { useFetchAllExtraCategoriesQuery } from "../features/admin/adminDocumentVault/adminDocumentVaultApi";
+
 
 interface ChatMessageProps {
   messageId: string;
@@ -26,6 +28,8 @@ interface ChatMessageProps {
     documentName: string,
     category: string
   ) => void;
+  source: string;
+  visaApplicationId: string;
 }
 
 const ChatMessage = ({
@@ -36,13 +40,21 @@ const ChatMessage = ({
   fileName,
   fileUrl,
   handleMoveToVault,
+  source,
+  visaApplicationId
 }: ChatMessageProps) => {
-  const isUser = sender === "user";
+  const isUser =
+  (source === "Admin" && sender === "admin") ||
+  (source === "Customer" && sender === "user");
   const isImage = fileUrl?.match(/\.(jpeg|jpg|png|gif)$/i);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [documentName, setDocumentName] = useState("");
+
+  const { data: extraCategories, isLoading } = useFetchAllExtraCategoriesQuery(visaApplicationId);
+  console.log(extraCategories)
+
 
   const handleMoveClick = () => {
     if (messageId && documentName && selectedOption) {
@@ -64,14 +76,16 @@ const ChatMessage = ({
         >
           {fileUrl && (
             <>
-              <div className="flex justify-end mb-1">
-                <button
-                  onClick={() => setOpenDialog(true)}
-                  className="flex items-center gap-2 bg-zinc-500 text-white px-3 py-1.5 rounded-md shadow-sm text-sm transition hover:cursor-pointer"
-                >
-                  <Icon icon="lucide:folder-plus" width="18" height="18" />
-                </button>
-              </div>
+              {source === "Admin" && (
+                <div className="flex justify-end mb-1">
+                  <button
+                    onClick={() => setOpenDialog(true)}
+                    className="flex items-center gap-2 bg-zinc-500 text-white px-3 py-1.5 rounded-md shadow-sm text-sm transition hover:cursor-pointer"
+                  >
+                    <Icon icon="lucide:folder-plus" width="18" height="18" />
+                  </button>
+                </div>
+              )}
 
               <div className="flex items-center mb-2">
                 <a
@@ -107,79 +121,90 @@ const ChatMessage = ({
             </>
           )}
 
-          {message && <p className="mb-1">{message}</p>}
-
-          <span className="px-1 absolute bottom-0 right-0 text-[8px] text-black">
+          {message && <p className="">{message}</p>}
+          <p className="flex justify-end items-center text-[8px]">
             {timeOfMsg}
-          </span>
+          </p>
         </div>
       </div>
-
-      {/* MUI Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle align="center" sx={{ fontWeight:"bold"}}>Move to Vault</DialogTitle>
-        <DialogContent>
-          <Typography
-            variant="body2"
-            gutterBottom
-            sx={{
-              mb: 3,
-              maxWidth: "100%",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Document: <strong>{fileName}</strong>
-          </Typography>
-          <TextField
-            label="Document Name"
-            value={documentName}
-            onChange={(e) => setDocumentName(e.target.value)}
-            fullWidth
-            required
-          />
-
-          <FormControl fullWidth size="small" sx={{ mt: 2 }}>
-            <InputLabel>Select Vault</InputLabel>
-            <Select
-              value={selectedOption}
-              label="Select Vault"
-              onChange={(e) => setSelectedOption(e.target.value)}
-            >
-              <MenuItem value="testing">testing</MenuItem>
-              <MenuItem value="vaultB">Vault B</MenuItem>
-              <MenuItem value="vaultC">Vault C</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-          }}
+      {source === "Admin" && (
+        <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          fullWidth
+          maxWidth="xs"
         >
-          <Button onClick={() => setOpenDialog(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleMoveClick}
-            color="primary"
-            disabled={!selectedOption}
-            variant="contained"
+          <DialogTitle align="center" sx={{ fontWeight: "bold" }}>
+            Move to Vault
+          </DialogTitle>
+          <DialogContent>
+            <Typography
+              variant="body2"
+              gutterBottom
+              sx={{
+                mb: 3,
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Document: <strong>{fileName}</strong>
+            </Typography>
+            <TextField
+              label="Document Name"
+              value={documentName}
+              onChange={(e) => setDocumentName(e.target.value)}
+              fullWidth
+              required
+            />
+
+           <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+  <InputLabel>Select Vault</InputLabel>
+  <Select
+    value={selectedOption}
+    label="Select Vault"
+    onChange={(e) => setSelectedOption(e.target.value)}
+    disabled={isLoading}
+  >
+    {isLoading ? (
+      <MenuItem disabled>Loading...</MenuItem>
+    ) : extraCategories?.data?.length ? (
+      extraCategories.data.map((cat: any) => (
+        <MenuItem key={cat._id} value={cat._id}>
+          {cat.name}
+        </MenuItem>
+      ))
+    ) : (
+      <MenuItem disabled>No categories found</MenuItem>
+    )}
+  </Select>
+</FormControl>
+
+          </DialogContent>
+          <DialogActions
             sx={{
-              borderRadius: "20px",
+              display: "flex",
+              justifyContent: "center",
             }}
           >
-            Move
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <Button onClick={() => setOpenDialog(false)} color="inherit">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleMoveClick}
+              color="primary"
+              disabled={!selectedOption}
+              variant="contained"
+              sx={{
+                borderRadius: "20px",
+              }}
+            >
+              Move
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </>
   );
 };

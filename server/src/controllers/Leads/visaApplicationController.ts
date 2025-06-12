@@ -58,6 +58,10 @@ export const fetchApplicationsOfParticularType = async (req: Request, res: Respo
     .populate({
       path: 'leadId',
       select: '_id caseId fullName email phone',
+    })
+    .populate({
+      path: 'userId',
+      select: '_id caseId name email phone',
     });
 
   res.status(200).json({ visaApplications: applications });

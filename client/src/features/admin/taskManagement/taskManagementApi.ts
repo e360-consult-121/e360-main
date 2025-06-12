@@ -32,34 +32,38 @@ export const taskManagementApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
-   addNewTask: build.mutation({
-  query: ({ file, body }) => {
-    const formData = new FormData();
-    formData.append("taskName", body.taskName);
-    formData.append("description", body.description);
-    formData.append("priority", body.priority);
-    formData.append("startDate", body.startDate);
-    formData.append("endDate", body.endDate);
+    addNewTask: build.mutation({
+      query: ({ file, body }) => {
+        const formData = new FormData();
+        formData.append("taskName", body.taskName);
+        formData.append("description", body.description);
+        formData.append("priority", body.priority);
+        formData.append("startDate", body.startDate);
+        formData.append("endDate", body.endDate);
 
-    if (body.attachedLead)
-      formData.append("attachedLead", body.attachedLead);
+        if (body.attachedLead)
+          formData.append("attachedLead", body.attachedLead);
 
-    if (body.attchedVisaApplication)
-      formData.append("attchedVisaApplication", body.attchedVisaApplication);
+        if (body.attchedVisaApplication)
+          formData.append(
+            "attchedVisaApplication",
+            body.attchedVisaApplication
+          );
 
-    formData.append("assignedTo", body.assignedTo);
-    
-    if (file) {
-      formData.append("file", file);
-    }
+      body.assignedTo.forEach((userId: string) => {
+      formData.append("assignedTo", userId);
+    });
+        if (file) {
+          formData.append("file", file);
+        }
 
-    return {
-      url: "/admin/task-management/addNewTask",
-      method: "POST",
-      data: formData,
-    };
-  },
-}),
+        return {
+          url: "/admin/task-management/addNewTask",
+          method: "POST",
+          data: formData,
+        };
+      },
+    }),
     fetchAssigneeList: build.query({
       query: () => ({
         url: "/admin/task-management/fetchAssigneeList",
@@ -73,9 +77,22 @@ export const taskManagementApi = baseApi.injectEndpoints({
       }),
     }),
     fetchParticularTask: build.query({
-      query: () => ({
-        url: "/admin/task-management/fetchParticularTask",
+      query: (taskId) => ({
+        url: `/admin/task-management/fetchParticularTask/${taskId}`,
         method: "GET",
+      }),
+    }),
+    deleteTask: build.mutation({
+      query: (taskId) => ({
+        url: `/admin/task-management/deleteTask/${taskId}`,
+        method: "DELETE",
+      }),
+    }),
+    editTask: build.mutation({
+      query: ({taskId,body}) => ({
+        url: `/admin/task-management/editTask/${taskId}`,
+        method: "PATCH",
+        data:body
       }),
     }),
   }),
@@ -91,4 +108,6 @@ export const {
   useFetchAssigneeListQuery,
   useAddNewTaskMutation,
   useFetchParticularTaskQuery,
+  useDeleteTaskMutation,
+  useEditTaskMutation
 } = taskManagementApi;

@@ -19,9 +19,9 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-import { useMoveToAnotherCategoryMutation } from "../features/admin/AdminDocumentVault/AdminDocumentVaultApi";
 import { toast } from "react-toastify";
 import { Icon } from "@iconify/react";
+import { useMoveToAnotherCategoryMutation } from "../features/admin/adminDocumentVault/adminDocumentVaultApi";
 
 interface Document {
   _id: string;
