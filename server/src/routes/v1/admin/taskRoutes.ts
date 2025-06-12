@@ -54,6 +54,13 @@ router.get("/fetchParticularTask/:taskId"   ,
 
 // Fetch Helping Details
 router.get("/fetchAllLeads"             , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAllLeads));
-router.get("/fetchAllVisaApplications"  , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAllVisaApplications));
+
+router.get("/fetchAllVisaApplications"  ,
+ authenticate , authorizeAdmin , 
+ addArrayForStaff("VisaApplications"),
+ asyncHandler(otherInfoControllers.getAllVisaApplications));
+
+
+
 router.get("/fetchAssigneeList"         , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAssigneeList));
 export default router;
