@@ -71,4 +71,6 @@ router.get("/fetchAssigneeList"         , authenticate , authorizeAdmin , asyncH
 
 // Remark 
 router.post("/addRemark/:taskId" , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.addRemark)    );
+
+router.patch("/editRemark/:taskId" , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.editRemark)    );
 export default router;

@@ -497,6 +497,48 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
     },
     {
       $lookup: {
+        from: 'leads',
+        localField: 'attachedLead',
+        foreignField: '_id',
+        as: 'attachedLead',
+      },
+    },
+    {
+      $unwind: {
+        path: '$attachedLead',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'visaapplications',
+        localField: 'attachedVisaApplication',
+        foreignField: '_id',
+        as: 'attachedVisaApplication',
+      },
+    },
+    {
+      $unwind: {
+        path: '$attachedVisaApplication',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'visatypes',
+        localField: 'attachedVisaApplication.visaTypeId',
+        foreignField: '_id',
+        as: 'visaTypeData',
+      },
+    },
+    {
+      $unwind: {
+        path: '$visaTypeData',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
         from: "assignments",
         localField: "_id",
         foreignField: "taskId",
@@ -606,9 +648,24 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
         startDate: { $first: "$startDate" },
         endDate: { $first: "$endDate" },
         assignedBy: { $first: "$assignedBy" },
-        attachedLead: { $first: "$attachedLead" },
+        // attachedLead: { $first: "$attachedLead" },
+        attachedLead: {
+          $first: {
+            leadId: '$attachedLead._id',
+            name: {
+              $concat: ['$attachedLead.fullName.first', ' ', '$attachedLead.fullName.last'],
+            },
+            leadType: '$attachedLead.__t',
+          },
+        },
         attachedClient: { $first: "$attachedClient" },
-        attachedVisaApplication: { $first: "$attachedVisaApplication" },
+        // attachedVisaApplication: { $first: "$attachedVisaApplication" },
+        attachedVisaApplication: {
+          $first: {
+            visaId: '$attachedVisaApplication._id',
+            visaType: '$visaTypeData.visaType',
+          },
+        },
         attachedConsultation: { $first: "$attachedConsultation" },
         files: { $first: "$files" },
         remarks: { $first: "$remarks" }, // remarks
