@@ -2861,3 +2861,8 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"91.337\"}","timestamp":"2025-06-12T18:20:15.752Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllVisaApplications\",\"status\":\"200\",\"responseTime\":\"5068.293\"}","timestamp":"2025-06-12T18:20:16.790Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllTasks\",\"status\":\"200\",\"responseTime\":\"10211.189\"}","timestamp":"2025-06-12T18:20:21.942Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"500\",\"responseTime\":\"10046.085\"}","timestamp":"2025-06-12T18:22:38.596Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchMyTasks\",\"status\":\"200\",\"responseTime\":\"1289.273\"}","timestamp":"2025-06-12T18:22:56.723Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchUpcomingTasks\",\"status\":\"200\",\"responseTime\":\"268.469\"}","timestamp":"2025-06-12T18:23:13.508Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchDueTasks\",\"status\":\"200\",\"responseTime\":\"639.076\"}","timestamp":"2025-06-12T18:23:15.800Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchOverdueTasks\",\"status\":\"200\",\"responseTime\":\"4911.779\"}","timestamp":"2025-06-12T18:23:20.792Z"}
