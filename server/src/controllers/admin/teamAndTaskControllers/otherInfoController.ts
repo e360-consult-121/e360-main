@@ -222,3 +222,16 @@ export const getAssigneeList = async (req: Request, res: Response): Promise<Resp
       task,
     });
   };
+
+
+  // API for editing a remark msg
+  export const editRemark = async (req: Request, res: Response) => {
+
+    const { taskId } = req.params;
+
+    const  doneBy  = req.admin?.id;
+
+    const { remarkMsg } = req.body;
+  
+
+  };
