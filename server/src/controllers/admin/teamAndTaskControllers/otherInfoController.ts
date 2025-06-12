@@ -69,3 +69,39 @@ export const getAssigneeList = async (req: Request, res: Response): Promise<Resp
       data: assignees,
     });
   };
+
+
+  export const addRemark = async (req: Request, res: Response) => {
+
+    const { taskId } = req.params;
+
+    const  doneBy  = req.admin?.id;
+
+    const { remarkMsg } = req.body;
+  
+    if (!taskId || !remarkMsg || !doneBy) {
+      return res.status(400).json({ message: 'taskId, remarkMsg, and doneBy are required' });
+    }
+  
+    if (!mongoose.Types.ObjectId.isValid(taskId) || !mongoose.Types.ObjectId.isValid(doneBy)) {
+      return res.status(400).json({ message: 'Invalid taskId or doneBy format' });
+    }
+  
+    const task = await TaskModel.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+  
+    task.remarks.push({
+      remarkMsg,
+      doneBy: new mongoose.Types.ObjectId(doneBy),
+    });
+  
+    await task.save();
+  
+    // Return success response
+    return res.status(200).json({
+      message: 'Remark added successfully',
+      task,
+    });
+  };

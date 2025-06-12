@@ -534,6 +534,53 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
         preserveNullAndEmptyArrays: true,
       },
     },
+
+    {
+      $addFields: {
+        remarks: {
+          $map: {
+            input: '$remarks',
+            as: 'remark',
+            in: {
+              message: '$$remark.message',
+              doneBy: {
+                $let: {
+                  vars: {
+                    matchedUser: {
+                      $arrayElemAt: [
+                        '$remarkUsers',
+                        {
+                          $indexOfArray: ['$remarkUsers._id', '$$remark.doneBy'],
+                        },
+                      ],
+                    },
+                  },
+                  in: {
+                    userId: '$$matchedUser._id',
+                    name: { $ifNull: ['$$matchedUser.name', 'Unknown'] },
+                    email: { $ifNull: ['$$matchedUser.email', 'Unknown'] },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'assignments.assignedBy', // Use assignments.assignedBy
+        foreignField: '_id',
+        as: 'assigner',
+      },
+    },
+    {
+      $unwind: {
+        path: '$assigner',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
     {
       $group: {
         _id: "$_id",
@@ -548,7 +595,8 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
         attachedClient: { $first: "$attachedClient" },
         attachedVisaApplication: { $first: "$attachedVisaApplication" },
         attachedConsultation: { $first: "$attachedConsultation" },
-        files: { $first: "$files" }, 
+        files: { $first: "$files" },
+        remarks: { $first: '$remarks' }, // remarks 
         assignedTo: {
           $push: {
             userId: "$assignedUser._id",
@@ -556,20 +604,7 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
             name: "$assignedUser.name",
           },
         },
-      },
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "assignedBy",
-        foreignField: "_id",
-        as: "assigner",
-      },
-    },
-    {
-      $unwind: {
-        path: "$assigner",
-        preserveNullAndEmptyArrays: true,
+        assigner: { $first: '$assigner' }, // Keep the assigner lookup result
       },
     },
     {
@@ -586,12 +621,20 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
         attachedVisaApplication: 1,
         attachedConsultation: 1,
         files: 1, 
+        remarks: 1,  //remarks
         assignedTo: 1,
         assignedBy: {
-          userId: "$assigner._id",
-          email: "$assigner.email",
-          name: "$assigner.name",
+          $cond: {
+            if: { $eq: ['$assigner', null] },
+            then: null,
+            else: {
+              userId: '$assigner._id',
+              email: { $ifNull: ['$assigner.email', 'Unknown'] },
+              name: { $ifNull: ['$assigner.name', 'Unknown'] },
+            },
+          },
         },
+        
       },
     },
   ]);

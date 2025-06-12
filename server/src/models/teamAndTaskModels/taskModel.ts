@@ -1,6 +1,11 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import { taskPriorityEnum , taskStatusEnum } from "../../types/enums/enums";
 
+interface IRemark {
+  remarkMsg: string;
+  doneBy: mongoose.Types.ObjectId;
+}
+
 export interface ITask extends Document {
   taskName: string;
   description?: string;
@@ -17,6 +22,7 @@ export interface ITask extends Document {
   status : taskStatusEnum;
 
   files: string[];
+  remarks: IRemark[];
 }
 
 const TaskSchema = new Schema<ITask>(
@@ -69,6 +75,20 @@ const TaskSchema = new Schema<ITask>(
       type: String,
       enum: Object.values(taskStatusEnum),
       required: true,
+    },
+    remarks: {
+      type: [{
+        remarkMsg: {
+          type: String,
+          required: true,
+        },
+        doneBy: {
+          type: Schema.Types.ObjectId,
+          ref: "Users", 
+          required: true,
+        },
+      }],
+      default: [],
     },
   },
   { timestamps: true }
