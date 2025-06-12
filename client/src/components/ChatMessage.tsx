@@ -13,7 +13,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { useFetchAllExtraCategoriesQuery } from "../features/admin/adminDocumentVault/adminDocumentVaultApi";
+import { useFetchAllExtraCategoriesQuery } from "../features/admin/AdminDocumentVault/adminDocumentVaultApi";
 
 
 interface ChatMessageProps {

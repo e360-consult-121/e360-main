@@ -20,7 +20,7 @@ import { useFetchVaultDocsQuery } from "../../../features/common/commonApi";
 import { Icon } from "@iconify/react";
 import { getFileSizeInMB } from "../../../components/UploadModal";
 import CategoryDocumentsAccordion from "../../../components/CategoryWiseDocumentsAccordion";
-import { useAddCategoryMutation, useDocUploadByAdminMutation } from "../../../features/admin/adminDocumentVault/adminDocumentVaultApi";
+import { useAddCategoryMutation, useDocUploadByAdminMutation } from "../../../features/admin/AdminDocumentVault/adminDocumentVaultApi";
 
 const AdminDocumentVault = () => {
   const { visatype } = useParams();

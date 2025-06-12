@@ -21,7 +21,7 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import { toast } from "react-toastify";
 import { Icon } from "@iconify/react";
-import { useMoveToAnotherCategoryMutation } from "../features/admin/adminDocumentVault/adminDocumentVaultApi";
+import { useMoveToAnotherCategoryMutation } from "../features/admin/AdminDocumentVault/adminDocumentVaultApi";
 
 interface Document {
   _id: string;
