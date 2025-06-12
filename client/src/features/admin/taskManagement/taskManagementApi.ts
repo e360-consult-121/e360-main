@@ -54,7 +54,7 @@ export const taskManagementApi = baseApi.injectEndpoints({
       formData.append("assignedTo", userId);
     });
         if (file) {
-          formData.append("file", file);
+          formData.append("files", file);
         }
 
         return {

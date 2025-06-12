@@ -42,21 +42,31 @@ const ParticularTask = () => {
   const [editTask] = useEditTaskMutation();
 
   const assigneeOptions =
-  allUsersData?.data
-    ?.filter((user: any) => !assignees.includes(user.email))
-    .map((user: any) => ({
+    allUsersData?.data?.map((user: any) => ({
       label: user.email,
       value: user._id,
       role: user.role,
     })) || [];
 
   useEffect(() => {
-    if (task) {
+    if (task && allUsersData?.data) {
       setStatus(task.status || "");
-      setAssignees(task.assignedTo?.map((user: any) => user.email) || []);
+      const selectedEmails =
+        task.assignedTo?.map((user: any) => user.email) || [];
+      setAssignees(selectedEmails);
+
+      const selectedOptions = allUsersData.data
+        .filter((user: any) => selectedEmails.includes(user.email))
+        .map((user: any) => ({
+          label: user.email,
+          value: user._id,
+          role: user.role,
+        }));
+
+      setAssignedTo(selectedOptions);
       setDescription(task.description || "");
     }
-  }, [task]);
+  }, [task, allUsersData]);
 
   const handleNavigation = () => {
     navigate("/admin/taskmanagement");
@@ -202,126 +212,164 @@ const ParticularTask = () => {
       </Box>
 
       <Box mt={3}>
-        <Typography fontWeight={500} mb={1}>
-          Assignee
-        </Typography>
+  <Typography fontWeight={500} mb={1}>
+    Assignee
+  </Typography>
 
-        <Box display="flex" gap={1} flexWrap="wrap" mb={2}>
-          {assignees.map((email, idx) => (
-            <Tooltip key={idx} title={email}>
-              <Chip
-                label={email}
-                onDelete={() =>
-                  setAssignees(assignees.filter((_, i) => i !== idx))
-                }
-                sx={{ borderRadius: 2, maxWidth: 150 }}
-              />
-            </Tooltip>
-          ))}
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              borderColor: "#D2D1CF",
-              color: "black",
-              bgcolor: "white",
+  {/* Assignee Chips */}
+  <Box display="flex" gap={1} flexWrap="wrap" mb={1} maxWidth={"800px"}>
+    {assignees.map((email, idx) => (
+      <Tooltip key={idx} title={email}>
+        <Chip
+          label={email}
+          onDelete={async () => {
+            const updatedEmails = assignees.filter((_, i) => i !== idx);
+            setAssignees(updatedEmails);
+
+            const updatedIds =
+              allUsersData?.data
+                .filter((user: any) => updatedEmails.includes(user.email))
+                .map((user: any) => user._id) || [];
+
+            try {
+              await editTask({
+                taskId: taskid,
+                body: { assignedTo: updatedIds },
+              });
+              toast.success("Assignee removed successfully.");
+              refetch();
+            } catch (err) {
+              toast.error("Failed to update assignees.");
+            }
+          }}
+          sx={{ borderRadius: 2, }}
+        />
+      </Tooltip>
+    ))}
+
+    {/* Add or Save Changes Button */}
+    <Button
+      variant={showMultiSelect ? "contained" : "outlined"}
+      startIcon={showMultiSelect ? null : <AddIcon />}
+      sx={{
+        borderRadius: "15px",
+        textTransform: "none",
+        borderColor: "#D2D1CF",
+        color:"black",
+        bgcolor: showMultiSelect ? "" : "white",
+        boxShadow:"none",
+        ml:1
+      }}
+      onClick={async () => {
+        if (!showMultiSelect) {
+          // Opening MultiSelect, preload current selection
+          const selectedOptions = allUsersData?.data
+            ?.filter((user: any) => assignees.includes(user.email))
+            .map((user: any) => ({
+              label: user.email,
+              value: user._id,
+              role: user.role,
+            })) || [];
+
+          setAssignedTo(selectedOptions);
+          setShowMultiSelect(true);
+        } else {
+          // Saving changes
+          const selectedIds = assignedTo.map((a: any) => a.value);
+          const selectedEmails = assignedTo.map((a: any) => a.label);
+          setAssignees(selectedEmails);
+
+          try {
+            await editTask({
+              taskId: taskid,
+              body: { assignedTo: selectedIds },
+            });
+            toast.success("Assignees updated!");
+            refetch();
+          } catch (err) {
+            toast.error("Failed to update assignees.");
+          }
+
+          setShowMultiSelect(false);
+        }
+      }}
+    >
+      {showMultiSelect ? "Save Changes" : "Add Assignee"}
+    </Button>
+  </Box>
+
+  {/* MultiSelect UI */}
+  {showMultiSelect && (
+    <Box mt={1}>
+      <MultiSelect
+        options={assigneeOptions}
+        value={assignedTo}
+        onChange={setAssignedTo}
+        labelledBy="Select Assignees"
+        overrideStrings={{
+          selectSomeItems: "Select Assignees...",
+        }}
+        ItemRenderer={({
+          checked,
+          option,
+          onClick,
+        }: {
+          checked: any;
+          option: any;
+          onClick: any;
+        }) => (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "8px",
+              cursor: "pointer",
+              borderBottom: "1px solid #eee",
             }}
-            onClick={() => setShowMultiSelect(true)}
           >
-            Add Assignee
-          </Button>
-        </Box>
-        {showMultiSelect && (
-          <Box>
-            <MultiSelect
-              options={assigneeOptions}
-              value={assignedTo}
-              onChange={async (selected: any) => {
-                const selectedIds = selected.map((s: any) => s.value);
-                setAssignedTo(selected);
-                setAssignees(selectedIds);
-                setShowMultiSelect(false);
-
-                try {
-                  await editTask({
-                    taskId: taskid,
-                    body: { assignedTo: selectedIds },
-                  });
-                  toast.success("Assignees updated!");
-                  refetch();
-                } catch (err) {
-                  toast.error("Failed to update assignees.");
-                }
-              }}
-              labelledBy="Select Assignees"
-              overrideStrings={{
-                selectSomeItems: "Select Assignees...",
-              }}
-              ItemRenderer={({
-                checked,
-                option,
-                onClick,
-              }: {
-                checked: any;
-                option: any;
-                onClick: any;
-              }) => {
-                return (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "8px",
-                      cursor: "pointer",
-                      borderBottom: "1px solid #eee",
-                    }}
-                    onClick={onClick}
-                  >
-                    <div>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={onClick}
-                        style={{ marginRight: "12px" }}
-                      />
-                      <span>{option.label}</span>
-                    </div>
-                    {option.label !== "Select All" ? (
-                      <Box
-                        sx={{
-                          ml: 1,
-                          padding: "4px 8px",
-                          borderRadius: "12px",
-                          fontSize: "12px",
-                          fontWeight: 500,
-                          color:
-                            option.role === "Manager"
-                              ? "#017BFF"
-                              : option.role === "Staff"
-                              ? "#31B0C6"
-                              : "#8e24aa",
-                          backgroundColor:
-                            option.role === "Manager"
-                              ? "#EFF7FF"
-                              : option.role === "Staff"
-                              ? "#ECF6F8"
-                              : "#f3e5f5",
-                          marginRight: "8px",
-                        }}
-                      >
-                        {"• " + option.role}
-                      </Box>
-                    ) : null}
-                  </div>
-                );
-              }}
-            />
-          </Box>
+            <div>
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={onClick}
+                style={{ marginRight: "12px" }}
+              />
+              <span>{option.label}</span>
+            </div>
+            {option.label !== "Select All" && (
+              <Box
+                sx={{
+                  ml: 1,
+                  padding: "4px 8px",
+                  borderRadius: "12px",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                  color:
+                    option.role === "Manager"
+                      ? "#017BFF"
+                      : option.role === "Staff"
+                      ? "#31B0C6"
+                      : "#8e24aa",
+                  backgroundColor:
+                    option.role === "Manager"
+                      ? "#EFF7FF"
+                      : option.role === "Staff"
+                      ? "#ECF6F8"
+                      : "#f3e5f5",
+                  marginRight: "8px",
+                }}
+              >
+                {"• " + option.role}
+              </Box>
+            )}
+          </div>
         )}
-      </Box>
+      />
+    </Box>
+  )}
+</Box>
+
 
       <Box mt={4}>
         <Typography fontWeight={500} mb={1}>
