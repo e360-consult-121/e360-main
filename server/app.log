@@ -2816,3 +2816,13 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllTasks\",\"status\":\"200\",\"responseTime\":\"66.310\"}","timestamp":"2025-06-12T12:18:56.602Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllVisaApplications\",\"status\":\"304\",\"responseTime\":\"210.090\"}","timestamp":"2025-06-12T12:18:56.740Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"304\",\"responseTime\":\"298.016\"}","timestamp":"2025-06-12T12:18:56.825Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllTasks\",\"status\":\"200\",\"responseTime\":\"196.875\"}","timestamp":"2025-06-12T15:02:25.557Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllVisaApplications\",\"status\":\"304\",\"responseTime\":\"438.299\"}","timestamp":"2025-06-12T15:02:25.788Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"304\",\"responseTime\":\"857.685\"}","timestamp":"2025-06-12T15:02:26.195Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllTasks\",\"status\":\"200\",\"responseTime\":\"46.439\"}","timestamp":"2025-06-12T15:06:34.728Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllVisaApplications\",\"status\":\"304\",\"responseTime\":\"163.308\"}","timestamp":"2025-06-12T15:06:34.833Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"304\",\"responseTime\":\"255.240\"}","timestamp":"2025-06-12T15:06:34.910Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchParticularTask/684ac4f9d499f15abf54e94c\",\"status\":\"200\",\"responseTime\":\"161.533\"}","timestamp":"2025-06-12T15:06:43.151Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllTasks\",\"status\":\"200\",\"responseTime\":\"187.411\"}","timestamp":"2025-06-12T15:09:19.087Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/task-management/fetchAllVisaApplications\",\"status\":\"304\",\"responseTime\":\"741.497\"}","timestamp":"2025-06-12T15:09:19.636Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"304\",\"responseTime\":\"1157.211\"}","timestamp":"2025-06-12T15:09:20.048Z"}

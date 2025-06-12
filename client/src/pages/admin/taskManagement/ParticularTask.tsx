@@ -40,7 +40,7 @@ const ParticularTask = () => {
 
   const { data, refetch } = useFetchParticularTaskQuery(taskid);
   const task = data?.data;
-  // console.log(task)
+  console.log(task)
   const { data: allUsersData } = useFetchAssigneeListQuery(undefined);
 
   const [editTask , {isLoading:isEditing}] = useEditTaskMutation();
