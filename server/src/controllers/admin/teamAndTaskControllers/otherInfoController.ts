@@ -11,10 +11,28 @@ import { ConsultationModel } from "../../../leadModels/consultationModel";
 
 export const getAllLeads = async (req: Request, res: Response) => {
 
-    const leads = await LeadModel.find();
-    res.status(200).json({ leads });
-  
-  };
+  const matchStage: any = {};
+
+  if (req.assignedIds && Array.isArray(req.assignedIds)) {
+    matchStage._id = { $in: req.assignedIds };
+  }
+
+  const leads = await LeadModel.aggregate([
+    // Match stage to filter leads if assignedIds exist
+    { $match: matchStage },
+    {
+      $project: {
+        name: {
+          $concat: ['$fullName.first', ' ', '$fullName.last'],
+        },
+        leadType: '$__t',
+        leadId: '$_id',
+      },
+    },
+  ]);
+
+  res.status(200).json({ leads });
+};
   
   // Name , visaType , visaApplicationId
   export const getAllVisaApplications = async (req: Request, res: Response) => {
