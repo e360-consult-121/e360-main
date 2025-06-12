@@ -596,6 +596,7 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
             input: "$remarks",
             as: "remark",
             in: {
+              _id: "$$remark._id",
               message: "$$remark.remarkMsg",
               doneBy: {
                 $let: {

@@ -226,12 +226,59 @@ export const getAssigneeList = async (req: Request, res: Response): Promise<Resp
 
   // API for editing a remark msg
   export const editRemark = async (req: Request, res: Response) => {
-
-    const { taskId } = req.params;
-
-    const  doneBy  = req.admin?.id;
-
+    const { taskId, remarkId } = req.params;
     const { remarkMsg } = req.body;
+    const doneBy = req.admin?.id;
   
-
+    // Validate inputs
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      throw new AppError("Invalid task ID", 400);
+    }
+    if (!mongoose.Types.ObjectId.isValid(remarkId)) {
+      throw new AppError("Invalid remark ID", 400);
+    }
+    if (!doneBy || !mongoose.Types.ObjectId.isValid(doneBy)) {
+      throw new AppError("Invalid or missing user ID", 400);
+    }
+    if (!remarkMsg || typeof remarkMsg !== "string" || remarkMsg === "") {
+      throw new AppError("Remark message is required and must be a non-empty string", 400);
+    }
+  
+    // Check if task and remark exist
+    const task = await TaskModel.findOne({
+      _id: new mongoose.Types.ObjectId(taskId),
+      "remarks._id": new mongoose.Types.ObjectId(remarkId),
+    });
+  
+    if (!task) {
+      throw new AppError("Task or remark not found", 404);
+    }
+  
+    // Check if the user is authorized to edit the remark
+    const remark = task.remarks.find(
+      (r) => r._id?.toString() === remarkId
+    );
+    if (!remark || remark.doneBy.toString() !== doneBy) {
+      throw new AppError("You cannot edit this remark", 403);
+    }
+  
+    // Update the remark
+    const updatedTask = await TaskModel.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(taskId),
+        "remarks._id": new mongoose.Types.ObjectId(remarkId),
+      },
+      {
+        $set: {
+          "remarks.$.remarkMsg": remarkMsg,
+        },
+      },
+      { new: true }
+    );
+  
+    return res.status(200).json({
+      success: true,
+      message: "Remark updated successfully",
+      data: updatedTask,
+    });
   };

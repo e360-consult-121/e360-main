@@ -118,9 +118,12 @@ router.post(
 );
 
 router.patch(
-  "/editRemark/:taskId",
+  "/editRemark/:taskId/:remarkId",
   authenticate,
   authorizeAdmin,
   asyncHandler(otherInfoControllers.editRemark)
 );
+
+
+
 export default router;

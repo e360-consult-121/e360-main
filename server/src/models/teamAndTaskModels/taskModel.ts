@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 import { taskPriorityEnum , taskStatusEnum } from "../../types/enums/enums";
 
 interface IRemark {
+  _id?: mongoose.Types.ObjectId; 
   remarkMsg: string;
   doneBy: mongoose.Types.ObjectId;
 }
