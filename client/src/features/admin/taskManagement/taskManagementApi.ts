@@ -7,6 +7,7 @@ export const taskManagementApi = baseApi.injectEndpoints({
         url: "/admin/task-management/fetchAllTasks",
         method: "GET",
       }),
+      providesTags: ["Tasks"],
     }),
     fetchMyTasks: build.query({
       query: () => ({
@@ -33,7 +34,7 @@ export const taskManagementApi = baseApi.injectEndpoints({
       }),
     }),
     addNewTask: build.mutation({
-      query: ({ file, body }) => {
+      query: ({ files, body }) => {
         const formData = new FormData();
         formData.append("taskName", body.taskName);
         formData.append("description", body.description);
@@ -53,9 +54,7 @@ export const taskManagementApi = baseApi.injectEndpoints({
       body.assignedTo.forEach((userId: string) => {
       formData.append("assignedTo", userId);
     });
-        if (file) {
-          formData.append("files", file);
-        }
+        files.forEach((file:any) => formData.append("files", file));
 
         return {
           url: "/admin/task-management/addNewTask",
@@ -63,12 +62,14 @@ export const taskManagementApi = baseApi.injectEndpoints({
           data: formData,
         };
       },
+      invalidatesTags: ["Tasks"],
     }),
     fetchAssigneeList: build.query({
       query: () => ({
         url: "/admin/task-management/fetchAssigneeList",
         method: "GET",
       }),
+      
     }),
     fetchAllVisaApplications: build.query({
       query: () => ({
@@ -95,6 +96,16 @@ export const taskManagementApi = baseApi.injectEndpoints({
         data:body
       }),
     }),
+    updateTaskAttachments: build.mutation({
+      query: ({taskId,files}) => {
+        const formData = new FormData();
+        files.forEach((file:any) => formData.append("files", file));
+        return {
+        url: `/admin/task-management/editTask/${taskId}`,
+        method: "PATCH",
+        data:formData
+      }},
+    }),
   }),
 });
 
@@ -109,5 +120,6 @@ export const {
   useAddNewTaskMutation,
   useFetchParticularTaskQuery,
   useDeleteTaskMutation,
-  useEditTaskMutation
+  useEditTaskMutation,
+  useUpdateTaskAttachmentsMutation
 } = taskManagementApi;

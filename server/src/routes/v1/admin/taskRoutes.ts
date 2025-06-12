@@ -20,6 +20,7 @@ router.post("/addNewTask",
 router.patch("/editTask/:taskId",
  authenticate ,authorizeAdmin,
   checkPermission("Edit_task"),
+  upload.array("files"),
  asyncHandler(taskControllers.editTask));
 
 router.delete("/deleteTask/:taskId",

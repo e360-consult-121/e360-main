@@ -19,20 +19,20 @@ import {
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const AddNewTaskDrawer = ({
   open,
   onClose,
   refetchAllTasks,
   attachLead,
-  attachVisaApplication
-
+  attachVisaApplication,
 }: {
   open: boolean;
   onClose: () => void;
   refetchAllTasks?: () => void;
-  attachLead?:string;
-  attachVisaApplication?:string
+  attachLead?: string;
+  attachVisaApplication?: string;
 }) => {
   const today = dayjs().format("YYYY-MM-DD");
   const [startDate, setStartDate] = useState(today);
@@ -43,10 +43,10 @@ const AddNewTaskDrawer = ({
   const [assignedTo, setAssignedTo] = useState([]);
   const [attachedLead, setAttachedLead] = useState(attachLead ?? "");
   const [application, setApplication] = useState(attachVisaApplication ?? "");
-  const [media, setMedia] = useState<File | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { data: allLeads } = useFetchAllLeadsQuery(undefined);
   const { data: allVisaApplication } =
@@ -62,10 +62,11 @@ const AddNewTaskDrawer = ({
 
   const applicationOptions = allVisaApplication?.visaApplications?.map(
     (visa: any) => ({
-      label: visa._id,
-      value: visa._id,
+      label: visa.name + "(" + visa.visaType + ")",
+      value: visa.visaApplicationId,
     })
   );
+  // console.log(allVisaApplication)
   const assigneeOptions = allAssignee?.data?.map((assignee: any) => ({
     label: assignee.email,
     value: assignee._id,
@@ -85,9 +86,10 @@ const AddNewTaskDrawer = ({
         attchedVisaApplication: application,
       };
       // console.log(body);
-      await addNewTask({ file: media, body }).unwrap();
-      toast.success("Task Added Sucessfully");
+      await addNewTask({ files: mediaFiles, body }).unwrap();
       refetchAllTasks?.();
+      toast.success("Task Added Sucessfully");
+      navigate("/admin/taskmanagement");
     } catch (err) {
       toast.error("Something went wrong ");
     } finally {
@@ -99,9 +101,8 @@ const AddNewTaskDrawer = ({
       setApplication("");
       setAttachedLead("");
       setAssignedTo([]);
-      setMedia(null);
+      setMediaFiles([]);
       onClose();
-      navigate("/admin/taskmanagement")
     }
   };
 
@@ -137,7 +138,7 @@ const AddNewTaskDrawer = ({
 
         <TextField
           fullWidth
-          label="Description*"
+          label="Description"
           variant="outlined"
           multiline
           rows={4}
@@ -224,7 +225,7 @@ const AddNewTaskDrawer = ({
         </Box>
 
         <Box>
-          <Typography mb={1}>Assigned To*</Typography>
+          <Typography mb={1}>Assigned To</Typography>
           <MultiSelect
             options={assigneeOptions}
             value={assignedTo}
@@ -303,7 +304,7 @@ const AddNewTaskDrawer = ({
           }}
         >
           <Box minWidth={"230px"}>
-            <Typography mb={1}>Attach Lead*</Typography>
+            <Typography mb={1}>Attach Lead</Typography>
             <Select
               options={leadOptions || []}
               value={(leadOptions || []).find(
@@ -317,7 +318,7 @@ const AddNewTaskDrawer = ({
             />
           </Box>
 
-          <Box minWidth={200}>
+          <Box minWidth={"230px"}>
             <Typography mb={1}>Attach Application</Typography>
             <Select
               options={applicationOptions || []}
@@ -327,7 +328,7 @@ const AddNewTaskDrawer = ({
               onChange={(selectedOption: any) =>
                 setApplication(selectedOption?.value)
               }
-              placeholder="Select Lead..."
+              placeholder="Select application..."
             />
           </Box>
         </Box>
@@ -344,18 +345,40 @@ const AddNewTaskDrawer = ({
           <Typography color="text.secondary" fontSize="14px">
             Upload media/Documents
           </Typography>
+          <IconButton>
+            <CloudUploadIcon />
+          </IconButton>
 
           {/* Display file name if media is selected */}
-          {media && (
-            <Typography mt={1} fontSize="14px" color="primary.main">
-              Selected: {media.name}
-            </Typography>
+          {mediaFiles.length > 0 && (
+            <Box mt={2} display="flex" flexDirection="column" gap={0.5}>
+              {mediaFiles.map((file, index) => (
+                <Typography key={index} fontSize="14px" color="primary.main">
+                  • {file.name}
+                </Typography>
+              ))}
+            </Box>
           )}
 
           <input
             type="file"
             ref={fileInputRef}
-            onChange={(e) => setMedia(e.target.files?.[0] || null)}
+            onChange={(e) => {
+              if (e.target.files) {
+                const selected = Array.from(e.target.files);
+
+                // Avoid duplicate file names (optional)
+                const existingNames = new Set(
+                  mediaFiles.map((file) => file.name)
+                );
+                const uniqueNewFiles = selected.filter(
+                  (file) => !existingNames.has(file.name)
+                );
+
+                setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
+              }
+            }}
+            multiple
             style={{ display: "none" }}
           />
         </Box>
@@ -388,17 +411,14 @@ const AddNewTaskDrawer = ({
             onClick={handleAddTask}
             disabled={
               !taskName ||
-              !description ||
               !priority ||
               !startDate ||
               !endDate ||
-              !attachedLead ||
-              !media ||
               assignedTo.length === 0 ||
               isLoading
             }
           >
-            {isLoading ?  "Adding Task..." : "Add Task"}
+            {isLoading ? "Adding Task..." : "Add Task"}
           </Button>
         </Box>
       </Box>

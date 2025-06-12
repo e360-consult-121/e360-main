@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
   const navigate = useNavigate();
-  console.log(data);
+  // console.log(data);
   return (
     <Card
       sx={{

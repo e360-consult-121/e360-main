@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -19,10 +19,12 @@ import {
   useEditTaskMutation,
   useFetchAssigneeListQuery,
   useFetchParticularTaskQuery,
+  useUpdateTaskAttachmentsMutation,
 } from "../../../features/admin/taskManagement/taskManagementApi";
 import dayjs from "dayjs";
 import { MultiSelect } from "react-multi-select-component";
 import { toast } from "react-toastify";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const ParticularTask = () => {
   const { taskid } = useParams();
@@ -33,13 +35,16 @@ const ParticularTask = () => {
   const [status, setStatus] = useState("");
   const [description, setDescription] = useState("");
   const [assignees, setAssignees] = useState<string[]>([]);
-  const [fileName, setFileName] = useState("File name");
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { data, refetch } = useFetchParticularTaskQuery(taskid);
   const task = data?.data;
+  // console.log(task)
   const { data: allUsersData } = useFetchAssigneeListQuery(undefined);
 
-  const [editTask] = useEditTaskMutation();
+  const [editTask , {isLoading:isEditing}] = useEditTaskMutation();
+  const [updateTaskAttachments] = useUpdateTaskAttachmentsMutation()
 
   const assigneeOptions =
     allUsersData?.data?.map((user: any) => ({
@@ -71,6 +76,20 @@ const ParticularTask = () => {
   const handleNavigation = () => {
     navigate("/admin/taskmanagement");
   };
+
+  const handleUploadFiles = async () => {
+  try {
+    await updateTaskAttachments({
+      taskId: taskid,
+      files:mediaFiles,
+    }).unwrap();
+    toast.success("Files uploaded successfully");
+    setMediaFiles([]);
+    refetch();
+  } catch (err) {
+    toast.error("Upload failed");
+  }
+};
 
   return (
     <Box px={4} width="100%" maxWidth="900px" mx="auto">
@@ -125,7 +144,7 @@ const ParticularTask = () => {
             }
           }}
         >
-          <MenuItem value="Over Due">Over Due</MenuItem>
+          <MenuItem value="Overdue">Over Due</MenuItem>
           <MenuItem value="Completed">Completed</MenuItem>
           <MenuItem value="Due">Due</MenuItem>
         </Select>
@@ -212,201 +231,261 @@ const ParticularTask = () => {
       </Box>
 
       <Box mt={3}>
-  <Typography fontWeight={500} mb={1}>
-    Assignee
-  </Typography>
+        <Typography fontWeight={500} mb={1}>
+          Assignee
+        </Typography>
 
-  {/* Assignee Chips */}
-  <Box display="flex" gap={1} flexWrap="wrap" mb={1} maxWidth={"800px"}>
-    {assignees.map((email, idx) => (
-      <Tooltip key={idx} title={email}>
-        <Chip
-          label={email}
-          onDelete={async () => {
-            const updatedEmails = assignees.filter((_, i) => i !== idx);
-            setAssignees(updatedEmails);
+        {/* Assignee Chips */}
+        <Box display="flex" gap={1} flexWrap="wrap" mb={1} maxWidth={"800px"}>
+          {assignees.map((email, idx) => (
+            <Tooltip key={idx} title={email}>
+              <Chip
+                label={email}
+                onDelete={async () => {
+                  const updatedEmails = assignees.filter((_, i) => i !== idx);
+                  setAssignees(updatedEmails);
 
-            const updatedIds =
-              allUsersData?.data
-                .filter((user: any) => updatedEmails.includes(user.email))
-                .map((user: any) => user._id) || [];
+                  const updatedIds =
+                    allUsersData?.data
+                      .filter((user: any) => updatedEmails.includes(user.email))
+                      .map((user: any) => user._id) || [];
 
-            try {
-              await editTask({
-                taskId: taskid,
-                body: { assignedTo: updatedIds },
-              });
-              toast.success("Assignee removed successfully.");
-              refetch();
-            } catch (err) {
-              toast.error("Failed to update assignees.");
-            }
-          }}
-          sx={{ borderRadius: 2, }}
-        />
-      </Tooltip>
-    ))}
+                  try {
+                    await editTask({
+                      taskId: taskid,
+                      body: { assignedTo: updatedIds },
+                    });
+                    toast.success("Assignee removed successfully.");
+                    refetch();
+                  } catch (err) {
+                    toast.error("Failed to update assignees.");
+                  }
+                }}
+                sx={{ borderRadius: 2 }}
+              />
+            </Tooltip>
+          ))}
 
-    {/* Add or Save Changes Button */}
-    <Button
-      variant={showMultiSelect ? "contained" : "outlined"}
-      startIcon={showMultiSelect ? null : <AddIcon />}
-      sx={{
-        borderRadius: "15px",
-        textTransform: "none",
-        borderColor: "#D2D1CF",
-        color:"black",
-        bgcolor: showMultiSelect ? "" : "white",
-        boxShadow:"none",
-        ml:1
-      }}
-      onClick={async () => {
-        if (!showMultiSelect) {
-          // Opening MultiSelect, preload current selection
-          const selectedOptions = allUsersData?.data
-            ?.filter((user: any) => assignees.includes(user.email))
-            .map((user: any) => ({
-              label: user.email,
-              value: user._id,
-              role: user.role,
-            })) || [];
+          {/* Add or Save Changes Button */}
+          <Button
+            variant={showMultiSelect ? "contained" : "outlined"}
+            startIcon={showMultiSelect ? null : <AddIcon />}
+            sx={{
+              borderRadius: "15px",
+              textTransform: "none",
+              borderColor: "#D2D1CF",
+              color: "black",
+              bgcolor: showMultiSelect ? "" : "white",
+              boxShadow: "none",
+              ml: 1,
+            }}
+            onClick={async () => {
+              if (!showMultiSelect) {
+                // Opening MultiSelect, preload current selection
+                const selectedOptions =
+                  allUsersData?.data
+                    ?.filter((user: any) => assignees.includes(user.email))
+                    .map((user: any) => ({
+                      label: user.email,
+                      value: user._id,
+                      role: user.role,
+                    })) || [];
 
-          setAssignedTo(selectedOptions);
-          setShowMultiSelect(true);
-        } else {
-          // Saving changes
-          const selectedIds = assignedTo.map((a: any) => a.value);
-          const selectedEmails = assignedTo.map((a: any) => a.label);
-          setAssignees(selectedEmails);
+                setAssignedTo(selectedOptions);
+                setShowMultiSelect(true);
+              } else {
+                // Saving changes
+                const selectedIds = assignedTo.map((a: any) => a.value);
+                const selectedEmails = assignedTo.map((a: any) => a.label);
+                setAssignees(selectedEmails);
 
-          try {
-            await editTask({
-              taskId: taskid,
-              body: { assignedTo: selectedIds },
-            });
-            toast.success("Assignees updated!");
-            refetch();
-          } catch (err) {
-            toast.error("Failed to update assignees.");
-          }
+                try {
+                  await editTask({
+                    taskId: taskid,
+                    body: { assignedTo: selectedIds },
+                  });
+                  toast.success("Assignees updated!");
+                  refetch();
+                } catch (err) {
+                  toast.error("Failed to update assignees.");
+                }
 
-          setShowMultiSelect(false);
-        }
-      }}
-    >
-      {showMultiSelect ? "Save Changes" : "Add Assignee"}
-    </Button>
-  </Box>
-
-  {/* MultiSelect UI */}
-  {showMultiSelect && (
-    <Box mt={1}>
-      <MultiSelect
-        options={assigneeOptions}
-        value={assignedTo}
-        onChange={setAssignedTo}
-        labelledBy="Select Assignees"
-        overrideStrings={{
-          selectSomeItems: "Select Assignees...",
-        }}
-        ItemRenderer={({
-          checked,
-          option,
-          onClick,
-        }: {
-          checked: any;
-          option: any;
-          onClick: any;
-        }) => (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "8px",
-              cursor: "pointer",
-              borderBottom: "1px solid #eee",
+                setShowMultiSelect(false);
+              }
             }}
           >
-            <div>
-              <input
-                type="checkbox"
-                checked={checked}
-                onChange={onClick}
-                style={{ marginRight: "12px" }}
-              />
-              <span>{option.label}</span>
-            </div>
-            {option.label !== "Select All" && (
-              <Box
-                sx={{
-                  ml: 1,
-                  padding: "4px 8px",
-                  borderRadius: "12px",
-                  fontSize: "12px",
-                  fontWeight: 500,
-                  color:
-                    option.role === "Manager"
-                      ? "#017BFF"
-                      : option.role === "Staff"
-                      ? "#31B0C6"
-                      : "#8e24aa",
-                  backgroundColor:
-                    option.role === "Manager"
-                      ? "#EFF7FF"
-                      : option.role === "Staff"
-                      ? "#ECF6F8"
-                      : "#f3e5f5",
-                  marginRight: "8px",
-                }}
-              >
-                {"• " + option.role}
-              </Box>
-            )}
-          </div>
-        )}
-      />
-    </Box>
-  )}
-</Box>
+            {showMultiSelect ? "Save Changes" : "Add Assignee"}
+          </Button>
+        </Box>
 
+        {/* MultiSelect UI */}
+        {showMultiSelect && (
+          <Box mt={1}>
+            <MultiSelect
+              options={assigneeOptions}
+              value={assignedTo}
+              onChange={setAssignedTo}
+              labelledBy="Select Assignees"
+              overrideStrings={{
+                selectSomeItems: "Select Assignees...",
+              }}
+              ItemRenderer={({
+                checked,
+                option,
+                onClick,
+              }: {
+                checked: any;
+                option: any;
+                onClick: any;
+              }) => (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "8px",
+                    cursor: "pointer",
+                    borderBottom: "1px solid #eee",
+                  }}
+                >
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={onClick}
+                      style={{ marginRight: "12px" }}
+                    />
+                    <span>{option.label}</span>
+                  </div>
+                  {option.label !== "Select All" && (
+                    <Box
+                      sx={{
+                        ml: 1,
+                        padding: "4px 8px",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        color:
+                          option.role === "Manager"
+                            ? "#017BFF"
+                            : option.role === "Staff"
+                            ? "#31B0C6"
+                            : "#8e24aa",
+                        backgroundColor:
+                          option.role === "Manager"
+                            ? "#EFF7FF"
+                            : option.role === "Staff"
+                            ? "#ECF6F8"
+                            : "#f3e5f5",
+                        marginRight: "8px",
+                      }}
+                    >
+                      {"• " + option.role}
+                    </Box>
+                  )}
+                </div>
+              )}
+            />
+          </Box>
+        )}
+      </Box>
 
       <Box mt={4}>
         <Typography fontWeight={500} mb={1}>
           Attachments
         </Typography>
-        {fileName && (
-          <Box display="flex" alignItems="center" gap={1} width="fit-content">
+
+        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+          {task?.files?.map((file: any, idx: number) => (
             <Chip
-              label={fileName}
-              onDelete={() => setFileName("")}
-              sx={{ borderRadius: 2 }}
+              key={idx}
+              label={file.name}
+              component="a"
+              href={file.url}
+              target="_blank"
+              clickable
+              sx={{
+                borderRadius: 2,
+                textDecoration: "none",
+                color: "inherit",
+                cursor: "pointer",
+              }}
             />
-          </Box>
-        )}
-
-        <Box
-          mt={2}
-          p={4}
-          border="1px dashed #ccc"
-          borderRadius="12px"
-          textAlign="center"
-          sx={{ cursor: "pointer" }}
-        >
-          <Typography color="text.secondary">Upload media/Documents</Typography>
+          ))}
         </Box>
 
-        <Box sx={{ my: 5 }}>
-          <Typography>Remarks :</Typography>
-          <TextField
-            fullWidth
-            // label="Remarks"
-            placeholder="Enter remarks of the task"
-            multiline
-            rows={3}
-            margin="normal"
-          />
-        </Box>
+      <Box
+  mt={3}
+  p={2}
+  border="1px dashed #ccc"
+  borderRadius="12px"
+  textAlign="center"
+  sx={{ cursor: "pointer" }}
+  onClick={() => fileInputRef.current?.click()}
+>
+  <Typography mb={1}>Attach Media</Typography>
+  <Typography color="text.secondary" fontSize="14px">
+    Upload media/Documents
+  </Typography>
+  <IconButton>
+    <CloudUploadIcon />
+  </IconButton>
+
+  {/* Display selected file names */}
+  {mediaFiles.length > 0 && (
+    <Box mt={2} display="flex" flexDirection="column" gap={0.5}>
+      {mediaFiles.map((file, index) => (
+        <Typography key={index} fontSize="14px" color="primary.main">
+          • {file.name}
+        </Typography>
+      ))}
+
+      {/* Upload Button */}
+      <Button
+        variant="contained"
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation(); // prevent opening file picker
+          handleUploadFiles();
+        }}
+        sx={{ mt: 1, alignSelf: "center", width: "fit-content" }}
+        disabled={isEditing}
+      >
+        {isEditing ? "Uploading..." : "Upload"}
+      </Button>
+    </Box>
+  )}
+
+  <input
+    type="file"
+    ref={fileInputRef}
+    onChange={(e) => {
+      if (e.target.files) {
+        const selected = Array.from(e.target.files);
+        const existingNames = new Set(mediaFiles.map((file) => file.name));
+        const uniqueNewFiles = selected.filter(
+          (file) => !existingNames.has(file.name)
+        );
+        setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
+      }
+    }}
+    multiple
+    style={{ display: "none" }}
+  />
+</Box>
+
+      </Box>
+
+      <Box sx={{ mt: 3 }}>
+        <Typography>Remarks :</Typography>
+        <TextField
+          fullWidth
+          // label="Remarks"
+          placeholder="Enter remarks of the task"
+          multiline
+          rows={3}
+          margin="normal"
+        />
       </Box>
     </Box>
   );

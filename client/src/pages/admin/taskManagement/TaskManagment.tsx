@@ -27,7 +27,8 @@ const TaskManagment = () => {
     isLoading: isLoadingAll,
     isError: isErrorAll,
     refetch:refetchAllTasks
-  } = useFetchAllTasksQuery(undefined, { skip: tab !== "alltasks" });
+  } = useFetchAllTasksQuery({refetchOnMountOrArgChange: true},
+ { skip: tab !== "alltasks" });
 
   const {
     data: myTasks,

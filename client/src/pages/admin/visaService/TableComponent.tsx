@@ -24,7 +24,7 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
 
   const navigate = useNavigate();
 
-  console.log(data);
+  // console.log(data);
 
   const handleNavigation = (row: any) => {
     const newRow = {
