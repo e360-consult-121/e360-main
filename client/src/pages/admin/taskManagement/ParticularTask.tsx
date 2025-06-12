@@ -11,6 +11,7 @@ import {
   FormControl,
   IconButton,
   Tooltip,
+  Avatar,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -27,6 +28,7 @@ import { toast } from "react-toastify";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const ParticularTask = () => {
+
   const { taskid } = useParams();
   const navigate = useNavigate();
 
@@ -174,13 +176,13 @@ const ParticularTask = () => {
         <Box>
           <Typography fontWeight={500}>Lead</Typography>
           <Typography color="text.secondary">
-            {task?.attachedLead || "N/A"}
+            {task?.attachedLead.name || "N/A"}
           </Typography>
         </Box>
         <Box>
           <Typography fontWeight={500}>Application</Typography>
           <Typography color="text.secondary">
-            {task?.attachedVisaApplication || "N/A"}
+            {task?.attachedVisaApplication.visaType || "N/A"}
           </Typography>
         </Box>
       </Box>
@@ -476,17 +478,58 @@ const ParticularTask = () => {
 
       </Box>
 
-      <Box sx={{ mt: 3 }}>
-        <Typography>Remarks :</Typography>
-        <TextField
-          fullWidth
-          // label="Remarks"
-          placeholder="Enter remarks of the task"
-          multiline
-          rows={3}
-          margin="normal"
-        />
+    <Box sx={{ mt: 3 }}>
+  <Typography fontWeight={600} mb={1}>
+    Remarks:
+  </Typography>
+
+  {task?.remarks?.length > 0 ? (
+    task?.remarks.map((remark:any, index:any) => (
+      <Box
+        key={index}
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 2,
+          mb: 2,
+          p: 2,
+          borderRadius: 2,
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        {/* Avatar */}
+        <Avatar>
+          {remark.doneBy?.name ? remark.doneBy.name.charAt(0).toUpperCase() : "U"}
+        </Avatar>
+
+        {/* Name and message */}
+        <Box>
+          <Typography fontWeight={500}>
+            {remark.doneBy?.name || "Unknown"}:
+          </Typography>
+          <Typography>{remark.message}</Typography>
+        </Box>
       </Box>
+    ))
+  ) : (
+    <Typography color="text.secondary" mb={2}>
+      No remarks yet.
+    </Typography>
+  )}
+
+  {/* Input field for new remarks */}
+   <Typography mt={5}>
+      Add remarks
+    </Typography>
+  <TextField
+    fullWidth
+    placeholder="Enter remarks of the task"
+    multiline
+    rows={3}
+    margin="normal"
+  />
+</Box>
+
     </Box>
   );
 };
