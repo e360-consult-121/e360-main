@@ -4,9 +4,6 @@ export interface IAssign extends Document {
   memberId: Types.ObjectId;
   taskId: Types.ObjectId;
   assignedBy : Types.ObjectId | null;
-  // leadId: Types.ObjectId | null;
-  // clientId: Types.ObjectId | null;
-  // visaApplicationId: Types.ObjectId | null;
 }
 
 const AssignSchema = new Schema<IAssign>({
