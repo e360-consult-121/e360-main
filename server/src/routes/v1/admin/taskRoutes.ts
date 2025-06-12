@@ -67,5 +67,8 @@ router.get("/fetchAllVisaApplications"  ,
 
 
 
-router.get("/fetchAssigneeList"         , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAssigneeList));
+router.get("/fetchAssigneeList"         , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.getAssigneeList)  );
+
+// Remark 
+router.post("/addRemark/:taskId" , authenticate , authorizeAdmin , asyncHandler(otherInfoControllers.addRemark)    );
 export default router;
