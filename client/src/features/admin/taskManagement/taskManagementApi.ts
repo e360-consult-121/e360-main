@@ -106,6 +106,22 @@ export const taskManagementApi = baseApi.injectEndpoints({
         data:formData
       }},
     }),
+    addRemarkToTask: build.mutation({
+      query: ({taskId,body}) => {
+        return {
+        url: `/admin/task-management/addRemark/${taskId}`,
+        method: "POST",
+        data:body
+      }},
+    }),
+    editRemarkToTask: build.mutation({
+      query: ({taskId,remarkId,body}) => {
+        return {
+        url: `/admin/task-management/editRemark/${taskId}/${remarkId}`,
+        method: "PATCH",
+        data:body
+      }},
+    }),
   }),
 });
 
@@ -121,5 +137,7 @@ export const {
   useFetchParticularTaskQuery,
   useDeleteTaskMutation,
   useEditTaskMutation,
-  useUpdateTaskAttachmentsMutation
+  useUpdateTaskAttachmentsMutation,
+  useAddRemarkToTaskMutation,
+  useEditRemarkToTaskMutation
 } = taskManagementApi;

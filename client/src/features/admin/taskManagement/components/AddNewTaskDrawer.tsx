@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Chip,
   Drawer,
   IconButton,
   TextField,
@@ -72,6 +73,12 @@ const AddNewTaskDrawer = ({
     value: assignee._id,
     role: assignee.role,
   }));
+
+   const handleDelete = (fileNameToDelete:string) => {
+    setMediaFiles((prev) =>
+      prev.filter((file) => file.name !== fileNameToDelete)
+    );
+  };
 
   const handleAddTask = async () => {
     try {
@@ -334,54 +341,65 @@ const AddNewTaskDrawer = ({
         </Box>
 
         <Box
-          p={2}
-          border="1px dashed #ccc"
-          borderRadius="12px"
-          textAlign="center"
-          sx={{ cursor: "pointer" }}
-          onClick={() => fileInputRef.current?.click()}
+      p={2}
+      border="1px dashed #ccc"
+      borderRadius="12px"
+      textAlign="center"
+      sx={{ cursor: "pointer" }}
+      onClick={() => fileInputRef.current?.click()}
+    >
+      <Typography mb={1}>Attach Media</Typography>
+      <Typography color="text.secondary" fontSize="14px">
+        Upload media/Documents
+      </Typography>
+      <IconButton>
+        <CloudUploadIcon />
+      </IconButton>
+
+      {/* Display file chips if media is selected */}
+      {mediaFiles.length > 0 && (
+        <>
+        <Typography>Uploaded files</Typography>
+        <Box
+          mt={1}
+          display="flex"
+          flexWrap="wrap"
+          justifyContent="center"
+          gap={1}
         >
-          <Typography mb={1}>Attach Media</Typography>
-          <Typography color="text.secondary" fontSize="14px">
-            Upload media/Documents
-          </Typography>
-          <IconButton>
-            <CloudUploadIcon />
-          </IconButton>
-
-          {/* Display file name if media is selected */}
-          {mediaFiles.length > 0 && (
-            <Box mt={2} display="flex" flexDirection="column" gap={0.5}>
-              {mediaFiles.map((file, index) => (
-                <Typography key={index} fontSize="14px" color="primary.main">
-                  • {file.name}
-                </Typography>
-              ))}
-            </Box>
-          )}
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={(e) => {
-              if (e.target.files) {
-                const selected = Array.from(e.target.files);
-
-                // Avoid duplicate file names (optional)
-                const existingNames = new Set(
-                  mediaFiles.map((file) => file.name)
-                );
-                const uniqueNewFiles = selected.filter(
-                  (file) => !existingNames.has(file.name)
-                );
-
-                setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
-              }
-            }}
-            multiple
-            style={{ display: "none" }}
-          />
+          {mediaFiles.map((file, index) => (
+            <Chip
+              key={index}
+              label={file.name}
+              onDelete={() => handleDelete(file.name)}
+              sx={{ borderRadius: 2 }}
+              variant="outlined"
+            />
+          ))}
         </Box>
+        </>
+      )}
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => {
+          if (e.target.files) {
+            const selected = Array.from(e.target.files);
+
+            // Avoid duplicate file names
+            const existingNames = new Set(mediaFiles.map((file) => file.name));
+            const uniqueNewFiles = selected.filter(
+              (file) => !existingNames.has(file.name)
+            );
+
+            setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
+          }
+        }}
+        multiple
+        style={{ display: "none" }}
+      />
+    </Box>
 
         <Box display="flex" justifyContent="space-between" mt={4}>
           <Button
