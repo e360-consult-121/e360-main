@@ -32,6 +32,19 @@ export const checkPermission = (actionName: string) => {
 
     const roleObjectId = new Types.ObjectId(roleId);
 
+
+    // Check fallback: All_Actions
+    const allAction = await ActionModel.findOne({ action: "All_Actions" });
+    if (allAction) {
+      const allAccess = await PermissionModel.findOne({
+        roleId: roleObjectId,
+        actionId: allAction._id,
+      });
+      if (allAccess) {
+        return next();
+      }
+    }
+
     // Special cases mapping
     const specialCases: Record<string, {
       action1: string;
@@ -125,17 +138,7 @@ export const checkPermission = (actionName: string) => {
       return next();
     }
 
-    // Check fallback: All_Actions
-    const allAction = await ActionModel.findOne({ action: "All_Actions" });
-    if (allAction) {
-      const allAccess = await PermissionModel.findOne({
-        roleId: roleObjectId,
-        actionId: allAction._id,
-      });
-      if (allAccess) {
-        return next();
-      }
-    }
+    
 
     res.status(403).json({ message: "Access Denied" });
     return ;
