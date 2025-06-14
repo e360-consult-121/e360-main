@@ -173,6 +173,7 @@ export const fetchMyTasks = async (
 
     {
       $project: {
+        _id: "$taskDetails._id",
         taskName: "$taskDetails.taskName",
         assignedBy: {
           userId: "$assignedByDetails._id",
