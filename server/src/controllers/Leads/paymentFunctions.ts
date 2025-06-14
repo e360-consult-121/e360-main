@@ -74,7 +74,7 @@ export interface createUserOptions {
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       // Get the roleId for CUSTOMER
-      const customerRole = await RoleModel.findOne({ name: "Customer" });
+      const customerRole = await RoleModel.findOne({ roleName: "Customer" });
       if (!customerRole) {
         console.log("Customer role not found in roles collection.") ;
       }
