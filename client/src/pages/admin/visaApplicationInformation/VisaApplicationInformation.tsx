@@ -109,7 +109,7 @@ const VisaApplicationInformation = () => {
         <ChatbotPanel
           chatVisible={chatVisible}
           setChatVisible={setChatVisible}
-          visaApplicationId={leadid}
+          visaApplicationId={visatype}
           source={"Admin"}
         />
       )}

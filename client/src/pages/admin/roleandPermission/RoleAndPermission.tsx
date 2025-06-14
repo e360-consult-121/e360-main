@@ -1,14 +1,19 @@
 import { useNavigate, useParams } from "react-router-dom";
 import AllEmployeeTable from "./AllEmployeeTable";
-import ManageRoles from "./ManageRoles";
 import { Box, Tab, Tabs } from "@mui/material";
+import { useFetchAllAdminUsersQuery } from "../../../features/admin/RoleandPermission/roleAndPermissionApi";
+import ManageRoles from "./ManageRoles";
 
 const RoleAndPermission = () => {
   const { type } = useParams();
   const navigate = useNavigate();
+  
   const handleChange = (_event: React.SyntheticEvent, newValue: any) => {
     navigate(`/admin/roleandpermission/${newValue}`);
   };
+
+  const {data:allAdminUsers} = useFetchAllAdminUsersQuery(undefined);
+
 
   return (
     <div className="px-5">
@@ -31,7 +36,7 @@ const RoleAndPermission = () => {
           />
         </Tabs>
       </Box>
-      {type === "allemployee" ? <AllEmployeeTable /> : <ManageRoles />}
+      {type === "allemployee" ? <AllEmployeeTable groupedByRoleName={allAdminUsers?.groupedByRoleName || []} /> : <ManageRoles />}
     </div>
   );
 };
