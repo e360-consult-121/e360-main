@@ -15,5 +15,5 @@ router.post("/:leadId/sendPaymentLink",
  asyncHandler(paymentControllers.sendPaymentLink));
 
 // This is for Customer -->> no need of role management
-router.post("/:leadId/proceedToPayment", authenticate ,  asyncHandler(paymentControllers.proceedToPayment));
+router.post("/:leadId/proceedToPayment",asyncHandler(paymentControllers.proceedToPayment));
 export default router;

@@ -171,7 +171,7 @@ const ChatMessage = ({
       <MenuItem disabled>Loading...</MenuItem>
     ) : extraCategories?.data?.length ? (
       extraCategories.data.map((cat: any) => (
-        <MenuItem key={cat._id} value={cat._id}>
+        <MenuItem key={cat._id} value={cat.name}>
           {cat.name}
         </MenuItem>
       ))

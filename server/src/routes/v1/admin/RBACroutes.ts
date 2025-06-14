@@ -36,5 +36,5 @@ router.get("/fetchAllFeatures"   , authenticate , authorizeAdmin , asyncHandler(
 router.get("/fetchAllAdminUsers" , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllAdminUsers));
 router.get("/fetchAllRoles"      , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllRoles));
 router.get("/fetchRoleWisePermissions"      , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchRoleWisePermissions));
-export default router;
 
+export default router;
