@@ -3,7 +3,7 @@ import {
   Typography,
   Paper,
   IconButton,
-  Divider,
+  // Divider,
   Button,
   MenuItem,
   Select,
@@ -16,10 +16,10 @@ import SortIcon from "@mui/icons-material/Sort";
 import { useState } from "react";
 import { useFetchAllFeaturesQuery } from "../../../features/admin/RoleandPermission/roleAndPermissionApi";
 
-type Action = {
-  _id: string;
-  action: string;
-};
+// type Action = {
+//   _id: string;
+//   action: string;
+// };
 
 const ManageRoles = () => {
   const { data, isLoading, error } = useFetchAllFeaturesQuery(undefined);
