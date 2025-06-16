@@ -12,7 +12,7 @@ const RoleAndPermission = () => {
     navigate(`/admin/roleandpermission/${newValue}`);
   };
 
-  const {data:allAdminUsers} = useFetchAllAdminUsersQuery(undefined);
+  const {data:allAdminUsers,refetch:refetchAllAdminUsers} = useFetchAllAdminUsersQuery(undefined);
 
 
   return (
@@ -36,7 +36,7 @@ const RoleAndPermission = () => {
           />
         </Tabs>
       </Box>
-      {type === "allemployee" ? <AllEmployeeTable groupedByRoleName={allAdminUsers?.groupedByRoleName || []} /> : <ManageRoles />}
+      {type === "allemployee" ? <AllEmployeeTable groupedByRoleName={allAdminUsers?.groupedByRoleName || []} refetchAllAdminUsers={refetchAllAdminUsers} /> : <ManageRoles />}
     </div>
   );
 };
