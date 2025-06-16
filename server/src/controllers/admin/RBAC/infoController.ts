@@ -73,10 +73,15 @@ export const fetchAllFeatures = async (req: Request, res: Response) => {
       },
       {
         $project: {
-          password: 0,
-          refreshToken: 0,
-          forgotPasswordToken: 0,
-          forgotPasswordExpires: 0
+          name : 1,
+          phone : 1 ,
+          employeeId : 1 ,
+          roleInfo : 1,
+          email :1,
+          // password: 0,
+          // refreshToken: 0,
+          // forgotPasswordToken: 0,
+          // forgotPasswordExpires: 0
         }
       },
       {
