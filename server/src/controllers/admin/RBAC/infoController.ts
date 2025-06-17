@@ -54,56 +54,7 @@ export const fetchAllFeatures = async (req: Request, res: Response) => {
   };
 
 
-  // Fetch all AdminUsers gruped by roleName  -->> Check needed details 
-  export const fetchAllAdminUsers = async (req: Request, res: Response) => {
-    const result = await userModel.aggregate([
-      {
-        $match: { role: RoleEnum.ADMIN }
-      },
-      {
-        $lookup: {
-          from: "roles", 
-          localField: "roleId",
-          foreignField: "_id",
-          as: "roleInfo"
-        }
-      },
-      {
-        $unwind: "$roleInfo"
-      },
-      {
-        $project: {
-          name : 1,
-          phone : 1 ,
-          employeeId : 1 ,
-          roleInfo : 1,
-          email :1,
-          // password: 0,
-          // refreshToken: 0,
-          // forgotPasswordToken: 0,
-          // forgotPasswordExpires: 0
-        }
-      },
-      {
-        $group: {
-          _id: "$roleInfo.roleName",
-          users: { $push: "$$ROOT" }
-        }
-      },
-      {
-        $project: {
-          roleName: "$_id",
-          users: 1,
-          _id: 0
-        }
-      }
-    ]);
-  
-    res.status(200).json({
-      success: true,
-      groupedByRoleName: result
-    });
-  };
+
   
 
 
@@ -115,6 +66,44 @@ export const fetchAllRoles = async (req: Request, res: Response) => {
       count: roles.length,
       roles,
     });
+};
+
+
+export const fetchAllAdminUsers = async (req: Request, res: Response) => {
+  const result = await userModel.aggregate([
+    {
+      $match: { role: RoleEnum.ADMIN }
+    },
+    {
+      $lookup: {
+        from: "roles",
+        localField: "roleId",
+        foreignField: "_id",
+        as: "roleInfo"
+      }
+    },
+    {
+      $unwind: "$roleInfo"
+    },
+    {
+      $project: {
+        name: 1,
+        phone: 1,
+        employeeId: 1,
+        email: 1,
+        roleInfo: 1,
+        // password: 0,
+        // refreshToken: 0,
+        // forgotPasswordToken: 0,
+        // forgotPasswordExpires: 0
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    success: true,
+    admins: result
+  });
 };
 
 
