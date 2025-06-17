@@ -118,7 +118,7 @@ const AddNewTaskDrawer = ({
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: 550, padding: 3 } }}
+      PaperProps={{ sx: { width:{ xs:380 ,md:550}, padding: 3 } }}
     >
       <Box
         display="flex"
@@ -156,7 +156,7 @@ const AddNewTaskDrawer = ({
         <Box sx={{ p: 1, borderRadius: 1 }}>
           <Typography>Priority*</Typography>
 
-          <Box display="flex" gap={2} my={2}>
+          <Box display="flex" gap={1} my={2}>
             {["Low", "Medium", "High"].map((level) => {
               const isSelected = priority === level;
 
@@ -310,7 +310,7 @@ const AddNewTaskDrawer = ({
             gap: 1,
           }}
         >
-          <Box minWidth={"230px"}>
+          <Box minWidth={{xs:"160px",md:"230px"}}>
             <Typography mb={1}>Attach Lead</Typography>
             <Select
               options={leadOptions || []}
@@ -325,7 +325,7 @@ const AddNewTaskDrawer = ({
             />
           </Box>
 
-          <Box minWidth={"230px"}>
+          <Box minWidth={{xs:"160px",md:"230px"}}>
             <Typography mb={1}>Attach Application</Typography>
             <Select
               options={applicationOptions || []}

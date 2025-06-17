@@ -25,11 +25,11 @@ interface Props {
   open: boolean;
   onClose: () => void;
   selectedRole?: string;
-  selectedRoleId?:string;
+  selectedRoleId?: string;
   selectedFeatures?: any[];
   isAdding: boolean | undefined;
-  refetchAllFeatures?:()=> void
-  refetchAllRoles?:()=>void
+  refetchAllFeatures?: () => void;
+  refetchAllRoles?: () => void;
 }
 
 const ManagePermissionsDrawer = ({
@@ -40,7 +40,7 @@ const ManagePermissionsDrawer = ({
   selectedFeatures,
   isAdding,
   refetchAllFeatures,
-  refetchAllRoles
+  refetchAllRoles,
 }: Props) => {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [search, setSearch] = useState("");
@@ -51,25 +51,25 @@ const ManagePermissionsDrawer = ({
 
   const [addNewRole, { isLoading: isSaving }] = useAddNewRoleMutation();
 
-  const [assignActionsToRole, { isLoading: isAssigning }] = useAssignActionsToRoleMutation();
+  const [assignActionsToRole, { isLoading: isAssigning }] =
+    useAssignActionsToRoleMutation();
 
   useEffect(() => {
-  if (open) {
-    setRoleName(selectedRole ?? "");
+    if (open) {
+      setRoleName(selectedRole ?? "");
 
-    if (selectedFeatures && selectedFeatures.length > 0) {
-      const perms = selectedFeatures.flatMap((feature: any) =>
-        feature.actions.map((a: any) => a.actionId)
-      );
-      setInitialPermissions(perms);
-      setSelectedPermissions(perms);
-    } else {
-      setInitialPermissions([]);
-      setSelectedPermissions([]);
+      if (selectedFeatures && selectedFeatures.length > 0) {
+        const perms = selectedFeatures.flatMap((feature: any) =>
+          feature.actions.map((a: any) => a.actionId)
+        );
+        setInitialPermissions(perms);
+        setSelectedPermissions(perms);
+      } else {
+        setInitialPermissions([]);
+        setSelectedPermissions([]);
+      }
     }
-  }
-}, [open, selectedRole, selectedFeatures]);
-
+  }, [open, selectedRole, selectedFeatures]);
 
   const buttonName = isAdding === true ? "+ Add new role" : "Save changes";
   const flattenedPermissions =
@@ -131,34 +131,38 @@ const ManagePermissionsDrawer = ({
         setRoleName("");
         setSelectedPermissions([]);
         refetchAllFeatures?.();
-        refetchAllRoles?.()
+        refetchAllRoles?.();
         onClose();
       } catch (err) {
         toast.error("Error creating role");
       }
     } else {
-       const addIds = selectedPermissions.filter((id) => !initialPermissions.includes(id));
-  const deleteIds = initialPermissions.filter((id) => !selectedPermissions.includes(id));
+      const addIds = selectedPermissions.filter(
+        (id) => !initialPermissions.includes(id)
+      );
+      const deleteIds = initialPermissions.filter(
+        (id) => !selectedPermissions.includes(id)
+      );
 
-  if (addIds.length === 0 && deleteIds.length === 0) {
-    toast.info("No changes to save.");
-    return;
-  }
+      if (addIds.length === 0 && deleteIds.length === 0) {
+        toast.info("No changes to save.");
+        return;
+      }
 
-  try {
-    await assignActionsToRole({
-      roleId: selectedRoleId!,
-      addIds,
-      deleteIds,
-    }).unwrap();
+      try {
+        await assignActionsToRole({
+          roleId: selectedRoleId!,
+          addIds,
+          deleteIds,
+        }).unwrap();
 
-    toast.success("Permissions updated successfully!");
-    refetchAllFeatures?.();
-    onClose();
-  } catch (err) {
-    console.error("Error updating role permissions:", err);
-    toast.error("Failed to update permissions.");
-  }
+        toast.success("Permissions updated successfully!");
+        refetchAllFeatures?.();
+        onClose();
+      } catch (err) {
+        console.error("Error updating role permissions:", err);
+        toast.error("Failed to update permissions.");
+      }
     }
   };
 
@@ -167,7 +171,7 @@ const ManagePermissionsDrawer = ({
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: 1000, p: 3 } }}
+      PaperProps={{ sx: { width: { xs: 370, sm: 700, md: 1000 }, p: 3 } }}
     >
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Typography variant="h6" fontWeight="bold">
@@ -195,7 +199,10 @@ const ManagePermissionsDrawer = ({
             <Box
               key={id}
               display="flex"
+              flexDirection={{ xs: "column", md: "row" }}
               justifyContent="space-between"
+              alignItems={{ xs: "flex-start", md: "center" }}
+              gap={1}
               my={1}
               bgcolor={"white"}
               p={1}
@@ -210,7 +217,7 @@ const ManagePermissionsDrawer = ({
                 />
                 <Typography>{perm.name}</Typography>
               </Box>
-              <Typography>{perm.function}</Typography>
+              <Typography sx={{ml:{xs:3,md:0}}}>{perm.function}</Typography>
             </Box>
           );
         })}
@@ -289,7 +296,9 @@ const ManagePermissionsDrawer = ({
             <Box
               key={p.id}
               display="flex"
-              alignItems="center"
+              flexDirection={{ xs: "column", sm: "row" }}
+              alignItems={{ xs: "flex-start", sm: "center" }}
+              gap={1}
               px={2}
               py={1.5}
               borderBottom="1px solid #f0f0f0"
@@ -307,8 +316,8 @@ const ManagePermissionsDrawer = ({
               </Box>
 
               {/* Function Name */}
-              <Box flex={1}>
-                <Typography>{p.function}</Typography>
+              <Box flex={1} width="100%">
+                <Typography sx={{ml:{xs:6,md:0}}}>{p.function}</Typography>
               </Box>
             </Box>
           ))}

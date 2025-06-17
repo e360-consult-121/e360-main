@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { LinearProgress, Modal } from "@mui/material";
+import { LinearProgress, Modal, useMediaQuery, useTheme } from "@mui/material";
 
 interface FileDataType {
   fileName: string;
@@ -19,47 +19,85 @@ const DocumentUpload = ({
   isLoading,
   uploadFunction,
 }: FileDataType) => {
+
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
 
-  return (
-    <div className="w-full flex items-center justify-between border-b border-neutrals-50 p-3">
-      <UploadModal
-        isLoading={isLoading}
-        isUploadModalOpen={isUploadModalOpen}
-        setIsUploadModalOpen={setIsUploadModalOpen}
-        uploadFunction={uploadFunction}
-      />
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-      {/* Left portion */}
-      <div className="flex items-center space-x-5">
-        <div
-          className={`${
+ return (
+  <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between border-b border-neutrals-50 p-3 gap-2">
+    <UploadModal
+      isLoading={isLoading}
+      isUploadModalOpen={isUploadModalOpen}
+      setIsUploadModalOpen={setIsUploadModalOpen}
+      uploadFunction={uploadFunction}
+    />
+
+    {/* Left portion */}
+    <div className="flex items-start md:items-center justify-between w-full md:w-auto space-x-3 md:space-x-5">
+      <div
+        className={`${
+          !value
+            ? "bg-neutrals-200 text-white"
+            : "bg-golden-yellow-100 text-neutrals-950"
+        }   p-3 rounded-xl`}
+      >
+        <Icon
+          icon={`${
             !value
-              ? "bg-neutrals-200 text-white"
-              : "bg-golden-yellow-100 text-neutrals-950"
-          }   p-3 rounded-xl`}
-        >
-          <Icon
-            icon={`${
-              !value ? "icon-park-outline:upload" : "icon-park-outline:done-all"
-            }`}
-            width="24"
-            height="24"
-          />
-        </div>
-
-        <div className="flex flex-col space-y-1">
-          <h1 className="text-neutrals-950 text-sm font-semibold">
-            {fileName}
-          </h1>
-          <div className="flex space-x-3 text-neutrals-400 text-xs">
-            <p>File Format: {fileType}</p>
-            <p>Max. File Size: {fileSize}</p>
-          </div>
-        </div>
+              ? "icon-park-outline:upload"
+              : "icon-park-outline:done-all"
+          }`}
+          width="24"
+          height="24"
+        />
       </div>
 
-      {/* Right portion */}
+      <div className="flex flex-col space-y-1 w-full">
+        <h1 className="text-neutrals-950 text-sm font-semibold">
+          {fileName}
+        </h1>
+        <div className="flex flex-wrap gap-3 text-neutrals-400 text-xs">
+          <p>File Format: {fileType}</p>
+          <p>Max. File Size: {fileSize}</p>
+        </div>
+
+        {/* Mobile-only buttons below filename */}
+        {isMobile && (
+          <div className="flex gap-2 mt-2 flex-wrap">
+            {!value ? (
+              <button
+                onClick={() => {
+                  setIsUploadModalOpen(true);
+                }}
+                className="bg-neutrals-500 py-1 px-3 text-neutrals-50 text-sm rounded-xl cursor-pointer"
+              >
+                Upload File
+              </button>
+            ) : (
+              <>
+                <button
+                  className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
+                  onClick={() => setIsUploadModalOpen(true)}
+                >
+                  Re-Upload
+                </button>
+
+                <a href={value} target="_blank" rel="noopener noreferrer">
+                  <button className="bg-golden-yellow-400 py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
+                    Preview
+                  </button>
+                </a>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Desktop buttons (shown only on md and above) */}
+    {!isMobile && (
       <div className="flex items-center space-x-4">
         <input
           type="file"
@@ -67,36 +105,36 @@ const DocumentUpload = ({
           className="hidden"
         />
 
-        <>
-          {!value ? (
+        {!value ? (
+          <button
+            onClick={() => {
+              setIsUploadModalOpen(true);
+            }}
+            className="bg-neutrals-500 py-1 px-3 text-neutrals-50 text-sm rounded-xl cursor-pointer"
+          >
+            Upload File
+          </button>
+        ) : (
+          <>
             <button
-              onClick={() => {
-                setIsUploadModalOpen(true);
-              }}
-              className="bg-neutrals-500 py-1 px-3 text-neutrals-50 text-sm rounded-xl cursor-pointer"
+              className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
+              onClick={() => setIsUploadModalOpen(true)}
             >
-              Upload File
+              Re-Upload
             </button>
-          ) : (
-            <>
-              <button
-                className="bg-transparent border border-neutrals-400 py-1 px-3 text-neutrals-400 text-sm rounded-xl cursor-pointer"
-                onClick={() => setIsUploadModalOpen(true)}
-              >
-                Re-Upload
-              </button>
 
-              <a href={value} target="_blank">
-                <button className="bg-golden-yellow-400 py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
-                  Preview
-                </button>
-              </a>
-            </>
-          )}
-        </>
+            <a href={value} target="_blank" rel="noopener noreferrer">
+              <button className="bg-golden-yellow-400 py-1 px-3 text-neutrals-950 text-sm rounded-xl cursor-pointer">
+                Preview
+              </button>
+            </a>
+          </>
+        )}
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
+
 };
 
 export default DocumentUpload;

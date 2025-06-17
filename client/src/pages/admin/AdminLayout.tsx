@@ -77,6 +77,11 @@ const tabs: TAB[] = [
     label: "My Clients",
     route: "admin/myclient",
   },
+  {
+    icon: "clarity:list-solid",
+    label: "Logs",
+    route: "admin/logs",
+  },
   // {
   //   icon: "grommet-icons:visa",
   //   label: "Eligibility Form Leads",
@@ -98,7 +103,7 @@ const AdminLayout = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
-      <div className="lg:w-[310px] shrink-0">
+      <div className="w-[20px] lg:w-[310px] shrink-0">
         <Sidebar tabs={tabs} />
       </div>
 

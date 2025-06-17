@@ -102,58 +102,6 @@ const ClientEligibilityForm = ({
       .replace(/_/g, " ")
       .replace(/\b\w/g, (l) => l.toUpperCase());
 
-  // const renderFields = (
-  //   data: any,
-  //   sectionTitle: string | null = null,
-  //   isNested = false
-  // ) => {
-  //   if (isEmptyOrNullObject(data)) return null;
-
-  //   const fields = Object.entries(data).filter(
-  //     ([_, value]) =>
-  //       value !== null &&
-  //       value !== undefined &&
-  //       (typeof value === "object"
-  //         ? !isEmptyOrNullObject(value)
-  //         : value !== "")
-  //   );
-
-  //   return (
-  //     <Box sx={{ mb: 3 }} key={sectionTitle}>
-  //       {/* Show title only if it's not "additionalInfo" */}
-  //       {sectionTitle && sectionTitle !== "additionalInfo" && (
-  //         <>
-  //         <Typography
-  //           fontWeight="bold"
-  //           variant={isNested ? "subtitle1" : "h6"}
-  //           sx={{ mb: 1 }}
-  //         >
-  //           {formatLabel(sectionTitle)}
-  //         </Typography>
-  //         </>
-  //       )}
-
-  //       {fields.map(([key, value]) => {
-  //         if (typeof value === "object" && !Array.isArray(value)) {
-  //           return renderFields(value, key, true);
-  //         } else if (Array.isArray(value)) {
-  //           return (
-  //             <Typography key={key} mb={1}>
-  //               <strong>{formatLabel(key)}:</strong> {value.join(", ")}
-  //             </Typography>
-  //           );
-  //         } else {
-  //           return (
-  //             <Typography key={key} mb={1}>
-  //               <strong>{formatLabel(key)}:</strong> {value?.toString()}
-  //             </Typography>
-  //           );
-  //         }
-  //       })}
-  //     </Box>
-  //   );
-  // };
-
   const renderFields = (
     data: any,
     sectionTitle: string | null = null,
@@ -169,7 +117,7 @@ const ClientEligibilityForm = ({
     );
 
     return (
-      <Box sx={{ mb: 3 }} key={sectionTitle}>
+      <Box sx={{ mb: {md:3} }} key={sectionTitle}>
         {/* Section title (no left margin) */}
         {sectionTitle && sectionTitle !== "additionalInfo" && (
           <Typography
@@ -210,12 +158,12 @@ const ClientEligibilityForm = ({
   };
 
   return (
-    <div>
-      <Typography sx={{ my: 1 }}>
+    <div className="p-3 md:p-0 ml-[-10px] md:ml-0">
+      <Typography sx={{ fontSize:{xs:"14px",md:"16px"}, my: 1 }}>
         Form Submission Date : {formatDate(formSubmisionDate)}
       </Typography>
 
-      <Typography sx={{ my: 3 }}>
+      <Typography sx={{fontSize:{xs:"14px",md:"16px"}, my: 3 }}>
         Eligibility Form:{" "}
         <span
           style={{
@@ -242,7 +190,7 @@ const ClientEligibilityForm = ({
               Consultation is completed
             </Typography>
           )}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: {xs:"block", md:"flex"}, alignItems: "center", gap: 2 }}>
             {!["CONSULTATIONDONE", "PAYMENTLINKSENT", "PAYMENTDONE", "REJECTED"].includes(
               leadStatus
             ) && (
@@ -260,6 +208,7 @@ const ClientEligibilityForm = ({
                     bgcolor: "#e0e0e0",
                     color: "gray",
                   },
+                  mb:{xs:2,md:0}
                 }}
               >
                 {loading ? "Sending..." : "Send Consultation Link"}
@@ -289,7 +238,7 @@ const ClientEligibilityForm = ({
         onClose={handleFormClose}
         maxWidth="sm"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 10, padding: 2 } }}
+        PaperProps={{ sx: { minWidth:370 ,borderRadius: {xs:5, md:10}, padding: {md:2} } }}
       >
         <DialogTitle align="center" fontWeight="bold">
           Eligibility Form
@@ -317,7 +266,7 @@ const ClientEligibilityForm = ({
       <Dialog
         open={rejectOpen}
         onClose={handleRejectClose}
-        PaperProps={{ sx: { borderRadius: 10, padding: 2 } }}
+        PaperProps={{ sx: {minWidth:370, borderRadius: {xs:5, md:10}, padding: {md:2} } }}
       >
         <DialogTitle
           align="center"
@@ -365,7 +314,7 @@ const ClientEligibilityForm = ({
               sx={{
                 py: 1,
                 px: 4,
-                minWidth: 270,
+                minWidth: {xs:90, md:270},
                 bgcolor: "#F44237",
                 textTransform: "none",
                 borderRadius: "15px",
@@ -378,8 +327,9 @@ const ClientEligibilityForm = ({
               onClick={handleRejectClose}
               sx={{
                 py: 1,
-                px: 15,
+                px: {md:15},
                 color: "black",
+                minWidth: {xs:140, md:270},
                 borderColor: "black",
                 textTransform: "none",
                 borderRadius: "15px",

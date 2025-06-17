@@ -78,7 +78,6 @@ const ManageRoles = () => {
             variant="contained"
             startIcon={<AddIcon />}
             sx={{
-              backgroundColor: "#FFD700",
               color: "#000",
               borderRadius: 20,
               textTransform: "none",

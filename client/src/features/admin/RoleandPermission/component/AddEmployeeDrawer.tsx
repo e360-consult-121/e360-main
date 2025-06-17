@@ -63,6 +63,8 @@ const handleSubmit = async () => {
     ? Math.random().toString(36).slice(-8) + "@123"
     : password;
 
+
+
   const body = {
     name: `${firstName} ${lastName}`,
     email,
@@ -70,8 +72,9 @@ const handleSubmit = async () => {
     nationality,
     password: finalPassword,
     roleName: role,
-    actionIds: [], // If you want to include actionIds from permission drawer, you can pass them here
+    actionIds: [],
   };
+  console.log(body)
 
   try {
     await addNewAdminUser(body).unwrap();
@@ -99,7 +102,7 @@ const handleSubmit = async () => {
   return (
     <>
       {/* add adminuser Drawer */}
-      <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 400, padding: 3 } }}>
+      <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width:{  xs:370,md:400}, padding: 3 } }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h6" sx={{ fontWeight: "bold" }}>Add New Employee</Typography>
           <IconButton onClick={onClose}>

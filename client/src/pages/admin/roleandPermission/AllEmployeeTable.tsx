@@ -186,6 +186,7 @@ const AllEmployee = ({ groupedByRoleName, refetchAllAdminUsers }: Props) => {
             borderRadius: 20,
             backgroundColor: "#FFC107",
             color: "#000",
+            boxShadow:"none"
           }}
         >
           Add New Employee

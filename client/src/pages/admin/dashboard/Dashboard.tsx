@@ -74,7 +74,7 @@ const Dashboard = () => {
   ]);
 
   return (
-    <div className="ml-[-20px] md:ml-[0px] z-50">
+    <div className="ml-[-10px] md:ml-[0px] z-50">
       <Box
         sx={{
           display: "grid",

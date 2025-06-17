@@ -18,6 +18,10 @@ import {
   Box,
   Modal,
   TextField,
+  useTheme,
+  useMediaQuery,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import countryList from "react-select-country-list";
@@ -30,7 +34,7 @@ const modalStyle = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 800,
+  width:{ xs:400,md:800},
   bgcolor: "background.paper",
   boxShadow: 24,
   borderRadius: 2,
@@ -52,10 +56,10 @@ const customStyles = {
 interface TableProps {
   data: any[] | undefined;
   onAddClient: any;
-  refetch:()=> void;
+  refetch: () => void;
 }
 
-const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
+const ClientsTable: React.FC<TableProps> = ({ data, onAddClient, refetch }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("All");
@@ -77,6 +81,9 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
 
   const navigate = useNavigate();
 
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   const today = dayjs().format("YYYY-MM-DD");
   const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
 
@@ -91,7 +98,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
     // console.log("Form Data:", formData,selectedFile);
     try {
       setIsLoading(true);
-      await onAddClient({data:formData,file: selectedFile}).unwrap();
+      await onAddClient({ data: formData, file: selectedFile }).unwrap();
       toast.success("Client added successfully!");
       refetch();
     } catch (err) {
@@ -152,7 +159,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
         {/* Filters */}
         <Box
           sx={{
-            display: "flex",
+            display: {xs:"block",md:"flex"},
             justifyContent: "space-between",
             alignItems: "center",
           }}
@@ -161,8 +168,9 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
             My Clients
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 5, mb: 1 }}>
-            <FormControl sx={{ minWidth: 150 }}>
+          <Box sx={{ display: {xs:"block",md:"flex"}, gap: {xs:1,md:5}, mb: 1 }}>
+            <Box sx={{display:"flex",gap: {xs:2,md:5}}}>
+               <FormControl sx={{ minWidth: 130 }}>
               <InputLabel>Date</InputLabel>
               <Select
                 value={dateFilter}
@@ -175,7 +183,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
               </Select>
             </FormControl>
 
-            <FormControl sx={{ minWidth: 150 }}>
+            <FormControl sx={{ minWidth: 130 }}>
               <InputLabel>Status</InputLabel>
               <Select
                 value={statusFilter}
@@ -191,6 +199,8 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
                 </MenuItem>
               </Select>
             </FormControl>
+            </Box>
+           
 
             <Button
               sx={{
@@ -198,7 +208,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
                 borderRadius: "20px",
                 bgcolor: "#F6C328",
                 color: "#282827",
-                my: 1,
+                my: {xs:2,md:1},
                 px: 2,
               }}
               onClick={() => setOpenModal(true)}
@@ -209,77 +219,144 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
         </Box>
 
         {/* Table */}
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {[
-                  "Name",
-                  "Case ID",
-                  "Last Service",
-                  "Starting Date",
-                  "Total Revenue",
-                  "Status",
-                  "Action",
-                ].map((header) => (
-                  <TableCell key={header} sx={{ color: "#8D8883" }}>
-                    {header}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((client) => (
-                  <TableRow key={client._id}>
-                    {/* <TableCell sx={{ borderBottom: "none" }}>{consultation._id}</TableCell> */}
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {client.name}
+        {!isSmallScreen ? (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {[
+                    "Name",
+                    "Case ID",
+                    "Last Service",
+                    "Starting Date",
+                    "Total Revenue",
+                    "Status",
+                    "Action",
+                  ].map((header) => (
+                    <TableCell key={header} sx={{ color: "#8D8883" }}>
+                      {header}
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {client.caseId}
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {client.lastService}
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {client.startingDate}
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {client.totalRevenue}
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      <Typography
-                        sx={{
-                          color:
-                            client.status === "Application Approved"
-                              ? "#64AE65"
-                              : "#F6C328",
-                        }}
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredData
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((client) => (
+                    <TableRow key={client._id}>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        {client.name}
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        {client.caseId}
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        {client.lastService}
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        {client.startingDate}
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        {client.totalRevenue}
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        <Typography
+                          sx={{
+                            color:
+                              client.status === "Application Approved"
+                                ? "#64AE65"
+                                : "#F6C328",
+                          }}
+                        >
+                          {client.status}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        <Button
+                          sx={{
+                            color: "black",
+                            textTransform: "none",
+                            marginLeft: "10px",
+                          }}
+                          onClick={() =>
+                            navigate(`/admin/myclient/${client.userId}`)
+                          }
+                        >
+                          View &gt;
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          // Card ui for mobile screens
+          <Box display="flex" flexDirection="column" gap={2} mt={2}>
+            {filteredData
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((client) => (
+                <Card
+                  key={client._id}
+                  variant="outlined"
+                  sx={{
+                    border: "1px solid black",
+                    borderRadius: "15px",
+                  }}
+                >
+                  <CardContent>
+                    {[
+                      { label: "Name", value: client.name },
+                      { label: "Case ID", value: client.caseId },
+                      { label: "Last Service", value: client.lastService },
+                      { label: "Starting Date", value: client.startingDate },
+                      { label: "Total Revenue", value: client.totalRevenue },
+                      { label: "Status", value: client.status },
+                    ].map((field, idx) => (
+                      <Box
+                        key={idx}
+                        display="flex"
+                        justifyContent="space-between"
+                        py={0.5}
                       >
-                        {client.status}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
+                        <Typography fontWeight="bold">{field.label}</Typography>
+                        <Typography
+                          color={
+                            field.label === "Status"
+                              ? client.status === "Application Approved"
+                                ? "#64AE65"
+                                : "#F6C328"
+                              : "text.primary"
+                          }
+                        >
+                          {field.value}
+                        </Typography>
+                      </Box>
+                    ))}
+                    {/* <Divider sx={{ my: 1 }} /> */}
+                    <Box display="flex" justifyContent="flex-end">
                       <Button
-                        sx={{
-                          color: "black",
-                          textTransform: "none",
-                          marginLeft: "10px",
-                        }}
                         onClick={() =>
                           navigate(`/admin/myclient/${client.userId}`)
                         }
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          mt: 2,
+                          textTransform: "none",
+                          borderRadius: "10px",
+                          color: "black",
+                          borderColor: "black",
+                        }}
                       >
                         View &gt;
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
+          </Box>
+        )}
 
         {/* Pagination */}
         <TablePagination
@@ -385,7 +462,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
           </Box>
 
           {/* ✅ File Upload Section */}
-          <Box display="flex" alignItems="center" gap={2} mb={2}>
+          <Box display={{xs:"block",md:"flex"}} alignItems="center" gap={2} mb={2}>
             <Button
               variant="outlined"
               component="label"
@@ -395,8 +472,9 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
                 borderRadius: "20px",
                 px: 3,
                 textTransform: "none",
+                mb:{xs:2,md:0}
               }}
-              startIcon={<FileUploadIcon sx={{ color: "black" }} />}
+              startIcon={<FileUploadIcon  sx={{ color: "black" }} />}
             >
               Upload Payment Invoice
               <input
@@ -411,7 +489,7 @@ const ClientsTable: React.FC<TableProps> = ({ data, onAddClient,refetch }) => {
                 }}
               />
             </Button>
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{mb:{xs:2,md:0}}}>
               {selectedFile ? selectedFile.name : "No file selected"}
             </Typography>
           </Box>

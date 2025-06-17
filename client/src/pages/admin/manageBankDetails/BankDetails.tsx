@@ -5,11 +5,7 @@ import {
   Tabs,
   Tab,
   useMediaQuery,
-  // TextField,
-  // InputAdornment,
 } from '@mui/material';
-// import NotificationsIcon from '@mui/icons-material/Notifications';
-// import SearchIcon from '@mui/icons-material/Search';
 import DominicaInvestmentOptions from './DominicaInvestmentOptions';
 import GrenadaInvestmentOptions from './GrenadaInvestmentOptions';
 
@@ -28,7 +24,7 @@ const BankDetailsPage: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ pt: 0, pb: 0 }}>
       {/* Tabs Section */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider',ml:{xs:"-45px" ,md:0} }}>
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
@@ -47,7 +43,7 @@ const BankDetailsPage: React.FC = () => {
               sx={{ 
                 textTransform: 'none', 
                 fontWeight: 600, 
-                fontSize: '16px',
+                fontSize: {xs:"15px", md:'16px'},
               }}
             />
           ))}
@@ -55,7 +51,7 @@ const BankDetailsPage: React.FC = () => {
       </Box>
 
       {/* Content Section - Show based on active tab */}
-      <Box sx={{ mt: 0 }}>
+      <Box sx={{ mt: 0,ml:{xs:"-45px" ,md:0} }}>
         {activeTab === 0 ? <DominicaInvestmentOptions /> : <GrenadaInvestmentOptions />}
       </Box>
     </Container>
