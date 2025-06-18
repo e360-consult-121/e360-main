@@ -182,7 +182,7 @@ const AllEmployee = ({
     );
 
   return (
-    <Box p={1}>
+    <Box p={{md:1}}>
       <Box
         display="flex"
         justifyContent="space-between"
@@ -240,7 +240,7 @@ const AllEmployee = ({
                 </Box>
 
                 {/* Fields */}
-                {["name", "role", "contact", "email"].map(
+                {["name", "role", "phone", "email"].map(
                   (field) => {
                     const value =
                       (isEditing ? editedEmployee : employee)[

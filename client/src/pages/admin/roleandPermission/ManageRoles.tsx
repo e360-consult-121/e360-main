@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
-import SortIcon from "@mui/icons-material/Sort";
 import { useState } from "react";
 import {
   useFetchRoleWisePermissionsQuery,
@@ -96,9 +95,9 @@ const handleDeleteRole = async (roleId: string) => {
           <Select
             value={sortBy}
             onChange={handleSortChange}
-            startAdornment={<SortIcon />}
+            // startAdornment={<SortIcon />}
             size="small"
-            sx={{ minWidth: 150 }}
+            // sx={{ minWidth: 150 }}
           >
             <MenuItem value="name">Sort By</MenuItem>
           </Select>
