@@ -67,9 +67,9 @@ const handleSubmit = async () => {
     return;
   }
 
-  const finalPassword = autoGeneratePassword
-    ? Math.random().toString(36).slice(-8) + "@123"
-    : password;
+  // const finalPassword = autoGeneratePassword
+  //   ? Math.random().toString(36).slice(-8) + "@123"
+  //   : password;
 
 
 
@@ -78,14 +78,14 @@ const handleSubmit = async () => {
     email,
     phone,
     nationality,
-    password: finalPassword,
-    roleName: role,
-    actionIds: [],
+    password
+    // roleName: role,
+    // actionIds: [],
   };
   console.log(body)
 
   try {
-    await addNewAdminUser(body).unwrap();
+    await addNewAdminUser({roleId:role, body}).unwrap();
     toast.success("Employee added successfully!");
 
     setFormData({

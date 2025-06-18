@@ -15,9 +15,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import SortIcon from "@mui/icons-material/Sort";
 import { useState } from "react";
-import { useFetchRoleWisePermissionsQuery } from "../../../features/admin/RoleandPermission/roleAndPermissionApi";
+import {
+  useFetchRoleWisePermissionsQuery,
+  useEditRoleNameMutation,
+  useDeleteRoleMutation,
+} from "../../../features/admin/RoleandPermission/roleAndPermissionApi";
 import ManagePermissionsDrawer from "../../../features/admin/RoleandPermission/component/ManagePermissionsDrawer";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { toast } from "react-toastify";
 
 const ManageRoles = () => {
   const [sortBy, setSortBy] = useState("name");
@@ -30,6 +35,10 @@ const ManageRoles = () => {
   );
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [isAdding, setIsAdding] = useState<boolean>();
+  const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
+  const [editedRoleName, setEditedRoleName] = useState<string>("");
+  const [deletingRoleId, setDeletingRoleId] = useState<string | null>(null);
+
 
   const theme = useTheme();
   const isBelowLg = useMediaQuery(theme.breakpoints.down("lg"));
@@ -41,9 +50,16 @@ const ManageRoles = () => {
     refetch,
   } = useFetchRoleWisePermissionsQuery(undefined);
 
-  if (loadingRoles) return <div className="ml-[40%] md:ml-[50%] mt-[60%] md:mt-[20%]"><CircularProgress/></div>;
-  if (errorRoles || errorRoles)
-    return <Typography>Error loading data</Typography>;
+  const [deleteRole] = useDeleteRoleMutation();
+  const [editRoleName] = useEditRoleNameMutation();
+
+  if (loadingRoles)
+    return (
+      <div className="ml-[40%] md:ml-[50%] mt-[60%] md:mt-[20%]">
+        <CircularProgress />
+      </div>
+    );
+  if (errorRoles) return <Typography>Error loading data</Typography>;
 
   const handleSortChange = (event: SelectChangeEvent) => {
     setSortBy(event.target.value);
@@ -52,6 +68,21 @@ const ManageRoles = () => {
   const sortedRolePermissions = [...(rolePermissions || [])].sort((a, b) => {
     return a.roleName.localeCompare(b.roleName);
   });
+
+const handleDeleteRole = async (roleId: string) => {
+  setDeletingRoleId(roleId);
+  try {
+    await deleteRole(roleId).unwrap();
+    toast.success("Deleted Role successfully!")
+    refetch();
+  } catch (err) {
+    toast.error("Something went wrong. Try again!")
+    console.error("Failed to delete role:", err);
+  } finally {
+    setDeletingRoleId(null);
+  }
+};
+
 
   return (
     <>
@@ -95,7 +126,11 @@ const ManageRoles = () => {
           <Paper
             key={role.roleId}
             elevation={1}
-            sx={{ p: 2, mb: 3, bgcolor: "#f9f9f9" }}
+            sx={{ 
+               opacity: deletingRoleId === role.roleId ? 0.5 : 1,
+    pointerEvents: deletingRoleId === role.roleId ? "none" : "auto",
+    transition: "opacity 0.3s ease",
+              p: 2, mb: 3, bgcolor: "#f9f9f9" }}
           >
             <Box
               display="flex"
@@ -103,9 +138,62 @@ const ManageRoles = () => {
               alignItems="center"
               mb={2}
             >
-              <Typography variant="h6" fontWeight="bold">
-                {role.roleName}
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{ cursor: "pointer", minWidth: 120 }}
+                onClick={() => {
+                  setEditingRoleId(role.roleId);
+                  setEditedRoleName(role.roleName);
+                }}
+              >
+                {editingRoleId === role.roleId ? (
+                  <input
+                    autoFocus
+                    value={editedRoleName}
+                    onChange={(e) => setEditedRoleName(e.target.value)}
+                    onBlur={async () => {
+                      if (
+                        editedRoleName.trim() &&
+                        editedRoleName !== role.roleName
+                      ) {
+                        try {
+                          const body = {
+                            roleName:editedRoleName.trim()
+                          }
+                          await editRoleName({
+                            roleId: role.roleId,
+                            body,
+                          }).unwrap();
+                              toast.success("Role name channged successfully!")
+                          refetch();
+                        } catch (error) {
+                              toast.error("Something went wrong. Try again!")
+                          console.error("Failed to edit role name:", error);
+                        }
+                      }
+                      setEditingRoleId(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        (e.target as HTMLInputElement).blur();
+                      }
+                    }}
+                    style={{
+                      fontSize: "1.25rem",
+                      fontWeight: "bold",
+                      border: "none",
+                      borderBottom: "1px solid gray",
+                      outline: "none",
+                      backgroundColor: "transparent",
+                      width: "100%",
+                    }}
+                  />
+                ) : (
+                  role.roleName
+                )}
               </Typography>
+
               <Box>
                 <IconButton
                   onClick={() => {
@@ -118,7 +206,7 @@ const ManageRoles = () => {
                 >
                   <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={() => handleDeleteRole(role.roleId)}>
                   <DeleteOutlinedIcon color="error" fontSize="small" />
                 </IconButton>
               </Box>

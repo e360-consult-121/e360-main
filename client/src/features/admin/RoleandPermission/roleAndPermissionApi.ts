@@ -33,9 +33,22 @@ export const roleAndPermissionApi = baseApi.injectEndpoints({
         data:body
       }),
     }),
+    editRoleName: build.mutation({
+      query: ({roleId,body}) => ({
+        url: `/admin/rbac/editRoleName/${roleId}`,
+        method: "PATCH",
+        data:body
+      }),
+    }),
+    deleteRole: build.mutation({
+      query: (roleId) => ({
+        url: `/admin/rbac/deleteRole/${roleId}`,
+        method: "DELETE",
+      }),
+    }),
     addNewAdminUser: build.mutation({
-      query: (body) => ({
-        url: `/admin/rbac/addNewAdminUser`,
+      query: ({roleId,body}) => ({
+        url: `/admin/rbac/addNewAdminUser/${roleId}`,
         method: "POST",
         data:body
       }),
@@ -63,4 +76,4 @@ export const roleAndPermissionApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useFetchAllAdminUsersQuery , useFetchAllFeaturesQuery , useFetchRoleWisePermissionsQuery,useFetchAllRolesQuery,useAddNewRoleMutation,useAssignActionsToRoleMutation,useAddNewAdminUserMutation,useDeleteAdminUserMutation,useEditAdminUserMutation} = roleAndPermissionApi;
+export const { useFetchAllAdminUsersQuery , useFetchAllFeaturesQuery , useFetchRoleWisePermissionsQuery,useFetchAllRolesQuery,useAddNewRoleMutation,useAssignActionsToRoleMutation,useAddNewAdminUserMutation,useDeleteAdminUserMutation,useEditAdminUserMutation,useDeleteRoleMutation,useEditRoleNameMutation} = roleAndPermissionApi;

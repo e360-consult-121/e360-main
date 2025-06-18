@@ -31,11 +31,12 @@ import { toast } from "react-toastify";
 import { Cancel, Save } from "@mui/icons-material";
 
 interface Employee {
+  // lastName: ReactNode;
   id: string;
-  firstName: string;
-  lastName: string;
+  employeeId:string;
+  name: string;
   role: string;
-  contact: string;
+  phone: string;
   email: string;
 }
 
@@ -45,6 +46,7 @@ interface Props {
     email: string;
     name?: string;
     phone?: string;
+    employeeId:string;
     roleInfo: {
       roleName: string;
     };
@@ -75,14 +77,14 @@ const AllEmployee = ({
   const [editAdminUser] = useEditAdminUserMutation();
 
   const employeeData: Employee[] = admins.map((user) => {
-    const [firstName, ...rest] = (user.name || "-").split(" ");
+    // const [firstName, ...rest] = (user.name || "-").split(" ");
     return {
       id: user._id,
-      firstName: firstName || "-",
-      lastName: rest.join(" ") || "-",
+      name: user.name || "-",
       role: user.roleInfo?.roleName || "N/A",
-      contact: user.phone || "-",
+      phone: user.phone || "-",
       email: user.email || "-",
+      employeeId:user.employeeId || "-"
     };
   });
 
@@ -234,11 +236,11 @@ const AllEmployee = ({
                   alignItems="center"
                   mb={2}
                 >
-                  <Box fontWeight="bold">Employee ID: {employee.id}</Box>
+                  <Box><span className="font-bold"> Employee ID:</span> {employee.employeeId}</Box>
                 </Box>
 
                 {/* Fields */}
-                {["firstName", "lastName", "role", "contact", "email"].map(
+                {["name", "role", "contact", "email"].map(
                   (field) => {
                     const value =
                       (isEditing ? editedEmployee : employee)[
@@ -416,8 +418,8 @@ const AllEmployee = ({
                   />
                 </TableCell>
                 <TableCell>Employee ID</TableCell>
-                <TableCell>First Name</TableCell>
-                <TableCell>Last Name</TableCell>
+                <TableCell>Name</TableCell>
+                {/* <TableCell>Last Name</TableCell> */}
                 <TableCell>Role</TableCell>
                 <TableCell>Contact</TableCell>
                 <TableCell>Email</TableCell>
@@ -440,26 +442,26 @@ const AllEmployee = ({
                       />
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {employee.id}
+                      {employee.employeeId}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
                       {isEditing ? (
                         <TextField
-                          value={editedEmployee.firstName || ""}
+                          value={editedEmployee.name || ""}
                           onChange={(e) =>
-                            handleFieldChange("firstName", e.target.value)
+                            handleFieldChange("name", e.target.value)
                           }
                           size="small"
                           fullWidth
                         />
                       ) : (
-                        employee.firstName
+                        employee.name
                       )}
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
+                    {/* <TableCell sx={{ borderBottom: "none" }}>
                       {isEditing ? (
                         <TextField
-                          value={editedEmployee.lastName || ""}
+                          value={editedEmployee.name || ""}
                           onChange={(e) =>
                             handleFieldChange("lastName", e.target.value)
                           }
@@ -469,7 +471,7 @@ const AllEmployee = ({
                       ) : (
                         employee.lastName
                       )}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell sx={{ borderBottom: "none" }}>
                       {isEditing ? (
                         <TextField
@@ -487,15 +489,15 @@ const AllEmployee = ({
                     <TableCell sx={{ borderBottom: "none" }}>
                       {isEditing ? (
                         <TextField
-                          value={editedEmployee.contact || ""}
+                          value={editedEmployee.phone || ""}
                           onChange={(e) =>
-                            handleFieldChange("contact", e.target.value)
+                            handleFieldChange("phone", e.target.value)
                           }
                           size="small"
                           fullWidth
                         />
                       ) : (
-                        employee.contact
+                        employee.phone
                       )}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
