@@ -89,7 +89,6 @@ export const addNewRole = async (req: Request, res: Response) => {
 
   
 // 2nd
-// add new user and also assign role(existing ) or create new 
 export const addNewAdminUser = async (req: Request, res: Response) => {
   const {
     name,
@@ -97,14 +96,14 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
     phone,
     nationality,
     password, //optional
-    roleName , 
-    actionIds = [], //  Optional (Required only when admin sends a non existing RoleName )
   } = req.body;
 
-  if (!name || !email || !phone ||  !roleName) {
+  if (!name || !email || !phone ) {
     res.status(400);
     throw new Error("Missing required fields.");
   }
+
+  const { roleId } = req.params;
 
   // Check if the user already exists
   const existingUser = await userModel.findOne({ email });
@@ -124,8 +123,15 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
   
 
   // Create role or get existing one
-  const { roleDoc, alreadyExisted } = await createRoleWithOptionalPermissions(roleName, actionIds);
+  // const { roleDoc, alreadyExisted } = await createRoleWithOptionalPermissions(roleName, actionIds);
+  // console.log(`this is our roleDoc :` ,roleDoc );
 
+  const roleDoc =  await roleModel.findById(roleId);
+
+  if (!roleDoc) {
+    res.status(400);
+    throw new Error(`No role found with name: ${roleId}`);
+  }
 
   // Create the new admin user
   const newUser = new userModel({
@@ -390,3 +396,38 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<Resp
     message: "Admin user and associated assignments deleted successfully",
   });
 };
+
+
+
+export const deleteRole = async (req: Request, res: Response) => {
+
+  const { roleId } = req.params;
+
+  // 1. Check if the role is assigned to any user
+  const userExists = await userModel.findOne({ roleId });
+
+  if (userExists) {
+    return res.status(400).json({
+      success: false,
+      message: "Cannot delete this role. It is assigned to one or more users.",
+    });
+  }
+
+  // 2. Proceed to delete the role
+  const deleted = await roleModel.findByIdAndDelete(roleId);
+
+  if (!deleted) {
+    return res.status(404).json({
+      success: false,
+      message: "Role not found.",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Role deleted successfully.",
+  });
+};
+
+
+// RoleName Edit karna 
