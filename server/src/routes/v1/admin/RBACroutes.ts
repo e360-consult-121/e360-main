@@ -12,7 +12,7 @@ router.post("/addNewRole",
 //  checkPermission("Add new Role"),
  asyncHandler(rbacControllers.addNewRole));
 
-router.post("/addNewAdminUser",
+router.post("/addNewAdminUser/:roleId",
  authenticate ,authorizeAdmin,
  //  checkPermission("Add new Admin User"),
  asyncHandler(rbacControllers.addNewAdminUser));
@@ -36,5 +36,17 @@ router.get("/fetchAllFeatures"   , authenticate , authorizeAdmin , asyncHandler(
 router.get("/fetchAllAdminUsers" , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllAdminUsers));
 router.get("/fetchAllRoles"      , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllRoles));
 router.get("/fetchRoleWisePermissions"      , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchRoleWisePermissions));
+
+
+router.delete("/deleteRole/:roleId",
+authenticate ,authorizeAdmin,
+  //  checkPermission("Delete a role"),
+asyncHandler(rbacControllers.deleteRole));
+
+router.patch("/editRoleName/:roleId",
+authenticate ,authorizeAdmin,
+  //  checkPermission("Edit a roleName"),
+asyncHandler(rbacControllers.editRoleName));
+
 
 export default router;

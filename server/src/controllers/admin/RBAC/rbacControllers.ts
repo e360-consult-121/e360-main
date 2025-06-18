@@ -19,33 +19,6 @@ import {
   verifyRefreshToken,
 } from "../../../utils/jwtUtils";
 
-// This is utility function 
-export const createRoleWithOptionalPermissions = async (
-  roleName: string,
-  actionIds: string[] = []
-) => {
-  const existingRole = await roleModel.findOne({ roleName: roleName });
-
-  if (existingRole) {
-    return { role: existingRole, alreadyExisted: true };
-  }
-
-  // Create new role
-  const newRole = await roleModel.create({ roleName: roleName });
-
-  // If actionIds are provided, create permissions
-  if (actionIds.length > 0) {
-    const permissions = actionIds.map(actionId => ({
-      roleId: newRole._id,
-      actionId,
-    }));
-
-    await permissionModel.insertMany(permissions);
-  }
-
-  return { roleDoc: newRole, alreadyExisted: false };
-};
-
 
 // 1st
 export const addNewRole = async (req: Request, res: Response) => {
@@ -398,7 +371,7 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<Resp
 };
 
 
-
+// Delete Role
 export const deleteRole = async (req: Request, res: Response) => {
 
   const { roleId } = req.params;
@@ -430,4 +403,38 @@ export const deleteRole = async (req: Request, res: Response) => {
 };
 
 
-// RoleName Edit karna 
+//Edit RoleName
+export const editRoleName = async (req: Request, res: Response) => {
+  const { roleId } = req.params;
+  const { roleName } = req.body;
+
+  if (!roleName) {
+    res.status(400);
+    throw new Error("New role name is required.");
+  }
+
+  // Check if the role exists
+  const existingRole = await roleModel.findById(roleId);
+  if (!existingRole) {
+    res.status(404);
+    throw new Error("Role not found.");
+  }
+
+  // Check if the new roleName already exists in another role
+  const duplicate = await roleModel.findOne({ roleName });
+  
+  if (duplicate && String(duplicate._id) !== roleId) {
+    res.status(409);
+    throw new Error("A role with this name already exists.");
+  }
+
+  // Update the role name
+  existingRole.roleName = roleName;
+  await existingRole.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Role name updated successfully.",
+    role: existingRole,
+  });
+};
