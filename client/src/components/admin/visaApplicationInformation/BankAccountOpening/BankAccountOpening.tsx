@@ -5,10 +5,17 @@ import {
   Typography,
   Box,
   CircularProgress,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useLazyGetCurrentStepInfoQuery, useSubmitRequirementsMutation } from "../../../../features/common/commonApi";
+import { toast } from "react-toastify";
 
 const BankAccountOpening = ({ requirements, visaApplicationId }: { requirements: any[], visaApplicationId: string }) => {
+
+   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [submitRequirements, { isLoading }] = useSubmitRequirementsMutation();
   const [getCurrentStepInfo] = useLazyGetCurrentStepInfoQuery();
 
@@ -101,9 +108,9 @@ const BankAccountOpening = ({ requirements, visaApplicationId }: { requirements:
 
       // Call getCurrentStepInfo with visaApplicationId after successful submission
       getCurrentStepInfo(visaApplicationId );
-      console.log("All requirements submitted successfully");
+      toast.success("All requirements submitted successfully");
     } catch (error) {
-      console.error("Failed to submit requirements:", error);
+      toast.error("Failed to submit requirements:");
     }
   };
 
@@ -113,41 +120,52 @@ const BankAccountOpening = ({ requirements, visaApplicationId }: { requirements:
   }
 
   return (
-    <Box p={4}>
+    <Box p={{ md: 4, xs: 2 }}>
       <Typography gutterBottom sx={{ fontSize: "16px", mb: 3 }}>
         Add Bank Account Details
       </Typography>
 
-      <Box display="flex" flexDirection="column" gap={2} mb={2}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        gap={2}
+        mb={2}
+      >
         {chunkedRequirements.map((chunk, rowIndex) => (
-          <Box display="flex" gap={2} key={`row-${rowIndex}`}>
+          <Box
+            key={`row-${rowIndex}`}
+            display="flex"
+            flexDirection={isMobile ? "column" : "row"}
+            gap={2}
+          >
             {chunk.map((req) => (
-              <Box flex={1} minWidth="250px" key={req.reqStatusId}>
+              <Box
+                key={req.reqStatusId}
+                flex={1}
+                minWidth={isMobile ? "100%" : "250px"}
+              >
                 <TextField
                   label={req.question}
                   fullWidth
                   value={formData[req.reqStatusId] || ""}
                   onChange={(e) =>
-                    handleChange(
-                      req.reqStatusId,
-                      e.target.value,
-                      req.requirementType
-                    )
+                    handleChange(req.reqStatusId, e.target.value, req.requirementType)
                   }
                   onKeyDown={(e) => handleKeyPress(e, req.requirementType)}
                   inputProps={{
-                    inputMode:
-                      req.requirementType === "NUMBER" ? "numeric" : "text",
+                    inputMode: req.requirementType === "NUMBER" ? "numeric" : "text",
                   }}
-                  type={req.requirementType === "NUMBER" ? "text" : "text"}
+                  type="text"
                   required={req.required}
                   error={!!errors[req.reqStatusId]}
                   helperText={errors[req.reqStatusId]}
                 />
               </Box>
             ))}
-            {/* Add empty box if we have an odd number of fields in the last row */}
-            {chunk.length === 1 && <Box flex={1} minWidth="250px" />}
+            {/* Add empty box if odd number of fields in last row on larger screens only */}
+            {!isMobile && chunk.length === 1 && (
+              <Box flex={1} minWidth="250px" />
+            )}
           </Box>
         ))}
       </Box>

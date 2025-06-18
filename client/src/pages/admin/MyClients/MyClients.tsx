@@ -18,14 +18,14 @@ const MyClients = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64 md:mt-[15%]">
+      <div className="flex justify-center items-center h-64 mr-[20%] md:mr-0  mt-[40%] md:mt-[15%]">
         <CircularProgress />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="ml-[-30px] md:ml-0">
         <ClientsTable data={clientsData} onAddClient={addNewClient} refetch={refetch}
 />
     </div>

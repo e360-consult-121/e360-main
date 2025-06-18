@@ -14,7 +14,11 @@ import { AllConsultationsTypes } from "../../../features/admin/consultations/con
 import StatsCard from "../../../features/admin/dashboard/components/StatsCard";
 import RevenueCard from "../../../features/admin/dashboard/components/RevenueCard";
 import RecentUpdates from "../../../features/admin/dashboard/components/RecentUpdates";
-import { AnalyticsTypes, RecentUpdatesTypes, RevenueDataTypes } from "../../../features/admin/dashboard/dashboardTypes";
+import {
+  AnalyticsTypes,
+  RecentUpdatesTypes,
+  RevenueDataTypes,
+} from "../../../features/admin/dashboard/dashboardTypes";
 
 // Main Dashboard Component
 const Dashboard = () => {
@@ -23,21 +27,23 @@ const Dashboard = () => {
     isLoading,
     isError,
   } = useFetchRecentLeadsQuery(undefined);
-  
+
   const { data: fetchedConsultationData } =
     useFetchRecentConsultationQuery(undefined);
-  
-    const { data: fetchedRecentUpdatesData } =
+
+  const { data: fetchedRecentUpdatesData } =
     useFetchRecentUpdatesQuery(undefined);
 
-    const {data:fetchedRevenueData} = useFetchRevenueQuery(undefined);
-    const {data:fetchedAnalytics} = useFetchAnalyticsQuery(undefined);
+  const { data: fetchedRevenueData } = useFetchRevenueQuery(undefined);
+  const { data: fetchedAnalytics } = useFetchAnalyticsQuery(undefined);
 
   const [leadData, setLeadData] = useState<AllLeads[]>([]);
   const [consultationData, setConsultationData] = useState<
     AllConsultationsTypes[]
   >([]);
-  const [recentUpdatesData, setRecentUpdatesData] = useState<RecentUpdatesTypes[]>([]);
+  const [recentUpdatesData, setRecentUpdatesData] = useState<
+    RecentUpdatesTypes[]
+  >([]);
   const [revenueData, setRevenueData] = useState<RevenueDataTypes[]>([]);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsTypes>();
 
@@ -48,7 +54,6 @@ const Dashboard = () => {
   }, [recentLeadsData, isLoading, isError]);
 
   useEffect(() => {
-
     if (fetchedConsultationData) {
       setConsultationData(fetchedConsultationData.consultations ?? []);
     }
@@ -61,17 +66,27 @@ const Dashboard = () => {
     if (fetchedAnalytics) {
       setAnalyticsData(fetchedAnalytics);
     }
-  }, [fetchedConsultationData, fetchedRecentUpdatesData,fetchedRevenueData,fetchedAnalytics]);
+  }, [
+    fetchedConsultationData,
+    fetchedRecentUpdatesData,
+    fetchedRevenueData,
+    fetchedAnalytics,
+  ]);
 
   return (
-    <>
+    <div className="ml-[-10px] md:ml-[0px] z-50">
       <Box
         sx={{
           display: "grid",
-          gap: 1,
-          px: 5,
-          my: 3,
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: { xs: 1, sm: 1, md: 2, lg: 3 },
+          px: { xs: 1, sm: 1, md: 5 },
+          my: 2,
+          gridTemplateColumns: {
+            xs: "repeat(2, 1fr)",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(2, 1fr)",
+            lg: "repeat(4, 1fr)",
+          },
         }}
       >
         <StatsCard
@@ -99,31 +114,38 @@ const Dashboard = () => {
           bgcolor="#FEFDEB"
         />
       </Box>
+
       <Box
         sx={{
           my: 2,
           display: "flex",
-          px: 5,
+          pr: 2,
+          pl:5,
+          ml:{xs:"-35px",md:"0"},
+          gap:2,
+          flexDirection: { xs: "column", md: "row" },
           // alignItems:"center"
         }}
       >
-        <RevenueCard 
-        data={revenueData}
-        />
+        <RevenueCard data={revenueData} />
         <RecentUpdates data={recentUpdatesData} />
       </Box>
       <Box
         sx={{
           my: 3,
           display: "flex",
-          px: 1,
+          pr: 2,
+          pl:5,
+          ml:{xs:"-35px",md:"0"},
+          gap:2,
+          flexDirection: { xs: "column", md: "row" },
           // alignItems:"center"
         }}
       >
         <RecentConsultations data={consultationData} />
         <RecentLeadManagement data={leadData} />
       </Box>
-    </>
+    </div>
   );
 };
 

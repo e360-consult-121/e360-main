@@ -1,6 +1,9 @@
 import {
   Box,
   Button,
+  Card,
+  CardActions,
+  CardContent,
   Checkbox,
   Chip,
   IconButton,
@@ -15,13 +18,18 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import { useDeleteTaskMutation, useEditTaskMutation } from "../taskManagementApi";
+import {
+  useDeleteTaskMutation,
+  useEditTaskMutation,
+} from "../taskManagementApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
 const TaskManagementTable = ({
   tasks,
@@ -37,6 +45,9 @@ const TaskManagementTable = ({
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [deleteTask] = useDeleteTaskMutation();
   const [editTask] = useEditTaskMutation();
@@ -54,18 +65,18 @@ const TaskManagementTable = ({
     }
   };
 
-  const handleTaskComplete = async(taskid:string)=> {
+  const handleTaskComplete = async (taskid: string) => {
     try {
       const body = {
-        status:"Completed"
-      }
-      await editTask({taskId:taskid,body}).unwrap();
+        status: "Completed",
+      };
+      await editTask({ taskId: taskid, body }).unwrap();
       toast.success("Marked as completed");
       refetchTasks();
     } catch (err) {
-      toast.error("Something went wrong")
+      toast.error("Something went wrong");
     }
-  }
+  };
 
   const handleparticularTaskNavigation = (taskId: string) => {
     navigate(`/admin/taskmanagement/${taskId}`);
@@ -106,6 +117,127 @@ const TaskManagementTable = ({
       setSelectedIds([]);
     }
   };
+
+  if (isMobile) {
+    return (
+      <Box p={2}>
+        {currentData.length === 0 ? (
+          <Typography align="center">No tasks available.</Typography>
+        ) : (
+          currentData.map((task) => (
+            <Card
+              key={task._id}
+              variant="outlined"
+              sx={{
+                borderColor: "black",
+                borderRadius: "15px",
+                mb: 2,
+                opacity: deletingTaskId === task._id ? 0.5 : 1,
+              }}
+            >
+              <CardContent>
+                <Stack direction="row" alignItems={"center"} justifyContent="space-between" mb={1}>
+                  <Typography fontWeight="bold">{task.taskName}</Typography>
+                  <Checkbox
+                    checked={selectedIds.includes(task._id)}
+                    onChange={() => handleCheckboxChange(task._id)}
+                  />
+                </Stack>
+
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <b>Assigned To:</b>{" "}
+                  {Array.isArray(task.assignedTo) && task.assignedTo.length > 0
+                    ? task.assignedTo.map((user: any) => user.email).join(", ")
+                    : "Unassigned"}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <b>Assigned By:</b> {task.assignedBy?.email || "Unassigned"}
+                </Typography>
+                <Box display={"flex"} alignItems={"center"} gap={1} mb={1}>
+                  <Typography sx={{fontWeight:650}}>Status:</Typography>
+                   <Typography
+                   
+                  variant="body2"
+                  color={
+                    task.status === "Completed"
+                      ? "green"
+                      : task.status === "Due"
+                      ? "orange"
+                      : "red"
+                  }
+                  sx={{fontWeight:650 }}
+                >{task.status}
+                </Typography>
+                </Box>
+               
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <b>Due Date:</b> {new Date(task.dueDate).toLocaleDateString()}
+                </Typography>
+                <Box display={"flex"} alignItems={"center"} gap={1} mb={1}>
+                  <Typography sx={{fontWeight:650}}>Priority:</Typography>
+                <Typography
+                  variant="body2"
+                  color={
+                    task.priority === "High"
+                      ? "red"
+                      : task.priority === "Medium"
+                      ? "orange"
+                      : "green"
+                  }
+                  sx={{fontWeight:650 }}
+                > {task.priority}
+                </Typography>
+                </Box>
+                
+              </CardContent>
+
+              <CardActions
+                sx={{ display: "flex", justifyContent: "space-evenly" }}
+              >
+                <IconButton
+                  disabled={task.status === "Completed"}
+                  onClick={() => handleTaskComplete(task._id)}
+                >
+                  <AssignmentTurnedInIcon
+                    sx={{
+                      color: task.status === "Completed" ? "green" : "gray",
+                    }}
+                  />
+                </IconButton>
+                <IconButton
+                  color="error"
+                  onClick={() => handleDeleteTask(task._id)}
+                >
+                  <DeleteOutlinedIcon />
+                </IconButton>
+                <Button
+                variant="outlined"
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "10px",
+                    color: "black",
+                    borderColor: "black",
+                  }}
+                  onClick={() => handleparticularTaskNavigation(task._id)}
+                >
+                  View &gt;
+                </Button>
+              </CardActions>
+            </Card>
+          ))
+        )}
+        <TablePagination
+          component="div"
+          count={tasks.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[5, 10, 25]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Box>
+    );
+  }
 
   return (
     <Box p={2}>
@@ -204,14 +336,17 @@ const TaskManagementTable = ({
                   <TableCell sx={{ borderBottom: "none" }}>
                     {task.assignedBy?.email || "Unassigned"}
                   </TableCell>
-                  <TableCell sx={{ borderBottom: "none",
-                    color:
-                          task.status === "Completed"
-                            ? "green"
-                            : task.status === "Due"
-                            ? "orange"
-                            : "red",
-                   }}>
+                  <TableCell
+                    sx={{
+                      borderBottom: "none",
+                      color:
+                        task.status === "Completed"
+                          ? "green"
+                          : task.status === "Due"
+                          ? "orange"
+                          : "red",
+                    }}
+                  >
                     {task.status}
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
@@ -233,10 +368,14 @@ const TaskManagementTable = ({
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
                     <IconButton
-                    disabled={task.status === "Completed"}
-                    onClick={()=> handleTaskComplete(task._id)}
+                      disabled={task.status === "Completed"}
+                      onClick={() => handleTaskComplete(task._id)}
                     >
-                      <AssignmentTurnedInIcon sx={{color:task.status === "Completed" ? "green":"gray"}}/>
+                      <AssignmentTurnedInIcon
+                        sx={{
+                          color: task.status === "Completed" ? "green" : "gray",
+                        }}
+                      />
                     </IconButton>
                     <IconButton
                       color="error"
@@ -244,10 +383,10 @@ const TaskManagementTable = ({
                     >
                       <DeleteOutlinedIcon fontSize="small" />
                     </IconButton>
-                     <Button
+                    <Button
                       sx={{
-                        color:"black",
-                        textTransform:"none"
+                        color: "black",
+                        textTransform: "none",
                       }}
                       onClick={() => handleparticularTaskNavigation(task._id)}
                     >

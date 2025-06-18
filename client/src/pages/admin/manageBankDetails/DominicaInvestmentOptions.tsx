@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, useMediaQuery } from "@mui/material";
+import { Box, CircularProgress, Typography, useMediaQuery } from "@mui/material";
 import EditIconOutlined from "@mui/icons-material/EditOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import TextInput from "../../../components/TextInput";
@@ -138,7 +138,7 @@ const DominicaInvestmentOptions: React.FC = () => {
     );
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="ml-[45%] md:ml-[45%] mt-[55%] md:mt-[25%]"><CircularProgress/></div>
 
   return (
     <>
@@ -154,14 +154,14 @@ const DominicaInvestmentOptions: React.FC = () => {
         >
           <Box
             sx={{
-              display: "flex",
+              display: {xs:"block", md:"flex"},
               justifyContent: "space-between",
               alignItems: "center",
               mb: 1,
               mt: 1,
             }}
           >
-            <Typography variant="h6" sx={{ fontSize: "18px", fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ fontSize: "18px", fontWeight: 600 ,mb:{xs:1,md:0} }}>
               {section.title}
             </Typography>
             <Box
@@ -169,8 +169,9 @@ const DominicaInvestmentOptions: React.FC = () => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent: {xs:"start",md:"center"},
                 cursor: "pointer",
+                my:{xs:2,md:0}
               }}
             >
               {section.isEditing ? (

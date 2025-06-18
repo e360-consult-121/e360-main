@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography, Box } from "@mui/material";
+import { Card, CardContent, Typography, Box, Tooltip } from "@mui/material";
 
 export enum LeadStatus {
   INITIATED = "INITIATED",
@@ -56,9 +56,10 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
   return (
     <Card
       sx={{
-        mx: 5,
-        pl: 3,
-        pr: 5,
+        mx: { md: 5 },
+        pl: { md: 3 },
+        pr: { md: 5 },
+        ml:{xs:"-15px",md:0},
         boxShadow: "none",
         bgcolor: "#F6F5F5",
         borderRadius: "15px",
@@ -68,8 +69,11 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
             justifyContent: "space-between",
+            gap: 1,
+            mb: 2,
           }}
         >
           <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -84,24 +88,68 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
+            flexDirection: { xs: "column", md: "row" },
             justifyContent: "space-between",
+            gap: { xs: 1, md: 2 },
           }}
         >
           <Box>
-            <Typography>Name: {clientInfo?.leadInfo?.name}</Typography>
-            <Typography>
-              Applied for:{" "}
-              <strong>{clientInfo?.leadInfo?.appliedFor}</strong>
+            <Typography
+              sx={{
+                fontSize: { xs: "14px", md: "16px" },
+                mb: { xs: 1, md: 0 },
+              }}
+            >
+              Name: {clientInfo?.leadInfo?.name}
             </Typography>
-            <Typography>Email: {clientInfo?.leadInfo?.email}</Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: "14px", md: "16px" },
+                mb: { xs: 1, md: 0 },
+              }}
+            >
+              Applied for: <strong>{clientInfo?.leadInfo?.appliedFor}</strong>
+            </Typography>
+            <Tooltip title={clientInfo?.leadInfo?.email || ""} arrow>
+              <Typography
+                sx={{
+                  fontSize: { xs: "14px", md: "16px" },
+                  maxWidth: { xs: "350px", md: "500px" },
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: "block",
+                }}
+              >
+                Email: {clientInfo?.leadInfo?.email}
+              </Typography>
+            </Tooltip>
           </Box>
 
           <Box>
-            <Typography>Case ID: {clientInfo?.leadInfo?.caseId}</Typography>
-            <Typography>Number: {clientInfo?.leadInfo?.phone}</Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: "14px", md: "16px" },
+                mb: { xs: 1, md: 0 },
+              }}
+            >
+              Case ID: {clientInfo?.leadInfo?.caseId}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: "14px", md: "16px" },
+                mb: { xs: 1, md: 0 },
+              }}
+            >
+              Number: {clientInfo?.leadInfo?.phone}
+            </Typography>
             {clientInfo?.paymentInfo?.status === "PAID" && (
-              <Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: "14px", md: "16px" },
+                  mb: { xs: 1, md: 0 },
+                }}
+              >
                 Payment Status:{" "}
                 <span style={{ color: "green", fontWeight: "bold" }}>
                   Completed

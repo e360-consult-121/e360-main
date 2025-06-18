@@ -34,8 +34,8 @@ const SidebarTab = ({
             setIsOpen(!isOpen);
           } else {
             navigate("/" + tabInfo.route);
-          }
-          setSidebarOpen(false);
+            setSidebarOpen(false);
+          }          
         }}
         className={`w-full flex items-center justify-between cursor-pointer hover:text-golden-yellow-400 ${
           isActive ? "text-golden-yellow-400" : "text-neutrals-400"
@@ -113,17 +113,6 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
     }
   };
 
-  // useEffect(() => {
-  //   const normalizedPath = location.pathname.startsWith("/")
-  //     ? location.pathname.slice(1)
-  //     : location.pathname;
-
-  //     // console.log
-
-  //   setCurrentTab(normalizedPath);
-  //   console.log(currentTab,normalizedPath)
-  // }, [location.pathname]);
-
   useEffect(() => {
     const segments = location.pathname.split("/").filter(Boolean); // removes empty strings from splitting
     const basePath = segments.slice(0, 2).join("/"); // ["admin", "leadmanagement"] => "admin/leadmanagement"
@@ -134,7 +123,7 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
   return (
     <>
       {/* Hamburger Button (only mobile) */}
-      <div className="lg:hidden p-4">
+      <div className="lg:hidden p-3">
         <button onClick={() => setSidebarOpen(true)}>
           <Icon
             icon="mdi:menu"
@@ -186,7 +175,7 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
             </div>
 
             {/* Logout */}
-            <div className="w-full">
+            <div className="w-full mt-5">
               <div className="w-full flex items-center justify-between text-red-500 cursor-pointer">
                 <div className="flex items-center space-x-4">
                   <Icon

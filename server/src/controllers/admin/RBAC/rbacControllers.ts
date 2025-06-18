@@ -23,7 +23,7 @@ import {
 // 1st
 export const addNewRole = async (req: Request, res: Response) => {
   const { name, actionIds } = req.body;
-
+  
   if (!name || typeof name !== 'string') {
     res.status(400);
     throw new Error('Role name is required and must be a string.');
@@ -35,14 +35,14 @@ export const addNewRole = async (req: Request, res: Response) => {
   }
 
   // Check for existing role
-  const existingRole = await roleModel.findOne({ name });
+  const existingRole = await roleModel.findOne({ roleName:name });
   if (existingRole) {
     res.status(409);
     throw new Error('Role already exists.');
   }
 
   // Create new role
-  const newRole = await roleModel.create({ name });
+  const newRole = await roleModel.create({ roleName:name });
 
   // Create permission for each actionId
   const permissions = actionIds.map(actionId => ({

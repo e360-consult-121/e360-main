@@ -14,65 +14,132 @@ import {
   TableRow,
   Select,
   MenuItem,
+  TextField,
+  useTheme,
+  useMediaQuery,
+  Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import ForwardIcon from "@mui/icons-material/Forward";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import AddEmployeeDrawer from "../../../features/admin/RoleandPermission/component/AddEmployeeDrawer";
+import {
+  useDeleteAdminUserMutation,
+  useEditAdminUserMutation,
+} from "../../../features/admin/RoleandPermission/roleAndPermissionApi";
+import { toast } from "react-toastify";
+import { Cancel, Save } from "@mui/icons-material";
 
 interface Employee {
+  // lastName: ReactNode;
   id: string;
-  firstName: string;
-  lastName: string;
+  employeeId:string;
+  name: string;
   role: string;
-  contact: string;
+  phone: string;
   email: string;
 }
 
 interface Props {
-  groupedByRoleName: {
-    role: string;
-    users: {
-      _id: string;
-      email: string;
-      role: string;
-      roleInfo: {
-        roleName: string;
-      };
-    }[];
+  admins: {
+    _id: string;
+    email: string;
+    name?: string;
+    phone?: string;
+    employeeId:string;
+    roleInfo: {
+      roleName: string;
+    };
   }[];
+  refetchAllAdminUsers: () => void;
+  isLoadingAdminUsers: boolean;
 }
 
-const AllEmployee = ({ groupedByRoleName }: Props) => {
+const AllEmployee = ({
+  admins,
+  refetchAllAdminUsers,
+  isLoadingAdminUsers,
+}: Props) => {
   const [sortBy, setSortBy] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [employeeDrawerOpen, setEmployeeDrawerOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editedEmployee, setEditedEmployee] = useState<Partial<Employee>>({});
+  // console.log(admins)
 
-  const employeeData: Employee[] = groupedByRoleName.flatMap((group) =>
-    group.users.map((user) => ({
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [deleteAdminUser] = useDeleteAdminUserMutation();
+  const [editAdminUser] = useEditAdminUserMutation();
+
+  const employeeData: Employee[] = admins.map((user) => {
+    // const [firstName, ...rest] = (user.name || "-").split(" ");
+    return {
       id: user._id,
-      firstName: "-", 
-      lastName: "-",
-      role: group.role || user.role || "N/A",
-      contact: "-", 
-      email: user.email,
-    }))
-  );
+      name: user.name || "-",
+      role: user.roleInfo?.roleName || "N/A",
+      phone: user.phone || "-",
+      email: user.email || "-",
+      employeeId:user.employeeId || "-"
+    };
+  });
 
   const currentData = employeeData.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
 
-  const handleSortChange = (event: any) => setSortBy(event.target.value);
+  const handleFieldChange = (field: keyof Employee, value: string) => {
+    setEditedEmployee((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    if (!editingId) return;
+    const original = employeeData.find((emp) => emp.id === editingId);
+    if (!original) return;
+
+    const updatedFields: any = {};
+    for (const key in editedEmployee) {
+      if (
+        editedEmployee[key as keyof Employee] !==
+        original[key as keyof Employee]
+      ) {
+        updatedFields[key] = editedEmployee[key as keyof Employee];
+      }
+    }
+
+    if (Object.keys(updatedFields).length === 0) {
+      toast.info("No changes detected.");
+      return;
+    }
+
+    try {
+      await editAdminUser({
+        employeeId: editingId,
+        body: updatedFields,
+      }).unwrap();
+      toast.success("Employee updated!");
+      setEditingId(null);
+      setEditedEmployee({});
+      refetchAllAdminUsers();
+    } catch (err) {
+      toast.error("Failed to update.");
+    }
+  };
+
+  const handleEditRowClick = (employee: Employee) => {
+    setEditingId(employee.id);
+    setEditedEmployee({ ...employee });
+  };
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = currentData.map((row) => row.id);
       setSelectedIds(newSelected);
-      console.log("Selected Rows:", currentData);
     } else {
       setSelectedIds([]);
     }
@@ -82,12 +149,7 @@ const AllEmployee = ({ groupedByRoleName }: Props) => {
     const updatedSelected = selectedIds.includes(id)
       ? selectedIds.filter((selectedId) => selectedId !== id)
       : [...selectedIds, id];
-
     setSelectedIds(updatedSelected);
-    const selectedRows = employeeData.filter((emp) =>
-      updatedSelected.includes(emp.id)
-    );
-    console.log("Selected Rows:", selectedRows);
   };
 
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
@@ -99,9 +161,28 @@ const AllEmployee = ({ groupedByRoleName }: Props) => {
     setPage(0);
   };
 
+  const handleDeleteUser = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await deleteAdminUser(id).unwrap();
+      refetchAllAdminUsers();
+      toast.success("Successfully deleted adminUser!");
+    } catch (error) {
+      toast.error("Something went wrong while deleting");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (isLoadingAdminUsers)
+    return (
+      <div className="ml-[40%] md:ml-[50%] mt-[60%] md:mt-[20%]">
+        <CircularProgress />
+      </div>
+    );
+
   return (
-    <Box p={1}>
-      {/* Header Controls */}
+    <Box p={{md:1}}>
       <Box
         display="flex"
         justifyContent="space-between"
@@ -110,7 +191,7 @@ const AllEmployee = ({ groupedByRoleName }: Props) => {
       >
         <Select
           value={sortBy}
-          onChange={handleSortChange}
+          onChange={(e) => setSortBy(e.target.value)}
           displayEmpty
           size="small"
         >
@@ -133,75 +214,342 @@ const AllEmployee = ({ groupedByRoleName }: Props) => {
         </Button>
       </Box>
 
-      {/* Table */}
-      <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox" sx={{ color: "#8D8883" }}>
-                <Checkbox
-                  checked={
-                    currentData.length > 0 &&
-                    currentData.every((row) => selectedIds.includes(row.id))
-                  }
-                  onChange={handleSelectAll}
-                />
-              </TableCell>
-              <TableCell sx={{ color: "#8D8883" }}>Employee ID</TableCell>
-              <TableCell sx={{ color: "#8D8883" }}>First Name</TableCell>
-              <TableCell sx={{ color: "#8D8883" }}>Last Name</TableCell>
-              <TableCell sx={{ color: "#8D8883" }}>Role</TableCell>
-              <TableCell sx={{ color: "#8D8883" }}>Contact Number</TableCell>
-              <TableCell sx={{ color: "#8D8883" }}>Email</TableCell>
-              <TableCell sx={{ color: "#8D8883" }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
+      {isMobile ? (
+        <Box display="flex" flexDirection="column" gap={2}>
+          {currentData.map((employee) => {
+            const isEditing = editingId === employee.id;
+            return (
+              <Paper
+                key={employee.id}
+                sx={{
+                  p: 2,
+                  boxShadow: "none",
+                  border: "1px solid black",
+                  borderRadius: "12px",
+                  my: 1,
+                }}
+              >
+                {/* ID row */}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                >
+                  <Box><span className="font-bold"> Employee ID:</span> {employee.employeeId}</Box>
+                </Box>
 
-          <TableBody>
-            {currentData.map((employee) => (
-              <TableRow key={employee.id}>
-                <TableCell padding="checkbox" sx={{ borderBottom: "none" }}>
+                {/* Fields */}
+                {["name", "role", "phone", "email"].map(
+                  (field) => {
+                    const value =
+                      (isEditing ? editedEmployee : employee)[
+                        field as keyof Employee
+                      ] || "-";
+                      if(field === "email") return(
+                        <Box 
+                        key={field}
+                        display="flex"
+                        alignItems="center"
+                        mb={1}
+                        sx={{ gap: 1 }}
+                        >
+                         <Box
+                          sx={{
+                            fontWeight: "bold",
+                            flexShrink: 0,
+                            minWidth: "80px",
+                            textTransform: "capitalize",
+                          }}
+                        >
+                          {field.replace(/([A-Z])/g, " $1")}:
+                        </Box>
+                          <Tooltip title={value} arrow>
+                            <Box
+                              sx={{
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                textOverflow: "ellipsis",
+                                flex: 1,
+                              }}
+                            >
+                              {value}
+                            </Box>
+                          </Tooltip>
+                        </Box>
+                      )
+                    return (
+                      <Box
+                        key={field}
+                        display="flex"
+                        alignItems="center"
+                        mb={1}
+                        sx={{ gap: 1 }}
+                      >
+                        <Box
+                          sx={{
+                            fontWeight: "bold",
+                            flexShrink: 0,
+                            minWidth: "80px",
+                            textTransform: "capitalize",
+                          }}
+                        >
+                          {field.replace(/([A-Z])/g, " $1")}:
+                        </Box>
+                        {isEditing ? (
+                          <TextField
+                            fullWidth
+                            size="small"
+                            value={value}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                field as keyof Employee,
+                                e.target.value
+                              )
+                            }
+                          />
+                        ) : (
+                          <Tooltip title={value} arrow>
+                            <Box
+                              sx={{
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                textOverflow: "ellipsis",
+                                flex: 1,
+                              }}
+                            >
+                              {value}
+                            </Box>
+                          </Tooltip>
+                        )}
+                      </Box>
+                    );
+                  }
+                )}
+
+                {/* Actions at Bottom */}
+                <Box
+                  mt={2}
+                  display="flex"
+                  justifyContent="space-evenly"
+                  gap={1}
+                >
+                  {isEditing ? (
+                    <>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditedEmployee({});
+                        }}
+                        startIcon={<Cancel />}
+                        sx={{
+                          borderRadius:"15px",
+                          color:"red",
+                          textTransform:"none"
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        onClick={handleSave}
+                        startIcon={<Save />}
+                        sx={{
+                          borderRadius:"15px",
+                          textTransform:"none",
+                          color:"green",
+                          bgcolor:"white"
+                        }}
+                      >
+                        Save
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleDeleteUser(employee.id)}
+                        disabled={!!editingId || deletingId === employee.id}
+                        startIcon={<DeleteOutlinedIcon />}
+                        sx={{
+                          borderRadius:"15px",
+                          color:"red",
+                          textTransform:"none"
+                        }}
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleEditRowClick(employee)}
+                        disabled={!!editingId}
+                        startIcon={<EditIcon />}
+                        sx={{
+                          borderColor:"black",
+                          borderRadius:"15px",
+                          color:"black",
+                          textTransform:"none"
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </>
+                  )}
+                </Box>
+              </Paper>
+            );
+          })}
+        </Box>
+      ) : (
+        <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell padding="checkbox">
                   <Checkbox
-                    checked={selectedIds.includes(employee.id)}
-                    onChange={() => handleCheckboxChange(employee.id)}
+                    checked={currentData.every((row) =>
+                      selectedIds.includes(row.id)
+                    )}
+                    onChange={handleSelectAll}
                   />
                 </TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>
-                  {employee.id}
-                </TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>
-                  {employee.firstName}
-                </TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>
-                  {employee.lastName}
-                </TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>
-                  {employee.role}
-                </TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>
-                  {employee.contact}
-                </TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>
-                  {employee.email}
-                </TableCell>
-                <TableCell sx={{ borderBottom: "none" }}>
-                  <IconButton>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton>
-                    <ForwardIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton color="error">
-                    <DeleteOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
+                <TableCell>Employee ID</TableCell>
+                <TableCell>Name</TableCell>
+                {/* <TableCell>Last Name</TableCell> */}
+                <TableCell>Role</TableCell>
+                <TableCell>Contact</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {currentData.map((employee) => {
+                const isEditing = editingId === employee.id;
+                return (
+                  <TableRow
+                    key={employee.id}
+                    // onClick={() => !editingId && handleEditRowClick(employee)}
+                  >
+                    <TableCell padding="checkbox" sx={{ borderBottom: "none" }}>
+                      <Checkbox
+                        checked={selectedIds.includes(employee.id)}
+                        onChange={() => handleCheckboxChange(employee.id)}
+                        disabled={!!editingId && editingId !== employee.id}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {employee.employeeId}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {isEditing ? (
+                        <TextField
+                          value={editedEmployee.name || ""}
+                          onChange={(e) =>
+                            handleFieldChange("name", e.target.value)
+                          }
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        employee.name
+                      )}
+                    </TableCell>
+                    {/* <TableCell sx={{ borderBottom: "none" }}>
+                      {isEditing ? (
+                        <TextField
+                          value={editedEmployee.name || ""}
+                          onChange={(e) =>
+                            handleFieldChange("lastName", e.target.value)
+                          }
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        employee.lastName
+                      )}
+                    </TableCell> */}
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {isEditing ? (
+                        <TextField
+                          value={editedEmployee.role || ""}
+                          onChange={(e) =>
+                            handleFieldChange("role", e.target.value)
+                          }
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        employee.role
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {isEditing ? (
+                        <TextField
+                          value={editedEmployee.phone || ""}
+                          onChange={(e) =>
+                            handleFieldChange("phone", e.target.value)
+                          }
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        employee.phone
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {employee.email}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {isEditing ? (
+                        <Box display={"flex"}>
+                          <IconButton
+                            color="error"
+                            onClick={() => {
+                              setEditingId(null);
+                              setEditedEmployee({});
+                            }}
+                            size="small"
+                          >
+                            <Cancel />
+                          </IconButton>
+                          <IconButton
+                            onClick={handleSave}
+                            color="success"
+                            size="small"
+                          >
+                            <Save />
+                          </IconButton>
+                        </Box>
+                      ) : (
+                        <>
+                          <IconButton
+                            onClick={() => handleEditRowClick(employee)}
+                            disabled={!!editingId}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDeleteUser(employee.id)}
+                            disabled={!!editingId || deletingId === employee.id}
+                          >
+                            <DeleteOutlinedIcon fontSize="small" />
+                          </IconButton>
+                        </>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
-      {/* Table Pagination */}
       <TablePagination
         component="div"
         count={employeeData.length}
@@ -212,8 +560,8 @@ const AllEmployee = ({ groupedByRoleName }: Props) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      {/* Add Employee Drawer */}
       <AddEmployeeDrawer
+        refetchAllAdminUsers={refetchAllAdminUsers}
         open={employeeDrawerOpen}
         onClose={() => setEmployeeDrawerOpen(false)}
       />

@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import EditIconOutlined from "@mui/icons-material/EditOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import TextInput from "../../../components/TextInput";
-import { useEditBankDetailsMutation, useFetchBankDetailsQuery } from "../../../features/admin/manageBankDetails/manageBankDetailsApi";
+import {
+  useEditBankDetailsMutation,
+  useFetchBankDetailsQuery,
+} from "../../../features/admin/manageBankDetails/manageBankDetailsApi";
 import { toast } from "react-toastify";
 
 interface BankDetailsSection {
@@ -15,7 +23,8 @@ interface BankDetailsSection {
 
 const GrenadaInvestmentOptions: React.FC = () => {
   const isTablet = useMediaQuery("(max-width:900px)");
-  const { data, isLoading, isError , refetch } = useFetchBankDetailsQuery("GRENADA");
+  const { data, isLoading, isError, refetch } =
+    useFetchBankDetailsQuery("GRENADA");
 
   const [sections, setSections] = useState<BankDetailsSection[]>([]);
   const [editBankDetails] = useEditBankDetailsMutation();
@@ -88,7 +97,7 @@ const GrenadaInvestmentOptions: React.FC = () => {
 
   const toggleEditMode = async (sectionId: string) => {
     const sectionToUpdate = sections.find((s) => s.id === sectionId);
-  
+
     if (sectionToUpdate?.isEditing) {
       const payload: {
         bankName: string;
@@ -97,9 +106,9 @@ const GrenadaInvestmentOptions: React.FC = () => {
         swiftOrBicCode: string;
         ibanNumber: string;
         ifscCode: string;
-        visaTypeName:string;
+        visaTypeName: string;
       } = {
-        visaTypeName:"GRENADA",
+        visaTypeName: "GRENADA",
         bankName: "",
         accountHolderName: "",
         accountNumber: "",
@@ -107,7 +116,7 @@ const GrenadaInvestmentOptions: React.FC = () => {
         ibanNumber: "",
         ifscCode: "",
       };
-  
+
       // Map field labels to payload keys
       sectionToUpdate.fields.forEach((field) => {
         switch (field.label) {
@@ -133,12 +142,15 @@ const GrenadaInvestmentOptions: React.FC = () => {
             break;
         }
       });
-  
+
       // console.log(payload);
-  
+
       try {
-        await editBankDetails({ visaTypeName: "GRENADA", data: payload }).unwrap();
-  
+        await editBankDetails({
+          visaTypeName: "GRENADA",
+          data: payload,
+        }).unwrap();
+
         // Show success alert
         toast.success("Bank details updated successfully!");
         refetch();
@@ -147,7 +159,7 @@ const GrenadaInvestmentOptions: React.FC = () => {
         console.error("Update error:", error);
       }
     }
-      setSections((prevSections) =>
+    setSections((prevSections) =>
       prevSections.map((section) =>
         section.id === sectionId
           ? { ...section, isEditing: !section.isEditing }
@@ -155,9 +167,13 @@ const GrenadaInvestmentOptions: React.FC = () => {
       )
     );
   };
-  
-  
-  if (isLoading) return <Typography>Loading bank details...</Typography>;
+
+  if (isLoading)
+    return (
+      <div className="ml-[45%] md:ml-[45%] mt-[55%] md:mt-[25%]">
+        <CircularProgress />
+      </div>
+    );
   if (isError) return <Typography>Error fetching bank details.</Typography>;
 
   return (
@@ -174,7 +190,7 @@ const GrenadaInvestmentOptions: React.FC = () => {
         >
           <Box
             sx={{
-              display: "flex",
+              display:  {xs:"block", md:"flex"},
               justifyContent: "space-between",
               alignItems: "center",
               mb: 1,
@@ -189,12 +205,19 @@ const GrenadaInvestmentOptions: React.FC = () => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent:{xs:"start",md:"center"},
                 cursor: "pointer",
+                my:{xs:2,md:0}
               }}
             >
-              {section.isEditing ? <SaveIcon /> : <EditIconOutlined sx={{ color: "#000" }} />}
-              <Typography>{section.isEditing ? "Save" : "Edit Details"}</Typography>
+              {section.isEditing ? (
+                <SaveIcon />
+              ) : (
+                <EditIconOutlined sx={{ color: "#000" }} />
+              )}
+              <Typography>
+                {section.isEditing ? "Save" : "Edit Details"}
+              </Typography>
             </Box>
           </Box>
 
@@ -221,7 +244,11 @@ const GrenadaInvestmentOptions: React.FC = () => {
                   label={field.label}
                   value={field.value}
                   onChange={(e) =>
-                    handleBankDetailsChange(section.id, field.id, e.target.value)
+                    handleBankDetailsChange(
+                      section.id,
+                      field.id,
+                      e.target.value
+                    )
                   }
                   required={true}
                   placeholder="Enter Bank Details"

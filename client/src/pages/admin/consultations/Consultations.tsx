@@ -15,9 +15,11 @@ const Consultations = () => {
   }, [data, isLoading, isError]);
 
   return (
-    <Box sx={{ px: 4 }}>
+    <Box sx={{ml:{xs:"-30px",md:0},px:{md:4},mt:{md:3} }} >
       {isLoading ? (
-        <CircularProgress />
+        <Box sx={{ml:{xs:"40%" ,md:"45%"}, mt:{xs:"70%", md:"25%"}}}>
+          <CircularProgress />
+        </Box>
       ) : isError ? (
         <Typography color="error">Failed to load consultations.</Typography>
       ) : consultationData?.length ? (

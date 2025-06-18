@@ -151,7 +151,7 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box mt={2} p={2}>
+      <Box mt={{md:2}} p={{md:2}}>
         {data?.data?.medicalInfo?.status==="RescheduleReq_Sent" &&<Box display="flex" alignItems="center" gap={1} color="red" mb={3}>
           <Typography sx={{ fontWeight: 'bold' }}>❗</Typography>
           <Typography
@@ -244,11 +244,11 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
           placeholder="Enter Contact details"
           value={contactNumber}
           onChange={(e) => setContactNumber(e.target.value)}
-          sx={{ mb: 3, minWidth: '515px' }}
+          sx={{ mb: 3, minWidth: {md:'500px'} }}
         />
       </Box>
 
-      <Button
+      {status !== "Completed" && <Button
         variant="outlined"
         sx={{
           borderColor: 'black',
@@ -260,7 +260,7 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
         disabled={isSubmitting}
       >
         {isSubmitting ? 'Submitting...' : 'Submit'}
-      </Button>
+      </Button>}
 
       {/* Modal for Reschedule Request */}
       <Dialog open={openModal} onClose={handleCloseModal}>
@@ -271,7 +271,6 @@ const MedicalAppointment: React.FC<MedicalAppointmentProps> = ({ stepStatusId })
             review the details and take appropriate action.
           </Typography>
         <Typography mb={4}> <b>Reason:</b> <span className='text-gray-500'>{data?.data?.medicalInfo.rescheduleReason	}</span></Typography>
-
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker

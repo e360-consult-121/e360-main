@@ -44,11 +44,13 @@ const Consultations = ({
   return (
     <Card
       sx={{
-        p: 3,
+        mt:{xs:3,md:0},
+        p: {xs:3,md:3},
         borderRadius: 4,
         bgcolor: "#FAF9F8",
         boxShadow: "none",
-        maxWidth: 350,
+        maxWidth: {md:350},
+        minWidth:{xs:280}
       }}
     >
       {/* Title & Status */}

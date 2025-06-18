@@ -45,9 +45,9 @@ const VisaService = () => {
   const isAnyError = isError || stepsError;
 
   return (
-    <Box sx={{ px: 4, py: 2 }}>
+    <Box sx={{ ml:{xs:"-30px",md:0}, px:{ md:4}, py: {md:2} }}>
       {isAnyLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt:{ xs:"70%", md:"25%"} }}>
           <CircularProgress />
         </Box>
       ) : isAnyError ? (
