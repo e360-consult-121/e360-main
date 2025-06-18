@@ -12,11 +12,11 @@ const RoleAndPermission = () => {
     navigate(`/admin/roleandpermission/${newValue}`);
   };
 
-  const {data:allAdminUsers,refetch:refetchAllAdminUsers} = useFetchAllAdminUsersQuery(undefined);
+  const {data:allAdminUsers,refetch:refetchAllAdminUsers,isLoading:isLoadingAdminUsers} = useFetchAllAdminUsersQuery(undefined);
 
 
   return (
-    <div className="px-5">
+    <div className="md:px-5">
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <Tabs
           value={type}
@@ -36,7 +36,7 @@ const RoleAndPermission = () => {
           />
         </Tabs>
       </Box>
-      {type === "allemployee" ? <AllEmployeeTable groupedByRoleName={allAdminUsers?.groupedByRoleName || []} refetchAllAdminUsers={refetchAllAdminUsers} /> : <ManageRoles />}
+      {type === "allemployee" ? <AllEmployeeTable admins={allAdminUsers?.admins || []} refetchAllAdminUsers={refetchAllAdminUsers} isLoadingAdminUsers={isLoadingAdminUsers} /> : <ManageRoles />}
     </div>
   );
 };

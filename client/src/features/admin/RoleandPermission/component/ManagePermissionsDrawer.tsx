@@ -30,6 +30,7 @@ interface Props {
   isAdding: boolean | undefined;
   refetchAllFeatures?: () => void;
   refetchAllRoles?: () => void;
+  onRoleCreated?: (id: string) => void
 }
 
 const ManagePermissionsDrawer = ({
@@ -41,6 +42,7 @@ const ManagePermissionsDrawer = ({
   isAdding,
   refetchAllFeatures,
   refetchAllRoles,
+  onRoleCreated
 }: Props) => {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [search, setSearch] = useState("");
@@ -122,16 +124,19 @@ const ManagePermissionsDrawer = ({
 
     if (isAdding) {
       try {
-        await addNewRole({
+        const response = await addNewRole({
           name: roleName,
           actionIds: selectedPermissions,
         }).unwrap();
+
+        console.log(response)
 
         toast.success("Role created successfully!");
         setRoleName("");
         setSelectedPermissions([]);
         refetchAllFeatures?.();
         refetchAllRoles?.();
+        onRoleCreated?.(response.role._id);
         onClose();
       } catch (err) {
         toast.error("Error creating role");

@@ -7,6 +7,9 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  useTheme,
+  useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
@@ -16,9 +19,7 @@ import { useFetchRoleWisePermissionsQuery } from "../../../features/admin/Rolean
 import ManagePermissionsDrawer from "../../../features/admin/RoleandPermission/component/ManagePermissionsDrawer";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
-
 const ManageRoles = () => {
-
   const [sortBy, setSortBy] = useState("name");
   const [openPermissions, setOpenPermissions] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | undefined>(
@@ -27,18 +28,20 @@ const ManageRoles = () => {
   const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>(
     undefined
   );
-  const [selectedFeatures,setSelectedFeatures] = useState([]);
-  const [isAdding,setIsAdding] = useState<boolean>();
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
+  const [isAdding, setIsAdding] = useState<boolean>();
 
-    
+  const theme = useTheme();
+  const isBelowLg = useMediaQuery(theme.breakpoints.down("lg"));
+
   const {
     data: rolePermissions,
     isLoading: loadingRoles,
     error: errorRoles,
-    refetch
+    refetch,
   } = useFetchRoleWisePermissionsQuery(undefined);
 
-  if (loadingRoles || loadingRoles) return <Typography>Loading...</Typography>;
+  if (loadingRoles) return <div className="ml-[40%] md:ml-[50%] mt-[60%] md:mt-[20%]"><CircularProgress/></div>;
   if (errorRoles || errorRoles)
     return <Typography>Error loading data</Typography>;
 
@@ -52,7 +55,7 @@ const ManageRoles = () => {
 
   return (
     <>
-      <Box p={3}>
+      <Box p={{ md: 3 }}>
         <Box
           display="flex"
           justifyContent="space-between"
@@ -66,14 +69,14 @@ const ManageRoles = () => {
             size="small"
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="name">Sort By Name</MenuItem>
+            <MenuItem value="name">Sort By</MenuItem>
           </Select>
           <Button
             onClick={() => {
               setSelectedRole(undefined);
               setOpenPermissions(true);
-              setSelectedFeatures([])
-              setIsAdding(true)
+              setSelectedFeatures([]);
+              setIsAdding(true);
             }}
             variant="contained"
             startIcon={<AddIcon />}
@@ -106,17 +109,17 @@ const ManageRoles = () => {
               <Box>
                 <IconButton
                   onClick={() => {
-                    setSelectedRole(role.roleName); 
-                    setSelectedFeatures(role.features)
-                     setSelectedRoleId(role.roleId);
+                    setSelectedRole(role.roleName);
+                    setSelectedFeatures(role.features);
+                    setSelectedRoleId(role.roleId);
                     setOpenPermissions(true);
-                    setIsAdding(false)
+                    setIsAdding(false);
                   }}
                 >
-                  <EditIcon fontSize="small"/>
+                  <EditIcon fontSize="small" />
                 </IconButton>
                 <IconButton>
-                  <DeleteOutlinedIcon color="error" fontSize="small"/>
+                  <DeleteOutlinedIcon color="error" fontSize="small" />
                 </IconButton>
               </Box>
             </Box>
@@ -139,10 +142,21 @@ const ManageRoles = () => {
                   bgcolor="white"
                 >
                   <Typography variant="body2" color="text.secondary">
-                    {feature.actions
-                      .map((a: any) => a.action.split(/(?=[A-Z])/).join(" "))
-                      .join(" / ")}
+                    {isBelowLg ? (
+                      <>
+                        {feature.actions.map((a: any, idx: number) => (
+                          <Box key={idx}>
+                            {a.action.split(/(?=[A-Z])/).join(" ")}
+                          </Box>
+                        ))}
+                      </>
+                    ) : (
+                      feature.actions
+                        .map((a: any) => a.action.split(/(?=[A-Z])/).join(" "))
+                        .join(" / ")
+                    )}
                   </Typography>
+
                   <Typography variant="body2" fontWeight={500}>
                     {feature.name}
                   </Typography>
@@ -157,8 +171,8 @@ const ManageRoles = () => {
         selectedFeatures={selectedFeatures}
         open={openPermissions}
         onClose={() => {
-          setSelectedFeatures([])  
-          setOpenPermissions(false)
+          setSelectedFeatures([]);
+          setOpenPermissions(false);
         }}
         isAdding={isAdding}
         refetchAllFeatures={refetch}

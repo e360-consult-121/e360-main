@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Drawer,
   Typography,
@@ -32,10 +32,18 @@ const AddEmployeeDrawer = ({ open, onClose,refetchAllAdminUsers }: { open: boole
   });
 
   const [openPermissions, setOpenPermissions] = useState(false);
+  const [newlyCreatedRoleId, setNewlyCreatedRoleId] = useState<string | null>(null);
 
   const { data: roles ,refetch:refetchAllRoles} = useFetchAllRolesQuery(undefined);
 
   const [addNewAdminUser, { isLoading }] = useAddNewAdminUserMutation();
+
+  useEffect(() => {
+  if (newlyCreatedRoleId) {
+    setFormData((prev) => ({ ...prev, role: newlyCreatedRoleId }));
+    setNewlyCreatedRoleId(null);
+  }
+}, [roles]);
 
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -234,10 +242,13 @@ const handleSubmit = async () => {
         </Box>
       </Drawer>
 
-      {/* Permissions Drawer */}
       <ManagePermissionsDrawer open={openPermissions} onClose={() => setOpenPermissions(false)} 
       isAdding={true} 
       refetchAllRoles={refetchAllRoles}
+      onRoleCreated={(newRoleId: string) => {
+    setNewlyCreatedRoleId(newRoleId); // capture new role
+    setOpenPermissions(false); // optionally close drawer
+  }}
         />
     </>
   );
