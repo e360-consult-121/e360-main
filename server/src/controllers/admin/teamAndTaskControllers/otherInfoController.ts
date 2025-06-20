@@ -155,7 +155,7 @@ export const getAssigneeList = async (req: Request, res: Response): Promise<Resp
       },
       {
         $lookup: {
-          from: "Roles", 
+          from: "roles", 
           localField: "roleId",
           foreignField: "_id",
           as: "roleDetails",
