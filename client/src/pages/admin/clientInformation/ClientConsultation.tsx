@@ -30,7 +30,7 @@ function CustomTabPanel(props: TabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: {xs:0, md:3} }}>{children}</Box>}
+      {value === index && <Box sx={{ p: { xs: 0, md: 3 } }}>{children}</Box>}
     </div>
   );
 }
@@ -51,6 +51,7 @@ const ClientConsultation = ({
   formSubmisionDate,
   onRefreshLead,
   showExtraTabs,
+  isParticularVisaApplication,
 }: {
   leadStatus: string;
   consultationInfo: ConsultationInfoTypes;
@@ -60,6 +61,7 @@ const ClientConsultation = ({
   formSubmisionDate: string;
   onRefreshLead: () => void;
   showExtraTabs: boolean;
+  isParticularVisaApplication: boolean;
 }) => {
   const tabs = [
     {
@@ -73,14 +75,6 @@ const ClientConsultation = ({
       label: "Document Vault",
       content: <AdminDocumentVault />,
       show: showExtraTabs,
-    },
-        {
-      label: "Logs",
-      content: (
-        <LogsComponent
-        />
-      ),
-      show:showExtraTabs,
     },
     {
       label: "Client Eligibility Form",
@@ -114,7 +108,16 @@ const ClientConsultation = ({
         />
       ),
       show: consultationInfo?.status === "COMPLETED",
-    }
+    },
+    {
+      label: "Logs",
+      content: (
+        <LogsComponent
+          isParticularVisaApplication={isParticularVisaApplication}
+        />
+      ),
+      show: true,
+    },
   ].filter((tab) => tab.show);
 
   const [value, setValue] = useState(tabs.length - 1);

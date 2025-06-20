@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { authenticate, authorizeAdmin } from "../../../middlewares/authenticate";
-import * as UIPermissionsController from "../../../controllers/admin/UIPermission/UiPermissionsController"
 import asyncHandler from "../../../utils/asyncHandler";
-
+import * as UIPermissionsController from "../../../controllers/admin/UIPermission/UIPermissionsController" 
 
 const router = Router();
 

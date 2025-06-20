@@ -91,6 +91,7 @@ const VisaApplicationInformation = () => {
         visaType={clientInfo?.leadInfo?.appliedFor ?? ""}
         formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
         showExtraTabs={true}
+        isParticularVisaApplication={true}
       />
 
       <AddNewTaskDrawer

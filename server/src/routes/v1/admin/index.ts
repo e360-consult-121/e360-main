@@ -27,4 +27,6 @@ router.use("/clientsInfo" , clientsInfoRoutes);
 router.use("/adminControl" , adminControlRoutes);
 router.use("/rbac" , rbacRoutes);
 router.use("/task-management" , taskRoutes);
+router.use("/logs" , logRoutes)
+router.use("/uipermissions" , uiPermissionRoutes)
 export default router;

@@ -196,6 +196,7 @@ const ClientInformation = () => {
         eligibilityForm={clientInfo?.eligibilityForm}
         formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
         showExtraTabs={false}
+        isParticularVisaApplication={false}
       />
       <AddNewTaskDrawer
         attachLead={leadid}
