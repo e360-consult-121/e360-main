@@ -69,7 +69,7 @@ const AddNewTaskDrawer = ({
   );
   // console.log(allVisaApplication)
   const assigneeOptions = allAssignee?.data?.map((assignee: any) => ({
-    label: assignee.email,
+    label: assignee.name,
     value: assignee._id,
     role: assignee.role,
   }));
