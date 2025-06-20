@@ -11,6 +11,7 @@ import clientsInfoRoutes from "./clientsInfoRoutes"
 import adminControlRoutes from "./adminControlRoutes"
 import rbacRoutes from "./RBACroutes"
 import taskRoutes from "./taskRoutes"
+import uiPermissionRoutes from "./uipermissionsRoutes"
 const router = Router();
 
 // router.use("/visaType", visaTypeRoutes);
@@ -24,4 +25,5 @@ router.use("/clientsInfo" , clientsInfoRoutes);
 router.use("/adminControl" , adminControlRoutes);
 router.use("/rbac" , rbacRoutes);
 router.use("/task-management" , taskRoutes);
+router.use("/uipermissions" , uiPermissionRoutes);
 export default router;

@@ -17,10 +17,13 @@ import {
   useFetchDueTasksQuery,
   useFetchOverdueTasksQuery,
 } from "../../../features/admin/taskManagement/taskManagementApi";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
 
 const TaskManagment = () => {
   const [employeeDrawerOpen, setEmployeeDrawerOpen] = useState(false);
-  const [tab, setTab] = useState("alltasks");
+  const permissions = useSelector((state: RootState) => state.adminPermissions);
+  const [tab, setTab] = useState(permissions.Read_AllTasks_Tab ? "alltasks":"mytasks");
 
   const {
     data: allTasks,
@@ -69,7 +72,7 @@ const TaskManagment = () => {
       ) : (
         <TaskManagementTable tasks={allTasks.tasks} refetchTasks={refetchAllTasks} />
       ),
-      visible: true,
+      visible:permissions.Read_AllTasks_Tab ,
     },
     {
       label: "My Tasks",

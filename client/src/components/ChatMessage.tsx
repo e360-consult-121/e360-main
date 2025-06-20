@@ -53,7 +53,7 @@ const ChatMessage = ({
   const [documentName, setDocumentName] = useState("");
 
   const { data: extraCategories, isLoading } = useFetchAllExtraCategoriesQuery(visaApplicationId);
-  console.log(extraCategories)
+  // console.log(extraCategories)
 
 
   const handleMoveClick = () => {

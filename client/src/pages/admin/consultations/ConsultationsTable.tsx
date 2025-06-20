@@ -223,16 +223,16 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
             <TableBody>
               {paginatedData.map((consultation) => (
                 <TableRow key={consultation._id}>
-                  <TableCell>{consultation.name}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{borderBottom:"none"}}>{consultation.name}</TableCell>
+                  <TableCell sx={{borderBottom:"none"}}>
                     <Typography>
                       {dayjs(consultation.startTime).format("MMM D, YYYY")}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {dayjs(consultation.startTime).format("h:mm A")}
                     </Typography>
-                  </TableCell>
-                  <TableCell>
+                  </TableCell >
+                  <TableCell sx={{borderBottom:"none"}}>
                     <Typography
                       sx={{
                         color:
@@ -247,7 +247,7 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
                         consultation.status.slice(1).toLowerCase()}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{borderBottom:"none"}}>
                     {consultation.status === "CANCELLED" ? null : (
                       <Box sx={{ display: "flex", gap: 2 }}>
                         <a

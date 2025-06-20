@@ -10,6 +10,7 @@ export type TAB = {
   icon: string;
   children?: TAB[];
   suffix?: string;
+  isPermitted?:boolean;
 };
 
 const SidebarTab = ({
@@ -161,8 +162,9 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
           {/* Sidebar Tabs */}
           <div className="w-full flex flex-col h-full flex-[0.9] justify-between">
             <div className="w-full space-y-5 mt-10">
-              {tabs.map((tab, index) => (
-                <SidebarTab
+              {tabs.map((tab, index) => {
+                if(!tab.isPermitted) return 
+                return(<SidebarTab
                   key={index}
                   tabInfo={tab}
                   isActive={
@@ -170,8 +172,8 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
                     tab.children?.some((child) => currentTab === child.route)
                   }
                   setSidebarOpen={setSidebarOpen}
-                />
-              ))}
+                />)
+              })}
             </div>
 
             {/* Logout */}

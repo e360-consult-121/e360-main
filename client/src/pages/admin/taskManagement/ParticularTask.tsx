@@ -52,7 +52,7 @@ const ParticularTask = () => {
 
   const { data, refetch } = useFetchParticularTaskQuery(taskid);
   const task = data?.data;
-  console.log(task)
+  // console.log(task)
   const { data: allUsersData } = useFetchAssigneeListQuery(undefined);
 
   const [editTask] = useEditTaskMutation();
@@ -147,7 +147,7 @@ const ParticularTask = () => {
   };
 
   return (
-    <Box px={4} width="100%" maxWidth="900px" mx="auto">
+    <Box px={{md:4}} width="100%" maxWidth="900px" mx="auto">
       <div className="flex justify-end">
         <IconButton onClick={handleNavigation}>
           <CloseIcon sx={{ color: "black" }} />

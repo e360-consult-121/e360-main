@@ -1,14 +1,14 @@
 import globeAnim from "../../assets/animations/login-anim.gif";
 import logo from "../../assets/logo.png";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import { AppDispatch } from "../../app/store";
 import { setAuth } from "../../features/auth/authSlice";
 import { Roles } from "../../features/auth/authTypes";
-import { useFetchUserQuery, useLoginMutation } from "../../features/auth/authApi";
+import {  useLoginMutation } from "../../features/auth/authApi";
 import Toggle from "../../components/Toggle";
 import { toast } from "react-toastify";
 
@@ -19,7 +19,7 @@ const AdminLogin = () => {
     // const dispatch = useDispatch();
     // const { user, isAuthenticated } = useSelector((state: any) => state.auth);
   
-  const { data, isSuccess, isError } = useFetchUserQuery(undefined);
+  // const { data, isSuccess, isError } = useFetchUserQuery(undefined);
   const [isRememberMe, setIsRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
@@ -29,15 +29,15 @@ const AdminLogin = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  useEffect(() => {
-     if ((isSuccess === true) ) {
-     dispatch(setAuth(data));
-     navigate("/admin/dashboard")
-    }
-    else {
-      navigate("/admin/login");
-    }
-  }, [isError,navigate,isSuccess, data, dispatch]);
+  // useEffect(() => {
+  //    if ((isSuccess === true) ) {
+  //    dispatch(setAuth(data));
+  //    navigate("/admin/dashboard")
+  //   }
+  //   else {
+  //     navigate("/admin/login");
+  //   }
+  // }, [isError,navigate,isSuccess, data, dispatch]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

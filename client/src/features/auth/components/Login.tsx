@@ -2,9 +2,9 @@ import globeAnim from "../../../assets/animations/login-anim.gif";
 import logo from "../../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFetchUserQuery, useLoginMutation } from "../authApi";
+import {  useLoginMutation } from "../authApi";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../app/store";
 import { setAuth } from "../authSlice";
@@ -19,7 +19,7 @@ const Login = () => {
     // const dispatch = useDispatch();
     // const { user, isAuthenticated } = useSelector((state: any) => state.auth);
   
-  const { data, isSuccess, isError } = useFetchUserQuery(undefined);
+  // const { data, isSuccess, isError } = useFetchUserQuery(undefined);
   const [isRememberMe, setIsRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
@@ -29,15 +29,15 @@ const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  useEffect(() => {
-     if ((isSuccess === true) ) {
-     dispatch(setAuth(data));
-     navigate("/dashboard")
-    }
-    else {
-      navigate("/login");
-    }
-  }, [isError,navigate,isSuccess, data, dispatch]);
+  // useEffect(() => {
+  //    if ((isSuccess === true) ) {
+  //    dispatch(setAuth(data));
+  //    navigate("/dashboard")
+  //   }
+  //   else {
+  //     navigate("/login");
+  //   }
+  // }, [isError,navigate,isSuccess, data, dispatch]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

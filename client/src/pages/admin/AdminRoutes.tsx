@@ -18,11 +18,18 @@ import RoleAndPermission from "./roleandPermission/RoleAndPermission";
 import TaskManagment from "./taskManagement/TaskManagment";
 import ParticularTask from "./taskManagement/ParticularTask";
 import Logs from "./logs/Logs";
+// import { RootState } from "../../app/store";
+// import { useSelector } from "react-redux";
+// import { useFetchUIPermissionsQuery } from "../../features/admin/adminUIPermissionApi";
 
 const AdminRoutes = () => {
 
   const navigate = useNavigate();
   const { data, isSuccess, isError } = useFetchUserQuery(undefined);  
+//   const {
+//   isLoading: isPermissionLoading,
+// } = useFetchUIPermissionsQuery(undefined);
+//   const permissions = useSelector((state: RootState) => state.adminPermissions);
 
    useEffect(() => {
     // console.log(data)
@@ -31,6 +38,9 @@ const AdminRoutes = () => {
 
       }
     }, [isError,navigate,isSuccess, data]);
+
+    
+    
   
   // useEffect(() => {
   //   if (data.role === "USER") {
@@ -68,3 +78,4 @@ const AdminRoutes = () => {
 };
 
 export default AdminRoutes;
+
