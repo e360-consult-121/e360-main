@@ -52,7 +52,7 @@ const LogsComponent: React.FC<LogsComponentProps> = ({
 
   return (
     <Box p={{ xs: 1, md: 2 }}>
-      {isLoading===false ? (
+      {isLoading ? (
         <div className="h-[50vh] flex justify-center items-center">
                   <CircularProgress />
 
