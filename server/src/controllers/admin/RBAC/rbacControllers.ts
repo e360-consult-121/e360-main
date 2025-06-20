@@ -19,38 +19,11 @@ import {
   verifyRefreshToken,
 } from "../../../utils/jwtUtils";
 
-// This is utility function 
-export const createRoleWithOptionalPermissions = async (
-  roleName: string,
-  actionIds: string[] = []
-) => {
-  const existingRole = await roleModel.findOne({ roleName: roleName });
-
-  if (existingRole) {
-    return { role: existingRole, alreadyExisted: true };
-  }
-
-  // Create new role
-  const newRole = await roleModel.create({ roleName: roleName });
-
-  // If actionIds are provided, create permissions
-  if (actionIds.length > 0) {
-    const permissions = actionIds.map(actionId => ({
-      roleId: newRole._id,
-      actionId,
-    }));
-
-    await permissionModel.insertMany(permissions);
-  }
-
-  return { roleDoc: newRole, alreadyExisted: false };
-};
-
 
 // 1st
 export const addNewRole = async (req: Request, res: Response) => {
   const { name, actionIds } = req.body;
-
+  
   if (!name || typeof name !== 'string') {
     res.status(400);
     throw new Error('Role name is required and must be a string.');
@@ -62,14 +35,14 @@ export const addNewRole = async (req: Request, res: Response) => {
   }
 
   // Check for existing role
-  const existingRole = await roleModel.findOne({ name });
+  const existingRole = await roleModel.findOne({ roleName:name });
   if (existingRole) {
     res.status(409);
     throw new Error('Role already exists.');
   }
 
   // Create new role
-  const newRole = await roleModel.create({ name });
+  const newRole = await roleModel.create({ roleName:name });
 
   // Create permission for each actionId
   const permissions = actionIds.map(actionId => ({
@@ -89,7 +62,6 @@ export const addNewRole = async (req: Request, res: Response) => {
 
   
 // 2nd
-// add new user and also assign role(existing ) or create new 
 export const addNewAdminUser = async (req: Request, res: Response) => {
   const {
     name,
@@ -97,14 +69,14 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
     phone,
     nationality,
     password, //optional
-    roleName , 
-    actionIds = [], //  Optional (Required only when admin sends a non existing RoleName )
   } = req.body;
 
-  if (!name || !email || !phone ||  !roleName) {
+  if (!name || !email || !phone ) {
     res.status(400);
     throw new Error("Missing required fields.");
   }
+
+  const { roleId } = req.params;
 
   // Check if the user already exists
   const existingUser = await userModel.findOne({ email });
@@ -124,8 +96,15 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
   
 
   // Create role or get existing one
-  const { roleDoc, alreadyExisted } = await createRoleWithOptionalPermissions(roleName, actionIds);
+  // const { roleDoc, alreadyExisted } = await createRoleWithOptionalPermissions(roleName, actionIds);
+  // console.log(`this is our roleDoc :` ,roleDoc );
 
+  const roleDoc =  await roleModel.findById(roleId);
+
+  if (!roleDoc) {
+    res.status(400);
+    throw new Error(`No role found with name: ${roleId}`);
+  }
 
   // Create the new admin user
   const newUser = new userModel({
@@ -388,5 +367,74 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<Resp
   return res.status(200).json({
     success: true,
     message: "Admin user and associated assignments deleted successfully",
+  });
+};
+
+
+// Delete Role
+export const deleteRole = async (req: Request, res: Response) => {
+
+  const { roleId } = req.params;
+
+  // 1. Check if the role is assigned to any user
+  const userExists = await userModel.findOne({ roleId });
+
+  if (userExists) {
+    return res.status(400).json({
+      success: false,
+      message: "Cannot delete this role. It is assigned to one or more users.",
+    });
+  }
+
+  // 2. Proceed to delete the role
+  const deleted = await roleModel.findByIdAndDelete(roleId);
+
+  if (!deleted) {
+    return res.status(404).json({
+      success: false,
+      message: "Role not found.",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Role deleted successfully.",
+  });
+};
+
+
+//Edit RoleName
+export const editRoleName = async (req: Request, res: Response) => {
+  const { roleId } = req.params;
+  const { roleName } = req.body;
+
+  if (!roleName) {
+    res.status(400);
+    throw new Error("New role name is required.");
+  }
+
+  // Check if the role exists
+  const existingRole = await roleModel.findById(roleId);
+  if (!existingRole) {
+    res.status(404);
+    throw new Error("Role not found.");
+  }
+
+  // Check if the new roleName already exists in another role
+  const duplicate = await roleModel.findOne({ roleName });
+  
+  if (duplicate && String(duplicate._id) !== roleId) {
+    res.status(409);
+    throw new Error("A role with this name already exists.");
+  }
+
+  // Update the role name
+  existingRole.roleName = roleName;
+  await existingRole.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Role name updated successfully.",
+    role: existingRole,
   });
 };

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Sidebar, { TAB } from "../../components/Sidebar";
-import AdminHeader from "../../components/AdminHeader";
+// import AdminHeader from "../../components/AdminHeader";
 
 const tabs: TAB[] = [
   {
@@ -77,6 +77,11 @@ const tabs: TAB[] = [
     label: "My Clients",
     route: "admin/myclient",
   },
+  {
+    icon: "clarity:list-solid",
+    label: "Logs",
+    route: "admin/logs",
+  },
   // {
   //   icon: "grommet-icons:visa",
   //   label: "Eligibility Form Leads",
@@ -96,19 +101,21 @@ const tabs: TAB[] = [
 
 const AdminLayout = () => {
   return (
-    <div className="h-screen flex ">
-      {/* Sidebar portion */}
-      <div className="w-full h-full flex flex-1/4">
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar */}
+      <div className="w-[20px] lg:w-[310px] shrink-0">
         <Sidebar tabs={tabs} />
       </div>
 
-      {/* Main content portion */}
-      <div className="w-full overflow-y-auto px-1">
-        <div className="w-full">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-y-auto relative mt-10 md:mt-4">
+        {/* Sticky Header */}
+        {/* <div className="sticky top-0 z-40 bg-white">
           <AdminHeader />
-        </div>
+        </div> */}
 
-        <div className="w-full h-full">
+        {/* Outlet content */}
+        <div className="p-4 md:p-6 overflow-auto">
           <Outlet />
         </div>
       </div>

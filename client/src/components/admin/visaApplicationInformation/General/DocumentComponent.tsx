@@ -52,16 +52,24 @@ const DocumentComponent = ({
         sx={{
           p: 2,
           display: "flex",
-          alignItems: "center",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "center" },
           justifyContent: "space-between",
           borderBottom: "1px solid #eee",
+          gap: 2,
         }}
       >
-        <Box display="flex" alignItems="center" gap={3}>
+        <Box
+          display="flex"
+          alignItems="flex-start"
+          gap={2}
+          width="100%"
+          flexDirection={{ xs: "row", sm: "row" }}
+        >
           <div
             className={`${
               status === "VERIFIED"
-                ? "bg-[#CAE6CB] "
+                ? "bg-[#CAE6CB]"
                 : status === "UPLOADED"
                 ? "bg-golden-yellow-100 text-neutrals-950"
                 : "bg-neutrals-200 text-white"
@@ -88,8 +96,15 @@ const DocumentComponent = ({
           </Box>
         </Box>
 
-        <Box display="flex" alignItems="center" gap={1}>
-          {/* Preview Button - for all except NOT_UPLOADED */}
+        {/* Action Buttons Section */}
+        <Box
+          display="flex"
+          flexWrap={{ xs: "wrap", md: "nowrap" }}
+          gap={1}
+          mt={{ xs: 1, md: 0 }}
+          justifyContent={{ xs: "flex-start", md: "flex-end" }}
+          alignItems="center"
+        >
           {status !== "NOT_UPLOADED" && (
             <a href={value} target="_blank" rel="noopener noreferrer">
               <Button
@@ -107,16 +122,20 @@ const DocumentComponent = ({
             </a>
           )}
 
-          {/* VERIFIED */}
           {status === "VERIFIED" && (
             <Typography
-              sx={{ color: "#64AF64", fontWeight: 600, fontSize: "14px" }}
+              sx={{
+                color: "#64AF64",
+                fontWeight: 600,
+                fontSize: "14px",
+                whiteSpace: "nowrap",
+                minWidth: "max-content",
+              }}
             >
-              Mark as Verified
+              Marked as Verified
             </Typography>
           )}
 
-          {/* UPLOADED */}
           {status === "UPLOADED" && (
             <>
               <Button
@@ -127,8 +146,8 @@ const DocumentComponent = ({
                   textTransform: "none",
                   color: "#64AF64",
                   borderColor: "#64AF64",
-                  minWidth:"max-content",
                   borderRadius: "12px",
+                  minWidth: "max-content",
                 }}
               >
                 Mark as Verified
@@ -142,7 +161,7 @@ const DocumentComponent = ({
                   color: "red",
                   borderColor: "red",
                   borderRadius: "12px",
-                  minWidth:"max-content"
+                  minWidth: "max-content",
                 }}
               >
                 Needs Re-Upload
@@ -150,7 +169,6 @@ const DocumentComponent = ({
             </>
           )}
 
-          {/* RE_UPLOAD */}
           {status === "RE_UPLOAD" && (
             <Typography
               sx={{ color: "black", fontWeight: 600, fontSize: "13px" }}
@@ -159,7 +177,6 @@ const DocumentComponent = ({
             </Typography>
           )}
 
-          {/* NOT_UPLOADED */}
           {status === "NOT_UPLOADED" && (
             <>
               <Button

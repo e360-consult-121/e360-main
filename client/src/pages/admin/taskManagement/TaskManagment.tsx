@@ -130,24 +130,50 @@ const TaskManagment = () => {
   const activeTab = taskTabs.find((t) => t.value === tab);
 
   return (
-    <div className="px-3">
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-        <Tabs
-          value={tab}
-          onChange={handleChange}
-          textColor="primary"
-          indicatorColor="primary"
-        >
-          {visibleTabs.map(({ label, value }) => (
-            <Tab
-              key={value}
-              label={label}
-              value={value}
-              sx={{ textTransform: "none" }}
-            />
-          ))}
-        </Tabs>
-      </Box>
+    <div className="ml-[-30px] md:ml-0 md:px-3">
+ <Box
+  sx={{
+    borderBottom: 1,
+    borderColor: "divider",
+    mb: 2,
+    position: "relative",
+    overflowX: "auto",
+  }}
+>
+  <Tabs
+    value={tab}
+    onChange={handleChange}
+    textColor="primary"
+    indicatorColor="primary"
+    variant="scrollable"
+    scrollButtons="auto"
+    allowScrollButtonsMobile
+    TabScrollButtonProps={{
+      sx: {
+        "&.Mui-disabled": {
+          opacity: 0.3,
+        },
+      },
+    }}
+    sx={{
+      ".MuiTabs-scrollButtons": {
+        display: "flex",
+        width: "40px",
+      },
+    }}
+  >
+    {visibleTabs.map(({ label, value }) => (
+      <Tab
+        key={value}
+        label={label}
+        value={value}
+        sx={{ textTransform: "none", minWidth: "max-content" }}
+      />
+    ))}
+  </Tabs>
+</Box>
+
+
 
       <Box display="flex" justifyContent="end" alignItems="center">
         <Button
@@ -164,6 +190,7 @@ const TaskManagment = () => {
           Add New Task
         </Button>
       </Box>
+      
 
       {activeTab?.component}
 

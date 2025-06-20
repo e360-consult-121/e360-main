@@ -111,7 +111,7 @@ const PaymentAndInvoiceManagement = ({
   };
 
   return (
-    <div>
+    <div className="p-3 md:p-0">
       <Box mb={2}>
         <Typography variant="subtitle1" fontWeight="bold">
           Default Price : {getDefaultPriceDisplay()}
