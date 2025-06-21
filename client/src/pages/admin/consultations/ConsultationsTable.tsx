@@ -22,42 +22,73 @@ import {
 } from "@mui/material";
 import { AllConsultationsTypes } from "../../../features/admin/consultations/consultationTypes";
 
+interface PaginationData {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 interface TableProps {
   data: AllConsultationsTypes[] | undefined;
+  pagination?: PaginationData | undefined;
+  onPageChange?: (page: number) => void;
+  onRowsPerPageChange?: (limit: number) => void;
   onJoinNow?: (consultation: AllConsultationsTypes) => void;
   onReschedule?: (consultation: AllConsultationsTypes) => void;
 }
 
-const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
+const ConsultationsTable: React.FC<TableProps> = ({
+  data,
+  pagination,
+  onPageChange,
+  onRowsPerPageChange,
+}) => {
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [internalPage, setInternalPage] = useState(0);
+  const [internalRowsPerPage, setInternalRowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All");
 
   const today = dayjs().format("YYYY-MM-DD");
   const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
 
-  const handleChangePage = (_event: unknown, newPage: number) =>
-    setPage(newPage);
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (onPageChange) {
+      // Convert from 0-based (MUI) to 1-based (backend)
+      onPageChange(newPage + 1);
+    } else {
+      setInternalPage(newPage);
+    }
+  };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    const newLimit = parseInt(event.target.value, 10);
+    if (onRowsPerPageChange) {
+      onRowsPerPageChange(newLimit);
+    } else {
+      setInternalRowsPerPage(newLimit);
+      setInternalPage(0);
+    }
   };
 
   const handleDateFilterChange = (event: any) => {
     setDateFilter(event.target.value);
-    setPage(0);
+    setInternalPage(0);
+    onPageChange?.(0);
   };
 
   const handleStatusFilterChange = (event: any) => {
     setStatusFilter(event.target.value);
-    setPage(0);
+    setInternalPage(0);
+    onPageChange?.(0);
   };
+
+  const currentPage = pagination ? pagination.page - 1 : internalPage;
+  const currentLimit = pagination ? pagination.limit : internalRowsPerPage;
+  const totalCount = pagination ? pagination.total : data?.length;
 
   const filteredData =
     data
@@ -73,10 +104,12 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
         return false;
       }) || [];
 
-  const paginatedData = filteredData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const displayData = pagination
+    ? filteredData
+    : filteredData.slice(
+        currentPage * currentLimit,
+        currentPage * currentLimit + currentLimit
+      );
 
   return (
     <Paper sx={{ p: 2, boxShadow: "none" }}>
@@ -127,7 +160,7 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
       {/* Responsive UI */}
       {isMobile ? (
         <>
-          {paginatedData.map((consultation) => (
+          {displayData.map((consultation) => (
             <Card
               key={consultation._id}
               sx={{
@@ -138,18 +171,18 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
               }}
             >
               <CardContent>
-                <Typography sx={{mb:1}}>
+                <Typography sx={{ mb: 1 }}>
                   <strong>Name:</strong> {consultation.name}
                 </Typography>
-                <Typography sx={{mb:1}}>
+                <Typography sx={{ mb: 1 }}>
                   <strong>Date:</strong>{" "}
                   {dayjs(consultation.startTime).format("MMM D, YYYY")}
                 </Typography>
-                <Typography sx={{mb:1}}>
+                <Typography sx={{ mb: 1 }}>
                   <strong>Time:</strong>{" "}
                   {dayjs(consultation.startTime).format("h:mm A")}
                 </Typography>
-                <Typography sx={{mb:1}}>
+                <Typography sx={{ mb: 1 }}>
                   <strong>Status:</strong>{" "}
                   <span
                     style={{
@@ -221,18 +254,20 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedData.map((consultation) => (
+              {displayData.map((consultation) => (
                 <TableRow key={consultation._id}>
-                  <TableCell sx={{borderBottom:"none"}}>{consultation.name}</TableCell>
-                  <TableCell sx={{borderBottom:"none"}}>
+                  <TableCell sx={{ borderBottom: "none" }}>
+                    {consultation.name}
+                  </TableCell>
+                  <TableCell sx={{ borderBottom: "none" }}>
                     <Typography>
                       {dayjs(consultation.startTime).format("MMM D, YYYY")}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {dayjs(consultation.startTime).format("h:mm A")}
                     </Typography>
-                  </TableCell >
-                  <TableCell sx={{borderBottom:"none"}}>
+                  </TableCell>
+                  <TableCell sx={{ borderBottom: "none" }}>
                     <Typography
                       sx={{
                         color:
@@ -247,7 +282,7 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
                         consultation.status.slice(1).toLowerCase()}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{borderBottom:"none"}}>
+                  <TableCell sx={{ borderBottom: "none" }}>
                     {consultation.status === "CANCELLED" ? null : (
                       <Box sx={{ display: "flex", gap: 2 }}>
                         <a
@@ -295,12 +330,12 @@ const ConsultationsTable: React.FC<TableProps> = ({ data }) => {
 
       {/* Pagination */}
       <TablePagination
-        rowsPerPageOptions={[5, 10, 15]}
         component="div"
-        count={filteredData.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
+        count={totalCount ?? 0}
+        page={currentPage}
+        rowsPerPage={currentLimit}
         onPageChange={handleChangePage}
+        rowsPerPageOptions={[5, 10, 15]}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </Paper>

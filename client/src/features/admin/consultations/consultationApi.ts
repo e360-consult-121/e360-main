@@ -4,8 +4,8 @@ import { baseApi } from "../../../app/api";
 export const consultationApi = baseApi.injectEndpoints({
     endpoints:(build) => ({
         fetchAllConsultations : build.query({
-            query:()=>({
-                url:"/admin/consultations/fetchAllConsultations",
+            query:({page = 1, limit = 5, search = ""})=>({
+                url:`/admin/consultations/fetchAllConsultations?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
                 method:"GET"
             })
         }),
