@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import dayjs from "dayjs";
 import {
   Table,
   TableBody,
@@ -98,8 +97,6 @@ const ClientsTable: React.FC<TableProps> = ({
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  const today = dayjs().format("YYYY-MM-DD");
-  const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
