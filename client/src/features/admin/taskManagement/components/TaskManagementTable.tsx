@@ -31,16 +31,43 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
+interface PaginationData {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+interface PaginationState {
+  page: number;
+  limit: number;
+  search: string;
+}
+
+interface PaginationActions {
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
+  setSearch: (search: string) => void;
+  reset: () => void;
+}
+
+interface TaskManagementTableProps {
+  tasks: any[];
+  pagination: PaginationData;
+  paginationState: PaginationState;
+  paginationActions: PaginationActions;
+  refetchTasks: () => void;
+}
+
 const TaskManagementTable = ({
   tasks,
+  pagination,
+  paginationState,
+  paginationActions,
   refetchTasks,
-}: {
-  tasks: any[];
-  refetchTasks: () => void;
-}) => {
-  // console.log(tasks);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+}: TaskManagementTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
@@ -94,37 +121,28 @@ const TaskManagementTable = ({
     console.log("Selected Rows:", selectedRows);
   };
 
-  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
+  const handleChangePage = (_: unknown, newPage: number) => {
+    // Convert from 0-based to 1-based page numbering
+    paginationActions.setPage(newPage + 1);
+  };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const currentData = tasks.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelected = currentData.map((task) => task._id);
-      setSelectedIds(newSelected);
-      console.log("Selected Rows:", currentData);
-    } else {
-      setSelectedIds([]);
-    }
+    const newLimit = parseInt(event.target.value, 10);
+    paginationActions.setLimit(newLimit);
+    paginationActions.setPage(1); // Reset to first page when changing page size
   };
 
   if (isMobile) {
     return (
       <Box p={2}>
-        {currentData.length === 0 ? (
-          <Typography align="center">No tasks available.</Typography>
+        {tasks.length === 0 ? (
+          <Typography align="center">
+            {paginationState.search ? "No tasks found matching your search." : "No tasks available."}
+          </Typography>
         ) : (
-          currentData.map((task) => (
+          tasks.map((task) => (
             <Card
               key={task._id}
               variant="outlined"
@@ -156,8 +174,7 @@ const TaskManagementTable = ({
                 <Box display={"flex"} alignItems={"center"} gap={1} mb={1}>
                   <Typography sx={{fontWeight:650}}>Status:</Typography>
                    <Typography
-                   
-                  variant="body2"
+                   variant="body2"
                   color={
                     task.status === "Completed"
                       ? "green"
@@ -226,14 +243,19 @@ const TaskManagementTable = ({
             </Card>
           ))
         )}
+        
+        {/* Backend Pagination */}
         <TablePagination
           component="div"
-          count={tasks.length}
-          page={page}
+          count={pagination.total}
+          page={paginationState.page - 1} // Convert from 1-based to 0-based
           onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPage={paginationState.limit}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} of ${count !== -1 ? count : `more than ${to}`}`
+          }
         />
       </Box>
     );
@@ -245,15 +267,6 @@ const TaskManagementTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox" sx={{ color: "#8D8883" }}>
-                <Checkbox
-                  checked={
-                    currentData.length > 0 &&
-                    currentData.every((row) => selectedIds.includes(row._id))
-                  }
-                  onChange={handleSelectAll}
-                />
-              </TableCell>
               <TableCell sx={{ color: "#8D8883" }}>Task Name</TableCell>
               <TableCell sx={{ color: "#8D8883" }}>Assigned To</TableCell>
               <TableCell sx={{ color: "#8D8883" }}>Assigned By</TableCell>
@@ -265,14 +278,16 @@ const TaskManagementTable = ({
           </TableHead>
 
           <TableBody>
-            {currentData.length === 0 ? (
+            {tasks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} align="center">
-                  <Typography>No tasks available.</Typography>
+                <TableCell colSpan={7} align="center">
+                  <Typography>
+                    {paginationState.search ? "No tasks found matching your search." : "No tasks available."}
+                  </Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              currentData.map((task) => (
+              tasks.map((task) => (
                 <TableRow
                   key={task._id}
                   sx={{
@@ -280,12 +295,6 @@ const TaskManagementTable = ({
                     transition: "opacity 0.3s ease",
                   }}
                 >
-                  <TableCell padding="checkbox" sx={{ borderBottom: "none" }}>
-                    <Checkbox
-                      checked={selectedIds.includes(task._id)}
-                      onChange={() => handleCheckboxChange(task._id)}
-                    />
-                  </TableCell>
                   <TableCell
                     sx={{
                       borderBottom: "none",
@@ -400,14 +409,18 @@ const TaskManagementTable = ({
         </Table>
       </TableContainer>
 
+      {/* Backend Pagination */}
       <TablePagination
         component="div"
-        count={tasks.length}
-        page={page}
+        count={pagination.total}
+        page={paginationState.page - 1} // Convert from 1-based to 0-based
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPage={paginationState.limit}
+        rowsPerPageOptions={[5, 10, 25, 50]}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        labelDisplayedRows={({ from, to, count }) =>
+          `${from}-${to} of ${count !== -1 ? count : `more than ${to}`}`
+        }
       />
     </Box>
   );

@@ -3,8 +3,16 @@ import { baseApi } from "../../../app/api";
 export const visaApplicationApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchParticularVisaApplication: build.query({
-      query: ({ visaType, page = 1, limit = 5, search = "" }) => ({
-        url: `/admin/visaapplication/fetchApplicationsOfParticularType?visaType=${visaType}&page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+      query: ({
+        visaType,
+        page = 1,
+        limit = 5,
+        search = "",
+        statusFilter = "",
+      }) => ({
+        url: `/admin/visaapplication/fetchApplicationsOfParticularType?visaType=${visaType}&page=${page}&limit=${limit}&search=${encodeURIComponent(
+          search
+        )}&statusFilter=${encodeURIComponent(statusFilter)}`,
         method: "GET",
       }),
     }),
@@ -17,7 +25,7 @@ export const visaApplicationApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { 
+export const {
   useFetchParticularVisaApplicationQuery,
-  useFetchAllStepsOfParticularVisaTypeQuery 
+  useFetchAllStepsOfParticularVisaTypeQuery,
 } = visaApplicationApi;

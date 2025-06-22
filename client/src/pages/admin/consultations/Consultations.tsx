@@ -19,8 +19,12 @@ const Consultations = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchPaginationState, searchPaginationActions] =
     useSearchPagination();
+  const [statusFilter, setStatusFilter] = useState("All"); 
+  const [dateFilter, setDateFilter] = useState("All");
 
   const { data, isLoading, isError } = useFetchAllConsultationsQuery({
+    statusFilter: statusFilter === "All" ? "" : statusFilter, 
+    dateFilter: dateFilter === "All" ? "" : dateFilter, 
     ...searchPaginationState,
   });
 
@@ -39,6 +43,14 @@ const Consultations = () => {
     return () => clearTimeout(timeoutId);
   }, [searchInput, searchPaginationActions]);
 
+  const handleStatusFilterChange = (newStatusFilter: string) => {
+    setStatusFilter(newStatusFilter);
+  };
+
+  const handleDateFilterChange = (newDateFilter: string) => {
+    setDateFilter(newDateFilter);
+  };
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(event.target.value);
   };
@@ -46,6 +58,10 @@ const Consultations = () => {
   const paginationProps = pagination
     ? {
         pagination,
+        statusFilter,
+        onStatusFilterChange: handleStatusFilterChange,
+        dateFilter,
+        onDateFilterChange: handleDateFilterChange,
         onPageChange: (page: number) => {
           searchPaginationActions.setPage(page);
         },
@@ -54,7 +70,12 @@ const Consultations = () => {
           searchPaginationActions.setPage(1);
         },
       }
-    : undefined;
+    : {
+        statusFilter,
+        onStatusFilterChange: handleStatusFilterChange,
+        dateFilter,
+        onDateFilterChange: handleDateFilterChange,
+      };
 
   return (
     <Box sx={{ ml: { xs: "-30px", md: 0 }, px: { md: 4 }, mt: { md: 3 } }}>
@@ -70,7 +91,7 @@ const Consultations = () => {
         <>
           <Box sx={{ mb: 2 }}>
             <TextField
-              placeholder="Search applications..."
+              placeholder="Search consultations..."
               value={searchInput}
               onChange={handleSearchChange}
               size="small"
@@ -84,18 +105,7 @@ const Consultations = () => {
               sx={{ minWidth: 300 }}
             />
           </Box>
-          {consultationData?.length ? (
-            <ConsultationsTable data={consultationData} {...paginationProps} />
-          ) : (
-            <Typography
-              variant="h6"
-              color="textSecondary"
-              align="center"
-              mt={35}
-            >
-              No consultations found.
-            </Typography>
-          )}
+          <ConsultationsTable data={consultationData} {...paginationProps} />
         </>
       )}
     </Box>

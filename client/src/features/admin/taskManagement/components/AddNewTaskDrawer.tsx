@@ -57,7 +57,7 @@ const AddNewTaskDrawer = ({
   const [addNewTask, { isLoading }] = useAddNewTaskMutation();
 
   const leadOptions = allLeads?.leads?.map((lead: any) => ({
-    label: `${lead.fullName?.first ?? ""} ${lead.fullName?.last ?? ""}`,
+    label: `${lead.fullName ?? ""}`,
     value: lead._id,
   }));
 

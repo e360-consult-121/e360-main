@@ -21,6 +21,7 @@ const VisaService = () => {
   const [pagination, setPagination] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const { type } = useParams();
+  const [statusFilter, setStatusFilter] = useState("All");
 
   const visaType = type
     ? type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
@@ -31,6 +32,7 @@ const VisaService = () => {
 
   const { data, isLoading, isError } = useFetchParticularVisaApplicationQuery({
     visaType,
+    statusFilter: statusFilter === "All" ? "" : statusFilter, // Pass status filter
     ...searchPaginationState,
   });
 
@@ -64,10 +66,15 @@ const VisaService = () => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(event.target.value);
   };
+  const handleStatusFilterChange = (newStatusFilter: string) => {
+    setStatusFilter(newStatusFilter);
+  };
 
   const paginationProps = pagination
     ? {
         pagination,
+        statusFilter,
+        onStatusFilterChange: handleStatusFilterChange,
         onPageChange: (page: number) => {
           searchPaginationActions.setPage(page);
         },
@@ -76,7 +83,10 @@ const VisaService = () => {
           searchPaginationActions.setPage(1);
         },
       }
-    : undefined;
+    : {
+        statusFilter,
+        onStatusFilterChange: handleStatusFilterChange,
+      };
 
   const isAnyLoading = isLoading || stepsLoading;
   const isAnyError = isError || stepsError;

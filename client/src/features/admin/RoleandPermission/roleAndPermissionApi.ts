@@ -3,9 +3,16 @@ import { baseApi } from "../../../app/api";
 export const roleAndPermissionApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchAllAdminUsers: build.query({
-      query: () => ({
+      query: ({
+        search = "",
+        page = 1,
+        limit = 10,
+        sortBy = "name",
+        order = "asc",
+      }) => ({
         url: `/admin/rbac/fetchAllAdminUsers`,
         method: "GET",
+        params: { search, page, limit, sortBy, order },
       }),
     }),
     fetchAllFeatures: build.query({
@@ -30,14 +37,14 @@ export const roleAndPermissionApi = baseApi.injectEndpoints({
       query: (body) => ({
         url: `/admin/rbac/addNewRole`,
         method: "POST",
-        data:body
+        data: body,
       }),
     }),
     editRoleName: build.mutation({
-      query: ({roleId,body}) => ({
+      query: ({ roleId, body }) => ({
         url: `/admin/rbac/editRoleName/${roleId}`,
         method: "PATCH",
-        data:body
+        data: body,
       }),
     }),
     deleteRole: build.mutation({
@@ -47,24 +54,24 @@ export const roleAndPermissionApi = baseApi.injectEndpoints({
       }),
     }),
     addNewAdminUser: build.mutation({
-      query: ({roleId,body}) => ({
+      query: ({ roleId, body }) => ({
         url: `/admin/rbac/addNewAdminUser/${roleId}`,
         method: "POST",
-        data:body
+        data: body,
       }),
     }),
     assignActionsToRole: build.mutation({
       query: (body) => ({
         url: `/admin/rbac/assignActionsToRole`,
         method: "POST",
-        data:body
+        data: body,
       }),
     }),
     editAdminUser: build.mutation({
-      query: ({employeeId,body}) => ({
+      query: ({ employeeId, body }) => ({
         url: `/admin/rbac/editAdminUser/${employeeId}`,
         method: "PATCH",
-        data:body
+        data: body,
       }),
     }),
     deleteAdminUser: build.mutation({
@@ -76,4 +83,16 @@ export const roleAndPermissionApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useFetchAllAdminUsersQuery , useFetchAllFeaturesQuery , useFetchRoleWisePermissionsQuery,useFetchAllRolesQuery,useAddNewRoleMutation,useAssignActionsToRoleMutation,useAddNewAdminUserMutation,useDeleteAdminUserMutation,useEditAdminUserMutation,useDeleteRoleMutation,useEditRoleNameMutation} = roleAndPermissionApi;
+export const {
+  useFetchAllAdminUsersQuery,
+  useFetchAllFeaturesQuery,
+  useFetchRoleWisePermissionsQuery,
+  useFetchAllRolesQuery,
+  useAddNewRoleMutation,
+  useAssignActionsToRoleMutation,
+  useAddNewAdminUserMutation,
+  useDeleteAdminUserMutation,
+  useEditAdminUserMutation,
+  useDeleteRoleMutation,
+  useEditRoleNameMutation,
+} = roleAndPermissionApi;

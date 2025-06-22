@@ -24,7 +24,7 @@ export async function createPaymentLink(
   
     // 2. Create product
     const product = await stripe.products.create({
-      name: `Visa Consultation for ${lead.fullName.first} ${lead.fullName.last}`,
+      name: `Visa Consultation for ${lead.fullName}`,
     });
   
     // 3. Create price

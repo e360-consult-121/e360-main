@@ -35,7 +35,10 @@ import { sendHighPriorityLeadEmail } from "./services/emails/triggers/leads/elig
 import { sendMediumPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
 import { sendLowPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/lowPriority";
 import { leadEmailToAdmin } from "./services/emails/triggers/admin/eligibility-form-filled/priorityTrigger";
-import {assignDefaultLead , assignDefaultVisaApplication } from "./utils/defaultTaskAssign"
+import {
+  assignDefaultLead,
+  assignDefaultVisaApplication,
+} from "./utils/defaultTaskAssign";
 import {
   JOTFORM_ID_DOMINICA_GRENADA,
   JOTFORM_ID_DUBAI,
@@ -235,25 +238,29 @@ app.post(
 
       const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${newLead._id}&utm_source=EEE360`;
 
-      await leadEmailToAdmin(newLead.fullName.first, serviceType, priority);
+      await leadEmailToAdmin(
+        newLead.fullName.split(" ")[0],
+        serviceType,
+        priority
+      );
       if (priority === leadPriority.HIGH) {
         await sendHighPriorityLeadEmail(
           newLead.email,
-          newLead.fullName.first,
+          newLead.fullName.split(" ")[0],
           serviceType,
           calendlyLink
         );
       } else if (priority === leadPriority.MEDIUM) {
         await sendMediumPriorityLeadEmail(
           newLead.email,
-          newLead.fullName.first,
+          newLead.fullName.split(" ")[0],
           serviceType,
           calendlyLink
         );
       } else if (priority === leadPriority.LOW) {
         await sendLowPriorityLeadEmail(
           newLead.email,
-          newLead.fullName.first,
+          newLead.fullName.split(" ")[0],
           serviceType,
           "",
           ""
@@ -280,7 +287,6 @@ if (process.env.NODE_ENV === "production") {
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
-
 
 const args = process.argv.slice(2);
 const portArgIndex = args.indexOf("--port");

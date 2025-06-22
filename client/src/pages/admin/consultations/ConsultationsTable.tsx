@@ -31,6 +31,10 @@ interface PaginationData {
 interface TableProps {
   data: AllConsultationsTypes[] | undefined;
   pagination?: PaginationData | undefined;
+  statusFilter?: string;
+  onStatusFilterChange?: (filter: string) => void;
+  dateFilter?: string;
+  onDateFilterChange?: (filter: string) => void;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (limit: number) => void;
   onJoinNow?: (consultation: AllConsultationsTypes) => void;
@@ -40,6 +44,10 @@ interface TableProps {
 const ConsultationsTable: React.FC<TableProps> = ({
   data,
   pagination,
+  statusFilter = "All",
+  onStatusFilterChange,
+  dateFilter = "All",
+  onDateFilterChange,
   onPageChange,
   onRowsPerPageChange,
 }) => {
@@ -47,11 +55,6 @@ const ConsultationsTable: React.FC<TableProps> = ({
 
   const [internalPage, setInternalPage] = useState(0);
   const [internalRowsPerPage, setInternalRowsPerPage] = useState(5);
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [dateFilter, setDateFilter] = useState("All");
-
-  const today = dayjs().format("YYYY-MM-DD");
-  const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     if (onPageChange) {
@@ -74,39 +77,24 @@ const ConsultationsTable: React.FC<TableProps> = ({
     }
   };
 
-  const handleDateFilterChange = (event: any) => {
-    setDateFilter(event.target.value);
-    setInternalPage(0);
-    onPageChange?.(0);
-  };
-
   const handleStatusFilterChange = (event: any) => {
-    setStatusFilter(event.target.value);
-    setInternalPage(0);
-    onPageChange?.(0);
+    if (onStatusFilterChange) {
+      onStatusFilterChange(event.target.value);
+    }
+  };
+  const handleDateFilterChange = (event: any) => {
+    if (onDateFilterChange) {
+      onDateFilterChange(event.target.value);
+    }
   };
 
   const currentPage = pagination ? pagination.page - 1 : internalPage;
   const currentLimit = pagination ? pagination.limit : internalRowsPerPage;
   const totalCount = pagination ? pagination.total : data?.length;
 
-  const filteredData =
-    data
-      ?.filter((item) => {
-        if (statusFilter === "All") return true;
-        return item.status === statusFilter;
-      })
-      .filter((item) => {
-        const consultationDate = dayjs(item?.startTime).format("YYYY-MM-DD");
-        if (dateFilter === "All") return true;
-        if (dateFilter === "Today") return consultationDate === today;
-        if (dateFilter === "Yesterday") return consultationDate === yesterday;
-        return false;
-      }) || [];
-
   const displayData = pagination
-    ? filteredData
-    : filteredData.slice(
+    ? data
+    : data?.slice(
         currentPage * currentLimit,
         currentPage * currentLimit + currentLimit
       );
@@ -160,85 +148,89 @@ const ConsultationsTable: React.FC<TableProps> = ({
       {/* Responsive UI */}
       {isMobile ? (
         <>
-          {displayData.map((consultation) => (
-            <Card
-              key={consultation._id}
-              sx={{
-                mt: 2,
-                borderRadius: "15px",
-                boxShadow: "none",
-                border: "1px solid black",
-              }}
-            >
-              <CardContent>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>Name:</strong> {consultation.name}
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>Date:</strong>{" "}
-                  {dayjs(consultation.startTime).format("MMM D, YYYY")}
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>Time:</strong>{" "}
-                  {dayjs(consultation.startTime).format("h:mm A")}
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>Status:</strong>{" "}
-                  <span
-                    style={{
-                      color:
-                        consultation.status === "CANCELLED"
-                          ? "#F54337"
-                          : consultation.status === "SCHEDULED"
-                          ? "#F6C328"
-                          : "#64AF64",
-                    }}
-                  >
-                    {consultation.status.charAt(0).toUpperCase() +
-                      consultation.status.slice(1).toLowerCase()}
-                  </span>
-                </Typography>
+          {displayData?.length ? (
+            displayData.map((consultation) => (
+              <Card
+                key={consultation._id}
+                sx={{
+                  mt: 2,
+                  borderRadius: "15px",
+                  boxShadow: "none",
+                  border: "1px solid black",
+                }}
+              >
+                <CardContent>
+                  <Typography sx={{ mb: 1 }}>
+                    <strong>Name:</strong> {consultation.name}
+                  </Typography>
+                  <Typography sx={{ mb: 1 }}>
+                    <strong>Date:</strong>{" "}
+                    {dayjs(consultation.startTime).format("MMM D, YYYY")}
+                  </Typography>
+                  <Typography sx={{ mb: 1 }}>
+                    <strong>Time:</strong>{" "}
+                    {dayjs(consultation.startTime).format("h:mm A")}
+                  </Typography>
+                  <Typography sx={{ mb: 1 }}>
+                    <strong>Status:</strong>{" "}
+                    <span
+                      style={{
+                        color:
+                          consultation.status === "CANCELLED"
+                            ? "#F54337"
+                            : consultation.status === "SCHEDULED"
+                            ? "#F6C328"
+                            : "#64AF64",
+                      }}
+                    >
+                      {consultation.status.charAt(0).toUpperCase() +
+                        consultation.status.slice(1).toLowerCase()}
+                    </span>
+                  </Typography>
 
-                {consultation.status === "SCHEDULED" && (
-                  <Box mt={2} display="flex" gap={2}>
-                    <a
-                      href={consultation.rescheduleUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Button
-                        variant="outlined"
-                        sx={{
-                          textTransform: "none",
-                          borderColor: "black",
-                          borderRadius: "15px",
-                          color: "black",
-                        }}
+                  {consultation.status === "SCHEDULED" && (
+                    <Box mt={2} display="flex" gap={2}>
+                      <a
+                        href={consultation.rescheduleUrl}
+                        target="_blank"
+                        rel="noreferrer"
                       >
-                        Reschedule
-                      </Button>
-                    </a>
-                    <a
-                      href={consultation.joinUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Button
-                        sx={{
-                          backgroundColor: "#F6C328",
-                          color: "black",
-                          textTransform: "none",
-                          borderRadius: "15px",
-                        }}
+                        <Button
+                          variant="outlined"
+                          sx={{
+                            textTransform: "none",
+                            borderColor: "black",
+                            borderRadius: "15px",
+                            color: "black",
+                          }}
+                        >
+                          Reschedule
+                        </Button>
+                      </a>
+                      <a
+                        href={consultation.joinUrl}
+                        target="_blank"
+                        rel="noreferrer"
                       >
-                        Join Now
-                      </Button>
-                    </a>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                        <Button
+                          sx={{
+                            backgroundColor: "#F6C328",
+                            color: "black",
+                            textTransform: "none",
+                            borderRadius: "15px",
+                          }}
+                        >
+                          Join Now
+                        </Button>
+                      </a>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Typography>No Consultations found</Typography>
+          )}
         </>
       ) : (
         // Desktop Table
@@ -254,75 +246,83 @@ const ConsultationsTable: React.FC<TableProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {displayData.map((consultation) => (
-                <TableRow key={consultation._id}>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    {consultation.name}
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <Typography>
-                      {dayjs(consultation.startTime).format("MMM D, YYYY")}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {dayjs(consultation.startTime).format("h:mm A")}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <Typography
-                      sx={{
-                        color:
-                          consultation.status === "CANCELLED"
-                            ? "#F54337"
-                            : consultation.status === "SCHEDULED"
-                            ? "#F6C328"
-                            : "#64AF64",
-                      }}
-                    >
-                      {consultation.status.charAt(0).toUpperCase() +
-                        consultation.status.slice(1).toLowerCase()}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    {consultation.status === "CANCELLED" ? null : (
-                      <Box sx={{ display: "flex", gap: 2 }}>
-                        <a
-                          href={consultation.rescheduleUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Button
-                            variant="outlined"
-                            sx={{
-                              textTransform: "none",
-                              borderColor: "black",
-                              borderRadius: "15px",
-                              color: "black",
-                            }}
+              {displayData?.length ? (
+                displayData.map((consultation) => (
+                  <TableRow key={consultation._id}>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {consultation.name}
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      <Typography>
+                        {dayjs(consultation.startTime).format("MMM D, YYYY")}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {dayjs(consultation.startTime).format("h:mm A")}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      <Typography
+                        sx={{
+                          color:
+                            consultation.status === "CANCELLED"
+                              ? "#F54337"
+                              : consultation.status === "SCHEDULED"
+                              ? "#F6C328"
+                              : "#64AF64",
+                        }}
+                      >
+                        {consultation.status.charAt(0).toUpperCase() +
+                          consultation.status.slice(1).toLowerCase()}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {consultation.status === "CANCELLED" ? null : (
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                          <a
+                            href={consultation.rescheduleUrl}
+                            target="_blank"
+                            rel="noreferrer"
                           >
-                            Reschedule
-                          </Button>
-                        </a>
-                        <a
-                          href={consultation.joinUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Button
-                            sx={{
-                              backgroundColor: "#F6C328",
-                              color: "black",
-                              textTransform: "none",
-                              borderRadius: "15px",
-                            }}
+                            <Button
+                              variant="outlined"
+                              sx={{
+                                textTransform: "none",
+                                borderColor: "black",
+                                borderRadius: "15px",
+                                color: "black",
+                              }}
+                            >
+                              Reschedule
+                            </Button>
+                          </a>
+                          <a
+                            href={consultation.joinUrl}
+                            target="_blank"
+                            rel="noreferrer"
                           >
-                            Join Now
-                          </Button>
-                        </a>
-                      </Box>
-                    )}
+                            <Button
+                              sx={{
+                                backgroundColor: "#F6C328",
+                                color: "black",
+                                textTransform: "none",
+                                borderRadius: "15px",
+                              }}
+                            >
+                              Join Now
+                            </Button>
+                          </a>
+                        </Box>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    No Consultations found
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>

@@ -22,9 +22,7 @@ export const getAllLeads = async (req: Request, res: Response) => {
     { $match: matchStage },
     {
       $project: {
-        name: {
-          $concat: ['$fullName.first', ' ', '$fullName.last'],
-        },
+        name: { $ifNull: ["$fullName", "Unknown"] }, 
         leadType: '$__t',
         leadId: '$_id',
       },

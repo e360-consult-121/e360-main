@@ -30,25 +30,28 @@ interface TableComponentProps {
   data: any[];
   stepsData: string[];
   pagination?: PaginationData;
+  statusFilter?: string;
+  onStatusFilterChange?: (filter: string) => void;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (limit: number) => void;
 }
 
-const TableComponent: React.FC<TableComponentProps> = ({ 
-  data, 
-  stepsData, 
+const TableComponent: React.FC<TableComponentProps> = ({
+  data,
+  stepsData,
   pagination,
+  statusFilter = "All",
+  onStatusFilterChange,
   onPageChange,
-  onRowsPerPageChange 
+  onRowsPerPageChange,
 }) => {
   const { type } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  
+
   // Internal pagination state (fallback)
   const [internalPage, setInternalPage] = useState(0);
   const [internalRowsPerPage, setInternalRowsPerPage] = useState(5);
-  const [statusFilter, setStatusFilter] = useState("All");
 
   const navigate = useNavigate();
 
@@ -69,7 +72,9 @@ const TableComponent: React.FC<TableComponentProps> = ({
     }
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const newLimit = parseInt(event.target.value, 10);
     if (onRowsPerPageChange) {
       onRowsPerPageChange(newLimit);
@@ -80,26 +85,22 @@ const TableComponent: React.FC<TableComponentProps> = ({
   };
 
   const handleStatusFilterChange = (event: any) => {
-    setStatusFilter(event.target.value);
+    if (onStatusFilterChange) {
+      onStatusFilterChange(event.target.value);
+    }
   };
-
   // Convert backend page (1-based) to MUI page (0-based) for display
-  const currentPage = pagination ? pagination.page - 1 : internalPage; 
+  const currentPage = pagination ? pagination.page - 1 : internalPage;
   const currentLimit = pagination ? pagination.limit : internalRowsPerPage;
   const totalCount = pagination ? pagination.total : data.length;
 
-  // Filter data by status
-  const filteredData = statusFilter === "All"
-    ? data
-    : data.filter((row: any) => {
-        const stepName = stepsData[row.currentStep - 1];
-        return stepName === statusFilter;
-      });
-
   // For internal pagination, slice the data
-  const displayData = pagination 
-    ? filteredData 
-    : filteredData.slice(currentPage * currentLimit, currentPage * currentLimit + currentLimit);
+  const displayData = pagination
+    ? data // Server-side pagination - use data as is
+    : data.slice(
+        currentPage * currentLimit,
+        currentPage * currentLimit + currentLimit
+      );
 
   const renderCardView = (row: any, index: number) => (
     <Box
@@ -118,9 +119,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
       </Typography>
       <Typography sx={{ mb: 1 }}>
         <strong>Name:</strong>{" "}
-        {row.leadId
-          ? row?.leadId?.fullName?.first + " " + row?.leadId?.fullName?.last
-          : row?.userId?.name}
+        {row.leadId ? row?.leadId?.fullName : row?.userId?.name}
       </Typography>
       <Typography sx={{ display: "flex", gap: 1, mb: 1 }}>
         <strong>Email:</strong>
@@ -268,11 +267,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
                       {row?.nanoVisaApplicationId}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row.leadId
-                        ? row?.leadId?.fullName?.first +
-                          " " +
-                          row?.leadId?.fullName?.last
-                        : row?.userId?.name}
+                      {row.leadId ? row?.leadId?.fullName : row?.userId?.name}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
                       {row.leadId ? row?.leadId?.email : row?.userId?.email}
