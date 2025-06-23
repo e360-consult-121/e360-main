@@ -16,12 +16,13 @@ type RecentUpdate = {
   _id: string;
   logMsg: string;
   createdAt: string;
+  visaApplicationId:string;
 };
 
 const RecentUpdates = ({ data }: { data: RecentUpdate[] }) => {
   const navigate = useNavigate();
 
-  console.log(data)
+  // console.log(data)
 
   return (
     <Card
@@ -78,7 +79,9 @@ const RecentUpdates = ({ data }: { data: RecentUpdate[] }) => {
                   <TableCell>
                     <Button
                       onClick={() =>
-                        navigate(`/admin/logs/${item._id}`, { state: item })
+                        navigate(`/admin/application/${item.visaApplicationId}`, {
+                          // state: { row: { ...item, leadId: item.leadId } },
+                        })
                       }
                       size="small"
                       sx={{

@@ -1,4 +1,5 @@
 import { Card, CardContent, Typography, Box, Tooltip } from "@mui/material";
+import { formatDate } from "../../utils/FormateDate";
 
 export enum LeadStatus {
   INITIATED = "INITIATED",
@@ -10,28 +11,28 @@ export enum LeadStatus {
   REJECTED = "REJECTED",
 }
 
-type LeadInfo = {
-  name: string;
-  appliedFor: string;
-  email: string;
-  caseId: string;
-  phone: string;
-  createdAt: string;
-};
+// type LeadInfo = {
+//   name: string;
+//   appliedFor: string;
+//   email: string;
+//   caseId: string;
+//   phone: string;
+//   createdAt: string;
+// };
 
-type PaymentInfo = {
-  status: string;
-};
+// type PaymentInfo = {
+//   status: string;
+// };
 
-type ClientInfo = {
-  leadStatus: string | undefined;
-  leadInfo: LeadInfo;
-  paymentInfo?: PaymentInfo;
-};
+// type ClientInfo = {
+//   leadStatus: string | undefined;
+//   leadInfo: LeadInfo;
+//   paymentInfo?: PaymentInfo;
+// };
 
-type ClientInfoCardProps = {
-  clientInfo: ClientInfo | undefined;
-};
+// type ClientInfoCardProps = {
+//   clientInfo: ClientInfo | undefined;
+// };
 
 const getStatusLabel = (status: string | undefined): string => {
   switch (status) {
@@ -52,7 +53,8 @@ const getStatusLabel = (status: string | undefined): string => {
   }
 };
 
-const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
+const ClientInfoCard = ({ clientInfo }:{clientInfo:any}) => {
+  // console.log(clientInfo)
   return (
     <Card
       sx={{
@@ -81,7 +83,7 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
             <span className="text-[#F6C328]"> ● </span>
-            {getStatusLabel(clientInfo?.leadStatus)}
+            {clientInfo?.paymentInfo === null ? getStatusLabel("PAYMENTLINKSENT") : getStatusLabel("PAYMENTDONE") }
           </Typography>
         </Box>
 
@@ -100,7 +102,7 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
                 mb: { xs: 1, md: 0 },
               }}
             >
-              Name: {clientInfo?.leadInfo?.name}
+              Name: {clientInfo?.basicInfo?.name}
             </Typography>
             <Typography
               sx={{
@@ -108,7 +110,7 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
                 mb: { xs: 1, md: 0 },
               }}
             >
-              Applied for: <strong>{clientInfo?.leadInfo?.appliedFor}</strong>
+              Applied for: <strong>{formatDate(clientInfo?.basicInfo?.createdAt)}</strong>
             </Typography>
             <Tooltip title={clientInfo?.leadInfo?.email || ""} arrow>
               <Typography
@@ -121,7 +123,7 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
                   display: "block",
                 }}
               >
-                Email: {clientInfo?.leadInfo?.email}
+                Email: {clientInfo?.basicInfo?.email}
               </Typography>
             </Tooltip>
           </Box>
@@ -133,7 +135,7 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
                 mb: { xs: 1, md: 0 },
               }}
             >
-              Case ID: {clientInfo?.leadInfo?.caseId}
+              Case ID: {clientInfo?.basicInfo?.caseId}
             </Typography>
             <Typography
               sx={{
@@ -141,7 +143,7 @@ const ClientInfoCard: React.FC<ClientInfoCardProps> = ({ clientInfo }) => {
                 mb: { xs: 1, md: 0 },
               }}
             >
-              Number: {clientInfo?.leadInfo?.phone}
+              Number: {clientInfo?.basicInfo?.phone}
             </Typography>
             {clientInfo?.paymentInfo?.status === "PAID" && (
               <Typography

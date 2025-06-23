@@ -2,6 +2,7 @@ export interface RecentUpdatesTypes {
   _id: string;
   logMsg: string;
   createdAt: string;
+  visaApplicationId:string
 }
  
 export interface RevenueDataTypes {
