@@ -24,7 +24,6 @@ const StatsCard = ({
           sm: "48%",     
           md: "100%",    
         },
-        mb: 2,
       }}
     >
       <Typography
@@ -32,7 +31,7 @@ const StatsCard = ({
           fontWeight: 600,
           fontSize: { xs: "12px", md: "14px" },
           display: "flex",
-          justifyContent:"start"
+          justifyContent:"start",
         }}
       >
         {title}

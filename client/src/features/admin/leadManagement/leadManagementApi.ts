@@ -23,6 +23,12 @@ export const leadManagementApi = baseApi.injectEndpoints({
         data: body,
       }),
     }),
+    fetchLeadsStats: build.query({
+      query: () => ({
+        url: `/admin/leads/fetchLeadsStats`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -30,4 +36,5 @@ export const {
   useFetchAllLeadsQuery,
   useFetchParticularLeadQuery,
   useRejectParticularLeadMutation,
+  useFetchLeadsStatsQuery,
 } = leadManagementApi;

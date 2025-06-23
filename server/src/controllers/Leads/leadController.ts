@@ -163,3 +163,118 @@ export const rejectLead = async (req: Request, res: Response) => {
 
   res.status(200).json({ message: "Lead rejected successfully" });
 };
+
+export const getLeadsStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const currentMonthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+
+    const pipeline = [
+      {
+        $group: {
+          _id: "$leadStatus",
+          totalCount: { $sum: 1 },
+          currentMonthCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ["$updatedAt", currentMonthStart] },
+                    { $lte: ["$updatedAt", currentMonthEnd] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          statuses: {
+            $push: {
+              status: "$_id",
+              totalCount: "$totalCount",
+              currentMonthCount: "$currentMonthCount",
+            },
+          },
+        },
+      },
+    ];
+
+    const [result] = await LeadModel.aggregate(pipeline);
+
+    const leadsStats = {
+      [leadStatus.INITIATED]: 0,
+      [leadStatus.CONSULTATIONLINKSENT]: 0,
+      [leadStatus.CONSULTATIONSCHEDULED]: 0,
+      [leadStatus.CONSULTATIONDONE]: 0,
+      [leadStatus.PAYMENTLINKSENT]: 0,
+      [leadStatus.PAYMENTDONE]: 0,
+      [leadStatus.REJECTED]: 0,
+    };
+
+    let totalLeads = 0;
+
+    // Process results
+    if (result && result.statuses) {
+      result.statuses.forEach((item: any) => {
+        const status = item.status;
+        const count =
+          status === leadStatus.PAYMENTDONE || status === leadStatus.REJECTED
+            ? item.currentMonthCount
+            : item.totalCount;
+
+        if (status in leadsStats) {
+          leadsStats[status as keyof typeof leadsStats] = count;
+          totalLeads += count;
+        }
+      });
+    }
+
+    const pendingApplications =
+      leadsStats[leadStatus.CONSULTATIONLINKSENT] +
+      leadsStats[leadStatus.CONSULTATIONSCHEDULED] +
+      leadsStats[leadStatus.CONSULTATIONDONE] +
+      leadsStats[leadStatus.PAYMENTLINKSENT];
+
+    const activeLeads = totalLeads - leadsStats[leadStatus.REJECTED];
+    const conversionRate =
+      activeLeads > 0
+        ? Math.round((leadsStats[leadStatus.PAYMENTDONE] / activeLeads) * 100)
+        : 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...leadsStats,
+        totalLeads,
+        pendingApplications,
+        conversionRate,
+        currentMonth: {
+          year: now.getFullYear(),
+          month: now.getMonth() + 1,
+        },
+      },
+      message: "Lead statistics retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Error in getLeadsStatsOptimized:", error);
+    next(new AppError("Internal Server Error", 500));
+  }
+};

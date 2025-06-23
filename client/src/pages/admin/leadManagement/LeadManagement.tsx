@@ -10,6 +10,7 @@ import { useFetchAllLeadsQuery } from "../../../features/admin/leadManagement/le
 import { useEffect, useState } from "react";
 import { useSearchPagination } from "../../../features/searchPagination/useSearchPagination";
 import { Search } from "@mui/icons-material";
+import LeadsStats from "./LeadsStats";
 
 const LeadManagement: React.FC = () => {
   const [pagination, setPagination] = useState(null);
@@ -73,6 +74,8 @@ const LeadManagement: React.FC = () => {
         // alignItems: isLoading ? "center" : "stretch",
       }}
     >
+
+      <LeadsStats/>
       <Box sx={{ mb: 2 }}>
         <TextField
           placeholder="Search leads..."

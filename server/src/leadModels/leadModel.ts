@@ -1,5 +1,5 @@
-import { Schema, model, Document } from "mongoose";
 import { leadStatus } from "../types/enums/enums";
+import { Schema, model, Document } from "mongoose";
 import { generateShortId } from "../utils/generateShortId";
 
 export interface ILead extends Document {
