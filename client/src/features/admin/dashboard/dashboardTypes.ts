@@ -1,14 +1,9 @@
 export interface RecentUpdatesTypes {
-  _id:string  
-  caseId:{
-      _id:string,
-      leadId:string
-      nanoVisaApplicationId:string
-    }
-    name:string;
-    status:string;
-  }
-  
+  _id: string;
+  logMsg: string;
+  createdAt: string;
+}
+ 
 export interface RevenueDataTypes {
     visaType: VisaTypeEnum;
     totalRevenue: number;

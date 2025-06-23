@@ -9,11 +9,19 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { RecentUpdatesTypes } from "../dashboardTypes";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "../../../../utils/FormateDate";
 
-const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
+type RecentUpdate = {
+  _id: string;
+  logMsg: string;
+  createdAt: string;
+};
+
+const RecentUpdates = ({ data }: { data: RecentUpdate[] }) => {
   const navigate = useNavigate();
+
+  console.log(data)
 
   return (
     <Card
@@ -37,7 +45,6 @@ const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
           Recent Updates
         </Typography>
 
-        {/* Responsive wrapper for horizontal scroll on mobile */}
         <div style={{ overflowX: "auto" }}>
           <Table
             size="small"
@@ -51,10 +58,10 @@ const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
           >
             <TableHead>
               <TableRow>
-                {["CaseID", "Name", "Status", "Action"].map((header) => (
+                {["Log Message", "Created At", "Action"].map((header) => (
                   <TableCell
                     key={header}
-                    sx={{ color: "#8D8883", fontWeight: "bold" }}
+                    sx={{ color: "#8D8883" }}
                   >
                     {header}
                   </TableCell>
@@ -62,17 +69,16 @@ const RecentUpdates = ({ data }: { data: RecentUpdatesTypes[] }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((id) => (
-                <TableRow key={id.caseId?.nanoVisaApplicationId}>
-                  <TableCell>{id.caseId?.nanoVisaApplicationId}</TableCell>
-                  <TableCell>{id.name}</TableCell>
-                  <TableCell>{id.status}</TableCell>
+              {data.map((item) => (
+                <TableRow key={item._id}>
+                  <TableCell>{item.logMsg}</TableCell>
+                  <TableCell>
+                    {formatDate(item.createdAt)}
+                  </TableCell>
                   <TableCell>
                     <Button
                       onClick={() =>
-                        navigate(`/admin/application/${id.caseId._id}`, {
-                          state: { row: { ...id, leadId: id.caseId?.leadId } },
-                        })
+                        navigate(`/admin/logs/${item._id}`, { state: item })
                       }
                       size="small"
                       sx={{
