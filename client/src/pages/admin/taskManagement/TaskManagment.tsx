@@ -304,7 +304,7 @@ const TaskManagment = () => {
         </Tabs>
       </Box>
 
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap={"wrap"}>
         <TextField
           placeholder="Search tasks..."
           value={searchInput}

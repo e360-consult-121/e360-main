@@ -30,7 +30,6 @@ import { toast } from "react-toastify";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import EditIcon from "@mui/icons-material/Edit";
 const ParticularTask = () => {
-
   const { taskid } = useParams();
   const navigate = useNavigate();
 
@@ -38,7 +37,9 @@ const ParticularTask = () => {
   const [assignedTo, setAssignedTo] = useState<any[]>([]);
   const [status, setStatus] = useState("");
   const [description, setDescription] = useState("");
-  const [assignees, setAssignees] = useState<string[]>([]);
+  const [assignees, setAssignees] = useState<{ name: string; email: string }[]>(
+    []
+  );
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [remark, setRemark] = useState("");
@@ -47,7 +48,7 @@ const ParticularTask = () => {
   const [editText, setEditText] = useState("");
 
   const [editRemarkToTask] = useEditRemarkToTaskMutation();
-  
+
   const [addRemarkToTask, { isLoading }] = useAddRemarkToTaskMutation();
 
   const { data, refetch } = useFetchParticularTaskQuery(taskid);
@@ -56,7 +57,8 @@ const ParticularTask = () => {
   const { data: allUsersData } = useFetchAssigneeListQuery(undefined);
 
   const [editTask] = useEditTaskMutation();
-  const [updateTaskAttachments, {isLoading:isEditing}] = useUpdateTaskAttachmentsMutation()
+  const [updateTaskAttachments, { isLoading: isEditing }] =
+    useUpdateTaskAttachmentsMutation();
 
   const assigneeOptions =
     allUsersData?.data?.map((user: any) => ({
@@ -68,12 +70,17 @@ const ParticularTask = () => {
   useEffect(() => {
     if (task && allUsersData?.data) {
       setStatus(task.status || "");
-      const selectedEmails =
-        task.assignedTo?.map((user: any) => user.email) || [];
-      setAssignees(selectedEmails);
+      const selectedAssignees =
+        task.assignedTo?.map((user: any) => ({
+          email: user.email,
+          name: user.name,
+        })) || [];
+      setAssignees(selectedAssignees);
 
       const selectedOptions = allUsersData.data
-        .filter((user: any) => selectedEmails.includes(user.email))
+        .filter((user: any) =>
+          selectedAssignees.map((u: any) => u.email).includes(user.email)
+        )
         .map((user: any) => ({
           label: user.email,
           value: user._id,
@@ -90,26 +97,26 @@ const ParticularTask = () => {
   };
 
   const handleUploadFiles = async () => {
-  try {
-    await updateTaskAttachments({
-      taskId: taskid,
-      files:mediaFiles,
-    }).unwrap();
-    toast.success("Files uploaded successfully");
-    setMediaFiles([]);
-    refetch();
-  } catch (err) {
-    toast.error("Upload failed");
-  }
-};
+    try {
+      await updateTaskAttachments({
+        taskId: taskid,
+        files: mediaFiles,
+      }).unwrap();
+      toast.success("Files uploaded successfully");
+      setMediaFiles([]);
+      refetch();
+    } catch (err) {
+      toast.error("Upload failed");
+    }
+  };
 
   const handleAddRemark = async () => {
     if (!remark.trim()) return;
 
     try {
       await addRemarkToTask({
-        taskId:taskid,
-        body: { remarkMsg:remark }, 
+        taskId: taskid,
+        body: { remarkMsg: remark },
       }).unwrap();
       toast.success("Remark added successfully");
       setRemark("");
@@ -119,12 +126,12 @@ const ParticularTask = () => {
     }
   };
 
-  const handleEditClick = (index:any, currentMessage:string) => {
+  const handleEditClick = (index: any, currentMessage: string) => {
     setEditIndex(index);
     setEditText(currentMessage);
   };
 
-  const handleSave = async (taskId:string, remarkId:string) => {
+  const handleSave = async (taskId: string, remarkId: string) => {
     try {
       await editRemarkToTask({
         taskId,
@@ -133,21 +140,21 @@ const ParticularTask = () => {
       }).unwrap();
       setEditIndex(null);
       setEditText("");
-      toast.success("Remark edited successfully")
-      refetch()
+      toast.success("Remark edited successfully");
+      refetch();
     } catch (err) {
       toast.error("Failed to edit remark");
     }
   };
 
-   const handleDelete = (fileNameToDelete:string) => {
+  const handleDelete = (fileNameToDelete: string) => {
     setMediaFiles((prev) =>
       prev.filter((file) => file.name !== fileNameToDelete)
     );
   };
 
   return (
-    <Box px={{md:4}} width="100%" maxWidth="900px" mx="auto">
+    <Box px={{ md: 4 }} width="100%" maxWidth="900px" mx="auto">
       <div className="flex justify-end">
         <IconButton onClick={handleNavigation}>
           <CloseIcon sx={{ color: "black" }} />
@@ -279,17 +286,17 @@ const ParticularTask = () => {
 
         {/* Assignee Chips */}
         <Box display="flex" gap={1} flexWrap="wrap" mb={1} maxWidth={"800px"}>
-          {assignees.map((email, idx) => (
-            <Tooltip key={idx} title={email}>
+          {assignees.map((assignee, idx) => (
+            <Tooltip key={idx} title={assignee.email}>
               <Chip
-                label={email}
+                label={assignee.name}
                 onDelete={async () => {
-                  const updatedEmails = assignees.filter((_, i) => i !== idx);
-                  setAssignees(updatedEmails);
+                  const updatedAssignees = assignees.filter((_, i) => i !== idx);
+                  setAssignees(updatedAssignees);
 
                   const updatedIds =
                     allUsersData?.data
-                      .filter((user: any) => updatedEmails.includes(user.email))
+                      .filter((user: any) => updatedAssignees.map((u)=>u.email).includes(user.email))
                       .map((user: any) => user._id) || [];
 
                   try {
@@ -326,7 +333,7 @@ const ParticularTask = () => {
                 // Opening MultiSelect, preload current selection
                 const selectedOptions =
                   allUsersData?.data
-                    ?.filter((user: any) => assignees.includes(user.email))
+                    ?.filter((user: any) => assignees.map((u)=>u.email).includes(user.email))
                     .map((user: any) => ({
                       label: user.email,
                       value: user._id,
@@ -456,213 +463,217 @@ const ParticularTask = () => {
           ))}
         </Box>
 
-      <Box
-  mt={3}
-  p={2}
-  border="1px dashed #ccc"
-  borderRadius="12px"
-  textAlign="center"
-  sx={{ cursor: "pointer" }}
-  onClick={() => fileInputRef.current?.click()}
->
-  <Typography mb={1}>Attach Media</Typography>
-  <Typography color="text.secondary" fontSize="14px">
-    Upload media/Documents
-  </Typography>
-  <IconButton>
-    <CloudUploadIcon />
-  </IconButton>
+        <Box
+          mt={3}
+          p={2}
+          border="1px dashed #ccc"
+          borderRadius="12px"
+          textAlign="center"
+          sx={{ cursor: "pointer" }}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Typography mb={1}>Attach Media</Typography>
+          <Typography color="text.secondary" fontSize="14px">
+            Upload media/Documents
+          </Typography>
+          <IconButton>
+            <CloudUploadIcon />
+          </IconButton>
 
-  {/* Display selected file names */}
-  {mediaFiles.length > 0 && (
-    <Box mt={1} display="flex" flexDirection="column" gap={0.5}>
-      <Typography>Uploaded files</Typography>
-      <Box
-          display="flex"
-          flexWrap="wrap"
-          justifyContent="center"
-          gap={1}>
- {mediaFiles.map((file, index) => (
-            <Chip
-              key={index}
-              label={file.name}
-              onDelete={() => handleDelete(file.name)}
-              sx={{ borderRadius: 2 }}
-              variant="outlined"
-            />
-          ))}
-          </Box>
-     
-      {/* Upload Button */}
-      <Button
-        variant="contained"
-        size="small"
-        onClick={(e) => {
-          e.stopPropagation(); // prevent opening file picker
-          handleUploadFiles();
-        }}
-        sx={{ mt: 1, alignSelf: "center", width: "fit-content",textTransform:"none",borderRadius:"15px" }}
-        disabled={isEditing}
-      >
-        {isEditing ? "Uploading..." : "Upload"}
-      </Button>
-    </Box>
-  )}
+          {/* Display selected file names */}
+          {mediaFiles.length > 0 && (
+            <Box mt={1} display="flex" flexDirection="column" gap={0.5}>
+              <Typography>Uploaded files</Typography>
+              <Box
+                display="flex"
+                flexWrap="wrap"
+                justifyContent="center"
+                gap={1}
+              >
+                {mediaFiles.map((file, index) => (
+                  <Chip
+                    key={index}
+                    label={file.name}
+                    onDelete={() => handleDelete(file.name)}
+                    sx={{ borderRadius: 2 }}
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
 
-  <input
-    type="file"
-    ref={fileInputRef}
-    onChange={(e) => {
-      if (e.target.files) {
-        const selected = Array.from(e.target.files);
-        const existingNames = new Set(mediaFiles.map((file) => file.name));
-        const uniqueNewFiles = selected.filter(
-          (file) => !existingNames.has(file.name)
-        );
-        setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
-      }
-    }}
-    multiple
-    style={{ display: "none" }}
-  />
-</Box>
+              {/* Upload Button */}
+              <Button
+                variant="contained"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent opening file picker
+                  handleUploadFiles();
+                }}
+                sx={{
+                  mt: 1,
+                  alignSelf: "center",
+                  width: "fit-content",
+                  textTransform: "none",
+                  borderRadius: "15px",
+                }}
+                disabled={isEditing}
+              >
+                {isEditing ? "Uploading..." : "Upload"}
+              </Button>
+            </Box>
+          )}
 
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={(e) => {
+              if (e.target.files) {
+                const selected = Array.from(e.target.files);
+                const existingNames = new Set(
+                  mediaFiles.map((file) => file.name)
+                );
+                const uniqueNewFiles = selected.filter(
+                  (file) => !existingNames.has(file.name)
+                );
+                setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
+              }
+            }}
+            multiple
+            style={{ display: "none" }}
+          />
+        </Box>
       </Box>
 
-   <Box sx={{ mt: 3 }}>
-      <Typography fontWeight={600} mb={1}>
-        Remarks:
-      </Typography>
+      <Box sx={{ mt: 3 }}>
+        <Typography fontWeight={600} mb={1}>
+          Remarks:
+        </Typography>
 
-      {task?.remarks?.length > 0 ? (
-        task?.remarks.map((remark:any, index:any) => (
-          <Box
-            key={index}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-            sx={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 2,
-              mb: 2,
-              p: 2,
-              borderRadius: 2,
-              backgroundColor: "#f5f5f5",
-              position: "relative",
-            }}
-          >
-            {/* Avatar */}
-            <Avatar>
-              {remark.doneBy?.name
-                ? remark.doneBy.name.charAt(0).toUpperCase()
-                : "U"}
-            </Avatar>
+        {task?.remarks?.length > 0 ? (
+          task?.remarks.map((remark: any, index: any) => (
+            <Box
+              key={index}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 2,
+                mb: 2,
+                p: 2,
+                borderRadius: 2,
+                backgroundColor: "#f5f5f5",
+                position: "relative",
+              }}
+            >
+              {/* Avatar */}
+              <Avatar>
+                {remark.doneBy?.name
+                  ? remark.doneBy.name.charAt(0).toUpperCase()
+                  : "U"}
+              </Avatar>
 
-            {/* Content */}
-            <Box flex={1}>
-              <Typography fontWeight={500}>
-                {remark.doneBy?.name || "Unknown"}:
-              </Typography>
+              {/* Content */}
+              <Box flex={1}>
+                <Typography fontWeight={500}>
+                  {remark.doneBy?.name || "Unknown"}:
+                </Typography>
 
-              {editIndex === index ? (
-                <Box>
-                  <TextField
-                    fullWidth
-                    multiline
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    rows={2}
-                    sx={{ mt: 1 }}
-                  />
-                  <Box mt={1} display="flex" gap={1}>
+                {editIndex === index ? (
+                  <Box>
+                    <TextField
+                      fullWidth
+                      multiline
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={2}
+                      sx={{ mt: 1 }}
+                    />
+                    <Box mt={1} display="flex" gap={1}>
                       <Tooltip title="Cancel">
-                      <Button
-                        variant="outlined"
-                        onClick={() => setEditIndex(null)}
-                      sx={{
-                          textTransform:"none",
-                          borderRadius:"15px",
-                          boxShadow:"none",
-                          borderColor:"red",
-                          color:"red",
-                          bgcolor:"#f5f5f5"
-                        }}
-                      >
-
-                        Cancel
-                      </Button>
-                    </Tooltip>
-                    <Tooltip title="Save">
-                      <Button
-                        variant="contained"
-                        onClick={() =>
-                          handleSave(task._id, remark._id)
-                        }
-                        sx={{
-                          textTransform:"none",
-                          borderRadius:"15px",
-                          boxShadow:"none"
-                        }}
-                      >
-                        Save
-                      </Button>
-                    </Tooltip>
+                        <Button
+                          variant="outlined"
+                          onClick={() => setEditIndex(null)}
+                          sx={{
+                            textTransform: "none",
+                            borderRadius: "15px",
+                            boxShadow: "none",
+                            borderColor: "red",
+                            color: "red",
+                            bgcolor: "#f5f5f5",
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Save">
+                        <Button
+                          variant="contained"
+                          onClick={() => handleSave(task._id, remark._id)}
+                          sx={{
+                            textTransform: "none",
+                            borderRadius: "15px",
+                            boxShadow: "none",
+                          }}
+                        >
+                          Save
+                        </Button>
+                      </Tooltip>
+                    </Box>
                   </Box>
+                ) : (
+                  <Typography sx={{ mt: 0.5 }}>{remark.message}</Typography>
+                )}
+              </Box>
+
+              {/* Edit button on hover */}
+              {hoveredIndex === index && editIndex !== index && (
+                <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+                  <Tooltip title="Edit">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEditClick(index, remark.message)}
+                    >
+                      <EditIcon fontSize="small" sx={{ color: "black" }} />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
-              ) : (
-                <Typography sx={{ mt: 0.5 }}>{remark.message}</Typography>
               )}
             </Box>
+          ))
+        ) : (
+          <Typography color="text.secondary" mb={2}>
+            No remarks yet.
+          </Typography>
+        )}
+      </Box>
 
-            {/* Edit button on hover */}
-            {hoveredIndex === index && editIndex !== index && (
-              <Box sx={{ position: "absolute", top: 8, right: 8 }}>
-                <Tooltip title="Edit">
-                  <IconButton
-                    size="small"
-                    onClick={() => handleEditClick(index, remark.message)}
-                  >
-                    <EditIcon fontSize="small" sx={{color:"black"}} />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            )}
-          </Box>
-        ))
-      ) : (
-        <Typography color="text.secondary" mb={2}>
-          No remarks yet.
-        </Typography>
-      )}
-    </Box>
-
-  {/* Input field for new remarks */}
- <Box my={5}>
-  <Typography  fontWeight={600}>Add remark</Typography>
-      <TextField
-        fullWidth
-        placeholder="Enter remarks of the task"
-        multiline
-        rows={3}
-        margin="normal"
-        value={remark}
-        onChange={(e) => setRemark(e.target.value)}
-      />
-      <Button
-        variant="contained"
-        onClick={handleAddRemark}
-        disabled={isLoading || !remark.trim()}
-        sx={{
-          textTransform:"none",
-          borderRadius:"15px",
-          boxShadow:"none",
-          mb:5
-        }}
-      >
-        {isLoading ? "Adding..." : "Add Remark"}
-      </Button>
- </Box>
-
+      {/* Input field for new remarks */}
+      <Box my={5}>
+        <Typography fontWeight={600}>Add remark</Typography>
+        <TextField
+          fullWidth
+          placeholder="Enter remarks of the task"
+          multiline
+          rows={3}
+          margin="normal"
+          value={remark}
+          onChange={(e) => setRemark(e.target.value)}
+        />
+        <Button
+          variant="contained"
+          onClick={handleAddRemark}
+          disabled={isLoading || !remark.trim()}
+          sx={{
+            textTransform: "none",
+            borderRadius: "15px",
+            boxShadow: "none",
+            mb: 5,
+          }}
+        >
+          {isLoading ? "Adding..." : "Add Remark"}
+        </Button>
+      </Box>
     </Box>
   );
 };

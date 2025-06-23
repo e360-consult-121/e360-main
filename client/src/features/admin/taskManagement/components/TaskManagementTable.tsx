@@ -4,7 +4,7 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox,
+  // Checkbox,
   Chip,
   IconButton,
   Paper,
@@ -68,7 +68,7 @@ const TaskManagementTable = ({
   paginationActions,
   refetchTasks,
 }: TaskManagementTableProps) => {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -109,17 +109,17 @@ const TaskManagementTable = ({
     navigate(`/admin/taskmanagement/${taskId}`);
   };
 
-  const handleCheckboxChange = (id: string) => {
-    const updatedSelected = selectedIds.includes(id)
-      ? selectedIds.filter((selectedId) => selectedId !== id)
-      : [...selectedIds, id];
+  // const handleCheckboxChange = (id: string) => {
+  //   const updatedSelected = selectedIds.includes(id)
+  //     ? selectedIds.filter((selectedId) => selectedId !== id)
+  //     : [...selectedIds, id];
 
-    setSelectedIds(updatedSelected);
-    const selectedRows = tasks.filter((task) =>
-      updatedSelected.includes(task._id)
-    );
-    console.log("Selected Rows:", selectedRows);
-  };
+  //   setSelectedIds(updatedSelected);
+  //   const selectedRows = tasks.filter((task) =>
+  //     updatedSelected.includes(task._id)
+  //   );
+  //   console.log("Selected Rows:", selectedRows);
+  // };
 
   const handleChangePage = (_: unknown, newPage: number) => {
     // Convert from 0-based to 1-based page numbering
@@ -139,7 +139,9 @@ const TaskManagementTable = ({
       <Box p={2}>
         {tasks.length === 0 ? (
           <Typography align="center">
-            {paginationState.search ? "No tasks found matching your search." : "No tasks available."}
+            {paginationState.search
+              ? "No tasks found matching your search."
+              : "No tasks available."}
           </Typography>
         ) : (
           tasks.map((task) => (
@@ -154,58 +156,65 @@ const TaskManagementTable = ({
               }}
             >
               <CardContent>
-                <Stack direction="row" alignItems={"center"} justifyContent="space-between" mb={1}>
+                <Stack
+                  direction="row"
+                  alignItems={"center"}
+                  justifyContent="space-between"
+                  mb={1}
+                >
                   <Typography fontWeight="bold">{task.taskName}</Typography>
-                  <Checkbox
+                  {/* <Checkbox
                     checked={selectedIds.includes(task._id)}
                     onChange={() => handleCheckboxChange(task._id)}
-                  />
+                  /> */}
                 </Stack>
 
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   <b>Assigned To:</b>{" "}
                   {Array.isArray(task.assignedTo) && task.assignedTo.length > 0
-                    ? task.assignedTo.map((user: any) => user.email).join(", ")
+                    ? task.assignedTo.map((user: any) => user.name).join(", ")
                     : "Unassigned"}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  <b>Assigned By:</b> {task.assignedBy?.email || "Unassigned"}
+                  <b>Assigned By:</b> {task.assignedBy?.name || "Unassigned"}
                 </Typography>
                 <Box display={"flex"} alignItems={"center"} gap={1} mb={1}>
-                  <Typography sx={{fontWeight:650}}>Status:</Typography>
-                   <Typography
-                   variant="body2"
-                  color={
-                    task.status === "Completed"
-                      ? "green"
-                      : task.status === "Due"
-                      ? "orange"
-                      : "red"
-                  }
-                  sx={{fontWeight:650 }}
-                >{task.status}
-                </Typography>
+                  <Typography sx={{ fontWeight: 650 }}>Status:</Typography>
+                  <Typography
+                    variant="body2"
+                    color={
+                      task.status === "Completed"
+                        ? "green"
+                        : task.status === "Due"
+                        ? "orange"
+                        : "red"
+                    }
+                    sx={{ fontWeight: 650 }}
+                  >
+                    {task.status}
+                  </Typography>
                 </Box>
-               
+
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  <b>Due Date:</b> {new Date(task.dueDate).toLocaleDateString()}
+                  <b>Due Date:</b> {new Date(task.endDate).toLocaleDateString()}
                 </Typography>
                 <Box display={"flex"} alignItems={"center"} gap={1} mb={1}>
-                  <Typography sx={{fontWeight:650}}>Priority:</Typography>
-                <Typography
-                  variant="body2"
-                  color={
-                    task.priority === "High"
-                      ? "red"
-                      : task.priority === "Medium"
-                      ? "orange"
-                      : "green"
-                  }
-                  sx={{fontWeight:650 }}
-                > {task.priority}
-                </Typography>
+                  <Typography sx={{ fontWeight: 650 }}>Priority:</Typography>
+                  <Typography
+                    variant="body2"
+                    color={
+                      task.priority === "High"
+                        ? "red"
+                        : task.priority === "Medium"
+                        ? "orange"
+                        : "green"
+                    }
+                    sx={{ fontWeight: 650 }}
+                  >
+                    {" "}
+                    {task.priority}
+                  </Typography>
                 </Box>
-                
               </CardContent>
 
               <CardActions
@@ -228,7 +237,7 @@ const TaskManagementTable = ({
                   <DeleteOutlinedIcon />
                 </IconButton>
                 <Button
-                variant="outlined"
+                  variant="outlined"
                   sx={{
                     textTransform: "none",
                     borderRadius: "10px",
@@ -243,7 +252,7 @@ const TaskManagementTable = ({
             </Card>
           ))
         )}
-        
+
         {/* Backend Pagination */}
         <TablePagination
           component="div"
@@ -282,7 +291,9 @@ const TaskManagementTable = ({
               <TableRow>
                 <TableCell colSpan={7} align="center">
                   <Typography>
-                    {paginationState.search ? "No tasks found matching your search." : "No tasks available."}
+                    {paginationState.search
+                      ? "No tasks found matching your search."
+                      : "No tasks available."}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -326,11 +337,12 @@ const TaskManagementTable = ({
                         {task.assignedTo.map((user: any) => (
                           <Tooltip title={user.email} key={user._id}>
                             <Chip
-                              label={user.email}
+                              label={user.name}
                               size="small"
                               sx={{
                                 maxWidth: 150,
                                 overflow: "hidden",
+                                width:"max-content",
                                 textOverflow: "ellipsis",
                               }}
                             />
@@ -343,7 +355,9 @@ const TaskManagementTable = ({
                   </TableCell>
 
                   <TableCell sx={{ borderBottom: "none" }}>
-                    {task.assignedBy?.email || "Unassigned"}
+                    <Tooltip title={task.assignedBy?.email || "Unassigned"}>
+                      {task.assignedBy?.name || "Unassigned"}
+                    </Tooltip>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -359,7 +373,7 @@ const TaskManagementTable = ({
                     {task.status}
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
-                    {new Date(task.dueDate).toLocaleDateString()}
+                    {new Date(task.endDate).toLocaleDateString()}
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>
                     <Typography

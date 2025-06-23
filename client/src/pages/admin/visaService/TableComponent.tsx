@@ -56,11 +56,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
   const navigate = useNavigate();
 
   const handleNavigation = (row: any) => {
-    const newRow = {
-      ...row,
-      leadId: row.leadId._id,
-    };
-    navigate(`/admin/application/${row._id}`, { state: { row: newRow } });
+    // const newRow = {
+    //   ...row,
+    //   leadId: row.leadId._id,
+    // };
+    navigate(
+      `/admin/application/${row._id}`
+      // , { state: { row: newRow } }
+    );
   };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
