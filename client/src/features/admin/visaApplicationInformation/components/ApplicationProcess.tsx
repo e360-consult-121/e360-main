@@ -35,7 +35,7 @@ const ApplicationProcess = () => {
   const [needsReUpload] = useNeedsReUploadMutation();
 
   useEffect(() => {
-    console.log(data)
+    // console.log(data)
     if (error) {
       console.error("Failed to fetch step info:", error);
     }

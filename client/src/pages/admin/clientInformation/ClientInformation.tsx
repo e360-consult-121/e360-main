@@ -190,10 +190,10 @@ const ClientInformation = () => {
       <ClientConsultation
         onRefreshLead={refetch}
         leadStatus={clientInfo?.leadStatus || ""}
-        consultationInfo={clientInfo?.consultationInfo}
-        paymentInfo={clientInfo?.paymentInfo}
+        consultationInfo={clientInfo?.consultationInfo || null}
+        paymentInfo={clientInfo?.paymentInfo || null}
         visaType={clientInfo?.leadInfo?.appliedFor ?? ""}
-        eligibilityForm={clientInfo?.eligibilityForm}
+        eligibilityForm={clientInfo?.eligibilityForm || null}
         formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
         showExtraTabs={false}
         isParticularVisaApplication={false}
