@@ -10,55 +10,119 @@ import { consultationCallScheduledAdmin } from "../../services/emails/triggers/a
 import { getServiceType } from "../../utils/leadToServiceType";
 import { constultationCallScheduled } from "../../services/emails/triggers/leads/consultation/consultation-call-scheduled";
 import { TaskModel } from "../../models/teamAndTaskModels/taskModel";
-// get all consultations
-// pagination bhi lagana hai
-export const getAllConsultations = async (req: Request, res: Response) => {
-  const matchStage: any = {};
+import {
+  createCustomFields,
+  searchPaginatedQuery,
+} from "../../services/searchAndPagination/searchPaginatedQuery";
 
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    matchStage._id = { $in: req.assignedIds };
-  }
-    
-  const consultations = await ConsultationModel.aggregate([
-    { $match: matchStage },
-    {
-      $addFields: {
-        statusOrder: {
-          $switch: {
-            branches: [
-              { case: { $eq: ["$status", "SCHEDULED"] }, then: 0 },
-              { case: { $eq: ["$status", "CANCELLED"] }, then: 1 },
-              { case: { $eq: ["$status", "COMPLETED"] }, then: 2 },
-            ],
-            default: 3,
-          },
-        },
-        sortTime: {
-          $cond: {
-            if: { $eq: ["$status", "SCHEDULED"] },
-            then: { $multiply: [-1, { $toLong: "$startTime" }] }, // negate for descending
-            else: { $toLong: "$startTime" }, // ascending
-          },
-        },
-      },
-    },
-    {
-      $sort: {
+export const getAllConsultations = async (req: Request, res: Response) => {
+  try {
+    const {
+      search,
+      page = 1,
+      limit = 10,
+      sort,
+      populate,
+      select,
+      useCustomSort = "true",
+      statusFilter = "", // Add status filter
+      dateFilter = "", // Add date filter
+    } = req.query;
+
+    const additionalFilters: any = {};
+
+    // Add status filter
+    if (statusFilter && statusFilter !== "") {
+      additionalFilters.status = statusFilter;
+    }
+
+    // Add date filter
+    if (dateFilter && dateFilter !== "") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+
+      if (dateFilter === "Today") {
+        additionalFilters.startTime = {
+          $gte: today,
+          $lt: tomorrow,
+        };
+      } else if (dateFilter === "Yesterday") {
+        additionalFilters.startTime = {
+          $gte: yesterday,
+          $lt: today,
+        };
+      }
+    }
+
+    if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+      additionalFilters._id = { $in: req.assignedIds };
+    }
+
+    let customFields: any[] = [];
+    let customSort: any = {};
+    let excludeFields: string[] = [];
+
+    if (useCustomSort === "true" && !sort) {
+      customFields = [
+        createCustomFields.statusOrder({
+          SCHEDULED: 0,
+          CANCELLED: 1,
+          COMPLETED: 2,
+        }),
+        createCustomFields.timeSort("startTime", {
+          $eq: ["$status", "SCHEDULED"],
+        }),
+      ];
+
+      customSort = {
         statusOrder: 1,
         sortTime: 1,
-      },
-    },
-    {
-      $project: {
-        statusOrder: 0,
-        sortTime: 0,
-      },
-    },
-  ]);
+      };
 
-  res.status(200).json({ consultations });
+      excludeFields = ["statusOrder", "sortTime"];
+    }
+
+    // Use the enhanced utility
+    const result = await searchPaginatedQuery({
+      model: ConsultationModel,
+      collectionName: "consultations",
+      search: search as string,
+      page: Number(page),
+      limit: Number(limit),
+      sort: sort as string,
+      additionalFilters,
+      populate: populate ? JSON.parse(populate as string) : undefined,
+      select: select as string,
+      customFields,
+      customSort: Object.keys(customSort).length > 0 ? customSort : undefined,
+      excludeFields,
+    });
+
+    res.status(200).json({
+      consultations: result.data,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+        hasNextPage: result.hasNextPage,
+        hasPrevPage: result.hasPrevPage,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error fetching consultations:", error);
+    res.status(500).json({
+      error: "Failed to fetch consultations",
+      message: error.message,
+    });
+  }
 };
-
 
 // send consultation link
 export const sendConsultationLink = async (req: Request, res: Response) => {
@@ -71,7 +135,7 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
     throw new Error("Lead not found");
   }
 
-  let serviceType="";
+  let serviceType = "";
   const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}&utm_source=EEE360`;
 
   const visaType = lead.__t?.replace("Lead", "");
@@ -88,18 +152,17 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   if (lead.additionalInfo?.priority === leadPriority.HIGH) {
     await sendHighPriorityLeadEmail(
       lead.email,
-      lead.fullName.first,
+      lead.fullName.split(" ")[0],
       serviceType,
       calendlyLink
     );
-  }
-  else{
+  } else {
     await sendMediumPriorityLeadEmail(
       lead.email,
-      lead.fullName.first,
+      lead.fullName.split(" ")[0],
       serviceType,
       calendlyLink
-    )
+    );
   }
   // const calendlyLink = process.env.CALENDLY_LINK;
   // const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
@@ -206,9 +269,21 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       hour12: true,
     });
 
-    await consultationCallScheduledAdmin(lead.fullName.first, getServiceType(lead.__t ?? ""), formattedDate, joinUrl);
-    await constultationCallScheduled(lead.email, lead.fullName.first, getServiceType(lead.__t ?? ""), formattedDate, joinUrl,lead.additionalInfo?.priority);
-    
+    await consultationCallScheduledAdmin(
+      lead.fullName.split(" ")[0],
+      getServiceType(lead.__t ?? ""),
+      formattedDate,
+      joinUrl
+    );
+    await constultationCallScheduled(
+      lead.email,
+      lead.fullName.split(" ")[0],
+      getServiceType(lead.__t ?? ""),
+      formattedDate,
+      joinUrl,
+      lead.additionalInfo?.priority
+    );
+
     const newConsultation = await ConsultationModel.create({
       name: payload?.name,
       email: payload?.email,
@@ -225,7 +300,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
     // Update the  consultation id in taskModel
     await TaskModel.updateMany(
       { attachedLead: leadId }, // condition: jis task me ye leadId ho
-      { $set: { attachedConsultation: newConsultation._id } } 
+      { $set: { attachedConsultation: newConsultation._id } }
     );
 
     console.log(
@@ -260,10 +335,10 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       console.log(`Consultation deleted for this  event: ${calendlyEventUrl}`);
     }
 
-     // Update the  consultation id in taskModel
-     await TaskModel.updateMany(
+    // Update the  consultation id in taskModel
+    await TaskModel.updateMany(
       { attachedLead: leadId }, // condition: jis task me ye leadId ho
-      { $set: { attachedConsultation: null } } 
+      { $set: { attachedConsultation: null } }
     );
 
     // Optional: Update lead status

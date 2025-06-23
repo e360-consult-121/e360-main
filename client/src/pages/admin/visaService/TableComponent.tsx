@@ -19,13 +19,39 @@ import {
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
-const TableComponent: React.FC<any> = ({ data, stepsData }) => {
+interface PaginationData {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface TableComponentProps {
+  data: any[];
+  stepsData: string[];
+  pagination?: PaginationData;
+  statusFilter?: string;
+  onStatusFilterChange?: (filter: string) => void;
+  onPageChange?: (page: number) => void;
+  onRowsPerPageChange?: (limit: number) => void;
+}
+
+const TableComponent: React.FC<TableComponentProps> = ({
+  data,
+  stepsData,
+  pagination,
+  statusFilter = "All",
+  onStatusFilterChange,
+  onPageChange,
+  onRowsPerPageChange,
+}) => {
   const { type } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [statusFilter, setStatusFilter] = useState("All");
+
+  // Internal pagination state (fallback)
+  const [internalPage, setInternalPage] = useState(0);
+  const [internalRowsPerPage, setInternalRowsPerPage] = useState(5);
 
   const navigate = useNavigate();
 
@@ -38,32 +64,43 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
   };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage);
+    if (onPageChange) {
+      // Convert from 0-based (MUI) to 1-based (backend)
+      onPageChange(newPage + 1);
+    } else {
+      setInternalPage(newPage);
+    }
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    const newLimit = parseInt(event.target.value, 10);
+    if (onRowsPerPageChange) {
+      onRowsPerPageChange(newLimit);
+    } else {
+      setInternalRowsPerPage(newLimit);
+      setInternalPage(0);
+    }
   };
 
   const handleStatusFilterChange = (event: any) => {
-    setStatusFilter(event.target.value);
+    if (onStatusFilterChange) {
+      onStatusFilterChange(event.target.value);
+    }
   };
+  // Convert backend page (1-based) to MUI page (0-based) for display
+  const currentPage = pagination ? pagination.page - 1 : internalPage;
+  const currentLimit = pagination ? pagination.limit : internalRowsPerPage;
+  const totalCount = pagination ? pagination.total : data.length;
 
-  const filteredData =
-    statusFilter === "All"
-      ? data
-      : data.filter((row: any) => {
-          const stepName = stepsData[row.currentStep - 1];
-          return stepName === statusFilter;
-        });
-
-  const paginatedData = filteredData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  // For internal pagination, slice the data
+  const displayData = pagination
+    ? data // Server-side pagination - use data as is
+    : data.slice(
+        currentPage * currentLimit,
+        currentPage * currentLimit + currentLimit
+      );
 
   const renderCardView = (row: any, index: number) => (
     <Box
@@ -77,16 +114,14 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
         background: "#fff",
       }}
     >
-      <Typography sx={{mb:1}}>
+      <Typography sx={{ mb: 1 }}>
         <strong>Case ID:</strong> {row?.nanoVisaApplicationId}
       </Typography>
-      <Typography sx={{mb:1}}>
+      <Typography sx={{ mb: 1 }}>
         <strong>Name:</strong>{" "}
-        {row.leadId
-          ? row?.leadId?.fullName?.first + " " + row?.leadId?.fullName?.last
-          : row?.userId?.name}
+        {row.leadId ? row?.leadId?.fullName : row?.userId?.name}
       </Typography>
-      <Typography sx={{ display: "flex", gap: 1,mb:1 }}>
+      <Typography sx={{ display: "flex", gap: 1, mb: 1 }}>
         <strong>Email:</strong>
         <Tooltip title={row.leadId ? row?.leadId?.email : row?.userId?.email}>
           <Box
@@ -103,47 +138,48 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
           </Box>
         </Tooltip>
       </Typography>
-      <Typography sx={{mb:1}}>
+      <Typography sx={{ mb: 1 }}>
         <strong>Phone:</strong>{" "}
         {row.leadId ? row?.leadId?.phone : row?.userId?.phone}
       </Typography>
       <Typography
-        sx={{ display: "flex", gap: 1,color: row.status === "Passport Delivered" ? "green" : "black",mb:1 }}
+        sx={{
+          display: "flex",
+          gap: 1,
+          color: row.status === "Passport Delivered" ? "green" : "black",
+          mb: 1,
+        }}
       >
         <strong>Status:</strong>
         <Tooltip title={row?.status}>
           <Box
             component="span"
             sx={{
-               color:
-                          row?.status === "COMPLETED"
-                            ? "green"
-                            : "black",
+              color: row?.status === "COMPLETED" ? "green" : "black",
               maxWidth: 200,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               display: "inline-block",
-              fontWeight:row?.status === "COMPLETED"?600:0
+              fontWeight: row?.status === "COMPLETED" ? 600 : 0,
             }}
           >
             {row?.status}
           </Box>
         </Tooltip>
       </Typography>
-      {/* <Divider sx={{ my: 1 }} /> */}
       <Box>
         <Button
           onClick={() => handleNavigation(row)}
-           variant="outlined"
-                fullWidth
-                sx={{
-                  mt: 2,
-                  textTransform: "none",
-                  borderRadius: "10px",
-                  color: "black",
-                  borderColor: "black",
-                }}
+          variant="outlined"
+          fullWidth
+          sx={{
+            mt: 2,
+            textTransform: "none",
+            borderRadius: "10px",
+            color: "black",
+            borderColor: "black",
+          }}
         >
           View &gt;
         </Button>
@@ -184,12 +220,12 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
 
       {isMobile ? (
         <>
-          {filteredData.length === 0 ? (
+          {displayData.length === 0 ? (
             <Typography textAlign="center">
               No applications going on right now.
             </Typography>
           ) : (
-            paginatedData.map((row: any, index: number) =>
+            displayData.map((row: any, index: number) =>
               renderCardView(row, index)
             )
           )}
@@ -218,24 +254,20 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredData.length === 0 ? (
+              {displayData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
                     No applications going on right now.
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedData.map((row: any, index: any) => (
+                displayData.map((row: any, index: any) => (
                   <TableRow key={index} sx={{ borderBottom: "none" }}>
                     <TableCell sx={{ borderBottom: "none" }}>
                       {row?.nanoVisaApplicationId}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row.leadId
-                        ? row?.leadId?.fullName?.first +
-                          " " +
-                          row?.leadId?.fullName?.last
-                        : row?.userId?.name}
+                      {row.leadId ? row?.leadId?.fullName : row?.userId?.name}
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
                       {row.leadId ? row?.leadId?.email : row?.userId?.email}
@@ -246,11 +278,8 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
                     <TableCell
                       sx={{
                         borderBottom: "none",
-                        color:
-                          row?.status === "COMPLETED"
-                            ? "green"
-                            : "black",
-                             fontWeight:row?.status === "COMPLETED"?600:0
+                        color: row?.status === "COMPLETED" ? "green" : "black",
+                        fontWeight: row?.status === "COMPLETED" ? 600 : 0,
                       }}
                     >
                       {row?.status}
@@ -273,9 +302,9 @@ const TableComponent: React.FC<any> = ({ data, stepsData }) => {
 
       <TablePagination
         component="div"
-        count={filteredData.length}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        count={totalCount}
+        page={currentPage}
+        rowsPerPage={currentLimit}
         onPageChange={handleChangePage}
         rowsPerPageOptions={[5, 10, 15]}
         onRowsPerPageChange={handleChangeRowsPerPage}

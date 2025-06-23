@@ -59,7 +59,7 @@ const RecentLeadManagement: React.FC<LeadTableProps> = ({ data }) => {
               {data.map((lead: any, index: any) => (
                 <TableRow key={index}>
                   <TableCell sx={{ borderBottom: "none" }}>
-                    {lead.fullName.first + lead.fullName.last}
+                    {lead.fullName}
                   </TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>{lead.email}</TableCell>
                   <TableCell sx={{ borderBottom: "none" }}>

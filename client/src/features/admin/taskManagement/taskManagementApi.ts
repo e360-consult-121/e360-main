@@ -3,33 +3,33 @@ import { baseApi } from "../../../app/api";
 export const taskManagementApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchAllTasks: build.query({
-      query: () => ({
-        url: "/admin/task-management/fetchAllTasks",
+      query: ({ search, page, limit }) => ({
+        url: `/admin/task-management/fetchAllTasks?search=${search}&page=${page}&limit=${limit}`,
         method: "GET",
       }),
       providesTags: ["Tasks"],
     }),
     fetchMyTasks: build.query({
-      query: () => ({
-        url: "/admin/task-management/fetchMyTasks",
+      query: ({ search, page, limit }) => ({
+        url: `/admin/task-management/fetchMyTasks?search=${search}&page=${page}&limit=${limit}`,
         method: "GET",
       }),
     }),
     fetchUpcomingTasks: build.query({
-      query: () => ({
-        url: "/admin/task-management/fetchUpcomingTasks",
+      query: ({ search, page, limit }) => ({
+        url: `/admin/task-management/fetchUpcomingTasks?search=${search}&page=${page}&limit=${limit}`,
         method: "GET",
       }),
     }),
     fetchDueTasks: build.query({
-      query: () => ({
-        url: "/admin/task-management/fetchDueTasks",
+      query: ({ search, page, limit }) => ({
+        url: `/admin/task-management/fetchDueTasks?search=${search}&page=${page}&limit=${limit}`,
         method: "GET",
       }),
     }),
     fetchOverdueTasks: build.query({
-      query: () => ({
-        url: "/admin/task-management/fetchOverdueTasks",
+      query: ({ search, page, limit }) => ({
+        url: `/admin/task-management/fetchOverdueTasks?search=${search}&page=${page}&limit=${limit}`,
         method: "GET",
       }),
     }),
@@ -51,10 +51,10 @@ export const taskManagementApi = baseApi.injectEndpoints({
             body.attchedVisaApplication
           );
 
-      body.assignedTo.forEach((userId: string) => {
-      formData.append("assignedTo", userId);
-    });
-        files.forEach((file:any) => formData.append("files", file));
+        body.assignedTo.forEach((userId: string) => {
+          formData.append("assignedTo", userId);
+        });
+        files.forEach((file: any) => formData.append("files", file));
 
         return {
           url: "/admin/task-management/addNewTask",
@@ -69,7 +69,6 @@ export const taskManagementApi = baseApi.injectEndpoints({
         url: "/admin/task-management/fetchAssigneeList",
         method: "GET",
       }),
-      
     }),
     fetchAllVisaApplications: build.query({
       query: () => ({
@@ -90,37 +89,40 @@ export const taskManagementApi = baseApi.injectEndpoints({
       }),
     }),
     editTask: build.mutation({
-      query: ({taskId,body}) => ({
+      query: ({ taskId, body }) => ({
         url: `/admin/task-management/editTask/${taskId}`,
         method: "PATCH",
-        data:body
+        data: body,
       }),
     }),
     updateTaskAttachments: build.mutation({
-      query: ({taskId,files}) => {
+      query: ({ taskId, files }) => {
         const formData = new FormData();
-        files.forEach((file:any) => formData.append("files", file));
+        files.forEach((file: any) => formData.append("files", file));
         return {
-        url: `/admin/task-management/editTask/${taskId}`,
-        method: "PATCH",
-        data:formData
-      }},
+          url: `/admin/task-management/editTask/${taskId}`,
+          method: "PATCH",
+          data: formData,
+        };
+      },
     }),
     addRemarkToTask: build.mutation({
-      query: ({taskId,body}) => {
+      query: ({ taskId, body }) => {
         return {
-        url: `/admin/task-management/addRemark/${taskId}`,
-        method: "POST",
-        data:body
-      }},
+          url: `/admin/task-management/addRemark/${taskId}`,
+          method: "POST",
+          data: body,
+        };
+      },
     }),
     editRemarkToTask: build.mutation({
-      query: ({taskId,remarkId,body}) => {
+      query: ({ taskId, remarkId, body }) => {
         return {
-        url: `/admin/task-management/editRemark/${taskId}/${remarkId}`,
-        method: "PATCH",
-        data:body
-      }},
+          url: `/admin/task-management/editRemark/${taskId}/${remarkId}`,
+          method: "PATCH",
+          data: body,
+        };
+      },
     }),
   }),
 });
@@ -139,5 +141,5 @@ export const {
   useEditTaskMutation,
   useUpdateTaskAttachmentsMutation,
   useAddRemarkToTaskMutation,
-  useEditRemarkToTaskMutation
+  useEditRemarkToTaskMutation,
 } = taskManagementApi;

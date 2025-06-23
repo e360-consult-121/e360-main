@@ -22,9 +22,7 @@ export const assignDefaultLead = async (
     if (!lead) throw new Error("Lead not found");
 
     // Step 1.2: Generate task name using lead's full name
-    const firstName = lead.fullName.first || "Unknown";
-    const lastName = lead.fullName.last || "";
-    const taskName = `Lead_${firstName}${lastName ? "_" + lastName : ""}`;
+    const taskName = `Lead_${lead.fullName}`;
 
     // Step 1.3: Set dates
     const startDate = new Date();

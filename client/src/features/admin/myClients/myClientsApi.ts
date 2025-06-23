@@ -3,9 +3,10 @@ import { baseApi } from "../../../app/api";
 export const myClientsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchAllClients: build.query({
-      query: () => ({
+      query: (params = {}) => ({
         url: `/admin/clientsInfo/fetchAllClients`,
         method: "GET",
+        params: params,
       }),
     }),
     fetchClientVisaApplications: build.query({
@@ -15,7 +16,7 @@ export const myClientsApi = baseApi.injectEndpoints({
       }),
     }),
     addNewClient: build.mutation({
-      query: ({file,data}) => {
+      query: ({ file, data }) => {
         // console.log(file,data);
         const formData = new FormData();
         formData.append("name", data.name);
@@ -27,12 +28,17 @@ export const myClientsApi = baseApi.injectEndpoints({
         formData.append("currency", data.currency);
         formData.append("file", file);
         return {
-        url: `/admin/adminControl/addNewClient`,
-        method: "POST",
-        data:formData
-      }},
+          url: `/admin/adminControl/addNewClient`,
+          method: "POST",
+          data: formData,
+        };
+      },
     }),
   }),
 });
 
-export const { useFetchAllClientsQuery,useAddNewClientMutation,useFetchClientVisaApplicationsQuery } = myClientsApi;
+export const {
+  useFetchAllClientsQuery,
+  useAddNewClientMutation,
+  useFetchClientVisaApplicationsQuery,
+} = myClientsApi;
