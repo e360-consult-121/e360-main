@@ -57,6 +57,7 @@ export const getRecentUpdates = async (req: Request, res: Response) => {
       $project: {
         _id: 1,
         logMsg: 1,
+        visaApplicationId: 1,
         createdAt: 1,
       },
     },
