@@ -52,7 +52,7 @@ export const handleSendPaymentLink = async (
 
 // For User
 export const proceedToPayment = async (req: Request, res: Response) => {
-  const stepStatusId = req.params.leadId;
+  const {stepStatusId} = req.params;
 
    // 1. Validate lead existence
    const paymentDoc = await dubaiPaymentModel.findOne({stepStatusId});

@@ -50,7 +50,6 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
   if (!lead) {
     res.status(404);
     throw new Error("Lead not found");
-    return;
   }
 
   const pageUrl = `${process.env.FRONTEND_URL}/payments/${lead._id}`;

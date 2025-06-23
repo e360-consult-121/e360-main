@@ -188,6 +188,7 @@ const DocumentComponent = ({
                   color: "#999",
                   borderColor: "#999",
                   borderRadius: "12px",
+                  minWidth: "max-content",
                 }}
               >
                 Mark as Verified
@@ -201,6 +202,7 @@ const DocumentComponent = ({
                   color: "#999",
                   borderColor: "#999",
                   borderRadius: "12px",
+                  minWidth: "max-content",
                 }}
               >
                 Needs Re-Upload

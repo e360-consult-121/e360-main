@@ -134,7 +134,7 @@ export const assignOneTradeName = async (req: Request, res: Response) => {
   const tradeNameDoc = await TradeNameModel.findOneAndUpdate(
     { stepStatusId },
     { assignedName, status: tradeNameStatus.TradeName_Assigned },
-    { new: true } // Return the updated document
+    { new: true } 
   );
 
   if (!tradeNameDoc) {

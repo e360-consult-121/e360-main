@@ -19,10 +19,10 @@ export const fetchAllClients = async (req: Request, res: Response) => {
     search,
     page = "1",
     limit = "10",
-    sortBy = "name",
-    order = "asc",
-    status, // Add this
-    dateFilter, // Add this
+    sortBy = "latestApplicationDate", 
+    order = "desc", 
+    status, 
+    dateFilter, 
   } = req.query;
 
   const sortFieldsMap: Record<string, string> = {
@@ -32,9 +32,10 @@ export const fetchAllClients = async (req: Request, res: Response) => {
     totalApplications: "totalApplications",
     totalRevenue: "totalRevenue",
     startingDate: "startingDate",
+    latestApplicationDate: "latestApplicationDate", // Added new sort field
   };
 
-  const sortField = sortFieldsMap[sortBy as string] || "name";
+  const sortField = sortFieldsMap[sortBy as string] || "latestApplicationDate"; // Changed default
   const sortOrder = order === "desc" ? -1 : 1;
 
   const additionalFilters: any = { role: RoleEnum.USER };
@@ -179,7 +180,10 @@ export const fetchAllClients = async (req: Request, res: Response) => {
         status: {
           $ifNull: ["$latestApplication.status", "N/A"],
         },
-
+        // Added latestApplicationDate for sorting
+        latestApplicationDate: {
+          $ifNull: ["$latestApplication.createdAt", new Date(0)], // Use epoch date for users with no applications
+        },
         payments: {
           $filter: {
             input: "$payments",
@@ -241,6 +245,7 @@ export const fetchAllClients = async (req: Request, res: Response) => {
           ...user,
           totalRevenue,
           payments: undefined, // Remove payments array from final response
+          latestApplicationDate: undefined, // Remove this helper field from response
         };
       })
     );

@@ -106,7 +106,7 @@ export const assignDefaultVisaApplication = async (
     });
 
     // Step 2: Find action ID for "getDefaultTask"
-    const action = await ActionModel.findOne({ action: "getDefaultTask" });
+    const action = await ActionModel.findOne({ action: "Get_Default(Visapplication_Tasks)" });
     if (!action) throw new Error("Action 'getDefaultTask' not found");
 
     // Step 3: Get roleIds with permission for that action
