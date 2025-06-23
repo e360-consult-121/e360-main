@@ -22,10 +22,17 @@ export const visaApplicationApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getVisaApplicationInfo: build.query({
+      query: (visaType) => ({
+        url: `admin/visaapplication/getVisaApplicationInfo/${visaType}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 export const {
   useFetchParticularVisaApplicationQuery,
   useFetchAllStepsOfParticularVisaTypeQuery,
+  useGetVisaApplicationInfoQuery
 } = visaApplicationApi;

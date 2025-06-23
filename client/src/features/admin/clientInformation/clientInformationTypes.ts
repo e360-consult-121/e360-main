@@ -4,14 +4,14 @@ export type  ConsultationInfoTypes = {
     joinUrl: string,
     status:string
     rescheduleUrl:string;
-} | undefined
+} | null
 
 export type  PaymentInfoTypes = {
     status:string,
     method:string,
     invoice:string
-} | undefined 
+} | null 
 
 export type EligibilityFormTypes =  {
     [key: string]: string | number | boolean | null | EligibilityFormTypes | Array<any>;
-  } | undefined
+  } | null

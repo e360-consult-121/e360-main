@@ -55,11 +55,12 @@ const AddNewTaskDrawer = ({
   const { data: allAssignee } = useFetchAssigneeListQuery(undefined);
 
   const [addNewTask, { isLoading }] = useAddNewTaskMutation();
-
   const leadOptions = allLeads?.leads?.map((lead: any) => ({
-    label: `${lead.fullName ?? ""}`,
+    label: `${lead.fullName}`,
     value: lead._id,
   }));
+    // console.log(leadOptions)
+
 
   const applicationOptions = allVisaApplication?.visaApplications?.map(
     (visa: any) => ({

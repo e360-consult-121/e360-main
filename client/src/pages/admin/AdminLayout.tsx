@@ -99,7 +99,13 @@ const useTabsWithPermissions = () => {
       icon: "clarity:list-solid",
       label: "Logs",
       route: "admin/logs",
-      isPermitted: true, // Hardcoded, or you can add a permission later
+      isPermitted: true,
+    },
+    {
+      icon: "ix:user-profile-filled",
+      label: "Profile",
+      route: "admin/profile",
+      isPermitted: true,
     },
   ];
 
