@@ -18,6 +18,7 @@ import RoleAndPermission from "./roleandPermission/RoleAndPermission";
 import TaskManagment from "./taskManagement/TaskManagment";
 import ParticularTask from "./taskManagement/ParticularTask";
 import Logs from "./logs/Logs";
+import AdminProfile from "./adminProfile/AdminProfile";
 // import { RootState } from "../../app/store";
 // import { useSelector } from "react-redux";
 // import { useFetchUIPermissionsQuery } from "../../features/admin/adminUIPermissionApi";
@@ -71,6 +72,7 @@ const AdminRoutes = () => {
         <Route path="/taskmanagement" element={<TaskManagment />} />
         <Route path="/taskmanagement/:taskid" element={<ParticularTask />} />
         <Route path="/logs" element={<Logs />} />
+        <Route path="/profile" element={<AdminProfile />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>
