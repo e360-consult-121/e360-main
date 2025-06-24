@@ -17,10 +17,12 @@ export const addNewTask = async (req: Request, res: Response) => {
     startDate,
     endDate,
     attachedLead,
-    attchedVisaApplication,
+    attachedVisaApplication,
   } = req.body;
 
   let { assignedTo } = req.body;
+
+  console.log("Data received for new task:", req.body);
 
   // Validate required fields
   if (!taskName || !priority || !startDate || !endDate || !assignedTo) {
@@ -50,9 +52,9 @@ export const addNewTask = async (req: Request, res: Response) => {
   let attchedClient = undefined;
 
   // Get client (userId) from visa application
-  if (attchedVisaApplication) {
+  if (attachedVisaApplication) {
     const visaApp = await VisaApplicationModel.findById(
-      attchedVisaApplication
+      attachedVisaApplication
     ).select("userId");
     if (!visaApp) {
       res.status(404);
@@ -81,7 +83,7 @@ export const addNewTask = async (req: Request, res: Response) => {
     startDate,
     endDate,
     attachedLead,
-    attchedVisaApplication,
+    attachedVisaApplication,
     attchedClient,
     attchedConsultation,
     files,

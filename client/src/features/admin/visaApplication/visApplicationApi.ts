@@ -23,8 +23,8 @@ export const visaApplicationApi = baseApi.injectEndpoints({
       }),
     }),
     getVisaApplicationInfo: build.query({
-      query: (visaType) => ({
-        url: `admin/visaapplication/getVisaApplicationInfo/${visaType}`,
+      query: (visaApplicationId) => ({
+        url: `/admin/visaapplication/getVisaApplicationInfo/${visaApplicationId}`,
         method: "GET",
       }),
     }),

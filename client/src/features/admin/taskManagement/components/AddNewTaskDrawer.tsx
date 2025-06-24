@@ -11,8 +11,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useRef, useState } from "react";
 import dayjs from "dayjs";
 import { MultiSelect } from "react-multi-select-component";
-import { useFetchAllLeadsQuery } from "../../leadManagement/leadManagementApi";
+// import { useFetchAllLeadsQuery } from "../../leadManagement/leadManagementApi";
 import {
+  useFetchAllLeadsForTasksQuery,
   useAddNewTaskMutation,
   useFetchAllVisaApplicationsQuery,
   useFetchAssigneeListQuery,
@@ -49,18 +50,17 @@ const AddNewTaskDrawer = ({
 
   const navigate = useNavigate();
 
-  const { data: allLeads } = useFetchAllLeadsQuery(undefined);
   const { data: allVisaApplication } =
     useFetchAllVisaApplicationsQuery(undefined);
   const { data: allAssignee } = useFetchAssigneeListQuery(undefined);
+  const { data: allLeads } = useFetchAllLeadsForTasksQuery(undefined);
 
   const [addNewTask, { isLoading }] = useAddNewTaskMutation();
   const leadOptions = allLeads?.leads?.map((lead: any) => ({
-    label: `${lead.fullName}`,
+    label: `${lead.name}`,
     value: lead._id,
   }));
-    // console.log(leadOptions)
-
+  // console.log(leadOptions)
 
   const applicationOptions = allVisaApplication?.visaApplications?.map(
     (visa: any) => ({
@@ -75,7 +75,7 @@ const AddNewTaskDrawer = ({
     role: assignee.role,
   }));
 
-   const handleDelete = (fileNameToDelete:string) => {
+  const handleDelete = (fileNameToDelete: string) => {
     setMediaFiles((prev) =>
       prev.filter((file) => file.name !== fileNameToDelete)
     );
@@ -91,7 +91,7 @@ const AddNewTaskDrawer = ({
         endDate,
         attachedLead,
         assignedTo: assignedTo.map((id: any) => id.value),
-        attchedVisaApplication: application,
+        attachedVisaApplication: application,
       };
       // console.log(body);
       await addNewTask({ files: mediaFiles, body }).unwrap();
@@ -119,7 +119,7 @@ const AddNewTaskDrawer = ({
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width:{ xs:380 ,md:550}, padding: 3 } }}
+      PaperProps={{ sx: { width: { xs: 380, md: 550 }, padding: 3 } }}
     >
       <Box
         display="flex"
@@ -311,7 +311,7 @@ const AddNewTaskDrawer = ({
             gap: 1,
           }}
         >
-          <Box minWidth={{xs:"160px",md:"230px"}}>
+          <Box minWidth={{ xs: "160px", md: "230px" }}>
             <Typography mb={1}>Attach Lead</Typography>
             <Select
               options={leadOptions || []}
@@ -326,7 +326,7 @@ const AddNewTaskDrawer = ({
             />
           </Box>
 
-          <Box minWidth={{xs:"160px",md:"230px"}}>
+          <Box minWidth={{ xs: "160px", md: "230px" }}>
             <Typography mb={1}>Attach Application</Typography>
             <Select
               options={applicationOptions || []}
@@ -342,65 +342,67 @@ const AddNewTaskDrawer = ({
         </Box>
 
         <Box
-      p={2}
-      border="1px dashed #ccc"
-      borderRadius="12px"
-      textAlign="center"
-      sx={{ cursor: "pointer" }}
-      onClick={() => fileInputRef.current?.click()}
-    >
-      <Typography mb={1}>Attach Media</Typography>
-      <Typography color="text.secondary" fontSize="14px">
-        Upload media/Documents
-      </Typography>
-      <IconButton>
-        <CloudUploadIcon />
-      </IconButton>
-
-      {/* Display file chips if media is selected */}
-      {mediaFiles.length > 0 && (
-        <>
-        <Typography>Uploaded files</Typography>
-        <Box
-          mt={1}
-          display="flex"
-          flexWrap="wrap"
-          justifyContent="center"
-          gap={1}
+          p={2}
+          border="1px dashed #ccc"
+          borderRadius="12px"
+          textAlign="center"
+          sx={{ cursor: "pointer" }}
+          onClick={() => fileInputRef.current?.click()}
         >
-          {mediaFiles.map((file, index) => (
-            <Chip
-              key={index}
-              label={file.name}
-              onDelete={() => handleDelete(file.name)}
-              sx={{ borderRadius: 2 }}
-              variant="outlined"
-            />
-          ))}
+          <Typography mb={1}>Attach Media</Typography>
+          <Typography color="text.secondary" fontSize="14px">
+            Upload media/Documents
+          </Typography>
+          <IconButton>
+            <CloudUploadIcon />
+          </IconButton>
+
+          {/* Display file chips if media is selected */}
+          {mediaFiles.length > 0 && (
+            <>
+              <Typography>Uploaded files</Typography>
+              <Box
+                mt={1}
+                display="flex"
+                flexWrap="wrap"
+                justifyContent="center"
+                gap={1}
+              >
+                {mediaFiles.map((file, index) => (
+                  <Chip
+                    key={index}
+                    label={file.name}
+                    onDelete={() => handleDelete(file.name)}
+                    sx={{ borderRadius: 2 }}
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            </>
+          )}
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={(e) => {
+              if (e.target.files) {
+                const selected = Array.from(e.target.files);
+
+                // Avoid duplicate file names
+                const existingNames = new Set(
+                  mediaFiles.map((file) => file.name)
+                );
+                const uniqueNewFiles = selected.filter(
+                  (file) => !existingNames.has(file.name)
+                );
+
+                setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
+              }
+            }}
+            multiple
+            style={{ display: "none" }}
+          />
         </Box>
-        </>
-      )}
-
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={(e) => {
-          if (e.target.files) {
-            const selected = Array.from(e.target.files);
-
-            // Avoid duplicate file names
-            const existingNames = new Set(mediaFiles.map((file) => file.name));
-            const uniqueNewFiles = selected.filter(
-              (file) => !existingNames.has(file.name)
-            );
-
-            setMediaFiles((prev) => [...prev, ...uniqueNewFiles]);
-          }
-        }}
-        multiple
-        style={{ display: "none" }}
-      />
-    </Box>
 
         <Box display="flex" justifyContent="space-between" mt={4}>
           <Button

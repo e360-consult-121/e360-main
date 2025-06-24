@@ -45,10 +45,10 @@ export const taskManagementApi = baseApi.injectEndpoints({
         if (body.attachedLead)
           formData.append("attachedLead", body.attachedLead);
 
-        if (body.attchedVisaApplication)
+        if (body.attachedVisaApplication)
           formData.append(
-            "attchedVisaApplication",
-            body.attchedVisaApplication
+            "attachedVisaApplication",
+            body.attachedVisaApplication
           );
 
         body.assignedTo.forEach((userId: string) => {
@@ -67,6 +67,13 @@ export const taskManagementApi = baseApi.injectEndpoints({
     fetchAssigneeList: build.query({
       query: () => ({
         url: "/admin/task-management/fetchAssigneeList",
+        method: "GET",
+      }),
+    }),
+
+    fetchAllLeadsForTasks: build.query({
+      query: () => ({
+        url: "/admin/task-management/fetchAllLeads",
         method: "GET",
       }),
     }),
@@ -133,6 +140,7 @@ export const {
   useFetchMyTasksQuery,
   useFetchOverdueTasksQuery,
   useFetchUpcomingTasksQuery,
+  useFetchAllLeadsForTasksQuery,
   useFetchAllVisaApplicationsQuery,
   useFetchAssigneeListQuery,
   useAddNewTaskMutation,
