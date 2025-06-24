@@ -30,7 +30,7 @@ const RecentLeadManagement: React.FC<LeadTableProps> = ({ data }) => {
       sx={{
         boxShadow: "none",
         bgcolor: "#F6F5F5",
-        ml: {md:2},
+        // ml: {md:2},
         width: "100%",
         borderRadius: "15px",
       }}
@@ -41,7 +41,7 @@ const RecentLeadManagement: React.FC<LeadTableProps> = ({ data }) => {
         </Typography>
 
         {/* Add responsive scroll box here */}
-        <Box sx={{ overflowX: { xs: "auto", md: "visible" } }}>
+        <Box sx={{ overflowX: { xs: "auto", md: "auto" } }}>
           <Table sx={{ minWidth: { xs: 600, md: "auto" } }}>
             <TableHead>
               <TableRow>
