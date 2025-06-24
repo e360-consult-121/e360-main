@@ -8,11 +8,13 @@ export const logLeadCame = async ({
   doneBy,
   priority,
   leadName,
+  leadId,
   createdAt = new Date(),
 }: {
   doneBy: Types.ObjectId | null;
   priority : string;
   leadName: string;
+  leadId : Types.ObjectId;
   createdAt?: Date;
 }) => {
   const timeStr = formatDateTime(createdAt);
@@ -22,7 +24,7 @@ export const logLeadCame = async ({
     logMsg: msg,
     doneBy,
     logType: logTypeEnum.LeadLogs,
-    leadId : null , 
+    leadId : leadId , 
     visaApplicationId : null
   });
 };

@@ -1,16 +1,18 @@
 import { createLog } from "../../../createLog";
 import { formatDateTime } from "../../../../../utils/formatDateTime";
 import { logTypeEnum } from "../../../../../types/enums/enums";
+import { Types } from "mongoose";
+
 
 export const logEmployeeDeleted = async ({
   employeeName,
   deletedAt = new Date(),
-  doneBy,
+  doneBy = null,
   doneByName,
 }: {
   employeeName: string;
   deletedAt?: Date;
-  doneBy?: string | null;
+  doneBy?: Types.ObjectId | null;
   doneByName: string;
 }) => {
   const dateTime = formatDateTime(deletedAt);
@@ -20,5 +22,7 @@ export const logEmployeeDeleted = async ({
     logMsg: msg,
     doneBy,
     logType: logTypeEnum.ActivityLogs,
+    leadId : null,
+    visaApplicationId : null
   });
 };
