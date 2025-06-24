@@ -1,15 +1,23 @@
-import { useParams } from "react-router-dom";
-import { Typography, CircularProgress, Box } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  Typography,
+  CircularProgress,
+  Box,
+  Stack,
+  IconButton,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { VaultDocsResponse } from "../../../features/customer/documentVault/doumentVaultTypes";
 import DocumentVaultAccordion from "../../../components/DocumentVaultAccordion";
 import { useFetchVaultDocsQuery } from "../../../features/common/commonApi";
 import CategoryDocumentsAccordion from "../../../components/CategoryWiseDocumentsAccordion";
+import { ArrowBack } from "@mui/icons-material";
 
 const ClientDocumentVault = () => {
   const { visaApplicationId } = useParams<{ visaApplicationId: string }>();
 
   const [categoryData, setCategoryData] = useState([]);
+  const navigate = useNavigate();
   const { data, isLoading, isError } =
     useFetchVaultDocsQuery(visaApplicationId);
 
@@ -36,16 +44,20 @@ const ClientDocumentVault = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography
-        sx={{
-          fontSize: "28px",
-          fontWeight: "bold",
-          // mx:5,
-          mb: 5,
-        }}
-      >
-        Document Vault
-      </Typography>
+      <Stack direction="row" alignItems={"center"} mb={3}>
+        <IconButton onClick={() => navigate(-1)}>
+          <ArrowBack />
+        </IconButton>
+        <Typography
+          sx={{
+            fontSize: "28px",
+            fontWeight: "bold",
+            // mx:5,
+          }}
+        >
+          Document Vault
+        </Typography>
+      </Stack>
       <div className="px-2">
         {vaultDocs.adminUploaded && (
           <DocumentVaultAccordion

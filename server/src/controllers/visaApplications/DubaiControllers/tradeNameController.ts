@@ -5,7 +5,8 @@ import { StepStatusEnum, tradeNameStatus } from "../../../types/enums/enums";
 import mongoose, { Types } from "mongoose";
 import { sendApplicationUpdateEmails } from "../../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
 import { VisaApplicationStepStatusModel } from "../../../models/VisaApplicationStepStatus";
-
+import { UserModel as userModel } from "../../../models/Users";
+import { createLogForVisaApplication } from "../../../services/logs/triggers/visaApplications/createLogForVisaApplication";
 // For user
 export const uploadTradeNameOptions = async (
   req: Request,
@@ -97,6 +98,16 @@ export const uploadTradeNameOptions = async (
     firstName: data.user.name,
   });
 
+  await createLogForVisaApplication({
+    triggers : data.visaStep.logTriggers,
+    clientName : data.user.name,
+    visaType : data.visaType.visaType,
+    stepName : data.visaStep.stepName,
+    stepStatus : tradeNameStatus.TradeNames_Uploaded , 
+    doneBy : null , 
+    visaApplicationId : data.visaApplicationId,
+  })
+
   res.status(201).json({
     message: "Trade name options uploaded successfully.",
     tradeNameDoc,
@@ -134,13 +145,77 @@ export const assignOneTradeName = async (req: Request, res: Response) => {
   const tradeNameDoc = await TradeNameModel.findOneAndUpdate(
     { stepStatusId },
     { assignedName, status: tradeNameStatus.TradeName_Assigned },
-    { new: true } // Return the updated document
+    { new: true } 
   );
 
   if (!tradeNameDoc) {
     res.status(404);
     throw new Error("Trade name options not found for this stepStatusId.");
   }
+
+  // data for calling log function
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "stepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        visaApplicationId : 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  const data = aggregationResult[0];
+
+  const id = req.admin?.id;
+
+  const userDoc = await userModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await createLogForVisaApplication({
+    triggers : data.visaStep.logTriggers,
+    clientName : data.user.name,
+    adminName :  userDoc?.name , 
+    visaType : data.visaType.visaType,
+    stepName : data.visaStep.stepName,
+    stepStatus : tradeNameStatus.TradeName_Assigned , 
+    doneBy : null , 
+    visaApplicationId : data.visaApplicationId,
+  })
 
   return res.status(200).json({
     message: "Trade name assigned successfully.",
@@ -177,6 +252,63 @@ export const sendChangeRequest = async (req: Request, res: Response) => {
     throw new Error("Trade name options not found for this stepStatusId.");
   }
 
+
+  // data for calling log function
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "stepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        visaApplicationId : 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  const data = aggregationResult[0];
+
+  await createLogForVisaApplication({
+    triggers : data.visaStep.logTriggers,
+    clientName : data.user.name,
+    visaType : data.visaType.visaType,
+    stepName : data.visaStep.stepName,
+    stepStatus : tradeNameStatus.ChangeReq_Sent , 
+    doneBy : null , 
+    visaApplicationId : data.visaApplicationId,
+  })
+
   return res.status(200).json({
     message: "Trade name options changed successfully.",
     tradeNameDoc,
@@ -206,6 +338,70 @@ export const approveChangeReq = async (req: Request, res: Response) => {
   tradeNameDoc.status = tradeNameStatus.ChangeReq_Approved;
   await tradeNameDoc.save();
 
+  // data for calling log function
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "stepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        visaApplicationId : 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  const data = aggregationResult[0];
+
+  const id = req.admin?.id;
+
+  const userDoc = await userModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await createLogForVisaApplication({
+    triggers : data.visaStep.logTriggers,
+    clientName : data.user.name,
+    adminName : userDoc?.name,
+    visaType : data.visaType.visaType,
+    stepName : data.visaStep.stepName,
+    stepStatus : tradeNameStatus.ChangeReq_Approved , 
+    doneBy : null , 
+    visaApplicationId : data.visaApplicationId,
+  })
+
   return res.status(200).json({
     message: "Trade name change approved and assigned successfully.",
     tradeNameDoc,
@@ -226,6 +422,70 @@ export const rejectChangeReq = async (req: Request, res: Response) => {
     res.status(404);
     throw new Error("Trade name options not found for this stepStatusId.");
   }
+
+  // data for calling log function
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "stepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        visaApplicationId : 1,
+        "visaStep.emailTriggers": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  const data = aggregationResult[0];
+
+  const id = req.admin?.id;
+
+  const userDoc = await userModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await createLogForVisaApplication({
+    triggers : data.visaStep.logTriggers,
+    clientName : data.user.name,
+    adminName : userDoc?.name,
+    visaType : data.visaType.visaType,
+    stepName : data.visaStep.stepName,
+    stepStatus : tradeNameStatus.ChangeReq_Rejected , 
+    doneBy : null , 
+    visaApplicationId : data.visaApplicationId,
+  })
 
   return res.status(200).json({
     message: "Trade name change request rejected successfully.",

@@ -1,6 +1,9 @@
 import { Box, Button, Typography, CircularProgress } from "@mui/material";
 import ProcessComponent from "../ProcessComponent";
-import { useFetchPaymentInfoQuery } from "../../../../features/admin/visaApplication/additional/dubaiApis";
+import {
+  useDubaiProceedToPaymentMutation,
+  useFetchPaymentInfoQuery,
+} from "../../../../features/admin/visaApplication/additional/dubaiApis";
 
 const PaymentMain = ({
   stepStatusId,
@@ -16,11 +19,21 @@ const PaymentMain = ({
   const { data, isLoading: isPaymentInfoLoading } = useFetchPaymentInfoQuery({
     stepStatusId,
   });
+  const [proceedToPayment] = useDubaiProceedToPaymentMutation();
 
   const handleProceedToPayment = () => {
-    if (data?.data?.paymentLink) {
-      window.open(data.data.paymentLink, "_blank");
-    }
+    console.log("Proceeding to payment for stepStatusId:", stepStatusId);
+    proceedToPayment({ stepStatusId })
+      .unwrap()
+      .then((response) => {
+        const paymetUrl = response?.paymentLink;
+        if (paymetUrl) {
+          window.open(paymetUrl, "_blank");
+        }
+      })
+      .catch((error) => {
+        console.error("Error sending payment link:", error);
+      });
   };
 
   const handleViewInvoice = () => {

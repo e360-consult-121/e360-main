@@ -10,6 +10,7 @@ export type TAB = {
   icon: string;
   children?: TAB[];
   suffix?: string;
+  isPermitted?:boolean;
 };
 
 const SidebarTab = ({
@@ -34,8 +35,8 @@ const SidebarTab = ({
             setIsOpen(!isOpen);
           } else {
             navigate("/" + tabInfo.route);
-          }
-          setSidebarOpen(false);
+            setSidebarOpen(false);
+          }          
         }}
         className={`w-full flex items-center justify-between cursor-pointer hover:text-golden-yellow-400 ${
           isActive ? "text-golden-yellow-400" : "text-neutrals-400"
@@ -113,17 +114,6 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
     }
   };
 
-  // useEffect(() => {
-  //   const normalizedPath = location.pathname.startsWith("/")
-  //     ? location.pathname.slice(1)
-  //     : location.pathname;
-
-  //     // console.log
-
-  //   setCurrentTab(normalizedPath);
-  //   console.log(currentTab,normalizedPath)
-  // }, [location.pathname]);
-
   useEffect(() => {
     const segments = location.pathname.split("/").filter(Boolean); // removes empty strings from splitting
     const basePath = segments.slice(0, 2).join("/"); // ["admin", "leadmanagement"] => "admin/leadmanagement"
@@ -134,7 +124,7 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
   return (
     <>
       {/* Hamburger Button (only mobile) */}
-      <div className="lg:hidden p-4">
+      <div className="lg:hidden p-3">
         <button onClick={() => setSidebarOpen(true)}>
           <Icon
             icon="mdi:menu"
@@ -155,7 +145,7 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-[310px] bg-neutrals-950 z-50 transform ${
+        className={`fixed top-0 left-0 h-full w-[310px] bg-neutrals-950 z-50 transform overflow-y-auto ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-auto`}
       >
@@ -172,8 +162,9 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
           {/* Sidebar Tabs */}
           <div className="w-full flex flex-col h-full flex-[0.9] justify-between">
             <div className="w-full space-y-5 mt-10">
-              {tabs.map((tab, index) => (
-                <SidebarTab
+              {tabs.map((tab, index) => {
+                if(!tab.isPermitted) return 
+                return(<SidebarTab
                   key={index}
                   tabInfo={tab}
                   isActive={
@@ -181,12 +172,12 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
                     tab.children?.some((child) => currentTab === child.route)
                   }
                   setSidebarOpen={setSidebarOpen}
-                />
-              ))}
+                />)
+              })}
             </div>
 
             {/* Logout */}
-            <div className="w-full">
+            <div className="w-full mt-5">
               <div className="w-full flex items-center justify-between text-red-500 cursor-pointer">
                 <div className="flex items-center space-x-4">
                   <Icon

@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import StepItem from "./StepItem";
 import RequirementList from "./RequirementList";
 import { useApproveStepMutation, useMarkAsVerifiedMutation, useNeedsReUploadMutation, useRejectStepMutation } from "../visaApplicationInformationApi";
@@ -29,13 +29,13 @@ const ApplicationProcess = () => {
 
   const visaApplicationId = visatype;
   const { data, error, isLoading, refetch } = useGetCurrentStepInfoQuery(visaApplicationId);
-  const [approveStep] = useApproveStepMutation();
-  const [markAsVerified] = useMarkAsVerifiedMutation();
+  const [approveStep,{isLoading:isApproveComplete}] = useApproveStepMutation();
+  const [markAsVerified,{isLoading:isRejectComplete}] = useMarkAsVerifiedMutation();
   const [rejectStep] = useRejectStepMutation();
   const [needsReUpload] = useNeedsReUploadMutation();
 
   useEffect(() => {
-    console.log(data)
+    // console.log(data)
     if (error) {
       console.error("Failed to fetch step info:", error);
     }
@@ -92,7 +92,7 @@ const ApplicationProcess = () => {
     reason: string;
   }) => {
     try {
-      console.log(reqStatusId, reason);
+      // console.log(reqStatusId, reason);
       await needsReUpload({ reqStatusId, reason }).unwrap();
       toast.success("Send document for reupload");
       refetch();
@@ -101,8 +101,16 @@ const ApplicationProcess = () => {
     }
   };
 
+  if(isLoading){
+    return(
+      <div className="ml-[40%] md:ml-[45%] mt-[15%] md:mt-[10%]">
+        <CircularProgress/>
+      </div>
+    )
+  }
+
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: {xs:5,md:2} }}>
       {commonInfo.stepNames.map((step: string, index: number) => {
         const currentStepNumber = commonInfo.currentStepNumber ?? 0;
         const isActive = index === (currentStepNumber - 1);
@@ -136,6 +144,8 @@ const ApplicationProcess = () => {
             }
             onApprove={handleApprove}
             onReject={handleReject}
+            isApproveComplete={isApproveComplete}
+            isRejectComplete={isRejectComplete}
           />
         );
       })}

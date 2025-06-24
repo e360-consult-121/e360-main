@@ -14,17 +14,16 @@ const StatsCard = ({
   return (
     <Card
       sx={{
-        p: 2,
+        p:2,
         textAlign: "center",
         bgcolor,
         boxShadow: "none",
         borderRadius: "15px",
         width: {
-          xs: "90%",     
+          xs: "100%",     
           sm: "48%",     
           md: "100%",    
         },
-        mb: 2,
       }}
     >
       <Typography
@@ -32,7 +31,7 @@ const StatsCard = ({
           fontWeight: 600,
           fontSize: { xs: "12px", md: "14px" },
           display: "flex",
-          justifyContent: "start",
+          justifyContent:"start",
         }}
       >
         {title}

@@ -1,123 +1,283 @@
-import { Request, Response, NextFunction } from 'express';
-import { VisaTypeModel } from '../../models/VisaType';
-import { UserModel } from '../../models/Users';
-import { VisaApplicationModel } from '../../models/VisaApplication';
-import { VisaStepModel as stepModel } from '../../models/VisaStep';
-import { LeadModel as leadModel } from '../../leadModels/leadModel';
-import { PaymentModel as paymentModel } from '../../leadModels/paymentModel';
+import { Request, Response, NextFunction } from "express";
+import { VisaTypeModel } from "../../models/VisaType";
+import { UserModel } from "../../models/Users";
+import { VisaApplicationModel } from "../../models/VisaApplication";
+import { VisaStepModel as stepModel } from "../../models/VisaStep";
+import { LeadModel as leadModel } from "../../leadModels/leadModel";
+import { PaymentModel as paymentModel } from "../../leadModels/paymentModel";
 import { currencyConversion } from "../../services/currencyConversion/currencyConversion";
-import { VisaStepRequirementModel as reqModel } from '../../models/VisaStepRequirement';
-import { VisaTypeEnum , paymentStatus } from '../../types/enums/enums';
-import AppError from '../../utils/appError';
-import { ObjectId } from 'mongoose';
-import {RoleEnum } from "../../types/enums/enums";
-
+import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
+import { VisaTypeEnum, paymentStatus } from "../../types/enums/enums";
+import AppError from "../../utils/appError";
+import { ObjectId } from "mongoose";
+import { RoleEnum } from "../../types/enums/enums";
+import { searchPaginatedQuery } from "../../services/searchAndPagination/searchPaginatedQuery";
 
 // API for fetchAllClients
 export const fetchAllClients = async (req: Request, res: Response) => {
+  const {
+    search,
+    page = "1",
+    limit = "10",
+    sortBy = "latestApplicationDate", 
+    order = "desc", 
+    status, 
+    dateFilter, 
+  } = req.query;
 
-  // Prepare filter for users (clients)
-  const filter: any = { role: RoleEnum.USER };
+  const sortFieldsMap: Record<string, string> = {
+    name: "name",
+    email: "email",
+    phone: "phone",
+    totalApplications: "totalApplications",
+    totalRevenue: "totalRevenue",
+    startingDate: "startingDate",
+    latestApplicationDate: "latestApplicationDate", // Added new sort field
+  };
 
-  // If assignedIds exist, filter users by assignedIds
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    filter._id = { $in: req.assignedIds };
+  const sortField = sortFieldsMap[sortBy as string] || "latestApplicationDate"; // Changed default
+  const sortOrder = order === "desc" ? -1 : 1;
+
+  const additionalFilters: any = { role: RoleEnum.USER };
+
+  // Add status filter
+  if (status && status !== "All") {
+    additionalFilters.status = status;
   }
-    const users = await UserModel.find( filter ).select("name email phone");
-  
-    const enrichedUsers = await Promise.all(
-      users.map(async (user) => {
-        const total = await VisaApplicationModel.countDocuments({ userId: user._id });
-        const completed = await VisaApplicationModel.countDocuments({ userId: user._id, status: "COMPLETED" });
-        const pending = await VisaApplicationModel.countDocuments({ userId: user._id, status: "PENDING" });
 
-        const latestApplication = await VisaApplicationModel.findOne({ userId: user._id })
-                                                             .sort({ createdAt: -1 }).lean();
-            
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    additionalFilters._id = { $in: req.assignedIds };
+  }
 
-          let visaTypeName = "N/A";   
-          let startingDate = "N/A"; 
-          let caseId = "N/A";
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    additionalFilters._id = { $in: req.assignedIds };
+  }
 
+  const postMatchStages = [
+    {
+      $lookup: {
+        from: "visaapplications",
+        localField: "_id",
+        foreignField: "userId",
+        as: "applications",
+      },
+    },
 
-          if (latestApplication?.visaTypeId) {
-            const visaTypeDoc = await VisaTypeModel.findById(latestApplication.visaTypeId).lean();
-            visaTypeName = visaTypeDoc?.visaType || "N/A";
-            
-          }
-          if (latestApplication?.createdAt) {
-            startingDate = new Date(latestApplication.createdAt).toISOString().split("T")[0]; 
-          }
-
-          if (latestApplication?.leadId) {
-            const leadDoc = await leadModel.findById(latestApplication.leadId).lean();
-            caseId = leadDoc?.nanoLeadId || "N/A";
-          }
-
-          // 3. Revenue Calculation
-          const applications = await VisaApplicationModel.find({ userId: user._id }).select("paymentId").lean();
-          const paymentIds = applications.map((app) => app.paymentId).filter(Boolean);
-
-          // yaha currency ka bhi dekhna hoga ...
-          let totalRevenue = 0;
-
-          if (paymentIds.length > 0) {
-            const payments = await paymentModel.find({
-              _id: { $in: paymentIds },
-              status: "PAID",
-            }).select("amount currency").lean(); 
-
-            // totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-
-            // Now handle by for loop
-            for (const payment of payments) {
-              if (!payment.amount) continue;
-          
-              const currency = payment.currency?.trim().toUpperCase() || "USD";
-              let amountInUSD = payment.amount;
-          
-              if (currency !== "USD") {
-                const converted = await currencyConversion(currency, "USD", payment.amount);
-                if (converted === null) {
-                  console.error(`Skipping payment due to failed conversion from ${currency}`);
-                  continue;
-                }
-                amountInUSD = converted;
-              }
-          
-              totalRevenue += amountInUSD;
+    {
+      $addFields: {
+        totalApplications: { $size: "$applications" },
+        completedApplications: {
+          $size: {
+            $filter: {
+              input: "$applications",
+              cond: { $eq: ["$$this.status", "COMPLETED"] },
+            },
+          },
+        },
+        pendingApplications: {
+          $size: {
+            $filter: {
+              input: "$applications",
+              cond: { $eq: ["$$this.status", "PENDING"] },
+            },
+          },
+        },
+        latestApplication: {
+          $arrayElemAt: [
+            {
+              $sortArray: {
+                input: "$applications",
+                sortBy: { createdAt: -1 },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        ...(dateFilter && dateFilter !== "All"
+          ? {
+              "latestApplication.createdAt": {
+                ...(dateFilter === "Today"
+                  ? {
+                      $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                      $lt: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                  : {}),
+                ...(dateFilter === "Yesterday"
+                  ? {
+                      $gte: new Date(
+                        new Date(
+                          new Date().setDate(new Date().getDate() - 1)
+                        ).setHours(0, 0, 0, 0)
+                      ),
+                      $lt: new Date(
+                        new Date(
+                          new Date().setDate(new Date().getDate() - 1)
+                        ).setHours(23, 59, 59, 999)
+                      ),
+                    }
+                  : {}),
+              },
             }
+          : {}),
+      },
+    },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "latestApplication.visaTypeId",
+        foreignField: "_id",
+        as: "visaTypeInfo",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "leads",
+        localField: "latestApplication.leadId",
+        foreignField: "_id",
+        as: "leadInfo",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "payments",
+        localField: "applications.paymentId",
+        foreignField: "_id",
+        as: "payments",
+      },
+    },
+
+    {
+      $project: {
+        userId: "$_id",
+        name: 1,
+        email: 1,
+        phone: 1,
+        nanoUserId: 1,
+        totalApplications: 1,
+        completedApplications: 1,
+        pendingApplications: 1,
+        caseId: "$nanoUserId",
+        lastService: {
+          $ifNull: [{ $arrayElemAt: ["$visaTypeInfo.visaType", 0] }, "N/A"],
+        },
+        startingDate: {
+          $ifNull: [
+            {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$latestApplication.createdAt",
+              },
+            },
+            "N/A",
+          ],
+        },
+        status: {
+          $ifNull: ["$latestApplication.status", "N/A"],
+        },
+        // Added latestApplicationDate for sorting
+        latestApplicationDate: {
+          $ifNull: ["$latestApplication.createdAt", new Date(0)], // Use epoch date for users with no applications
+        },
+        payments: {
+          $filter: {
+            input: "$payments",
+            cond: { $eq: ["$$this.status", "PAID"] },
+          },
+        },
+      },
+    },
+  ];
+
+  const customSort = {
+    [sortField]: sortOrder,
+  };
+
+  try {
+    const result = await searchPaginatedQuery({
+      model: UserModel,
+      collectionName: "users",
+      search: search as string,
+      page: Number(page),
+      limit: Number(limit),
+      additionalFilters,
+      postMatchStages,
+      customSort,
+    });
+
+    // Post-process for currency conversion (since it requires async operations)
+    const enrichedData = await Promise.all(
+      result.data.map(async (user: any) => {
+        let totalRevenue = 0;
+
+        if (user.payments && user.payments.length > 0) {
+          for (const payment of user.payments) {
+            if (!payment.amount) continue;
+
+            const currency = payment.currency?.trim().toUpperCase() || "USD";
+            let amountInUSD = payment.amount;
+
+            if (currency !== "USD") {
+              const converted = await currencyConversion(
+                currency,
+                "USD",
+                payment.amount
+              );
+              if (converted === null) {
+                console.error(
+                  `Skipping payment due to failed conversion from ${currency}`
+                );
+                continue;
+              }
+              amountInUSD = converted;
+            }
+
+            totalRevenue += amountInUSD;
           }
-  
+        }
+
         return {
-          userId:user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          totalApplications: total,
-          completedApplications: completed,
-          pendingApplications: pending,
-
-          caseId:caseId,  // latest application ki caseId
-          lastService:visaTypeName,
-          startingDate:startingDate,  
-
+          ...user,
           totalRevenue,
-
-          status:latestApplication?.status || "N/A"
+          payments: undefined, // Remove payments array from final response
+          latestApplicationDate: undefined, // Remove this helper field from response
         };
       })
     );
-  
+
     res.status(200).json({
       success: true,
       message: "Clients with visa application stats fetched successfully",
-      data: enrichedUsers,
+      data: enrichedData,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+        hasNextPage: result.hasNextPage,
+        hasPrevPage: result.hasPrevPage,
+      },
     });
-  };
+  } catch (error: any) {
+    console.error("Error fetching clients:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch clients",
+      error: error.message,
+    });
+  }
+};
 
-//fetch all the visa appliactions of a client  
-export const fetchClientVisaApplications = async (req: Request, res: Response) => {
+//fetch all the visa appliactions of a client
+export const fetchClientVisaApplications = async (
+  req: Request,
+  res: Response
+) => {
   const { userid } = req.params;
 
   if (!userid) {
@@ -137,7 +297,9 @@ export const fetchClientVisaApplications = async (req: Request, res: Response) =
     });
 
     if (!applications.length) {
-      return res.status(404).json({ message: "No visa applications found for this user" });
+      return res
+        .status(404)
+        .json({ message: "No visa applications found for this user" });
     }
 
     return res.status(200).json({ data: applications });
@@ -147,14 +309,12 @@ export const fetchClientVisaApplications = async (req: Request, res: Response) =
   }
 };
 
-
-// fetch All applications of a particular client 
+// fetch All applications of a particular client
 export const getAllApplications = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-
   const { clientId } = req.params;
 
   const applications = await VisaApplicationModel.find({
@@ -171,147 +331,8 @@ export const getAllApplications = async (
   });
 };
 
-
 // new api for all info of visaApplication for new created client and application
-// visaApplication -->> payment ki info 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// visaApplication -->> payment ki info
 
 // create visaType
 // export const createVisaType = async (
@@ -319,7 +340,7 @@ export const getAllApplications = async (
 //     res: Response,
 //     next: NextFunction
 // ): Promise<Response | void> => {
-    
+
 //     const {visaType} = req.body;
 
 //     console.log("visa")
@@ -372,8 +393,6 @@ export const getAllApplications = async (
 //     });
 // };
 
-
-
 // // Controller to create a new Requirement and push it to a particular steps in VisaType
 // export const createRequirementAndPushToVisaType = async (
 //     req: Request,
@@ -413,6 +432,3 @@ export const getAllApplications = async (
 //         requirement: newRequirement,
 //     });
 // };
-
-
-

@@ -16,12 +16,21 @@ import MyClients from "./MyClients/MyClients";
 import ClientVisaApplications from "./MyClients/ClientVisaApplications";
 import RoleAndPermission from "./roleandPermission/RoleAndPermission";
 import TaskManagment from "./taskManagement/TaskManagment";
-// import { toast } from "react-toastify";
+import ParticularTask from "./taskManagement/ParticularTask";
+import Logs from "./logs/Logs";
+import AdminProfile from "./adminProfile/AdminProfile";
+// import { RootState } from "../../app/store";
+// import { useSelector } from "react-redux";
+// import { useFetchUIPermissionsQuery } from "../../features/admin/adminUIPermissionApi";
 
 const AdminRoutes = () => {
 
   const navigate = useNavigate();
   const { data, isSuccess, isError } = useFetchUserQuery(undefined);  
+//   const {
+//   isLoading: isPermissionLoading,
+// } = useFetchUIPermissionsQuery(undefined);
+//   const permissions = useSelector((state: RootState) => state.adminPermissions);
 
    useEffect(() => {
     // console.log(data)
@@ -30,6 +39,9 @@ const AdminRoutes = () => {
 
       }
     }, [isError,navigate,isSuccess, data]);
+
+    
+    
   
   // useEffect(() => {
   //   if (data.role === "USER") {
@@ -58,6 +70,9 @@ const AdminRoutes = () => {
         <Route path="/myclient/:userid" element={<ClientVisaApplications />} />
         <Route path="/roleandpermission/:type" element={<RoleAndPermission />} />
         <Route path="/taskmanagement" element={<TaskManagment />} />
+        <Route path="/taskmanagement/:taskid" element={<ParticularTask />} />
+        <Route path="/logs" element={<Logs />} />
+        <Route path="/profile" element={<AdminProfile />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>
@@ -65,3 +80,4 @@ const AdminRoutes = () => {
 };
 
 export default AdminRoutes;
+

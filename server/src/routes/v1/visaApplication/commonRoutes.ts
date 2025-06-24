@@ -18,7 +18,7 @@ import { handleEligibilityForm } from "../../../controllers/visaApplications/tes
 const router = Router();
 
 router.get("/:visaApplicationId/getCurrentStepInfo" , authenticate ,  checkPermission("Read-V") ,                         asyncHandler(clientSideControllers.getCurrentStepInfo));
-router.post("/submitRequirements"                   , authenticate ,  checkPermission("Write-V"),                         asyncHandler(clientSideControllers.submitRequirements));
+router.post("/submitRequirements", authenticate ,  checkPermission("Write-V"),                         asyncHandler(clientSideControllers.submitRequirements));
 router.post("/:reqStatusId/uploadDocument"          , authenticate ,  checkPermission("Write-V"),  upload.single("file"), asyncHandler(clientSideControllers.uploadDocument));
 router.post("/:visaApplicationId/stepSubmit"        , authenticate ,  checkPermission("Write-V"),                         asyncHandler(clientSideControllers.stepSubmit));
 router.post("/:visaApplicationId/approveStep"       , authenticate ,  checkPermission("Write-V"),                         asyncHandler(adminSideControllers.approveStep) );

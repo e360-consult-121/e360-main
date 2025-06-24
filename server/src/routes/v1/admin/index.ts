@@ -10,7 +10,11 @@ import bankdetailsRoutes from "./bankdetailsRoutes"
 import clientsInfoRoutes from "./clientsInfoRoutes"
 import adminControlRoutes from "./adminControlRoutes"
 import rbacRoutes from "./RBACroutes"
-import taskRoutes from "./taskRoutes"
+import taskRoutes from "./taskRoutes";
+// import migrationRoutes from "./migrationRoutes";
+import logRoutes from "./logRoutes";
+import uiPermissionRoutes from "./uipermissionsRoutes"
+import adminProfileRoutes from "./adminProfileRoutes"
 const router = Router();
 
 // router.use("/visaType", visaTypeRoutes);
@@ -24,4 +28,7 @@ router.use("/clientsInfo" , clientsInfoRoutes);
 router.use("/adminControl" , adminControlRoutes);
 router.use("/rbac" , rbacRoutes);
 router.use("/task-management" , taskRoutes);
+router.use("/logs" , logRoutes)
+router.use("/uipermissions" , uiPermissionRoutes)
+router.use("/admin-profile" , adminProfileRoutes)
 export default router;

@@ -103,7 +103,7 @@ const InvestmentOptions = ({
                       sx={{
                         bgcolor: "#fff7d7",
                         width: "fit-content",
-                        color: "primary.main",
+                        color: "black",
                       }}
                     />
                   ))}
@@ -124,7 +124,6 @@ const InvestmentOptions = ({
               />
               <Button
                 variant="contained"
-                size="small"
                 onClick={handleAddOption}
                 disabled={!newOption.trim() || isLoading}
                 sx={{
@@ -133,7 +132,7 @@ const InvestmentOptions = ({
                   color: "black",
                   '&:hover': { bgcolor: "#e5b424" },
                   textTransform: "none",
-                  borderRadius: "8px",
+                  borderRadius: "15px",
                 }}
               >
                 Add

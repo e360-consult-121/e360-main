@@ -14,5 +14,6 @@ router.post("/:visaApplicationId/addCategory"    , authenticate , authorizeAdmin
 router.post("/:visaApplicationId/docUploadByUser", authenticate , upload.single("file"), asyncHandler(docVaultControllers.docUploadByUser)  );
 router.post("/:categoryId/docUploadByAdmin"      , authenticate , authorizeAdmin ,upload.single("file"),  asyncHandler(docVaultControllers.uploadDocumentToCategory)  );
 router.post("/:documentId/moveToAnotherCategory" , authenticate , authorizeAdmin, asyncHandler(docVaultControllers.moveDocumentToAnotherCategory)  );
+router.get("/:visaApplicationId/fetchAllExtraCategories" , authenticate , authorizeAdmin, asyncHandler(docVaultControllers.fetchAllExtraCategories)  );
 
 export default router;

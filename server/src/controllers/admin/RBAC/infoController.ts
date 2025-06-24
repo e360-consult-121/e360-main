@@ -16,6 +16,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../../utils/jwtUtils";
+import { searchPaginatedQuery } from "../../../services/searchAndPagination/searchPaginatedQuery";
 
 
 // fetchAllFeatures 
@@ -53,63 +54,96 @@ export const fetchAllFeatures = async (req: Request, res: Response) => {
     });
   };
 
-
-  // Fetch all AdminUsers gruped by roleName  -->> Check needed details 
-  export const fetchAllAdminUsers = async (req: Request, res: Response) => {
-    const result = await userModel.aggregate([
-      {
-        $match: { role: RoleEnum.ADMIN }
-      },
-      {
-        $lookup: {
-          from: "roles", 
-          localField: "roleId",
-          foreignField: "_id",
-          as: "roleInfo"
-        }
-      },
-      {
-        $unwind: "$roleInfo"
-      },
-      {
-        $project: {
-          password: 0,
-          refreshToken: 0,
-          forgotPasswordToken: 0,
-          forgotPasswordExpires: 0
-        }
-      },
-      {
-        $group: {
-          _id: "$roleInfo.roleName",
-          users: { $push: "$$ROOT" }
-        }
-      },
-      {
-        $project: {
-          roleName: "$_id",
-          users: 1,
-          _id: 0
-        }
-      }
-    ]);
   
-    res.status(200).json({
-      success: true,
-      groupedByRoleName: result
-    });
-  };
-  
-
 
 export const fetchAllRoles = async (req: Request, res: Response) => {
-    const roles = await roleModel.find().sort({ roleName: 1 }); // sorted alphabetically
-  
-    res.status(200).json({
-      success: true,
-      count: roles.length,
-      roles,
-    });
+  const roles = await roleModel.find().sort({ roleName: 1 });
+
+  res.status(200).json({
+    success: true,
+    count: roles.length,
+    roles,
+  });
+};
+
+
+
+export const fetchAllAdminUsers = async (req: Request, res: Response) => {
+  const {
+    search,
+    page = "1",
+    limit = "10",
+    sortBy = "name",
+    order = "asc",
+  } = req.query;
+
+  const sortFieldsMap: Record<string, string> = {
+    name: "name",
+    email: "email",
+    phone: "phone",
+    employeeId: "employeeId",
+  };
+
+  const sortField = sortFieldsMap[sortBy as string] || "name";
+  const sortOrder = order === "desc" ? -1 : 1;
+
+  // Additional filters
+  const additionalFilters = {
+    role: RoleEnum.ADMIN
+  };
+
+  // Post match stages for the aggregation pipeline
+  const postMatchStages = [
+    {
+      $lookup: {
+        from: "roles",
+        localField: "roleId",
+        foreignField: "_id",
+        as: "roleInfo"
+      }
+    },
+    {
+      $unwind: "$roleInfo"
+    },
+    {
+      $project: {
+        name: 1,
+        phone: 1,
+        employeeId: 1,
+        email: 1,
+        roleInfo: 1,
+      }
+    }
+  ];
+
+  const customSort = {
+    [sortField]: sortOrder,
+  };
+
+  const result = await searchPaginatedQuery({
+    model: userModel,
+    collectionName: "users", // or whatever your user collection is called
+    search: search as string,
+    page: Number(page),
+    limit: Number(limit),
+    additionalFilters,
+    postMatchStages,
+    customSort,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Admin users fetched successfully",
+    admins: result.data,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPrevPage: result.hasPrevPage,
+    },
+  });
 };
 
 

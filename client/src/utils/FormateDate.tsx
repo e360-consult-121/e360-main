@@ -1,4 +1,5 @@
 export const formatDate = (isoString: string): string => {
+    if(!isoString) return "-"
     const date = new Date(isoString);
   
     const day = date.getDate();

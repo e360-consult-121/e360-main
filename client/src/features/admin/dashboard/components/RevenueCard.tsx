@@ -35,7 +35,7 @@
           boxShadow: "none",
           bgcolor: "#FEFDEB",
           borderRadius: "15px",
-          minWidth: "300px",
+          minWidth: {xs:"280px", md :"300px"},
           p: 0,
         }}
       >

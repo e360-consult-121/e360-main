@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import CustomStepper from "../../../components/CustomStepper";
 import StepPhase from "../../../components/customer/visaApplicationProcess/StepPhase";
-import Chatbot from "../../../components/customer/Chatbot";
+import Chatbot from "../../../components/Chatbot";
 import { useEffect, useState } from "react";
 import {
   RequirementTypes,
@@ -14,7 +14,7 @@ import {
 } from "../../../features/common/commonApi";
 import { CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
-import ChatbotPanel from "../../../components/customer/ChatbotPanel";
+import ChatbotPanel from "../../../components/ChatbotPanel";
 
 export interface SelectDropdown {
   type: "SELECT_DROPDOWN";
@@ -154,6 +154,7 @@ const VisaApplicationProcess = () => {
     chatVisible={chatVisible}
     setChatVisible={setChatVisible}
     visaApplicationId={visaApplicationId}
+    source={"Customer"}
   />
 )}
     </div>

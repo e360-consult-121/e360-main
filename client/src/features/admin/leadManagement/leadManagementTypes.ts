@@ -1,10 +1,7 @@
 export interface AllLeads {
     _id:string
     formId: string;
-    fullName: {
-      first: string;
-      last: string;
-    };
+    fullName: string;
     nationality: string;
     email: string;
     phone: string;

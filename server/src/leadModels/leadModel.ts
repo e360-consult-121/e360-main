@@ -1,13 +1,10 @@
+import { leadStatus } from "../types/enums/enums";
 import { Schema, model, Document } from "mongoose";
-import { leadStatus } from "../types/enums/enums"; 
 import { generateShortId } from "../utils/generateShortId";
 
 export interface ILead extends Document {
   formId: string;
-  fullName: {
-    first: string;
-    last: string;
-  };
+  fullName: string;
   nationality: string;
   email: string;
   phone: string;
@@ -21,43 +18,41 @@ export interface ILead extends Document {
   updatedAt?: Date;
 
   nanoLeadId?: string;
-  __t?: string; 
+  __t?: string;
 }
 
-const LeadSchema = new Schema<ILead>({
-  formId: { type: String, required: true },
-  fullName: {
-    first: { type: String, required: true },
-    last: { type: String, required: true },
+const LeadSchema = new Schema<ILead>(
+  {
+    formId: { type: String, required: true },
+    fullName: { type: String, required: true },
+    nationality: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+
+    leadStatus: {
+      type: String,
+      enum: Object.values(leadStatus),
+      default: leadStatus.INITIATED,
+    },
+
+    additionalInfo: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
+
+    reasonOfRejection: {
+      type: String,
+      default: null,
+    },
+
+    nanoLeadId: {
+      type: String,
+      unique: true,
+      // required: true,
+    },
   },
-  nationality: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
-  
-  leadStatus: {
-    type: String,
-    enum: Object.values(leadStatus),
-    default: leadStatus.INITIATED,
-  },
-
-  additionalInfo: {
-    type: Schema.Types.Mixed,
-    default: {},
-  },
-
-  reasonOfRejection: {
-    type: String,
-    default: null 
-  },
-
-  nanoLeadId: {
-    type: String,
-    unique: true,
-    // required: true,
-  }
-}, { timestamps: true });
-
-
+  { timestamps: true }
+);
 
 // Pre save hook
 LeadSchema.pre("save", async function (next) {

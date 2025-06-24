@@ -1,16 +1,18 @@
 import { createLog } from "../../../createLog";
 import { formatDateTime } from "../../../../../utils/formatDateTime";
 import { logTypeEnum } from "../../../../../types/enums/enums";
+import { Types } from "mongoose";
+
 
 export const logRolePermissionsUpdated = async ({
   roleName,
   updatedAt = new Date(),
-  doneBy,
+  doneBy = null,
   doneByName,
 }: {
   roleName: string;
   updatedAt?: Date;
-  doneBy?: string | null;
+  doneBy?: Types.ObjectId | null;
   doneByName: string;
 }) => {
   const dateTime = formatDateTime(updatedAt);
@@ -20,5 +22,7 @@ export const logRolePermissionsUpdated = async ({
     logMsg: msg,
     doneBy,
     logType: logTypeEnum.ActivityLogs,
+    visaApplicationId :  null , 
+    leadId : null
   });
 };

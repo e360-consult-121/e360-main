@@ -22,9 +22,7 @@ export const assignDefaultLead = async (
     if (!lead) throw new Error("Lead not found");
 
     // Step 1.2: Generate task name using lead's full name
-    const firstName = lead.fullName.first || "Unknown";
-    const lastName = lead.fullName.last || "";
-    const taskName = `Lead_${firstName}${lastName ? "_" + lastName : ""}`;
+    const taskName = `Lead_${lead.fullName}`;
 
     // Step 1.3: Set dates
     const startDate = new Date();
@@ -108,7 +106,7 @@ export const assignDefaultVisaApplication = async (
     });
 
     // Step 2: Find action ID for "getDefaultTask"
-    const action = await ActionModel.findOne({ action: "getDefaultTask" });
+    const action = await ActionModel.findOne({ action: "Get_Default(Visapplication_Tasks)" });
     if (!action) throw new Error("Action 'getDefaultTask' not found");
 
     // Step 3: Get roleIds with permission for that action
