@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { AllConsultationsTypes } from "../../../features/admin/consultations/consultationTypes";
 import { useSearchPagination } from "../../../features/searchPagination/useSearchPagination";
 import { Search } from "@mui/icons-material";
+import ConsultationsStats from "./ConsultationsStats";
 
 const Consultations = () => {
   const [consultationData, setConsultationData] =
@@ -19,12 +20,12 @@ const Consultations = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchPaginationState, searchPaginationActions] =
     useSearchPagination();
-  const [statusFilter, setStatusFilter] = useState("All"); 
+  const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All");
 
   const { data, isLoading, isError } = useFetchAllConsultationsQuery({
-    statusFilter: statusFilter === "All" ? "" : statusFilter, 
-    dateFilter: dateFilter === "All" ? "" : dateFilter, 
+    statusFilter: statusFilter === "All" ? "" : statusFilter,
+    dateFilter: dateFilter === "All" ? "" : dateFilter,
     ...searchPaginationState,
   });
 
@@ -89,6 +90,7 @@ const Consultations = () => {
         <Typography color="error">Failed to load consultations.</Typography>
       ) : (
         <>
+          <ConsultationsStats />
           <Box sx={{ mb: 2 }}>
             <TextField
               placeholder="Search consultations..."

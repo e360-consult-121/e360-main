@@ -1,38 +1,33 @@
 import React from "react";
 import { Box, Stack, Typography } from "@mui/material";
-import { useFetchLeadsStatsQuery } from "../../../features/admin/leadManagement/leadManagementApi";
 import StatsCard from "../../../features/admin/dashboard/components/StatsCard";
+import { useFetchConsultationsStatsQuery } from "../../../features/admin/consultations/consultationApi";
 
-const LeadsStats: React.FC = () => {
-  const { data, isLoading } = useFetchLeadsStatsQuery(undefined);
+const ConsultationsStats: React.FC = () => {
+  const { data, isLoading } = useFetchConsultationsStatsQuery(undefined);
 
   const cardColors = ["#F6F5F5", "#FEFDEB"];
 
   const statsConfig = [
     {
-      key: "INITIATED",
-      title: "New Leads This Month",
-      getValue: (data: any) => data?.INITIATED || 0,
+      key: "CONSULTATIONLINKSENT",
+      title: "Consultation Links Sent",
+      getValue: (data: any) => data?.CONSULTATIONLINKSENT || 0,
     },
     {
-      key: "totalLeads",
-      title: "Total Leads",
-      getValue: (data: any) => data?.totalLeads || 0,
+      key: "CONSULTATIONSCHEDULED",
+      title: "Consultations Scheduled",
+      getValue: (data: any) => data?.CONSULTATIONSCHEDULED || 0,
     },
     {
-      key: "PAYMENTDONE",
-      title: "Completed Applications",
-      getValue: (data: any) => data?.PAYMENTDONE || 0,
+      key: "CONSULTATIONDONE",
+      title: "Consultations Completed",
+      getValue: (data: any) => data?.CONSULTATIONDONE || 0,
     },
     {
-      key: "REJECTED",
-      title: "Rejected Applications",
-      getValue: (data: any) => data?.REJECTED || 0,
-    },
-    {
-      key: "conversionRate",
-      title: "Lead Conversion Rate",
-      getValue: (data: any) => `${data?.conversionRate || 0}%`,
+      key: "PAYMENTLINKSENT",
+      title: "Payment Links Sent",
+      getValue: (data: any) => data?.PAYMENTLINKSENT || 0,
     },
   ];
 
@@ -82,4 +77,4 @@ const LeadsStats: React.FC = () => {
   );
 };
 
-export default LeadsStats;
+export default ConsultationsStats;

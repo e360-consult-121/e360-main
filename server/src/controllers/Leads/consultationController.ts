@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import axios from "axios";
 import { LeadModel } from "../../leadModels/leadModel";
 import { ConsultationModel } from "../../leadModels/consultationModel";
@@ -14,6 +14,7 @@ import {
   createCustomFields,
   searchPaginatedQuery,
 } from "../../services/searchAndPagination/searchPaginatedQuery";
+import AppError from "../../utils/appError";
 
 export const getAllConsultations = async (req: Request, res: Response) => {
   try {
@@ -383,4 +384,111 @@ export const markConsultationAsCompleted = async (
   res.status(200).json({
     message: "Consultation marked as completed",
   });
+};
+
+export const getConsultationStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const currentMonthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+
+    const pipeline = [
+      {
+        $match: {
+          leadStatus: {
+            $in: [
+              leadStatus.CONSULTATIONLINKSENT,
+              leadStatus.CONSULTATIONSCHEDULED,
+              leadStatus.CONSULTATIONDONE,
+              leadStatus.PAYMENTLINKSENT,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$leadStatus",
+          totalCount: { $sum: 1 },
+          currentMonthCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ["$updatedAt", currentMonthStart] },
+                    { $lte: ["$updatedAt", currentMonthEnd] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          statuses: {
+            $push: {
+              status: "$_id",
+              totalCount: "$totalCount",
+              currentMonthCount: "$currentMonthCount",
+            },
+          },
+        },
+      },
+    ];
+
+    const [result] = await LeadModel.aggregate(pipeline);
+
+    const consultationStats = {
+      [leadStatus.CONSULTATIONLINKSENT]: 0,
+      [leadStatus.CONSULTATIONSCHEDULED]: 0,
+      [leadStatus.CONSULTATIONDONE]: 0,
+      [leadStatus.PAYMENTLINKSENT]: 0,
+    };
+
+    let totalConsultations = 0;
+
+    // Process results
+    if (result && result.statuses) {
+      result.statuses.forEach((item: any) => {
+        const status = item.status;
+        const count = item.totalCount;
+
+        if (status in consultationStats) {
+          consultationStats[status as keyof typeof consultationStats] = count;
+          totalConsultations += count;
+        }
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...consultationStats,
+        totalConsultations,
+        currentMonth: {
+          year: now.getFullYear(),
+          month: now.getMonth() + 1,
+        },
+      },
+      message: "Consultation statistics retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Error in getConsultationStats:", error);
+    next(new AppError("Internal Server Error", 500));
+  }
 };

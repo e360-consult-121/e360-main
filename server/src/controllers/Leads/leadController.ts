@@ -221,10 +221,6 @@ export const getLeadsStats = async (
 
     const leadsStats = {
       [leadStatus.INITIATED]: 0,
-      [leadStatus.CONSULTATIONLINKSENT]: 0,
-      [leadStatus.CONSULTATIONSCHEDULED]: 0,
-      [leadStatus.CONSULTATIONDONE]: 0,
-      [leadStatus.PAYMENTLINKSENT]: 0,
       [leadStatus.PAYMENTDONE]: 0,
       [leadStatus.REJECTED]: 0,
     };
@@ -247,12 +243,6 @@ export const getLeadsStats = async (
       });
     }
 
-    const pendingApplications =
-      leadsStats[leadStatus.CONSULTATIONLINKSENT] +
-      leadsStats[leadStatus.CONSULTATIONSCHEDULED] +
-      leadsStats[leadStatus.CONSULTATIONDONE] +
-      leadsStats[leadStatus.PAYMENTLINKSENT];
-
     const activeLeads = totalLeads - leadsStats[leadStatus.REJECTED];
     const conversionRate =
       activeLeads > 0
@@ -264,7 +254,6 @@ export const getLeadsStats = async (
       data: {
         ...leadsStats,
         totalLeads,
-        pendingApplications,
         conversionRate,
         currentMonth: {
           year: now.getFullYear(),
@@ -274,7 +263,7 @@ export const getLeadsStats = async (
       message: "Lead statistics retrieved successfully",
     });
   } catch (error) {
-    console.error("Error in getLeadsStatsOptimized:", error);
+    console.error("Error in getLeadsStats:", error);
     next(new AppError("Internal Server Error", 500));
   }
 };

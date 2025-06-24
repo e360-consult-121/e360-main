@@ -36,6 +36,12 @@ export const consultationApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+    fetchConsultationsStats: build.query({
+      query: () => ({
+        url: `/admin/consultations/fetchConsultationStats`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -44,4 +50,5 @@ export const {
   useMarkConsultationAsCompletedMutation,
   useSendConsultationLinkMutation,
   useCanlendlyWebhookMutation,
+  useFetchConsultationsStatsQuery,
 } = consultationApi;
