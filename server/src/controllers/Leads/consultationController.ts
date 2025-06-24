@@ -15,6 +15,11 @@ import {
   searchPaginatedQuery,
 } from "../../services/searchAndPagination/searchPaginatedQuery";
 import AppError from "../../utils/appError";
+import { logConsultationScheduled } from "../../services/logs/triggers/leadLogs/Consultation/consultation-scheduled";
+import { logConsultationLinkSent } from "../../services/logs/triggers/leadLogs/Consultation/consultation-link-sent";
+import { logConsultationCompleted } from "../../services/logs/triggers/leadLogs/Consultation/consultation-completed";
+import {UserModel} from "../../models/Users";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export const getAllConsultations = async (req: Request, res: Response) => {
   try {
@@ -192,6 +197,20 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
   await lead.save();
 
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  // log for Consultation link sent
+  await logConsultationLinkSent({
+    leadName : lead.fullName,
+    adminName : userDoc?.name,
+    leadId :lead._id as mongoose.Types.ObjectId
+  })
+
   res
     .status(200)
     .json({ message: "Consultation link sent successfully", calendlyLink });
@@ -284,6 +303,13 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
       joinUrl,
       lead.additionalInfo?.priority
     );
+
+    // log for Consultation  Scheduled
+    await logConsultationScheduled({
+        leadName: lead.fullName ,
+        scheduledAt :consultationDate ,
+        leadId : lead._id as mongoose.Types.ObjectId,
+    })
 
     const newConsultation = await ConsultationModel.create({
       name: payload?.name,
@@ -380,6 +406,21 @@ export const markConsultationAsCompleted = async (
   await LeadModel.findByIdAndUpdate(updatedConsultation.leadId, {
     leadStatus: leadStatus.CONSULTATIONDONE,
   });
+
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  const leadDoc = await LeadModel.findById(updatedConsultation.leadId).select("name");
+
+  await logConsultationCompleted({
+    leadName: leadDoc?.fullName,
+    adminName :userDoc?.name,
+    leadId :updatedConsultation.leadId 
+  })
 
   res.status(200).json({
     message: "Consultation marked as completed",

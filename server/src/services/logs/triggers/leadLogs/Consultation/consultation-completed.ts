@@ -1,26 +1,30 @@
 import { createLog } from "../../../createLog";
 import { logTypeEnum } from "../../../../../types/enums/enums";
 import { formatDateTime } from "../../../../../utils/formatDateTime";
+import { Types } from "mongoose";
+
 
 export const logConsultationCompleted = async ({
-  leadName,
+  leadName = "Unknown lead",
   completedAt = new Date(),
-  doneBy,
-  doneByName,
-  doneByRole = "Admin",
+  doneBy = null,
+  adminName = "Unknown Admin",
+  leadId
 }: {
-  leadName: string;
+  leadName?: string;
   completedAt?: Date;
-  doneBy?: string | null;
-  doneByName: string;
-  doneByRole?: "Admin" | "Client";
+  doneBy?: Types.ObjectId | null;
+  adminName?: string;
+  leadId : Types.ObjectId;
 }) => {
   const dateTime = formatDateTime(completedAt);
-  const msg = `Consultation with "${leadName}" marked as completed on ${dateTime} by ${doneByRole} ${doneByName}`;
+  const msg = `Consultation with "${leadName}" marked as completed on ${dateTime} by Admin(${adminName})`;
 
   await createLog({
     logMsg: msg,
     doneBy,
     logType: logTypeEnum.LeadLogs,
+    visaApplicationId :  null , 
+    leadId : leadId
   });
 };

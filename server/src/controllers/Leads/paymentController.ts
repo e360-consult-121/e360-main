@@ -40,6 +40,9 @@ import { handleDubaiPayment } from "../visaApplications/DubaiControllers/payment
 import { createUserFunction, createVisaApplication } from "./paymentFunctions";
 import { PORTAL_LINK } from "../../config/configLinks";
 
+import { logPaymentDone } from "../../services/logs/triggers/leadLogs/payment/payment-done";
+import { logPaymentLinkSent } from "../../services/logs/triggers/leadLogs/payment/payment-link-sent";
+
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
   const leadId = req.params.leadId;
@@ -63,6 +66,19 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     getServiceType(lead.__t ?? ""),
     pageUrl
   );
+
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await logPaymentLinkSent({
+    leadName : lead.fullName,
+    adminName : userDoc?.name ,
+    leadId : lead._id as mongoose.Types.ObjectId,
+  })
 
   // save payemnt details in DB
   const payment = new PaymentModel({
@@ -281,6 +297,14 @@ const handleConsultationPaymentSuccess = async (
   if (lead) {
     lead.leadStatus = leadStatus.PAYMENTDONE;
     await lead.save();
+
+    // log for payment done
+    await logPaymentDone({
+      leadName : lead.fullName,
+      amount : payment.amount,
+      currency : payment.currency,
+      leadId : lead._id as mongoose.Types.ObjectId,
+    })
 
     // Extract phone number to store in userDb
     const phone = lead?.phone;
