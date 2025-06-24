@@ -6,6 +6,8 @@ import mongoose, { Types } from "mongoose";
 import { sendApplicationUpdateEmails } from "../../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
 import { VisaApplicationStepStatusModel } from "../../../models/VisaApplicationStepStatus";
 import { EmailTrigger } from "../../../models/VisaStep";
+import { createLogForVisaApplication } from "../../../services/logs/triggers/visaApplications/createLogForVisaApplication";
+import { UserModel } from "../../../models/Users";
 
 // For Admin
 export const moaUpload = async (req: Request, res: Response) => {
@@ -58,6 +60,8 @@ export const moaUpload = async (req: Request, res: Response) => {
         visaTypeId: 1,
         userId: 1,
         "visaStep.emailTriggers": 1,
+        "visaStep.logTriggers": 1,
+        "visaStep.stepName": 1,
         "visaType.visaType": 1,
         "user.email": 1,
         "user.name": 1,
@@ -81,6 +85,24 @@ export const moaUpload = async (req: Request, res: Response) => {
     visaType: aggregationResult[0].visaType.visaType,
     email: aggregationResult[0].user.email,
     firstName: aggregationResult[0].user.name,
+  });
+
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await createLogForVisaApplication({
+    triggers : aggregationResult[0].visaStep.logTriggers,
+    clientName : aggregationResult[0].user.name,
+    adminName : userDoc?.name,
+    visaType : aggregationResult[0].visaType.visaType,
+    stepName : aggregationResult[0].visaStep.stepName,
+    stepStatus : moaStatusEnum.MOA_Uploaded, 
+    doneBy : null , 
+    visaApplicationId : aggregationResult[0].visaApplicationId,
   });
 
   res.status(201).json({
@@ -165,6 +187,8 @@ export const uploadSignature = async (req: Request, res: Response) => {
         visaTypeId: 1,
         userId: 1,
         "visaStep.emailTriggers": 1,
+        "visaStep.logTriggers": 1,
+        "visaStep.stepName": 1,
         "visaType.visaType": 1,
         "user.email": 1,
         "user.name": 1,
@@ -189,6 +213,16 @@ export const uploadSignature = async (req: Request, res: Response) => {
     email: aggregationResult[0].user.email,
     firstName: aggregationResult[0].user.name,
   });
+
+  await createLogForVisaApplication({
+    triggers : aggregationResult[0].visaStep.logTriggers,
+    clientName : aggregationResult[0].user.name,
+    visaType : aggregationResult[0].visaType.visaType,
+    stepName : aggregationResult[0].visaStep.stepName,
+    stepStatus : moaStatusEnum.Sig_Uploaded, 
+    doneBy : null , 
+    visaApplicationId : aggregationResult[0].visaApplicationId,
+  })
 
   res.status(200).json({
     message: "Signature uploaded successfully.",
@@ -244,6 +278,69 @@ export const approveSignature = async (req: Request, res: Response) => {
 
   moa.status = moaStatusEnum.Sig_Approved;
   await moa.save();
+
+  const aggregationResult = await VisaApplicationStepStatusModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(stepStatusId) } },
+    {
+      $lookup: {
+        from: "visasteps",
+        localField: "stepId",
+        foreignField: "_id",
+        as: "visaStep",
+      },
+    },
+    { $unwind: "$visaStep" },
+    {
+      $lookup: {
+        from: "visatypes",
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        visaApplicationId: 1,
+        visaStepId: 1,
+        visaTypeId: 1,
+        userId: 1,
+        "visaStep.emailTriggers": 1,
+        "visaStep.logTriggers": 1,
+        "visaStep.stepName": 1,
+        "visaType.visaType": 1,
+        "user.email": 1,
+        "user.name": 1,
+      },
+    },
+  ]).exec();
+
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await createLogForVisaApplication({
+    triggers : aggregationResult[0].visaStep.logTriggers,
+    clientName : aggregationResult[0].user.name,
+    adminName : userDoc?.name,
+    visaType : aggregationResult[0].visaType.visaType,
+    stepName : aggregationResult[0].visaStep.stepName,
+    stepStatus : moaStatusEnum.Sig_Approved, 
+    doneBy : null , 
+    visaApplicationId : aggregationResult[0].visaApplicationId,
+  })
 
   res.status(200).json({
     message: "Signature approved successfully.",

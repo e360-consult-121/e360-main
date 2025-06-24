@@ -7,6 +7,9 @@ import { getServiceType } from "../../../../../utils/leadToServiceType";
 import { getPortugalAdminSubject } from "../../../templates/admin/application/Portugal/portugal-subject";
 import { getDubaiAdminSubject } from "../../../templates/admin/application/Dubai/dubai-subjects";
 
+
+
+// Suppose stepStatus is also coming...
 export const adminApplicationUpdateSend = async (
   triggers: EmailTrigger[],
   customerName: string,

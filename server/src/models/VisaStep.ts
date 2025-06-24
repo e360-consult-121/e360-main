@@ -3,6 +3,10 @@ import {
   DocumentSourceEnum,
   StepStatusEnum,
   StepTypeEnum,
+  dgInvestStatusEnum, 
+  tradeNameStatus , 
+  moaStatusEnum , 
+  medicalTestStatus
 } from "../types/enums/enums";
 
 export interface EmailTrigger {
@@ -14,8 +18,8 @@ export interface EmailTrigger {
 
 
 export interface LogTrigger {
-  status: StepStatusEnum;
-  templateId: string;
+  status: StepStatusEnum | dgInvestStatusEnum | tradeNameStatus | moaStatusEnum | medicalTestStatus;
+  messageId: string;
 }
 
 export interface IVisaStep extends Document {
@@ -86,7 +90,13 @@ const VisaStepSchema = new Schema<IVisaStep>(
         {
           status: {
             type: String,
-            enum: Object.values(StepStatusEnum),
+            enum: [
+              ...Object.values(StepStatusEnum),
+              ...Object.values(dgInvestStatusEnum),
+              ...Object.values(tradeNameStatus),
+              ...Object.values(moaStatusEnum),
+              ...Object.values(medicalTestStatus),
+            ],
             required: true,
           },
           messageId: {
@@ -106,3 +116,12 @@ export const VisaStepModel = mongoose.model<IVisaStep>(
   "VisaStep",
   VisaStepSchema
 );
+
+
+
+
+
+
+
+
+
