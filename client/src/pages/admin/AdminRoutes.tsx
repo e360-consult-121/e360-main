@@ -19,6 +19,7 @@ import TaskManagment from "./taskManagement/TaskManagment";
 import ParticularTask from "./taskManagement/ParticularTask";
 import Logs from "./logs/Logs";
 import AdminProfile from "./adminProfile/AdminProfile";
+import InvoicesManagement from "./invoicesManagement/InvoicesManagement";
 // import { RootState } from "../../app/store";
 // import { useSelector } from "react-redux";
 // import { useFetchUIPermissionsQuery } from "../../features/admin/adminUIPermissionApi";
@@ -60,6 +61,7 @@ const AdminRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/applications/:type" element={<VisaService />} />
         <Route path="/leadmanagement" element={<LeadManagement />} />
+        <Route path="/invoicesmanagement" element={<InvoicesManagement/>} />
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/servicemanagement" element={<ServiceManagement />} />
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
