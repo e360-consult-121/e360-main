@@ -15,6 +15,8 @@ import taskRoutes from "./taskRoutes";
 import logRoutes from "./logRoutes";
 import uiPermissionRoutes from "./uipermissionsRoutes"
 import adminProfileRoutes from "./adminProfileRoutes"
+import invoicesRoutes from "./invoicesRoutes"
+
 const router = Router();
 
 // router.use("/visaType", visaTypeRoutes);
@@ -31,4 +33,5 @@ router.use("/task-management" , taskRoutes);
 router.use("/logs" , logRoutes)
 router.use("/uipermissions" , uiPermissionRoutes)
 router.use("/admin-profile" , adminProfileRoutes)
+router.use("/invoices",invoicesRoutes)
 export default router;

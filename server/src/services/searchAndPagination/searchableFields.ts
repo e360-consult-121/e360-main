@@ -25,4 +25,13 @@ export const searchableFields: Record<string, string[]> = {
     "employeeId",
     "roleInfo.name",
   ],
+  payments:[
+    "name",
+    "email",
+    "amount",
+    "currency",
+    "status",
+    "invoiceUrl",
+    "createdAt"
+  ]
 };
