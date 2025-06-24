@@ -17,7 +17,7 @@ interface CommonInfo {
 }
 
 const ApplicationProcess = () => {
-  const { visatype } = useParams();
+  const { visaApplicationId } = useParams();
   const [stepData, setStepData] = useState<StepData>();
   const [commonInfo, setCommonInfo] = useState<CommonInfo>({
     visaTypeName: "",
@@ -27,7 +27,6 @@ const ApplicationProcess = () => {
     stepNames: []
   });
 
-  const visaApplicationId = visatype;
   const { data, error, isLoading, refetch } = useGetCurrentStepInfoQuery(visaApplicationId);
   const [approveStep,{isLoading:isApproveComplete}] = useApproveStepMutation();
   const [markAsVerified,{isLoading:isRejectComplete}] = useMarkAsVerifiedMutation();
@@ -52,7 +51,7 @@ const ApplicationProcess = () => {
 
   const handleApprove = async () => {
     try {
-      const response = await approveStep(visatype).unwrap();
+      const response = await approveStep(visaApplicationId).unwrap();
       console.log("Approved", response);
       toast.success("Approved Step");
       refetch();
@@ -63,7 +62,7 @@ const ApplicationProcess = () => {
 
   const handleReject = async () => {
     try {
-      const response = await rejectStep(visatype).unwrap();
+      const response = await rejectStep(visaApplicationId).unwrap();
       console.log("Rejected", response);
       toast.error("Rejected the Step");
       refetch();

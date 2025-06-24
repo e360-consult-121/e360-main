@@ -65,7 +65,7 @@ const AdminRoutes = () => {
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
         <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/leadmanagement/:leadid" element={<ClientInformation />} />
-        <Route path="/application/:visatype" element={<VisaApplicationInformation />} />
+        <Route path="/application/:visaApplicationId" element={<VisaApplicationInformation />} />
         <Route path="/myclient" element={<MyClients />} />
         <Route path="/myclient/:userid" element={<ClientVisaApplications />} />
         <Route path="/roleandpermission/:type" element={<RoleAndPermission />} />

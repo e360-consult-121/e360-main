@@ -40,7 +40,7 @@ export const isAssigned = ( ) => {
 
       // Load those tasks and get all attached leads/visaApplications
       const tasks = await TaskModel.find({ _id: { $in: assignedTaskIds } })
-        .select("attachedLead attchedVisaApplication")
+        .select("attachedLead attachedVisaApplication")
         .lean();
 
       const attachedLeads = tasks.map(t => t.attachedLead).filter((id): id is mongoose.Types.ObjectId => !!id);

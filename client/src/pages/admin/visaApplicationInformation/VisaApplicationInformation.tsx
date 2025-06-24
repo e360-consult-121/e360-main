@@ -14,13 +14,13 @@ const VisaApplicationInformation = () => {
   // const location = useLocation();
   // const row = location.state?.row;
   // const leadid = row?.leadId;
-  const { visatype } = useParams();
+  const { visaApplicationId } = useParams();
   // const { data, isLoading, isError, refetch } =
   //   useFetchParticularLeadQuery(leadid);
   // const [clientInfo, setClientInfo] = useState<ClientInfoType>();
   const [chatVisible, setChatVisible] = useState(false);
   const [employeeDrawerOpen, setEmployeeDrawerOpen] = useState(false);
-  const {data:basicClientInfo,isLoading,isError} = useGetVisaApplicationInfoQuery(visatype)
+  const {data:basicClientInfo,isLoading,isError} = useGetVisaApplicationInfoQuery(visaApplicationId)
   // console.log(basicClientInfo.data.basicInfo)
   // useEffect(() => {
   //   if (data && !isLoading && !isError) {
@@ -97,7 +97,7 @@ const VisaApplicationInformation = () => {
       />
 
       <AddNewTaskDrawer
-        attachVisaApplication={visatype}
+        attachVisaApplication={visaApplicationId}
         open={employeeDrawerOpen}
         onClose={() => setEmployeeDrawerOpen(false)}
       />
@@ -112,7 +112,7 @@ const VisaApplicationInformation = () => {
         <ChatbotPanel
           chatVisible={chatVisible}
           setChatVisible={setChatVisible}
-          visaApplicationId={visatype}
+          visaApplicationId={visaApplicationId}
           source={"Admin"}
         />
       )}
