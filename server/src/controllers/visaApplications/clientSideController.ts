@@ -17,6 +17,8 @@ import { VisaTypeModel } from "../../models/VisaType";
 import mongoose, { Types } from "mongoose";
 import { sendApplicationUpdateEmails } from "../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
 import { deleteImageFromS3 } from "../../services/s3Upload";
+// import log function 
+import { createLogForVisaApplication } from "../../services/logs/triggers/visaApplications/createLogForVisaApplication"
 
 export const getCurrentStepInfo = async (req: Request, res: Response) => {
   console.log(`getCurrentStepInfo api hit`);
@@ -567,6 +569,18 @@ export const stepSubmit = async (req: Request, res: Response) => {
       email: data.user.email,
       firstName: data.user.name,
     });
+  }
+
+  if (data.currentStepDoc.logTriggers){
+    await createLogForVisaApplication({
+      triggers : data.currentStepDoc.logTriggers,
+      clientName : data.user.name,
+      visaType : data.visaType.visaType,
+      stepName : data.currentStepDoc.stepName,
+      stepStatus : StepStatusEnum.SUBMITTED , 
+      doneBy : null , 
+      visaApplicationId : new mongoose.Types.ObjectId(visaApplicationId),
+    })
   }
 
   return res.status(200).json({

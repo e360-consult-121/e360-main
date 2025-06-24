@@ -205,7 +205,7 @@ export const getParticularVisaInfo = async (req: Request, res: Response) => {
       phone: data.user.phone,
       appliedFor: data.visaType?.visaType || "N/A",
       createdAt: data.createdAt,
-      caseId: data.nanoVisaApplicationId, // You can change to `nanoLeadId` if it exists
+      caseId: data.nanoVisaApplicationId, 
       leadId : data.leadId
     },
     paymentInfo: data.payment

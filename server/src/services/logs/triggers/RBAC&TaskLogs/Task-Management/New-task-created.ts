@@ -2,23 +2,21 @@ import { createLog } from "../../../createLog";
 import { formatDateTime } from "../../../../../utils/formatDateTime";
 import { logTypeEnum } from "../../../../../types/enums/enums";
 
-export const logNewEmployeeCreated = async ({
-  employeeName,
-  roleName ,
-  employeeEmail,
+export const logNewTaskCreated = async ({
+  taskTitle,
+  assignedTo,
   createdAt = new Date(),
   doneBy,
   doneByName,
 }: {
-  employeeName: string;
-  roleName : string ;
-  employeeEmail: string;
+  taskTitle: string;
+  assignedTo: string;
   createdAt?: Date;
   doneBy?: string | null;
   doneByName: string;
 }) => {
   const dateTime = formatDateTime(createdAt);
-  const msg = `New employee "${employeeName}" (${employeeEmail}) with "${roleName}" role was added on ${dateTime} by Admin ${doneByName}`;
+  const msg = `New task "${taskTitle}" assigned to "${assignedTo}" was created on ${dateTime} by ${doneByName}`;
 
   await createLog({
     logMsg: msg,

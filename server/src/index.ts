@@ -44,7 +44,8 @@ import {
   JOTFORM_ID_DUBAI,
   JOTFORM_ID_PORTUGAL,
 } from "./utils/jotformIds";
-// import priority functions
+
+import {logLeadCame} from "./services/logs/triggers/leadLogs/lead/leadCame";
 
 dotenv.config();
 
@@ -267,6 +268,11 @@ app.post(
         );
       }
       logger.info("Lead saved successfully :", newLead);
+
+      // Add log (logLeadCame)
+      await logLeadCame({ priority:priority , leadName : `${newLead.fullName}`, doneBy:null});
+
+
       res.status(200).json({ status: "success", message: "Lead saved to DB" });
       return;
     } catch (error: any) {

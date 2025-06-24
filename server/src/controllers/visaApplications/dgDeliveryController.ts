@@ -2,11 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
 import { DgDeliveryModel } from "../../extraModels/dgDelivery";
 import { DgShippingModel } from "../../extraModels/dgShipping";
+import { UserModel  as userModel} from "../../models/Users";
 import { VisaApplicationStepStatusModel } from "../../models/VisaApplicationStepStatus";
 import mongoose from "mongoose";
 import { sendApplicationUpdateEmails } from "../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
 import { StepStatusEnum } from "../../types/enums/enums";
-
+import { createLogForVisaApplication } from "../../services/logs/triggers/visaApplications/createLogForVisaApplication"
 // user karega
 export const uploadDeliveryDetails = async (req: Request, res: Response) => {
   const { stepStatusId } = req.params;
@@ -97,14 +98,17 @@ export const uploadDeliveryDetails = async (req: Request, res: Response) => {
         "user.email": 1,
         "visaType.visaType": 1,
         "step.emailTriggers": 1,
+        "step.logTriggers" : 1,
+        "step.stepName" : 1,
         status: 1,
+        visaApplicationId : 1
       },
     },
   ]);
 
   // Send email notification if email triggers are configured
   if (emailData.length > 0 && emailData[0].step.emailTriggers) {
-    const { user, visaType, step, status } = emailData[0];
+    const { user, visaType, step, status ,visaApplicationId } = emailData[0];
 
 
     await sendApplicationUpdateEmails({
@@ -114,6 +118,18 @@ export const uploadDeliveryDetails = async (req: Request, res: Response) => {
       email: user.email,
       firstName: user.name
     });
+
+
+    // write log 
+    await createLogForVisaApplication({
+      triggers : step.logTriggers,
+      clientName : user.name,
+      visaType: visaType.visaType, 
+      stepName : step.stepName ,
+      stepStatus: StepStatusEnum.SUBMITTED, 
+      doneBy: null,
+      visaApplicationId ,
+    });
   }
 
   res.status(201).json({
@@ -122,6 +138,10 @@ export const uploadDeliveryDetails = async (req: Request, res: Response) => {
     data: savedDelivery,
   });
 };
+
+
+
+
 
 // Admin karega
 export const uploadShippingDetails = async (req: Request, res: Response) => {
@@ -142,6 +162,84 @@ export const uploadShippingDetails = async (req: Request, res: Response) => {
   });
 
   const savedShipping = await shipping.save();
+
+  const emailData = await VisaApplicationStepStatusModel.aggregate([
+    { 
+      $match: { _id: new mongoose.Types.ObjectId(stepStatusId) }
+    },
+    {
+      $lookup: {
+        from: "visaapplications", 
+        localField: "visaApplicationId",
+        foreignField: "_id",
+        as: "visaApplication",
+      },
+    },
+    { $unwind: "$visaApplication" },
+    {
+      $lookup: {
+        from: "users", 
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $lookup: {
+        from: "visatypes", 
+        localField: "visaTypeId",
+        foreignField: "_id",
+        as: "visaType",
+      },
+    },
+    { $unwind: "$visaType" },
+    {
+      $lookup: {
+        from: "visasteps", // Adjust based on your actual collection name
+        localField: "stepId",
+        foreignField: "_id",
+        as: "step",
+      },
+    },
+    { $unwind: "$step" },
+    {
+      $project: {
+        _id: 1,
+        "user.name": 1,
+        "user.email": 1,
+        "visaType.visaType": 1,
+        "step.emailTriggers": 1,
+        "step.logTriggers" : 1,
+        "step.stepName" : 1,
+        status: 1,
+        visaApplicationId : 1
+      },
+    },
+  ]);
+
+  if (emailData.length > 0 && emailData[0].step.emailTriggers) {
+    const { user, visaType, step, status ,visaApplicationId } = emailData[0];
+
+    const id = req.admin?.id;
+
+    const userDoc = await userModel
+        .findById(id)
+        .select("name")
+        .lean();
+
+    // Add log 
+    await createLogForVisaApplication({
+      triggers : step.logTriggers,
+      clientName : user.name,
+      adminName : userDoc?.name,
+      visaType: visaType.visaType, 
+      stepName : step.stepName ,
+      stepStatus: StepStatusEnum.APPROVED, 
+      doneBy: null,
+      visaApplicationId ,
+    });
+  }
 
   res.status(201).json({
     success: true,

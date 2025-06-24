@@ -8,6 +8,7 @@ import {
 import { VisaApplicationStepStatusModel as stepStatusModel } from "../../models/VisaApplicationStepStatus";
 import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
 import { VisaApplicationReqStatusModel as reqStatusModel } from "../../models/VisaApplicationReqStatus";
+import { UserModel } from "../../models/Users";
 import { VisaTypeModel } from "../../models/VisaType";
 import { aimaModel } from "../../extraModels/aimaModel";
 import {
@@ -19,6 +20,11 @@ import {
 } from "../../types/enums/enums";
 import { sendApplicationUpdateEmails } from "../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
 import mongoose from "mongoose";
+// import log
+import { createLogForVisaApplication } from "../../services/logs/triggers/visaApplications/createLogForVisaApplication"
+
+
+
 
 // Approve click on step
 export const approveStep = async (req: Request, res: Response) => {
@@ -167,6 +173,26 @@ export const approveStep = async (req: Request, res: Response) => {
     });
   }
   
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  // For log Triggers
+  if (data.currentStepDoc.logTriggers) {
+    await createLogForVisaApplication({
+      triggers : data.currentStepDoc.logTriggers,
+      clientName : data.user.name,
+      visaType : data.visaType.visaType,
+      stepName : data.currentStepDoc.stepName,
+      stepStatus : StepStatusEnum.APPROVED , 
+      adminName : userDoc?.name,
+      doneBy : null , 
+      visaApplicationId : new mongoose.Types.ObjectId(visaApplicationId),
+    });
+  }
 
   // add condition for mark visaApplication as Completed
   if (!data.nextStepDoc) {
