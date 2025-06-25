@@ -183,8 +183,8 @@ export enum PaymentSourceEnum {
 }
 
 export enum senderTypeEnum {
-  ADMIN = 'Admin',
-  USER = 'User'
+  ADMIN = 'ADMIN',
+  USER = 'USER'
 }
 
 export enum messageTypeEnum {
