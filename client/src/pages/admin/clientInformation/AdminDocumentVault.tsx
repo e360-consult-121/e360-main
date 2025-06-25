@@ -16,15 +16,16 @@ import {
 import DocumentVaultAccordion from "../../../components/DocumentVaultAccordion";
 import { toast } from "react-toastify";
 import { useFetchVaultDocsQuery } from "../../../features/common/commonApi";
-
+import {
+  useAddCategoryMutation,
+  useDocUploadByAdminMutation,
+} from "../../../features/admin/AdminDocumentVault/adminDocumentVaultApi";
 import { Icon } from "@iconify/react";
 import { getFileSizeInMB } from "../../../components/UploadModal";
 import CategoryDocumentsAccordion from "../../../components/CategoryWiseDocumentsAccordion";
-import { useAddCategoryMutation, useDocUploadByAdminMutation } from "../../../features/admin/AdminDocumentVault/adminDocumentVaultApi";
 
 const AdminDocumentVault = () => {
-  const { visatype } = useParams();
-  const visaApplicationId = visatype;
+  const { visaApplicationId } = useParams();
 
   const [vaultDocs, setVaultDocs] = useState<
     VaultDocsResponse["result"] | null
@@ -122,8 +123,8 @@ const AdminDocumentVault = () => {
     return <Typography sx={{ m: 5 }}>Failed to load documents.</Typography>;
 
   return (
-    <Box sx={{ p: {md:3},ml:{xs:"-15px",md:0} }}>
-      <div className="flex md:justify-end gap-2 my-5 md:my-0">
+    <Box sx={{ p: 3 }}>
+      <div className="flex justify-end gap-2">
         <Button
           variant="contained"
           sx={{
