@@ -12,23 +12,27 @@ const MyClients = () => {
     initialLimit: 5,
   });
 
-  // Additional local filters
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [dateFilter, setDateFilter] = useState("All");
   const { data, isLoading, isError, refetch } = useFetchAllClientsQuery({
     ...searchPaginationState,
-    status: statusFilter,
-    dateFilter: dateFilter,
   });
 
   const [clientsData, setClientsData] = useState();
   const [addNewClient] = useAddNewClientMutation();
+  const [searchInput, setSearchInput] = useState("");
 
   useEffect(() => {
     if (data && !isLoading && !isError) {
       setClientsData(data.data);
     }
   }, [data, isLoading, isError]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchPaginationActions.setSearch(searchInput);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchInput, searchPaginationActions]);
 
   if (isLoading) {
     return (
@@ -44,15 +48,10 @@ const MyClients = () => {
         data={clientsData}
         onAddClient={addNewClient}
         refetch={refetch}
-        // Pass search/pagination state
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
         searchPaginationState={searchPaginationState}
         searchPaginationActions={searchPaginationActions}
-        // Pass additional filters
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        dateFilter={dateFilter}
-        setDateFilter={setDateFilter}
-        // Pass pagination info from API response
         pagination={data?.pagination}
       />
     </div>
