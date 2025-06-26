@@ -21,7 +21,7 @@ export const registerUser = async (
 ): Promise<Response | void> => {
   const data = req.body;
 
-  if (!data.email || !data.password || !data.role)
+  if (!data.email || !data.password || !data.role || !data.name)
     throw new AppError("Fields not found", 400);
 
   if (!Object.values(RoleEnum).includes(data.role)) {
@@ -34,6 +34,7 @@ export const registerUser = async (
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
   const user = await UserModel.create({
+    name : data.name,
     email: data.email,
     password: hashedPassword,
     role: data.role,
@@ -44,12 +45,14 @@ export const registerUser = async (
   let accessToken = generateAccessToken({
     id: String(user._id),
     role: user.role,
-    roleId : String(user.roleId)
+    roleId : String(user.roleId),
+    userName: user.name
   });
   let refreshToken = generateRefreshToken({
     id: String(user._id),
     role: user.role,
-    roleId : String(user.roleId)
+    roleId : String(user.roleId),
+    userName: user.name
   });
 
   // Store the refresh token in user document (Optional)
@@ -82,12 +85,15 @@ export const login = async (
   let accessToken = generateAccessToken({
     id: String(user._id),
     role: user.role,
-    roleId : String(user.roleId)
+    roleId : String(user.roleId),
+    userName: user.name
   });
   let refreshToken = generateRefreshToken({
     id: String(user._id),
     role: user.role,
-    roleId : String(user.roleId)
+    roleId : String(user.roleId),
+    userName: user.name
+
   });
 
   await UserModel.findByIdAndUpdate(user._id, { refreshToken });
@@ -134,7 +140,8 @@ export const refreshToken = async (
     const newAccessToken = generateAccessToken({
       id: payload.id,
       role: payload.role,
-      roleId : String(user.roleId)
+      roleId : String(user.roleId),
+      userName: user.name
     });
 
     res.cookie("accessToken", newAccessToken, {

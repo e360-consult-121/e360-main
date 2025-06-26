@@ -17,7 +17,7 @@ export const logNewEmployeeCreated = async ({
   employeeEmail: string;
   createdAt?: Date;
   doneBy?: Types.ObjectId | null;
-  doneByName: string;
+  doneByName?: string;
 }) => {
   const dateTime = formatDateTime(createdAt);
   const msg = `New employee "${employeeName}" (${employeeEmail}) with "${roleName}" role was added on ${dateTime} by Admin ${doneByName}`;

@@ -11,7 +11,7 @@ const router = Router();
 
 router.post("/:leadId/sendPaymentLink",
  authenticate , authorizeAdmin ,
- //  checkPermission("Write-L"),
+  checkPermission("Write-L"),
  asyncHandler(paymentControllers.sendPaymentLink));
 
 // This is for Customer -->> no need of role management

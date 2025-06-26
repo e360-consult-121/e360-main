@@ -13,7 +13,7 @@ export const logEmployeeDeleted = async ({
   employeeName: string;
   deletedAt?: Date;
   doneBy?: Types.ObjectId | null;
-  doneByName: string;
+  doneByName?: string;
 }) => {
   const dateTime = formatDateTime(deletedAt);
   const msg = `Employee "${employeeName}" was removed on ${dateTime} by Admin ${doneByName}`;

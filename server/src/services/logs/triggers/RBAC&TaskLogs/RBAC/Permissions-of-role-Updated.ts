@@ -13,7 +13,7 @@ export const logRolePermissionsUpdated = async ({
   roleName: string;
   updatedAt?: Date;
   doneBy?: Types.ObjectId | null;
-  doneByName: string;
+  doneByName?: string;
 }) => {
   const dateTime = formatDateTime(updatedAt);
   const msg = `Permissions for role "${roleName}" were updated on ${dateTime} by Admin ${doneByName}`;

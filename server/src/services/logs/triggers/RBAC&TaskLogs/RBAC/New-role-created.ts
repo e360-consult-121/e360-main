@@ -13,7 +13,7 @@ export const logNewRoleCreated = async ({
   roleName: string;
   createdAt?: Date;
   doneBy?: Types.ObjectId | null;
-  doneByName: string;
+  doneByName?: string;
 }) => {
   const dateTime = formatDateTime(createdAt);
   const msg = `New role "${roleName}" was created on ${dateTime} by Admin ${doneByName}`;

@@ -195,7 +195,8 @@ export enum messageTypeEnum {
 export enum logTypeEnum {
   LeadLogs = 'leadLogs',
   ActivityLogs = 'activityLogs',
-  VisaApplicationLogs = 'visaApplicationLogs'
+  VisaApplicationLogs = 'visaApplicationLogs',
+  TaskLogs = "taskLogs"
   
 }
 

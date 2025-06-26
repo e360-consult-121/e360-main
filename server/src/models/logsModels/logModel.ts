@@ -7,6 +7,7 @@ export interface ILog extends Document {
   logType: logTypeEnum; 
   leadId : Types.ObjectId | null;
   visaApplicationId : Types.ObjectId | null;
+  taskId : Types.ObjectId | null;
 }
 
 const LogSchema = new Schema<ILog>({
@@ -19,6 +20,7 @@ const LogSchema = new Schema<ILog>({
   },
   leadId: { type : Schema.Types.ObjectId, ref: "Lead", default: null },
   visaApplicationId: { type : Schema.Types.ObjectId, ref: "VisaApplication", default: null },
+  taskId: { type : Schema.Types.ObjectId, ref: "VisaApplication", default: null },
 },
  {
     timestamps: true 

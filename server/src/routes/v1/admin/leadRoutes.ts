@@ -14,8 +14,8 @@ router.get(
   "/fetchAllLeads",
   authenticate,
   authorizeAdmin,
-  // checkPermission("View-Leads"),
-  // addArrayForStaff("Leads"),
+  checkPermission("View-Leads"),
+  addArrayForStaff("Leads"),
   asyncHandler(leadControllers.getAllLeads)
 );
 
@@ -23,7 +23,7 @@ router.get(
   "/:leadId/fetchParticularLead",
   authenticate,
   authorizeAdmin,
-  //  checkPermission("Read-L"),
+   checkPermission("Read-L"),
   asyncHandler(leadControllers.getParticularLeadInfo)
 );
 
@@ -31,7 +31,7 @@ router.post(
   "/:leadId/rejectLead",
   authenticate,
   authorizeAdmin,
-  //  checkPermission("Write-L"),
+   checkPermission("Write-L"),
   asyncHandler(leadControllers.rejectLead)
 );
 

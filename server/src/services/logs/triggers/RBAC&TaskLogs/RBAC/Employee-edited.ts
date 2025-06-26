@@ -13,7 +13,7 @@ export const logEmployeeEdited = async ({
   employeeName: string;
   editedAt?: Date;
   doneBy?: Types.ObjectId | null;
-  doneByName: string;
+  doneByName?: string;
 }) => {
   const dateTime = formatDateTime(editedAt);
   const msg = `Employee "${employeeName}"'s details were updated on ${dateTime} by Admin ${doneByName}`;
