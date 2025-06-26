@@ -1,53 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { VisaTypeModel } from "../../models/VisaType";
 import { UserModel } from "../../models/Users";
 import { VisaApplicationModel } from "../../models/VisaApplication";
-import { VisaStepModel as stepModel } from "../../models/VisaStep";
-import { LeadModel as leadModel } from "../../leadModels/leadModel";
-import { PaymentModel as paymentModel } from "../../leadModels/paymentModel";
 import { currencyConversion } from "../../services/currencyConversion/currencyConversion";
-import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
-import { VisaTypeEnum, paymentStatus } from "../../types/enums/enums";
-import AppError from "../../utils/appError";
-import { ObjectId } from "mongoose";
-import { RoleEnum } from "../../types/enums/enums";
 import { searchPaginatedQuery } from "../../services/searchAndPagination/searchPaginatedQuery";
+import { RoleEnum } from "../../types/enums/enums";
 
 // API for fetchAllClients
 export const fetchAllClients = async (req: Request, res: Response) => {
-  const {
-    search,
-    page = "1",
-    limit = "10",
-    sortBy = "latestApplicationDate", 
-    order = "desc", 
-    status, 
-    dateFilter, 
-  } = req.query;
-
-  const sortFieldsMap: Record<string, string> = {
-    name: "name",
-    email: "email",
-    phone: "phone",
-    totalApplications: "totalApplications",
-    totalRevenue: "totalRevenue",
-    startingDate: "startingDate",
-    latestApplicationDate: "latestApplicationDate", // Added new sort field
-  };
-
-  const sortField = sortFieldsMap[sortBy as string] || "latestApplicationDate"; // Changed default
-  const sortOrder = order === "desc" ? -1 : 1;
+  const { search, page = "1", limit = "10" } = req.query;
 
   const additionalFilters: any = { role: RoleEnum.USER };
-
-  // Add status filter
-  if (status && status !== "All") {
-    additionalFilters.status = status;
-  }
-
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    additionalFilters._id = { $in: req.assignedIds };
-  }
 
   if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
     additionalFilters._id = { $in: req.assignedIds };
@@ -95,36 +57,7 @@ export const fetchAllClients = async (req: Request, res: Response) => {
         },
       },
     },
-    {
-      $match: {
-        ...(dateFilter && dateFilter !== "All"
-          ? {
-              "latestApplication.createdAt": {
-                ...(dateFilter === "Today"
-                  ? {
-                      $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                      $lt: new Date(new Date().setHours(23, 59, 59, 999)),
-                    }
-                  : {}),
-                ...(dateFilter === "Yesterday"
-                  ? {
-                      $gte: new Date(
-                        new Date(
-                          new Date().setDate(new Date().getDate() - 1)
-                        ).setHours(0, 0, 0, 0)
-                      ),
-                      $lt: new Date(
-                        new Date(
-                          new Date().setDate(new Date().getDate() - 1)
-                        ).setHours(23, 59, 59, 999)
-                      ),
-                    }
-                  : {}),
-              },
-            }
-          : {}),
-      },
-    },
+
     {
       $lookup: {
         from: "visatypes",
@@ -180,10 +113,6 @@ export const fetchAllClients = async (req: Request, res: Response) => {
         status: {
           $ifNull: ["$latestApplication.status", "N/A"],
         },
-        // Added latestApplicationDate for sorting
-        latestApplicationDate: {
-          $ifNull: ["$latestApplication.createdAt", new Date(0)], // Use epoch date for users with no applications
-        },
         payments: {
           $filter: {
             input: "$payments",
@@ -194,10 +123,6 @@ export const fetchAllClients = async (req: Request, res: Response) => {
     },
   ];
 
-  const customSort = {
-    [sortField]: sortOrder,
-  };
-
   try {
     const result = await searchPaginatedQuery({
       model: UserModel,
@@ -207,10 +132,8 @@ export const fetchAllClients = async (req: Request, res: Response) => {
       limit: Number(limit),
       additionalFilters,
       postMatchStages,
-      customSort,
     });
 
-    // Post-process for currency conversion (since it requires async operations)
     const enrichedData = await Promise.all(
       result.data.map(async (user: any) => {
         let totalRevenue = 0;
@@ -245,7 +168,6 @@ export const fetchAllClients = async (req: Request, res: Response) => {
           ...user,
           totalRevenue,
           payments: undefined, // Remove payments array from final response
-          latestApplicationDate: undefined, // Remove this helper field from response
         };
       })
     );

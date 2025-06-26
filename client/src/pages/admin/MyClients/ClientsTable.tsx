@@ -21,6 +21,7 @@ import {
   useMediaQuery,
   Card,
   CardContent,
+  Stack,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import countryList from "react-select-country-list";
@@ -56,12 +57,10 @@ interface TableProps {
   data: any[] | undefined;
   onAddClient: any;
   refetch: () => void;
+  searchInput: string;
+  setSearchInput: (query: string) => void;
   searchPaginationState: any;
   searchPaginationActions: any;
-  statusFilter: string;
-  setStatusFilter: (status: string) => void;
-  dateFilter: string;
-  setDateFilter: (dateFilter: string) => void;
   pagination: any;
 }
 
@@ -69,12 +68,10 @@ const ClientsTable: React.FC<TableProps> = ({
   data,
   onAddClient,
   refetch,
+  searchInput,
+  setSearchInput,
   searchPaginationState,
   searchPaginationActions,
-  statusFilter,
-  setStatusFilter,
-  dateFilter,
-  setDateFilter,
   pagination,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -96,7 +93,6 @@ const ClientsTable: React.FC<TableProps> = ({
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
@@ -131,14 +127,6 @@ const ClientsTable: React.FC<TableProps> = ({
     }
   };
 
-  const handleDateFilterChange = (event: any) => {
-    setDateFilter(event.target.value);
-  };
-
-  const handleStatusFilterChange = (event: any) => {
-    setStatusFilter(event.target.value);
-  };
-
   const handleChangePage = (_event: unknown, newPage: number) => {
     searchPaginationActions.setPage(newPage + 1);
   };
@@ -160,9 +148,21 @@ const ClientsTable: React.FC<TableProps> = ({
             alignItems: "center",
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
-            My Clients
-          </Typography>
+          <Stack direction="row" alignItems={"center"} gap={2}>
+            <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 2 }}>
+              My Clients
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+             
+              <TextField
+                placeholder="Search clients..."
+                size="small"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                sx={{ minWidth: 200 }}
+              />
+            </Box>
+          </Stack>
 
           <Box
             sx={{
@@ -171,38 +171,6 @@ const ClientsTable: React.FC<TableProps> = ({
               mb: 1,
             }}
           >
-            <Box sx={{ display: "flex", gap: { xs: 2, md: 5 } }}>
-              <FormControl sx={{ minWidth: 130 }}>
-                <InputLabel>Date</InputLabel>
-                <Select
-                  value={dateFilter}
-                  onChange={handleDateFilterChange}
-                  label="Date"
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  <MenuItem value="Today">Today</MenuItem>
-                  <MenuItem value="Yesterday">Yesterday</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ minWidth: 130 }}>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={statusFilter}
-                  onChange={handleStatusFilterChange}
-                  label="Status"
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  <MenuItem value="Application Approved">
-                    Application Approved
-                  </MenuItem>
-                  <MenuItem value="Ongoing Application">
-                    Ongoing Application
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
             <Button
               sx={{
                 textTransform: "none",
