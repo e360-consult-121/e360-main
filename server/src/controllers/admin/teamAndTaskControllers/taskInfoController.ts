@@ -230,7 +230,7 @@ export const fetchMyTasks = async (
         assignedTo: "$assignedToUsers",
         status: "$taskDetails.status",
         priority: "$taskDetails.priority",
-        dueDate: "$taskDetails.endDate",
+        endDate: "$taskDetails.endDate",
         // Keep these fields for search functionality
         taskDetails: "$taskDetails",
         assignedByDetails: "$assignedByDetails",
@@ -457,7 +457,7 @@ export const fetchDueTasks = async (
         status: 1,
         priority: 1,
         startDate: 1,
-        dueDate: "$endDate",
+        endDate: "$endDate",
         assignedCount: { $size: "$assignedToUsers" },
         assignedTo: {
           $map: {
