@@ -9,14 +9,14 @@ const router = Router();
 
 
 router.get("/fetchAllClients", authenticate ,authorizeAdmin,
-// checkPermission("View-Clients"),
-// addArrayForStaff("Clients"),
+checkPermission("View-Clients"),
+addArrayForStaff("Clients"),
 asyncHandler(clientsInfo.fetchAllClients));
 
   
 router.get("/fetchClientVisaApplications/:userid", authenticate ,authorizeAdmin,
-// checkPermission("View-VisaApplications"),
-// addArrayForStaff("VisaApplications")
+checkPermission("View-VisaApplications"),
+addArrayForStaff("VisaApplications"),
 asyncHandler(clientsInfo.fetchClientVisaApplications));
 
 export default router;

@@ -14,8 +14,8 @@ router.get(
   "/fetchAllConsultations",
   authenticate,
   authorizeAdmin,
-  //  checkPermission("View-Consultations"),
-  //  addArrayForStaff("Consultations")
+   checkPermission("View-Consultations"),
+   addArrayForStaff("Consultations"),
   asyncHandler(consultationControllers.getAllConsultations)
 );
 
@@ -23,7 +23,7 @@ router.post(
   "/:leadId/sendConsultationLink",
   authenticate,
   authorizeAdmin,
-  //  checkPermission("Write-L"),
+   checkPermission("Write-L"),
   asyncHandler(consultationControllers.sendConsultationLink)
 );
 
@@ -31,7 +31,7 @@ router.post(
   "/:consultationId/markConsultationAsCompleted",
   authenticate,
   authorizeAdmin,
-  //  checkPermission("Write-L"),
+   checkPermission("Write-L"),
   asyncHandler(consultationControllers.markConsultationAsCompleted)
 );
 

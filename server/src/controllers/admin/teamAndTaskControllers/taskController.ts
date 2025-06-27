@@ -8,6 +8,19 @@ import { LeadModel } from "../../../leadModels/leadModel";
 import { VisaApplicationModel } from "../../../models/VisaApplication";
 import { UserModel } from "../../../models/Users";
 import { ConsultationModel } from "../../../leadModels/consultationModel";
+import {logTaskUpdated} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/Task-updated";
+import {logTaskDeleted} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/Task-deleted";
+import {logNewTaskCreated} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/New-task-created";
+
+import { assigneeAddedEmail }  from "../../../services/emails/triggers/admin/Task-Management/assignee-added";
+import { remarkAddedEmail }    from "../../../services/emails/triggers/admin/Task-Management/remark-added";
+import { taskAssignedEmail }   from "../../../services/emails/triggers/admin/Task-Management/task-assigned";
+import { taskCompletedEmail }  from "../../../services/emails/triggers/admin/Task-Management/task-completed";
+import { taskDeletedEmail }    from "../../../services/emails/triggers/admin/Task-Management/task-deleted";
+import { taskDueOverdueEmail } from "../../../services/emails/triggers/admin/Task-Management/task-due-overdue";
+import { taskEditedEmail }     from "../../../services/emails/triggers/admin/Task-Management/task-edited";
+
+
 
 export const addNewTask = async (req: Request, res: Response) => {
   const {
@@ -103,11 +116,63 @@ export const addNewTask = async (req: Request, res: Response) => {
     await AssignmentModel.insertMany(assignments);
   }
 
+  // ✅ Fetch assignee names for logging
+  const assignedUsers = await UserModel.find({ _id: { $in: assignedTo } });
+  const assignedToNames = assignedUsers.map((user) => user.name || "Unknown");
+
+  await logNewTaskCreated({
+    taskTitle: savedTask.taskName,
+    assignedTo : assignedToNames,
+    adminName: req.admin?.userName,
+    taskId: savedTask._id as mongoose.Types.ObjectId,
+  });
+
+
+  // send email to all assigneeS
+  await Promise.all(
+    assignedUsers.map(async (user) => {
+      try {
+        await taskAssignedEmail({
+          to: user.email,
+          assigneeName: user.name ,
+          taskName: savedTask.taskName,
+          priority : savedTask.priority,
+          startDate: new Date(startDate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          }),
+          endDate: new Date(endDate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          }),  
+          assignedBy: req.admin?.userName,
+        });
+      } catch (err) {
+        console.error(`Failed to send task email to ${user.email}`, err);
+      }
+    })
+  );
+
+ 
+
+
   res.status(201).json({
     message: "Task created successfully",
     task: savedTask,
   });
 };
+
+
+
+
+
+
+
+
+
+
 
 // API for edit task
 // REq type -->> only send required fields
@@ -127,6 +192,9 @@ export const editTask = async (req: Request, res: Response) => {
     status,
   } = req.body;
 
+  // Array for sending in logFunction
+  const updatedFields: string[] = [];
+
   // Validate assignedTo as an array
   if (assignedTo && !Array.isArray(assignedTo)) {
     res
@@ -140,6 +208,8 @@ export const editTask = async (req: Request, res: Response) => {
     res.status(404).json({ message: "Task not found" });
     return;
   }
+
+  const oldTaskName = task.taskName;
 
   // Convert uploaded files to S3 URLs (if any)
   const newFiles =
@@ -163,6 +233,9 @@ export const editTask = async (req: Request, res: Response) => {
       return;
     }
     attachedClient = visaApp.userId as unknown as mongoose.Types.ObjectId;
+    task.attachedVisaApplication = attachedVisaApplication;
+    task.attachedClient = attachedClient;
+    updatedFields.push("attachedVisaApplication", "attachedClient");
   }
 
   // Fetch updated consultation from lead if provided
@@ -172,32 +245,73 @@ export const editTask = async (req: Request, res: Response) => {
       leadId: attachedLead,
     }).select("_id");
     if (consultation) {
-      attachedConsultation =
-        consultation._id as unknown as mongoose.Types.ObjectId;
+      attachedConsultation =   consultation._id as unknown as mongoose.Types.ObjectId;
+      task.attachedLead = attachedLead;
+      task.attachedConsultation = attachedConsultation;
+      updatedFields.push("attachedLead", "attachedConsultation");
     }
   }
 
   // Update fields only if valid
-  if (taskName !== undefined) task.taskName = taskName;
-  if (description !== undefined) task.description = description;
-  if (priority !== undefined && priority !== "") task.priority = priority;
-  if (startDate !== undefined && startDate !== "") task.startDate = startDate;
-  if (endDate !== undefined && endDate !== "") task.endDate = endDate;
-  if (attachedLead !== undefined) task.attachedLead = attachedLead;
-  if (attachedVisaApplication !== undefined)
-    task.attachedVisaApplication = attachedVisaApplication;
-  if (attachedClient !== undefined) task.attachedClient = attachedClient;
-  if (attachedConsultation !== undefined)
-    task.attachedConsultation = attachedConsultation;
-  if (status !== undefined) task.status = status;
+  if (taskName !== undefined && task.taskName !== taskName) {
+    task.taskName = taskName;
+    updatedFields.push("taskName");
+  }
+
+  if (description !== undefined && task.description !== description) {
+    task.description = description;
+    updatedFields.push("description");
+  }
+
+  if (priority !== undefined && priority !== "" && task.priority !== priority) {
+    task.priority = priority;
+    updatedFields.push("priority");
+  }
+
+  if (startDate !== undefined && startDate !== "" && task.startDate?.toISOString() !== new Date(startDate).toISOString()) {
+    task.startDate = startDate;
+    updatedFields.push("startDate");
+  }
+
+  if (endDate !== undefined && endDate !== "" && task.endDate?.toISOString() !== new Date(endDate).toISOString()) {
+    task.endDate = endDate;
+    updatedFields.push("endDate");
+  }
+
+  if (status !== undefined && task.status !== status) {
+    task.status = status;
+    updatedFields.push("status");
+  }
 
   // Merge & deduplicate files
-  task.files = Array.from(new Set([...task.files, ...newFiles]));
+  // task.files = Array.from(new Set([...task.files, ...newFiles]));
+  if (newFiles.length > 0) {
+    const merged = Array.from(new Set([...task.files, ...newFiles]));
+    if (merged.length !== task.files.length) {
+      task.files = merged;
+      updatedFields.push("files");
+    }
+  }
 
   const updatedTask = await task.save();
 
-  // Update assignments
+  // --- STEP 1: Get Old Assignees ---
+  const oldAssignments = await AssignmentModel.find({ taskId });
+  const oldAssigneeIds = oldAssignments.map(a => a.memberId.toString());
+
+  // --- STEP 2: Compare AssignedTo Lists ---
   if (assignedTo) {
+
+    const newAssigneeIds = assignedTo.map((id: string) => id.toString());
+    // newlyAdded -->> jo abhi hai , lekin pahle nahi the
+    const newlyAdded = newAssigneeIds.filter((id:string) => !oldAssigneeIds.includes(id));
+    // stillAssigned -->. jo pahle bhi the , aur abhi bhi hai 
+    const stillAssigned = oldAssigneeIds.filter((id:string) => newAssigneeIds.includes(id));
+
+    // Now call email function to send mail to stillAssigned employees...
+    if (newlyAdded.length > 0 && stillAssigned.length > 0) {
+      // await notifyAssignees(stillAssigned, newlyAdded, task.taskName);
+    }
     // Delete existing assignments
     await AssignmentModel.deleteMany({ taskId });
 
@@ -209,7 +323,26 @@ export const editTask = async (req: Request, res: Response) => {
 
     if (assignments.length > 0) {
       await AssignmentModel.insertMany(assignments);
+      updatedFields.push("assignedTo");
     }
+  }
+
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  // ✅ Call logging function if fields were updated
+  if (updatedFields.length > 0) {
+    await logTaskUpdated({
+      taskTitle: oldTaskName,
+      updatedFields,
+      updatedAt: new Date(),
+      adminName: userDoc?.name,
+      taskId : task._id as mongoose.Types.ObjectId
+    });
   }
 
   return res.status(200).json({
@@ -217,6 +350,12 @@ export const editTask = async (req: Request, res: Response) => {
     task: updatedTask,
   });
 };
+
+
+
+
+
+
 
 // Deleting a task
 export const deleteTask = async (
@@ -243,6 +382,20 @@ export const deleteTask = async (
 
   // Delete all assignments associated with the task
   await AssignmentModel.deleteMany({ taskId });
+
+   // ✅ Log task deletion
+   const id = req.admin?.id;
+
+   const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+   await logTaskDeleted({
+    taskTitle: task.taskName,
+    adminName :  userDoc?.name,
+    taskId: task._id as mongoose.Types.ObjectId,
+  });
 
   return res.status(200).json({
     success: true,

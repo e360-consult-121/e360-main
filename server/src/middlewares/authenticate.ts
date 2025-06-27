@@ -9,6 +9,7 @@ interface TokenPayload {
   id: string;
   role: string;
   roleId : string;
+  userName : string;
 }
 
 // declare global {

@@ -35,6 +35,10 @@ export const fetchAllStepsOfParticularVisaType = async (
   }
 };
 
+
+
+// 1. -->> req.assignedId vari ka exist hi na karna  -->> send all visaApplications 
+// 2. -->> exist toh karta hai , but empty hai -->> send result array empty
 // API for fetching all apllications of a particular type
 export const fetchApplicationsOfParticularType = async (
   req: Request,
@@ -79,8 +83,23 @@ export const fetchApplicationsOfParticularType = async (
     }
   }
 
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    additionalFilters._id = { $in: req.assignedIds };
+  // 4. Assigned filtering logic
+  if (Array.isArray(req.assignedIds)) {
+    if (req.assignedIds.length === 0) {
+      // ⛔ assignedIds exists but is empty — return empty result
+      return res.status(200).json({
+        visaApplications: [],
+        pagination: {
+          total: 0,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: 0,
+        },
+      });
+    } else {
+      // ✅ assignedIds exists and is non-empty — filter by them
+      additionalFilters._id = { $in: req.assignedIds };
+    }
   }
 
   try {

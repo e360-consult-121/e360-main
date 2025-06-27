@@ -79,7 +79,10 @@ export const getRecentUpdates = async (req: Request, res: Response) => {
 export const fetchRecentLeads = async (req: Request, res: Response) => {
   const filter: any = {};
 
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+  if (Array.isArray(req.assignedIds)) {
+    if (req.assignedIds.length === 0) {
+      return res.status(200).json({ leads: [] });
+    }
     filter._id = { $in: req.assignedIds };
   }
 
@@ -97,8 +100,11 @@ export const fetchRecentConsultions = async (req: Request, res: Response) => {
   };
 
   // If the middleware set req.assignedIds, filter by those IDs
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    match._id = { $in: req.assignedIds };    // show only assigned consultations
+  if (Array.isArray(req.assignedIds)) {
+    if (req.assignedIds.length === 0) {
+      return res.status(200).json({ consultations: [] });
+    }
+    match._id = { $in: req.assignedIds };
   }
 
   // Run the aggregation 

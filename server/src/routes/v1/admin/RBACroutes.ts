@@ -9,27 +9,27 @@ const router = Router();
 
 router.post("/addNewRole",
  authenticate ,authorizeAdmin,
-//  checkPermission("Add new Role"),
+ checkPermission("Add_new_Role"),
  asyncHandler(rbacControllers.addNewRole));
 
 router.post("/addNewAdminUser/:roleId",
  authenticate ,authorizeAdmin,
- //  checkPermission("Add new Admin User"),
+  checkPermission("Add_new_Admin_User"),
  asyncHandler(rbacControllers.addNewAdminUser));
 
 router.post("/assignActionsToRole",
  authenticate ,authorizeAdmin,
-  //  checkPermission("Assign actions to existing Role"),
+   checkPermission("Assign_actions_to_existing_Role"),
  asyncHandler(rbacControllers.assignActionsToRole));
 
 router.patch("/editAdminUser/:employeeId",
  authenticate ,authorizeAdmin,
-   //  checkPermission("Edit Details of an Admin User"),
+    checkPermission("Edit_Details_of_an_Admin_User"),
  asyncHandler(rbacControllers.editAdminUser));
 
  router.delete("/deleteAdminUser/:userId",
  authenticate ,authorizeAdmin,
-   //  checkPermission("Delete an Admin User"),
+    checkPermission("Delete_an_Admin_User"),
  asyncHandler(rbacControllers.deleteAdminUser));
 
 router.get("/fetchAllFeatures"   , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllFeatures));
