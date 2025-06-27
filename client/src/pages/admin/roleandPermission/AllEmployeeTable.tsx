@@ -19,6 +19,7 @@ import {
   useMediaQuery,
   Tooltip,
   CircularProgress,
+  FormControl,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
@@ -26,6 +27,7 @@ import AddEmployeeDrawer from "../../../features/admin/RoleandPermission/compone
 import {
   useDeleteAdminUserMutation,
   useEditAdminUserMutation,
+  useFetchAllRolesQuery,
 } from "../../../features/admin/RoleandPermission/roleAndPermissionApi";
 import { toast } from "react-toastify";
 import { Cancel, Save } from "@mui/icons-material";
@@ -35,7 +37,7 @@ interface Employee {
   id: string;
   employeeId: string;
   name: string;
-  role: string;
+  roleName: string;
   phone: string;
   email: string;
 }
@@ -88,6 +90,8 @@ const AllEmployee = ({
   const [editedEmployee, setEditedEmployee] = useState<Partial<Employee>>({});
   // console.log(admins)
 
+  const { data: roles } = useFetchAllRolesQuery(undefined);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -99,7 +103,7 @@ const AllEmployee = ({
     return {
       id: user._id,
       name: user.name || "-",
-      role: user.roleInfo?.roleName || "N/A",
+      roleName: user.roleInfo?.roleName || "N/A",
       phone: user.phone || "-",
       email: user.email || "-",
       employeeId: user.employeeId || "-",
@@ -507,18 +511,26 @@ const AllEmployee = ({
                     </TableCell> */}
                     <TableCell sx={{ borderBottom: "none" }}>
                       {isEditing ? (
-                        <TextField
-                          value={editedEmployee.role || ""}
-                          onChange={(e) =>
-                            handleFieldChange("role", e.target.value)
-                          }
-                          size="small"
-                          fullWidth
-                        />
+                        <FormControl fullWidth size="small">
+                          <Select
+                            value={editedEmployee.roleName || ""}
+                            onChange={(e) =>
+                              handleFieldChange("roleName", e.target.value)
+                            }
+                            displayEmpty
+                          >
+                            {roles?.roles?.map((role: any) => (
+                              <MenuItem key={role._id} value={role.roleName}>
+                                {role.roleName}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
                       ) : (
-                        employee.role
+                        employee.roleName || "N/A"
                       )}
                     </TableCell>
+
                     <TableCell sx={{ borderBottom: "none" }}>
                       {isEditing ? (
                         <TextField

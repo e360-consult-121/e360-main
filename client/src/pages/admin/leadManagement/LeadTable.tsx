@@ -18,6 +18,7 @@ import {
 import { AllLeads } from "../../../features/admin/leadManagement/leadManagementTypes";
 import { formatDate } from "../../../utils/FormateDate";
 import { useNavigate } from "react-router-dom";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
 
 interface PaginationData {
   total: number;
@@ -109,7 +110,8 @@ const LeadTable: React.FC<LeadTableProps> = ({
         <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 1 }}>
           Lead Management
         </Typography>
-
+        <Box display={"flex"} alignItems={"center"} gap={3}>
+        <ExportToExcelButton/>
         <Select
           value={sort === "createdAt" ? "Oldest First" : "Newest First"}
           onChange={handleSortChange}
@@ -119,7 +121,9 @@ const LeadTable: React.FC<LeadTableProps> = ({
           <MenuItem value="Newest First">Newest First</MenuItem>
           <MenuItem value="Oldest First">Oldest First</MenuItem>
         </Select>
+        </Box>
       </Box>
+
 
       {/* Desktop Table View */}
       <Box display={{ xs: "none", md: "block" }}>
