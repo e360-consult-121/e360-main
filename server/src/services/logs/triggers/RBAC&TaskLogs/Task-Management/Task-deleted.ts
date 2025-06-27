@@ -2,27 +2,25 @@ import { createLog } from "../../../createLog";
 import { formatDateTime } from "../../../../../utils/formatDateTime";
 import { logTypeEnum } from "../../../../../types/enums/enums";
 import { Types } from "mongoose";
-
+import {LogModel} from "../../../../../models/logsModels/logModel";
 
 export const logTaskDeleted = async ({
   taskTitle,
   deletedAt = new Date(),
-  doneBy = null,
-  doneByName,
+  adminName,
+  taskId
 }: {
   taskTitle: string;
   deletedAt?: Date;
-  doneBy?: Types.ObjectId | null;
-  doneByName: string;
+  adminName?: string;
+  taskId : Types.ObjectId | null;
 }) => {
   const dateTime = formatDateTime(deletedAt);
-  const msg = `Task "${taskTitle}" was deleted on ${dateTime} by ${doneByName}`;
+  const msg = `Task "${taskTitle}" was deleted on ${dateTime} by ${adminName}`;
 
-  await createLog({
+  await LogModel.create({
     logMsg: msg,
-    doneBy,
-    logType: logTypeEnum.ActivityLogs,
-    visaApplicationId :  null , 
-    leadId : null
+    logType: logTypeEnum.TaskLogs,
+    taskId,
   });
 };

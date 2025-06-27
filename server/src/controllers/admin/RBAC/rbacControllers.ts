@@ -8,6 +8,11 @@ import { ActionModel as actionModel } from "../../../models/rbacModels/actionMod
 import { FeatureModel as featureModel } from "../../../models/rbacModels/featureModel";
 import { AssignmentModel  } from "../../../models/teamAndTaskModels/assignModel";
 import { PermissionModel as permissionModel } from "../../../models/rbacModels/permissionModel";
+import { logNewEmployeeCreated } from "../../../services/logs/triggers/RBAC&TaskLogs/RBAC/New-employee-created";
+import { logEmployeeEdited } from "../../../services/logs/triggers/RBAC&TaskLogs/RBAC/Employee-edited";
+import { logEmployeeDeleted } from "../../../services/logs/triggers/RBAC&TaskLogs/RBAC/Employee-deleted";
+import { logNewRoleCreated } from "../../../services/logs/triggers/RBAC&TaskLogs/RBAC/New-role-created";
+import { logRolePermissionsUpdated } from "../../../services/logs/triggers/RBAC&TaskLogs/RBAC/Permissions-of-role-Updated";
 import bcrypt from "bcryptjs";
 import {
   RoleEnum,
@@ -51,6 +56,18 @@ export const addNewRole = async (req: Request, res: Response) => {
   }));
 
   await permissionModel.insertMany(permissions);
+
+  // call log function
+  const id = req.admin?.id;
+  const userDoc = await userModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await logNewRoleCreated({
+    roleName : name,
+    doneByName : userDoc?.name,
+  })
 
   res.status(201).json({
     message: 'Role and permissions created successfully.',
@@ -125,10 +142,26 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
   let refreshToken = generateRefreshToken({
     id: String(newUser._id),
     role: newUser.role,
-    roleId: String(newUser.roleId)
+    roleId: String(newUser.roleId),
+    userName : newUser.name
   });
 
   await userModel.findByIdAndUpdate(newUser._id, { refreshToken });
+
+  // call log function for employee create
+  const id = req.admin?.id;
+  const userDoc = await userModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+
+  await logNewEmployeeCreated({
+    employeeName: newUser.name,
+    roleName : roleDoc?.roleName ,
+    employeeEmail :newUser.email ,
+    doneByName : userDoc?.name,
+  })
 
   res.status(201).json({
     message: "Admin user created successfully.",
@@ -259,6 +292,19 @@ export const assignActionsToRole = async (req: Request, res: Response) => {
     result.deleted = deleteResult.deletedCount || 0;
   }
 
+  
+  // Log for permission change of a role 
+  const id = req.admin?.id;
+  const userDoc = await userModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await logRolePermissionsUpdated({
+    roleName: role.roleName,
+    doneByName : userDoc?.name,
+  })
+
   res.status(200).json({
     success: true,
     message: "Permissions updated successfully",
@@ -293,6 +339,8 @@ export const editAdminUser = async (req: Request, res: Response) => {
     throw new Error("Admin user not found.");
   }
 
+  const oldName = user.name;
+
   let updatedFields: any = {};
 
   if (name) updatedFields.name = name;
@@ -322,6 +370,18 @@ export const editAdminUser = async (req: Request, res: Response) => {
   const updatedUser = await userModel.findByIdAndUpdate(employeeId, {
     $set: updatedFields,
   }, { new: true });
+
+  // log for edit details of an adminUser 
+  const id = req.admin?.id;
+  const userDoc = await userModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await logEmployeeEdited({
+    employeeName :  oldName,
+    doneByName   :  userDoc?.name,
+  });
 
   res.status(200).json({
     message: "Admin user updated successfully.",
@@ -356,6 +416,17 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<Resp
     throw new AppError("Admin user not found", 404);
   }
 
+  // log for deleting the admin user
+  const adminDoc = await userModel
+      .findById(adminId)
+      .select("name")
+      .lean();
+
+  await logEmployeeDeleted({
+    employeeName: user.name ,
+    doneByName : adminDoc?.name
+  });
+
   // Delete the user
   await userModel.findByIdAndDelete(userId);
 
@@ -363,6 +434,8 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<Resp
   await AssignmentModel.deleteMany({
     memberId: userId,
   });
+
+  
 
   return res.status(200).json({
     success: true,

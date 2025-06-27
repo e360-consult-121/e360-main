@@ -13,10 +13,26 @@ export const getAllLeads = async (req: Request, res: Response) => {
 
   const additionalFilters: any = {};
 
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    additionalFilters._id = { $in: req.assignedIds };
+  // 1. Check assignedIds
+  if (Array.isArray(req.assignedIds)) {
+    if (req.assignedIds.length === 0) {
+      // If assignedIds exists but is empty → return empty result
+      return res.status(200).json({
+        leads: [],
+        pagination: {
+          total: 0,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: 0,
+        },
+      });
+    } else {
+      // If assignedIds is non-empty → filter leads by assignedIds
+      additionalFilters._id = { $in: req.assignedIds };
+    }
   }
 
+  // 2. Run paginated query
   const result = await searchPaginatedQuery({
     model: LeadModel,
     collectionName: "leads",
@@ -27,6 +43,7 @@ export const getAllLeads = async (req: Request, res: Response) => {
     additionalFilters,
   });
 
+  // 3. Return response
   res.status(200).json({
     leads: result.data,
     pagination: {
@@ -37,6 +54,7 @@ export const getAllLeads = async (req: Request, res: Response) => {
     },
   });
 };
+
 
 // export const getParticularLeadInfo = async (req: Request, res: Response) => {
 // input -->> leadId

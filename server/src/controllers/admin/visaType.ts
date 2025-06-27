@@ -11,8 +11,26 @@ export const fetchAllClients = async (req: Request, res: Response) => {
 
   const additionalFilters: any = { role: RoleEnum.USER };
 
-  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    additionalFilters._id = { $in: req.assignedIds };
+  if (Array.isArray(req.assignedIds)) {
+    if (req.assignedIds.length === 0) {
+      // Case 2: Empty assignedIds → return empty result
+      return res.status(200).json({
+        success: true,
+        message: "Clients with visa application stats fetched successfully",
+        data: [],
+        pagination: {
+          total: 0,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
+    } else {
+      // Case 3: assignedIds present → filter clients
+      additionalFilters._id = { $in: req.assignedIds };
+    }
   }
 
   const postMatchStages = [
@@ -195,6 +213,9 @@ export const fetchAllClients = async (req: Request, res: Response) => {
   }
 };
 
+
+
+
 //fetch all the visa appliactions of a client
 export const fetchClientVisaApplications = async (
   req: Request,
@@ -209,7 +230,10 @@ export const fetchClientVisaApplications = async (
   try {
     const filter: any = { userId: userid };
 
-    if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    if (Array.isArray(req.assignedIds)) {
+      if (req.assignedIds.length === 0) {
+        return res.status(200).json({ success: true, data: [] });
+      }
       filter._id = { $in: req.assignedIds };
     }
 
@@ -253,104 +277,3 @@ export const getAllApplications = async (
   });
 };
 
-// new api for all info of visaApplication for new created client and application
-// visaApplication -->> payment ki info
-
-// create visaType
-// export const createVisaType = async (
-//     req: Request,
-//     res: Response,
-//     next: NextFunction
-// ): Promise<Response | void> => {
-
-//     const {visaType} = req.body;
-
-//     console.log("visa")
-//     // Validate the VisaTypeEnum
-//     if (!Object.values(VisaTypeEnum).includes(visaType)) {
-//         return res.status(400).json({ message: 'Invalid visa type.' });
-//     }
-
-//     const newVisaType = await VisaTypeModel.create({
-//         visaType,
-//     });
-
-//     if (!newVisaType)
-//         throw new AppError("Failed to creat new visaType", 500);
-
-//     res.status(201).json({
-//         message: 'Visa type created successfully.',
-//         visaType: newVisaType,
-//     });
-// };
-
-// // controller to push new steps in visaType steps
-// export const addStepToVisaType = async (
-//     req: Request,
-//     res: Response,
-//     next: NextFunction
-// ): Promise<Response | void> => {
-//     const { visaTypeId, stepName, stepNumber, stepSource, stepType } = req.body;
-
-//     if (!visaTypeId || !stepName || stepNumber == null || !stepSource || !stepType) {
-//         throw new AppError("visaTypeId, stepName, stepNumber, stepSource, and stepType are required.", 400);
-//     }
-
-//     const visaType = await VisaTypeModel.findById(visaTypeId);
-//     if (!visaType) {
-//         throw new AppError("VisaType not found.", 404);
-//     }
-
-//     const newStep = await stepModel.create({
-//         visaTypeId,
-//         stepName,
-//         stepNumber,
-//         stepSource,
-//         stepType,
-//     });
-
-//     res.status(201).json({
-//         message: "Step added successfully.",
-//         step: newStep,
-//     });
-// };
-
-// // Controller to create a new Requirement and push it to a particular steps in VisaType
-// export const createRequirementAndPushToVisaType = async (
-//     req: Request,
-//     res: Response,
-//     next: NextFunction
-// ): Promise<Response | void> => {
-//     const { visaTypeId, stepNumber, requirementData } = req.body;
-
-//     if (!visaTypeId || !stepNumber || !requirementData) {
-//         throw new AppError("visaTypeId, stepNumber, and requirementData are required.", 400);
-//     }
-
-//     // 1. Check if visaType exists
-//     const visaType = await VisaTypeModel.findById(visaTypeId);
-//     if (!visaType) {
-//         throw new AppError("VisaType not found.", 404);
-//     }
-
-//     // 2. Find the visaStep using visaTypeId and stepNumber
-//     const visaStep = await stepModel.findOne({ visaTypeId, stepNumber });
-//     if (!visaStep) {
-//         throw new AppError("Step not found for given visaType and stepNumber.", 404);
-//     }
-
-//     // 3. Create requirement with visaTypeId and visaStepId
-//     const newRequirement = await reqModel.create({
-//         visaTypeId,
-//         visaStepId: visaStep._id,
-//         question: requirementData.question,
-//         requirementType: requirementData.requirementType,
-//         required: requirementData.required ?? true, // fallback to true
-//         options: requirementData.options || [],
-//     });
-
-//     res.status(201).json({
-//         message: "Requirement created successfully.",
-//         requirement: newRequirement,
-//     });
-// };

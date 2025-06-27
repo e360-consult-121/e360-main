@@ -72,23 +72,23 @@ export const checkPermission = (actionName: string) => {
         reqProp: "writeOnAllVisaApplications",
       },
       "View-Leads": {
-        action1: "View All Leads",
-        action2: "View Only Assigned Leads",
+        action1: "View_All_Leads",
+        action2: "View_Only_Assigned_Leads",
         reqProp: "isViewAllLeads",
       },
       "View-Consultations": {
-        action1: "View All Consultations",
-        action2: "View Only Assigned Consultations",
+        action1: "View_All_Consultations",
+        action2: "View_Only_Assigned_Consultations",
         reqProp: "isViewAllConsultations",
       },
       "View-Clients": {
-        action1: "View All Clients",
-        action2: "View Only Assigned Clients",
+        action1: "View_All_Clients",
+        action2: "View_Only_Assigned_Clients",
         reqProp: "isViewAllClients",
       },
       "View-VisaApplications": {
-        action1: "View All VisaApplications",
-        action2: "View Only Assigned Applications",
+        action1: "View_All_VisaApplications",
+        action2: "View_Only_Assigned_Applications",
         reqProp: "isViewAllVisaApplications",
       },
     };

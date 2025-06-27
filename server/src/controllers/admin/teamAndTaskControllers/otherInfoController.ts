@@ -8,6 +8,10 @@ import { LeadModel } from "../../../leadModels/leadModel";
 import { VisaApplicationModel } from "../../../models/VisaApplication";
 import { UserModel } from "../../../models/Users";
 import { ConsultationModel } from "../../../leadModels/consultationModel";
+import { remarkAddedEmail }    from "../../../services/emails/triggers/admin/Task-Management/remark-added";
+
+
+
 
 export const getAllLeads = async (req: Request, res: Response) => {
   const matchStage: any = {};
@@ -30,6 +34,10 @@ export const getAllLeads = async (req: Request, res: Response) => {
 
   res.status(200).json({ leads });
 };
+
+
+
+
 
 // Name , visaType , visaApplicationId
 export const getAllVisaApplications = async (req: Request, res: Response) => {
@@ -138,6 +146,10 @@ export const getAllVisaApplications = async (req: Request, res: Response) => {
   res.status(200).json({ visaApplications });
 };
 
+
+
+
+
 export const getAssigneeList = async (
   req: Request,
   res: Response
@@ -187,6 +199,9 @@ export const getAssigneeList = async (
   });
 };
 
+
+
+
 export const addRemark = async (req: Request, res: Response) => {
   const { taskId } = req.params;
 
@@ -219,12 +234,55 @@ export const addRemark = async (req: Request, res: Response) => {
 
   await task.save();
 
+  // Members whom we need to send emails
+  const members = await AssignmentModel.aggregate([
+    { $match: { taskId: new Types.ObjectId(taskId) } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "memberId",
+        foreignField: "_id",
+        as: "member"
+      }
+    },
+    { $unwind: "$member" },
+    {
+      $replaceRoot: { newRoot: "$member" }
+    }
+  ]);
+
+  await Promise.all(
+    members.map(async (user) => {
+      try {
+        await remarkAddedEmail({
+          to: user.email,
+          assigneeName: user.name,
+          taskName: task.taskName,
+          remarkedBy: req.admin?.userName,
+          remarkedAt: new Date().toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          }),
+          remark: remarkMsg
+        })
+      } catch (err) {
+        console.error(`Failed to send task email to ${user.email}`, err);
+      }
+    })
+  );
+
   // Return success response
   return res.status(200).json({
     message: "Remark added successfully",
     task,
   });
 };
+
+
+
+
+
 
 // API for editing a remark msg
 export const editRemark = async (req: Request, res: Response) => {

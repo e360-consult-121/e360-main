@@ -2173,3 +2173,13 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchRecentConsultions\",\"status\":\"200\",\"responseTime\":\"145.527\"}","timestamp":"2025-06-24T18:09:43.887Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchAnalytics\",\"status\":\"200\",\"responseTime\":\"143.531\"}","timestamp":"2025-06-24T18:09:43.906Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchAllRevenue\",\"status\":\"200\",\"responseTime\":\"165.162\"}","timestamp":"2025-06-24T18:09:43.916Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"2374.809\"}","timestamp":"2025-06-26T09:37:41.499Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/visaapplication/fetchApplicationsOfParticularType?visaType=Portugal\",\"status\":\"200\",\"responseTime\":\"885.419\"}","timestamp":"2025-06-26T09:38:08.030Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/visaapplication/fetchApplicationsOfParticularType?visaType=Dubai\",\"status\":\"200\",\"responseTime\":\"672.378\"}","timestamp":"2025-06-26T09:42:23.718Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/visaapplication/fetchApplicationsOfParticularType?visaType=Dominica\",\"status\":\"200\",\"responseTime\":\"660.056\"}","timestamp":"2025-06-26T09:42:40.128Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/visaapplication/fetchApplicationsOfParticularType?visaType=Grenada\",\"status\":\"200\",\"responseTime\":\"638.630\"}","timestamp":"2025-06-26T09:42:54.992Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/visaapplication/fetchApplicationsOfParticularType?visaType=Portugal\",\"status\":\"200\",\"responseTime\":\"972.562\"}","timestamp":"2025-06-26T09:54:31.329Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1354.867\"}","timestamp":"2025-06-26T10:19:11.725Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"1456.101\"}","timestamp":"2025-06-26T10:19:30.214Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/clientsInfo/fetchAllClients\",\"status\":\"403\",\"responseTime\":\"495.054\"}","timestamp":"2025-06-26T10:48:29.649Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/clientsInfo/fetchAllClients\",\"status\":\"200\",\"responseTime\":\"2548.844\"}","timestamp":"2025-06-26T11:11:26.181Z"}
