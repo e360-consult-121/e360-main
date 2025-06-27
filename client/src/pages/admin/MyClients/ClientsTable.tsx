@@ -203,7 +203,7 @@ const ClientsTable: React.FC<TableProps> = ({
                     "Action",
                   ].map((header) => (
                     <TableCell key={header} sx={{ color: "#8D8883" }}>
-                      {header}
+Ge                      {header}
                     </TableCell>
                   ))}
                 </TableRow>
