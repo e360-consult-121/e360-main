@@ -2183,6 +2183,7 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"1456.101\"}","timestamp":"2025-06-26T10:19:30.214Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/clientsInfo/fetchAllClients\",\"status\":\"403\",\"responseTime\":\"495.054\"}","timestamp":"2025-06-26T10:48:29.649Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/clientsInfo/fetchAllClients\",\"status\":\"200\",\"responseTime\":\"2548.844\"}","timestamp":"2025-06-26T11:11:26.181Z"}
+<<<<<<< Updated upstream
 {"level":"info","message":"{\"method\":\"OPTIONS\",\"url\":\"/api/v1/auth/login\",\"status\":\"204\",\"responseTime\":\"2.072\"}","timestamp":"2025-06-27T06:54:18.307Z"}
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"537.287\"}","timestamp":"2025-06-27T06:54:18.850Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/dashboard/fetchRecentConsultions\",\"status\":\"401\",\"responseTime\":\"1.359\"}","timestamp":"2025-06-27T06:54:18.947Z"}
@@ -2241,3 +2242,7 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchLeadsStats\",\"status\":\"200\",\"responseTime\":\"3062.087\"}","timestamp":"2025-06-27T07:13:42.811Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/uipermissions/fetchUIPermissions\",\"status\":\"200\",\"responseTime\":\"3782.207\"}","timestamp":"2025-06-27T07:13:43.551Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads?page=1&limit=5&search=&sort=-createdAt\",\"status\":\"200\",\"responseTime\":\"4065.935\"}","timestamp":"2025-06-27T07:13:43.845Z"}
+=======
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1749.053\"}","timestamp":"2025-06-27T07:11:22.152Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/leads/fetchAllLeads\",\"status\":\"200\",\"responseTime\":\"665.661\"}","timestamp":"2025-06-27T07:11:34.403Z"}
+>>>>>>> Stashed changes

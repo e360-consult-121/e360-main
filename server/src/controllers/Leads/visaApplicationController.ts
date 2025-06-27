@@ -149,6 +149,13 @@ export const getParticularVisaInfo = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "visaApplicationId is required" });
   }
 
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(visaApplicationId)  ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
+  }
+
   const visaData = await VisaApplicationModel.aggregate([
     {
       $match: {

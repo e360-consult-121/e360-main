@@ -14,23 +14,23 @@ router.post("/addNewRole",
 
 router.post("/addNewAdminUser/:roleId",
  authenticate ,authorizeAdmin,
-  checkPermission("Add_new_Admin_User"),
+ checkPermission("Add_new_Admin_User"),
  asyncHandler(rbacControllers.addNewAdminUser));
 
 router.post("/assignActionsToRole",
- authenticate ,authorizeAdmin,
-   checkPermission("Assign_actions_to_existing_Role"),
- asyncHandler(rbacControllers.assignActionsToRole));
+  authenticate ,authorizeAdmin,
+  checkPermission("Assign_actions_to_existing_Role"),
+  asyncHandler(rbacControllers.assignActionsToRole));
 
 router.patch("/editAdminUser/:employeeId",
- authenticate ,authorizeAdmin,
-    checkPermission("Edit_Details_of_an_Admin_User"),
- asyncHandler(rbacControllers.editAdminUser));
+  authenticate ,authorizeAdmin,
+  checkPermission("Edit_Details_of_an_Admin_User"),
+  asyncHandler(rbacControllers.editAdminUser));
 
  router.delete("/deleteAdminUser/:userId",
- authenticate ,authorizeAdmin,
-    checkPermission("Delete_an_Admin_User"),
- asyncHandler(rbacControllers.deleteAdminUser));
+  authenticate ,authorizeAdmin,
+  checkPermission("Delete_an_Admin_User"),
+  asyncHandler(rbacControllers.deleteAdminUser));
 
 router.get("/fetchAllFeatures"   , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllFeatures));
 router.get("/fetchAllAdminUsers" , authenticate , authorizeAdmin , asyncHandler(rbacInfoControllers.fetchAllAdminUsers));
@@ -39,13 +39,13 @@ router.get("/fetchRoleWisePermissions"      , authenticate , authorizeAdmin , as
 
 
 router.delete("/deleteRole/:roleId",
-authenticate ,authorizeAdmin,
-  //  checkPermission("Delete a role"),
+  authenticate ,authorizeAdmin,
+  checkPermission("Delete_a_Role"),
 asyncHandler(rbacControllers.deleteRole));
 
 router.patch("/editRoleName/:roleId",
-authenticate ,authorizeAdmin,
-  //  checkPermission("Edit a roleName"),
+  authenticate ,authorizeAdmin,
+  checkPermission("Edit_a_RoleName"),
 asyncHandler(rbacControllers.editRoleName));
 
 

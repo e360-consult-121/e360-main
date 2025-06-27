@@ -77,6 +77,13 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "leadId is required" });
   }
 
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)  ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
+  }
+
   const lead = await LeadModel.findById(leadId);
   if (!lead) {
     return res.status(404).json({ message: "Lead not found" });
@@ -162,6 +169,13 @@ export const rejectLead = async (req: Request, res: Response) => {
   if (typeof reasonOfRejection !== "string") {
     res.status(400);
     throw new Error("reasonOfRejection is required and must be a string");
+  }
+
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)  ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
   }
 
   const updatedLead = await LeadModel.findByIdAndUpdate(
