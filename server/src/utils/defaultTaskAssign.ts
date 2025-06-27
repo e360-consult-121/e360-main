@@ -117,7 +117,7 @@ export const assignDefaultVisaApplication = async (
     // Step 3: Get roleIds with permission for that action
     const permissions = await PermissionModel.find({ actionId: action._id });
     const roleIds = permissions.map((p) => p.roleId);
-
+      
     // Step 4: Get users with those roles
     const users = await UserModel.find({ roleId: { $in: roleIds } }).select(
       "_id"

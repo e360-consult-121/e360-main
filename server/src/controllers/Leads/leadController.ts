@@ -13,10 +13,9 @@ export const getAllLeads = async (req: Request, res: Response) => {
 
   const additionalFilters: any = {};
 
-  // 1. Check assignedIds
+  console.log(req.assignedIds)
   if (Array.isArray(req.assignedIds)) {
     if (req.assignedIds.length === 0) {
-      // If assignedIds exists but is empty → return empty result
       return res.status(200).json({
         leads: [],
         pagination: {

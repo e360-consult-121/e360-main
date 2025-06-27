@@ -32,16 +32,16 @@ export const checkPermission = (actionName: string) => {
 
     const roleObjectId = new Types.ObjectId(roleId);
 
-
     // Check fallback: All_Actions
     const allAction = await ActionModel.findOne({ action: "All_Actions" });
+    let hasAllAccess = false;
     if (allAction) {
       const allAccess = await PermissionModel.findOne({
         roleId: roleObjectId,
         actionId: allAction._id,
       });
       if (allAccess) {
-        return next();
+        hasAllAccess = true;
       }
     }
 
@@ -95,6 +95,10 @@ export const checkPermission = (actionName: string) => {
 
     if (specialCases[actionName]) {
       const { action1, action2, reqProp } = specialCases[actionName];
+      if (hasAllAccess) {
+        req[reqProp] = true;
+        return next();
+      }
 
       const [actionDoc1, actionDoc2] = await Promise.all([
         ActionModel.findOne({ action: action1 }),
@@ -123,6 +127,10 @@ export const checkPermission = (actionName: string) => {
     }
 
     // Generic action check for other cases
+    if (hasAllAccess) {
+      return next();
+    }
+
     const action = await ActionModel.findOne({ action: actionName });
     if (!action) {
        res.status(404).json({ message: "Action not found" });
