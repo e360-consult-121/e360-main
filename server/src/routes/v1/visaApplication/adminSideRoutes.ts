@@ -3,6 +3,7 @@ import { authenticate ,authorizeAdmin } from "../../../middlewares/authenticate"
 import asyncHandler from "../../../utils/asyncHandler";
 import { checkPermission } from "../../../middlewares/permissionMiddleware";
 import { isAssigned } from "../../../middlewares/isAssigned";
+import { addArrayForStaff } from "../../../middlewares/addArrayForStaff";
 import * as adminSideControllers from "../../../controllers/visaApplications/adminSideController";
 import * as domiGrenaControllers from "../../../controllers/visaApplications/domiGrenaController";
 import * as deliveryControllers from "../../../controllers/visaApplications/dgDeliveryController";

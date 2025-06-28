@@ -24,6 +24,7 @@ router.get(
   authenticate,
   authorizeAdmin,
    checkPermission("Read-L"),
+   addArrayForStaff("Leads"),
   asyncHandler(leadControllers.getParticularLeadInfo)
 );
 
@@ -32,6 +33,7 @@ router.post(
   authenticate,
   authorizeAdmin,
    checkPermission("Write-L"),
+   addArrayForStaff("Leads"),
   asyncHandler(leadControllers.rejectLead)
 );
 
@@ -39,7 +41,7 @@ router.get(
   "/fetchLeadsStats",
   authenticate,
   authorizeAdmin,
-  // checkPermission("View-Leads"),
+  checkPermission("View-Leads"),
   asyncHandler(leadControllers.getLeadsStats)
 );
 

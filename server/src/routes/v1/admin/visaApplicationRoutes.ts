@@ -30,6 +30,8 @@ router.get(
   "/getVisaApplicationInfo/:visaApplicationId",
   authenticate,
   authorizeAdmin,
+  checkPermission("Read-V"),
+  addArrayForStaff("VisaApplications"),
   asyncHandler(visaApplication.getParticularVisaInfo)
 );
 

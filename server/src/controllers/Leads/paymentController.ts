@@ -55,6 +55,13 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     throw new Error("Lead not found");
   }
 
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)  ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
+  }
+
   const pageUrl = `${process.env.FRONTEND_URL}/payments/${lead._id}`;
 
   // const pageUrl = `${PORTAL_LINK}/payments/${lead._id}`

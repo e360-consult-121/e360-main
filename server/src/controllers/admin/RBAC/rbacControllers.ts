@@ -14,6 +14,8 @@ import { logEmployeeDeleted } from "../../../services/logs/triggers/RBAC&TaskLog
 import { logNewRoleCreated } from "../../../services/logs/triggers/RBAC&TaskLogs/RBAC/New-role-created";
 import { logRolePermissionsUpdated } from "../../../services/logs/triggers/RBAC&TaskLogs/RBAC/Permissions-of-role-Updated";
 import bcrypt from "bcryptjs";
+import { employeeAccountCreatedEmail } from "../../../services/emails/triggers/admin/RBAC/new-employee-created";
+import { employeeProfileUpdatedEmail } from "../../../services/emails/triggers/admin/RBAC/employee-details-edited";
 import {
   RoleEnum,
   AccountStatusEnum,
@@ -105,16 +107,7 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
   // Use provided password or generate a 5-digit one
   const plainPassword = password || Math.floor(10000 + Math.random() * 90000).toString();
   const hashedPassword = await bcrypt.hash(plainPassword, 10);
-
-  // Send a mail to employee , that your admin account has beed created (credetails , and roleName also )
-  // ..........
-  // ..........
-  // ..........
   
-
-  // Create role or get existing one
-  // const { roleDoc, alreadyExisted } = await createRoleWithOptionalPermissions(roleName, actionIds);
-  // console.log(`this is our roleDoc :` ,roleDoc );
 
   const roleDoc =  await roleModel.findById(roleId);
 
@@ -149,18 +142,21 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
   await userModel.findByIdAndUpdate(newUser._id, { refreshToken });
 
   // call log function for employee create
-  const id = req.admin?.id;
-  const userDoc = await userModel
-      .findById(id)
-      .select("name")
-      .lean();
-
-
   await logNewEmployeeCreated({
     employeeName: newUser.name,
     roleName : roleDoc?.roleName ,
     employeeEmail :newUser.email ,
-    doneByName : userDoc?.name,
+    doneByName : req.admin?.userName,
+  })
+
+  // Call Email trigger 
+  await employeeAccountCreatedEmail({
+    to : newUser.email,               
+    employeeName : newUser.name,     
+    email : newUser.email,            
+    password : password ,         
+    role : roleDoc.roleName,             
+    loginUrl : `${process.env.FRONTEND_URL}/login`
   })
 
   res.status(201).json({
@@ -294,15 +290,11 @@ export const assignActionsToRole = async (req: Request, res: Response) => {
 
   
   // Log for permission change of a role 
-  const id = req.admin?.id;
-  const userDoc = await userModel
-      .findById(id)
-      .select("name")
-      .lean();
+  
 
   await logRolePermissionsUpdated({
     roleName: role.roleName,
-    doneByName : userDoc?.name,
+    doneByName : req.admin?.userName ,
   })
 
   res.status(200).json({
@@ -332,6 +324,12 @@ export const editAdminUser = async (req: Request, res: Response) => {
     res.status(400);
     throw new Error("At least one field is required to update.");
   }
+  // Prepare map for sending in email fun call
+  const displayableFields: Record<string, string> = {};
+
+  if (name) displayableFields["Name"] = name;
+  if (phone) displayableFields["Phone"] = phone;
+  if (nationality) displayableFields["Nationality"] = nationality;
 
   const user = await userModel.findById( employeeId );
   if (!user) {
@@ -354,17 +352,13 @@ export const editAdminUser = async (req: Request, res: Response) => {
       throw new Error("Provided roleName does not exist.");
     }
     updatedFields.roleId = existingRole._id;
+    displayableFields["Role"] = roleName
   }
 
   if (password) {
     const hashedPassword = await bcrypt.hash(password, 10);
     updatedFields.password = hashedPassword;
-
-    // Send a email to that employee , for Password change 
-    // ...........
-    // ...........
-    // ...........
-
+    displayableFields["Password"] = password;
   }
 
   const updatedUser = await userModel.findByIdAndUpdate(employeeId, {
@@ -372,15 +366,17 @@ export const editAdminUser = async (req: Request, res: Response) => {
   }, { new: true });
 
   // log for edit details of an adminUser 
-  const id = req.admin?.id;
-  const userDoc = await userModel
-      .findById(id)
-      .select("name")
-      .lean();
-
   await logEmployeeEdited({
     employeeName :  oldName,
-    doneByName   :  userDoc?.name,
+    doneByName   :  req.admin?.userName,
+  });
+
+  // Email for credentails change
+  await employeeProfileUpdatedEmail({
+    to : user.email,
+    employeeName : user.name,
+    updatedBy : req.admin?.userName ,
+    updatedFields : displayableFields
   });
 
   res.status(200).json({
