@@ -10,7 +10,8 @@ import {upload} from "../../../services/s3Upload"
 const router = Router();
 
 router.post("/addNewClient",
-     authenticate ,authorizeAdmin,
+    authenticate ,authorizeAdmin,
     checkPermission("Add_new_Client"),
-      upload.single("file") , asyncHandler(adminControl.addNewClient));
+    upload.single("file") ,
+    asyncHandler(adminControl.addNewClient));
 export default router;

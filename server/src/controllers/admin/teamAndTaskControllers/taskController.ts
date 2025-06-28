@@ -12,9 +12,8 @@ import {logTaskUpdated} from "../../../services/logs/triggers/RBAC&TaskLogs/Task
 import {logTaskDeleted} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/Task-deleted";
 import {logNewTaskCreated} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/New-task-created";
 
-import { assigneeAddedEmail }  from "../../../services/emails/triggers/admin/Task-Management/assignee-added";
-import { remarkAddedEmail }    from "../../../services/emails/triggers/admin/Task-Management/remark-added";
 import { taskAssignedEmail }   from "../../../services/emails/triggers/admin/Task-Management/task-assigned";
+import { assigneeAddedEmail }  from "../../../services/emails/triggers/admin/Task-Management/assignee-added";
 import { taskCompletedEmail }  from "../../../services/emails/triggers/admin/Task-Management/task-completed";
 import { taskDeletedEmail }    from "../../../services/emails/triggers/admin/Task-Management/task-deleted";
 import { taskDueOverdueEmail } from "../../../services/emails/triggers/admin/Task-Management/task-due-overdue";
@@ -176,7 +175,7 @@ export const addNewTask = async (req: Request, res: Response) => {
 
 // API for edit task
 // REq type -->> only send required fields
-// And send only thise fields from fronte d (which are updated , not all )
+// And send only thise fields from frontend (which are updated , not all )
 export const editTask = async (req: Request, res: Response) => {
   const { taskId } = req.params;
 
@@ -301,49 +300,87 @@ export const editTask = async (req: Request, res: Response) => {
 
   // --- STEP 2: Compare AssignedTo Lists ---
   if (assignedTo) {
+      const newAssigneeIds = assignedTo.map((id: string) => id.toString());
+      // newlyAdded -->> jo abhi hai , lekin pahle nahi the
+      const newlyAdded = newAssigneeIds.filter((id:string) => !oldAssigneeIds.includes(id));
+      // stillAssigned -->. jo pahle bhi the , aur abhi bhi hai 
+      const stillAssigned = oldAssigneeIds.filter((id:string) => newAssigneeIds.includes(id));
 
-    const newAssigneeIds = assignedTo.map((id: string) => id.toString());
-    // newlyAdded -->> jo abhi hai , lekin pahle nahi the
-    const newlyAdded = newAssigneeIds.filter((id:string) => !oldAssigneeIds.includes(id));
-    // stillAssigned -->. jo pahle bhi the , aur abhi bhi hai 
-    const stillAssigned = oldAssigneeIds.filter((id:string) => newAssigneeIds.includes(id));
+      // Now call email function to send mail to stillAssigned employees...
+      if (newlyAdded.length > 0 && stillAssigned.length > 0) {
+        //  Fetch user details
+        const stillUsers = await UserModel.find({ _id: { $in: stillAssigned } });
+        const newUsers = await UserModel.find({ _id: { $in: newlyAdded } });
+        const newAssigneeNames = newUsers.map(user => user.name);
+    
+        for (const user of stillUsers) {
+          // Email for Assignees added
+          await assigneeAddedEmail(
+            user.email,
+            user.name,
+            task.taskName,
+            newAssigneeNames,
+            req.admin?.userName
+          );
+          // Email when task edited
+          await taskEditedEmail({
+            to : user.email ,                  
+            assigneeName : user.name,        
+            taskName : oldTaskName ,         
+            updatedBy : req.admin?.userName,          
+            updatedAt : new Date().toLocaleString("en-IN", {
+              timeZone: "Asia/Kolkata",
+            }),          
+            updatedFields : updatedFields
+          })
+        }
 
-    // Now call email function to send mail to stillAssigned employees...
-    if (newlyAdded.length > 0 && stillAssigned.length > 0) {
-      // await notifyAssignees(stillAssigned, newlyAdded, task.taskName);
-    }
-    // Delete existing assignments
-    await AssignmentModel.deleteMany({ taskId });
+        // email when task is completed
+        if (status !== undefined   &&   status == taskStatusEnum.COMPLETED    &&     task.status == status){
+          for (const user of stillUsers) {
+            // Email for Assignees added
+            await taskCompletedEmail({
+              to : user.email,                 
+              assigneeName : user.name ,    
+              taskName :  task.taskName ,          
+              completedBy : req.admin?.userName  ,       
+              completedAt : new Date().toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+              })
+            });
+          }
+        }
 
-    const assignments = assignedTo.map((memberId: string) => ({
-      taskId: task._id,
-      memberId,
-      assignedBy: req.admin?.id,
-    }));
 
-    if (assignments.length > 0) {
-      await AssignmentModel.insertMany(assignments);
-      updatedFields.push("assignedTo");
-    }
+      }
+      // Delete existing assignments
+      await AssignmentModel.deleteMany({ taskId });
+
+      const assignments = assignedTo.map((memberId: string) => ({
+        taskId: task._id,
+        memberId,
+        assignedBy: req.admin?.id,
+      }));
+
+      if (assignments.length > 0) {
+        await AssignmentModel.insertMany(assignments);
+        updatedFields.push("assignedTo");
+      }
   }
 
-  const id = req.admin?.id;
 
-  const userDoc = await UserModel
-      .findById(id)
-      .select("name")
-      .lean();
-
-  // ✅ Call logging function if fields were updated
+  // ✅ Call logging function & edit email function if fields were updated
   if (updatedFields.length > 0) {
     await logTaskUpdated({
       taskTitle: oldTaskName,
       updatedFields,
       updatedAt: new Date(),
-      adminName: userDoc?.name,
+      adminName: req.admin?.userName,
       taskId : task._id as mongoose.Types.ObjectId
-    });
+    }); 
   }
+
+  
 
   return res.status(200).json({
     message: "Task updated successfully",
@@ -377,6 +414,29 @@ export const deleteTask = async (
     throw new AppError("Task not found", 404);
   }
 
+  // ✅ Get assignees before deletion
+  const assignments = await AssignmentModel.find({ taskId });
+  const assigneeIds = assignments.map(a => a.memberId);
+
+  const assignees = await UserModel.find({ _id: { $in: assigneeIds } });
+
+  const deletedBy = req.admin?.userName || "Admin";
+  const deletedAt = new Date().toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+  });
+
+  await Promise.all(
+    assignees.map(user =>
+      taskDeletedEmail(
+        user.email,
+        user.name,
+        task.taskName,
+        deletedBy,
+        deletedAt
+      )
+    )
+  );
+
   // Delete the task
   await TaskModel.findByIdAndDelete(taskId);
 
@@ -384,16 +444,9 @@ export const deleteTask = async (
   await AssignmentModel.deleteMany({ taskId });
 
    // ✅ Log task deletion
-   const id = req.admin?.id;
-
-   const userDoc = await UserModel
-      .findById(id)
-      .select("name")
-      .lean();
-
    await logTaskDeleted({
     taskTitle: task.taskName,
-    adminName :  userDoc?.name,
+    adminName :  req.admin?.userName,
     taskId: task._id as mongoose.Types.ObjectId,
   });
 

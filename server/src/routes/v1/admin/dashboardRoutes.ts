@@ -19,7 +19,7 @@ router.get("/fetchRecentUpdates",
  asyncHandler(dashboard.getRecentUpdates));
  
 router.get("/fetchRecentLeads",
-authenticate , authorizeAdmin ,
+ authenticate , authorizeAdmin ,
  checkPermission("View-Leads"),
 addArrayForStaff("Leads"),
 asyncHandler(dashboard.fetchRecentLeads));

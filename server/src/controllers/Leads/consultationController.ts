@@ -136,6 +136,13 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
 
   const lead = await LeadModel.findById(leadId);
 
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)   ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
+  }
+
   if (!lead) {
     res.status(404);
     throw new Error("Lead not found");
@@ -170,44 +177,15 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
       calendlyLink
     );
   }
-  // const calendlyLink = process.env.CALENDLY_LINK;
-  // const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${leadId}`;
-  // const html = `
-  //   <p>DearDear ${lead.fullName.first} ${lead.fullName.last},</p>
-  //   <p>You have been marked as high-priority. Please schedule your visa consultation using the link below:</p>
-  //   <a href="${calendlyLink}" target="_blank">${calendlyLink}</a>
-  //   <p>Regards,<br/>Visa Team</p>
-  // `;
-
-  // await sendEmail({
-  //   to: lead.email,
-  //   subject: "Schedule Your Visa Consultation",
-  //   html,
-  // });
-
-  // await sendEmail({
-  //   to: lead.email,
-  //   subject: "Schedule Your Visa Consultation",
-  //   html,
-  // });
-
-  // console.log(`this is your calendly urllll : ${calendlyLink}`);
 
   // Update lead status
   lead.leadStatus = leadStatus.CONSULTATIONLINKSENT;
   await lead.save();
 
-  const id = req.admin?.id;
-
-  const userDoc = await UserModel
-      .findById(id)
-      .select("name")
-      .lean();
-
   // log for Consultation link sent
   await logConsultationLinkSent({
     leadName : lead.fullName,
-    adminName : userDoc?.name,
+    adminName : req.admin?.userName,
     leadId :lead._id as mongoose.Types.ObjectId
   })
 
@@ -389,6 +367,13 @@ export const markConsultationAsCompleted = async (
   res: Response
 ) => {
   const consultationId = req.params.consultationId;
+
+  // Check if assignedIds exist and consultationId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(consultationId)   ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
+  }
 
   // 1. Update consultation status
   const updatedConsultation = await ConsultationModel.findByIdAndUpdate(

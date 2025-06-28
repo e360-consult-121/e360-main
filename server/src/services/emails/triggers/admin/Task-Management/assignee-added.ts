@@ -5,7 +5,7 @@ export const assigneeAddedEmail = async (
   assigneeName: string,
   taskName: string,
   newAssigneeNames: string[],
-  assignedBy: string
+  assignedBy?: string
 ) => {
   const subject = `New Members Added to Task: ${taskName}`;
   const templateName = 'assignee-added';

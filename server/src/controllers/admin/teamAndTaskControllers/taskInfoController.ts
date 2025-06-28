@@ -641,6 +641,13 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
     throw new AppError("Invalid task ID", 400);
   }
 
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(taskId)  ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
+  }
+
   const tasks = await TaskModel.aggregate([
     {
       $match: {
