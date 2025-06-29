@@ -1,5 +1,5 @@
 import { Card, CardContent, Typography, Box, Tooltip } from "@mui/material";
-import { formatDate } from "../../utils/FormateDate";
+// import { formatDate } from "../../utils/FormateDate";
 
 export enum LeadStatus {
   INITIATED = "INITIATED",
@@ -110,7 +110,7 @@ const ClientInfoCard = ({ clientInfo }:{clientInfo:any}) => {
                 mb: { xs: 1, md: 0 },
               }}
             >
-              Applied for: <strong>{formatDate(clientInfo?.basicInfo?.createdAt)}</strong>
+              Applied for: <strong>{clientInfo?.basicInfo?.appliedFor}</strong>
             </Typography>
             <Tooltip title={clientInfo?.leadInfo?.email || ""} arrow>
               <Typography
