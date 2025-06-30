@@ -27,3 +27,5 @@ const LogSchema = new Schema<ILog>({
   });
 
 export const LogModel = mongoose.model<ILog>("Log", LogSchema);
+
+
