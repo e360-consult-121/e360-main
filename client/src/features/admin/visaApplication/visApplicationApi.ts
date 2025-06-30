@@ -1,4 +1,5 @@
 import { baseApi } from "../../../app/api";
+import { downloadFile } from "../../../utils/downloadFile";
 
 export const visaApplicationApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -31,8 +32,18 @@ export const visaApplicationApi = baseApi.injectEndpoints({
   }),
 });
 
+export const downloadVisaApplicationsReport = async (
+  startDate: string,
+  endDate: string,
+  visaType: string
+) => {
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const url = `${baseURL}/api/v1/admin/visaapplication/downloadVisaApplicationsReport?startDate=${startDate}&endDate=${endDate}&visaType=${visaType}`;
+  return downloadFile(url);
+};
+
 export const {
   useFetchParticularVisaApplicationQuery,
   useFetchAllStepsOfParticularVisaTypeQuery,
-  useGetVisaApplicationInfoQuery
+  useGetVisaApplicationInfoQuery,
 } = visaApplicationApi;

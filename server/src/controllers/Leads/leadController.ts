@@ -1,19 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
-import { UserModel } from "../../models/Users";
 import { LeadModel } from "../../leadModels/leadModel";
 import { ConsultationModel } from "../../leadModels/consultationModel";
 import { PaymentModel } from "../../leadModels/paymentModel";
-import { RoleEnum } from "../../types/enums/enums";
 import { leadStatus } from "../../types/enums/enums";
 import { searchPaginatedQuery } from "../../services/searchAndPagination/searchPaginatedQuery";
+import { streamExcelToResponse } from "../../utils/downloadExcelReport";
 
 export const getAllLeads = async (req: Request, res: Response) => {
   const { search, page = "1", limit = "10", sort = "-createdAt" } = req.query;
 
   const additionalFilters: any = {};
 
-  console.log(req.assignedIds)
   if (Array.isArray(req.assignedIds)) {
     if (req.assignedIds.length === 0) {
       return res.status(200).json({
@@ -26,7 +24,6 @@ export const getAllLeads = async (req: Request, res: Response) => {
         },
       });
     } else {
-      // If assignedIds is non-empty → filter leads by assignedIds
       additionalFilters._id = { $in: req.assignedIds };
     }
   }
@@ -54,6 +51,82 @@ export const getAllLeads = async (req: Request, res: Response) => {
   });
 };
 
+export const downloadLeadsReport = async (req: Request, res: Response) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ message: "startDate and endDate are required" });
+    }
+
+    const additionalFilters: any = {};
+    additionalFilters.createdAt = {
+      $gte: new Date(startDate as string),
+      $lte: new Date(endDate as string),
+    };
+
+    const columns = [
+      { key: "nanoLeadId", header: "Case ID", width: 15 },
+      { key: "fullName", header: "Full Name", width: 20 },
+      { key: "email", header: "Email", width: 25 },
+      { key: "phone", header: "Phone Number", width: 18 },
+      { key: "createdAt", header: "Submission Date", width: 18 },
+      { key: "additionalInfo.priority", header: "Priority", width: 12 },
+    ];
+
+    if (Array.isArray(req.assignedIds)) {
+      if (req.assignedIds.length === 0) {
+        return await streamExcelToResponse({
+          filename: `leads_report_${new Date().toISOString().split("T")[0]}.xlsx`,
+          response: res,
+          sheets: [
+            {
+              name: "Leads Report",
+              data: [],
+              columns,
+            },
+          ],
+        });
+      } else {
+        additionalFilters._id = { $in: req.assignedIds };
+      }
+    }
+
+    const leads = await LeadModel.find(additionalFilters).sort({
+      createdAt: -1,
+    });
+
+    const startDateFormatted = new Date(startDate as string)
+      .toISOString()
+      .split("T")[0];
+    const endDateFormatted = new Date(endDate as string)
+      .toISOString()
+      .split("T")[0];
+    const filename = `leads_report_${startDateFormatted}_to_${endDateFormatted}.xlsx`;
+    await streamExcelToResponse({
+      filename,
+      response: res,
+      sheets: [
+        {
+          name: "Leads Report",
+          data: leads,
+          columns,
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("Error generating leads report:", error);
+
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: "Failed to generate leads report",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+};
 
 // export const getParticularLeadInfo = async (req: Request, res: Response) => {
 // input -->> leadId
@@ -78,10 +151,13 @@ export const getParticularLeadInfo = async (req: Request, res: Response) => {
   }
 
   // Check if assignedIds exist and leadId is not included
-  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)  ) {
-    return res
-      .status(403)
-      .json({ message: "Your role does not have permission to do this action." });
+  if (
+    Array.isArray(req.assignedIds) &&
+    !req.assignedIds.map((id) => id.toString()).includes(leadId)
+  ) {
+    return res.status(403).json({
+      message: "Your role does not have permission to do this action.",
+    });
   }
 
   const lead = await LeadModel.findById(leadId);
@@ -172,10 +248,13 @@ export const rejectLead = async (req: Request, res: Response) => {
   }
 
   // Check if assignedIds exist and leadId is not included
-  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)  ) {
-    return res
-      .status(403)
-      .json({ message: "Your role does not have permission to do this action." });
+  if (
+    Array.isArray(req.assignedIds) &&
+    !req.assignedIds.map((id) => id.toString()).includes(leadId)
+  ) {
+    return res.status(403).json({
+      message: "Your role does not have permission to do this action.",
+    });
   }
 
   const updatedLead = await LeadModel.findByIdAndUpdate(

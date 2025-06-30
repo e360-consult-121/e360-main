@@ -20,6 +20,15 @@ router.get(
 );
 
 router.get(
+  "/downloadVisaApplicationsReport",
+  authenticate,
+  authorizeAdmin,
+  checkPermission("View-VisaApplications"),
+  addArrayForStaff("VisaApplications"),
+  asyncHandler(visaApplication.downloadVisaApplicationsReport)
+);
+
+router.get(
   "/fetchAllStepsOfParticularVisaType",
   authenticate,
   authorizeAdmin,

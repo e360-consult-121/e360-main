@@ -1,9 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { VisaTypeModel } from "../../models/VisaType";
 import { VisaApplicationModel } from "../../models/VisaApplication";
 import { VisaStepModel } from "../../models/VisaStep";
 import mongoose, { Schema, Document, Types } from "mongoose";
 import { searchPaginatedQuery } from "../../services/searchAndPagination/searchPaginatedQuery";
+import AppError from "../../utils/appError";
+import { streamExcelToResponse } from "../../utils/downloadExcelReport";
 
 export const fetchAllStepsOfParticularVisaType = async (
   req: Request,
@@ -35,9 +37,7 @@ export const fetchAllStepsOfParticularVisaType = async (
   }
 };
 
-
-
-// 1. -->> req.assignedId vari ka exist hi na karna  -->> send all visaApplications 
+// 1. -->> req.assignedId vari ka exist hi na karna  -->> send all visaApplications
 // 2. -->> exist toh karta hai , but empty hai -->> send result array empty
 // API for fetching all apllications of a particular type
 export const fetchApplicationsOfParticularType = async (
@@ -86,7 +86,7 @@ export const fetchApplicationsOfParticularType = async (
   // 4. Assigned filtering logic
   if (Array.isArray(req.assignedIds)) {
     if (req.assignedIds.length === 0) {
-      // ⛔ assignedIds exists but is empty — return empty result
+      // assignedIds exists but is empty — return empty result
       return res.status(200).json({
         visaApplications: [],
         pagination: {
@@ -141,6 +141,84 @@ export const fetchApplicationsOfParticularType = async (
   }
 };
 
+export const downloadVisaApplicationsReport = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { visaType, startDate, endDate } = req.query;
+    if (!visaType || !startDate || !endDate) {
+      return next(new AppError("Missing required query parameters", 400));
+    }
+    const visaTypeDoc = await VisaTypeModel.findOne({ visaType });
+    if (!visaTypeDoc) {
+      return next(new AppError("Visa type not found", 404));
+    }
+    const visaTypeId = visaTypeDoc._id;
+
+    const columns = [
+      { header: "Case ID", key: "nanoVisaApplicationId", width: 20 },
+      { header: "Name", key: "userId.name", width: 20 },
+      { header: "Email", key: "userId.email", width: 20 },
+      { header: "Date", key: "createdAt", width: 20 },
+      { header: "Phone Number", key: "userId.phone", width: 20 },
+      { header: "Status", key: "status", width: 20 },
+      { header: "Current Step", key: "currentStep", width: 20 },
+    ];
+    const filter: any = {
+      visaTypeId,
+      createdAt: {
+        $gte: new Date(startDate as string),
+        $lte: new Date(endDate as string).setHours(23, 59, 59, 999),
+      },
+    };
+    if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+      filter._id = { $in: req.assignedIds };
+    }
+
+    const allSteps = await VisaStepModel.find({
+      visaTypeId: visaTypeDoc._id,
+    }).sort({ stepNumber: 1 });
+    const stepNames = allSteps.map((step) => step.stepName);
+
+    const visaApplications = await VisaApplicationModel.find(filter)
+      .populate("userId", "name email phone")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const data = visaApplications.map((application) => {
+      const currentStepIndex = application.currentStep - 1;
+      return {
+        ...application,
+        currentStep: stepNames[currentStepIndex] || "N/A",
+      };
+    });
+
+    const startDateFormatted = new Date(startDate as string)
+      .toISOString()
+      .split("T")[0];
+    const endDateFormatted = new Date(endDate as string)
+      .toISOString()
+      .split("T")[0];
+    const filename = `${visaType}_applications_report_${startDateFormatted}_to_${endDateFormatted}.xlsx`;
+    await streamExcelToResponse({
+      filename,
+      response: res,
+      sheets: [
+        {
+          name: "Applications Report",
+          data: data,
+          columns,
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("Error downloading visa applications report:", error);
+    return next(new AppError("Failed to download report", 500));
+  }
+};
+
 // get info of particular visaApplication
 export const getParticularVisaInfo = async (req: Request, res: Response) => {
   const { visaApplicationId } = req.params;
@@ -150,10 +228,13 @@ export const getParticularVisaInfo = async (req: Request, res: Response) => {
   }
 
   // Check if assignedIds exist and leadId is not included
-  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(visaApplicationId)  ) {
-    return res
-      .status(403)
-      .json({ message: "Your role does not have permission to do this action." });
+  if (
+    Array.isArray(req.assignedIds) &&
+    !req.assignedIds.map((id) => id.toString()).includes(visaApplicationId)
+  ) {
+    return res.status(403).json({
+      message: "Your role does not have permission to do this action.",
+    });
   }
 
   const visaData = await VisaApplicationModel.aggregate([
@@ -206,7 +287,7 @@ export const getParticularVisaInfo = async (req: Request, res: Response) => {
         _id: 1,
         nanoVisaApplicationId: 1,
         createdAt: 1,
-        leadId : 1,
+        leadId: 1,
         "user.name": 1,
         "user.email": 1,
         "user.phone": 1,
@@ -231,8 +312,8 @@ export const getParticularVisaInfo = async (req: Request, res: Response) => {
       phone: data.user.phone,
       appliedFor: data.visaType?.visaType || "N/A",
       createdAt: data.createdAt,
-      caseId: data.nanoVisaApplicationId, 
-      leadId : data.leadId
+      caseId: data.nanoVisaApplicationId,
+      leadId: data.leadId,
     },
     paymentInfo: data.payment
       ? {

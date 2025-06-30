@@ -21,7 +21,10 @@ import {
   Chip,
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
-import { useFetchAllInvoicesQuery } from "./invoicesManagementApi";
+import {
+  downloadInvoicesReport,
+  useFetchAllInvoicesQuery,
+} from "./invoicesManagementApi";
 import { useSearchPagination } from "../../searchPagination/useSearchPagination";
 import ExportToExcelButton from "../../../components/ExportToExcelButton";
 
@@ -31,7 +34,7 @@ const InvoicesManagementTable: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [localSearch, setLocalSearch] = useState<string>("");
   const searchTimeoutRef = useRef<null | number>(null);
-  
+
   const [{ page, limit, search }, { setPage, setLimit, setSearch }] =
     useSearchPagination();
 
@@ -42,24 +45,20 @@ const InvoicesManagementTable: React.FC = () => {
     statusFilter,
   });
 
-  // Throttled search function
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setLocalSearch(value);
 
-    // Clear existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // Set new timeout for search
     searchTimeoutRef.current = setTimeout(() => {
       setSearch(value);
-      setPage(1); // Reset to first page when searching
-    }, 500); // 500ms delay
+      setPage(1);
+    }, 500);
   };
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
@@ -69,7 +68,7 @@ const InvoicesManagementTable: React.FC = () => {
   }, []);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage + 1); // MUI uses 0-based index, convert to 1-based for API
+    setPage(newPage + 1);
   };
 
   const handleChangeRowsPerPage = (
@@ -86,7 +85,6 @@ const InvoicesManagementTable: React.FC = () => {
     setPage(1);
   };
 
-  // Get status chip color
   const getStatusColor = (status: string) => {
     switch (status?.toUpperCase()) {
       case "PAID":
@@ -101,6 +99,14 @@ const InvoicesManagementTable: React.FC = () => {
   };
 
   const statuses = ["PENDING", "PAID", "FAILED"];
+
+  const handleExportToExcel = async (startDate: string, endDate: string) => {
+    try {
+      await downloadInvoicesReport(startDate, endDate);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    }
+  };
 
   const renderCardView = (row: any, index: number) => (
     <Box
@@ -118,7 +124,7 @@ const InvoicesManagementTable: React.FC = () => {
       <Typography sx={{ mb: 1 }}>
         <strong>Name:</strong> {row?.name || "N/A"}
       </Typography>
-      
+
       <Typography sx={{ display: "flex", gap: 1, mb: 1 }}>
         <strong>Email:</strong>
         <Tooltip title={row?.email || "N/A"}>
@@ -157,7 +163,9 @@ const InvoicesManagementTable: React.FC = () => {
 
       <Box>
         <Button
-          onClick={() => row?.invoiceUrl && window.open(row.invoiceUrl, "_blank")}
+          onClick={() =>
+            row?.invoiceUrl && window.open(row.invoiceUrl, "_blank")
+          }
           variant="outlined"
           fullWidth
           disabled={!row?.invoiceUrl}
@@ -190,12 +198,15 @@ const InvoicesManagementTable: React.FC = () => {
           mb: 2,
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: "bolder", mb: { xs: 2, md: 0 } }}>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: "bolder", mb: { xs: 2, md: 0 } }}
+        >
           Invoices Management
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <ExportToExcelButton/>
+          <ExportToExcelButton onDownload={handleExportToExcel} />
           <TextField
             placeholder="Search invoices..."
             value={localSearch}
@@ -255,17 +266,24 @@ const InvoicesManagementTable: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {["Name", "Email", "Amount", "Currency","Payment Method", "Status","Source", "Invoice"].map(
-                      (header, index) => (
-                        <TableCell
-                          key={index}
-                          align={header === "Invoice" ? "right" : "left"}
-                          sx={{ color: "#8D8883", fontWeight: "bold" }}
-                        >
-                          {header}
-                        </TableCell>
-                      )
-                    )}
+                    {[
+                      "Name",
+                      "Email",
+                      "Amount",
+                      "Currency",
+                      "Payment Method",
+                      "Status",
+                      "Source",
+                      "Invoice",
+                    ].map((header, index) => (
+                      <TableCell
+                        key={index}
+                        align={header === "Invoice" ? "right" : "left"}
+                        sx={{ color: "#8D8883", fontWeight: "bold" }}
+                      >
+                        {header}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -312,15 +330,18 @@ const InvoicesManagementTable: React.FC = () => {
                             variant="filled"
                           />
                         </TableCell>
-                          <TableCell sx={{ borderBottom: "none" }}>
+                        <TableCell sx={{ borderBottom: "none" }}>
                           {row?.source}
                         </TableCell>
                         <TableCell align="right" sx={{ borderBottom: "none" }}>
                           <Button
-                            onClick={() => row?.invoiceUrl && window.open(row.invoiceUrl, "_blank")}
+                            onClick={() =>
+                              row?.invoiceUrl &&
+                              window.open(row.invoiceUrl, "_blank")
+                            }
                             disabled={!row?.invoiceUrl}
-                            sx={{ 
-                              color: "black", 
+                            sx={{
+                              color: "black",
                               textTransform: "none",
                               "&:hover": {
                                 backgroundColor: "rgba(0,0,0,0.04)",

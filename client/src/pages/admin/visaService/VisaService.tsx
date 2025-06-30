@@ -130,6 +130,7 @@ const VisaService = () => {
         <TableComponent
           data={applications}
           stepsData={steps}
+          visaType={visaType}
           {...paginationProps}
         />
       )}
