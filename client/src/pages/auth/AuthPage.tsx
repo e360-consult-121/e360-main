@@ -16,14 +16,13 @@ const AuthPage = ({ mode }: { mode: "SIGN_IN" | "SIGN_UP" }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-      if (user?.role === Roles.USER) {
-        navigate("/dashboard");
-      }
-      if (user?.role === Roles.ADMIN) {
-        navigate("/admin/dashboard");
-      }
+    if (user?.role === Roles.USER) {
+      navigate("/dashboard");
+    }
+    if (user?.role === Roles.ADMIN) {
+      navigate("/admin/dashboard");
+    }
   }, [isAuthenticated, user]);
-
 
   return (
     <div>

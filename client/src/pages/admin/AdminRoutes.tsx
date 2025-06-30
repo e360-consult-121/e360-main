@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./dashboard/Dashboard";
 import VisaService from "./visaService/VisaService";
@@ -9,8 +9,6 @@ import VIPConciergeService from "./vipConciergeService/VIPConciergeService";
 import ClientInformation from "./clientInformation/ClientInformation";
 import BankDetails from "./manageBankDetails/BankDetails";
 import AdminLogin from "./AdminLogin";
-import { useFetchUserQuery } from "../../features/auth/authApi";
-import { useEffect } from "react";
 import VisaApplicationInformation from "./visaApplicationInformation/VisaApplicationInformation";
 import MyClients from "./MyClients/MyClients";
 import ClientVisaApplications from "./MyClients/ClientVisaApplications";
@@ -18,40 +16,8 @@ import RoleAndPermission from "./roleandPermission/RoleAndPermission";
 import TaskManagment from "./taskManagement/TaskManagment";
 import ParticularTask from "./taskManagement/ParticularTask";
 import Logs from "./logs/Logs";
-// import { RootState } from "../../app/store";
-// import { useSelector } from "react-redux";
-// import { useFetchUIPermissionsQuery } from "../../features/admin/adminUIPermissionApi";
 
 const AdminRoutes = () => {
-
-  const navigate = useNavigate();
-  const { data, isSuccess, isError } = useFetchUserQuery(undefined);  
-//   const {
-//   isLoading: isPermissionLoading,
-// } = useFetchUIPermissionsQuery(undefined);
-//   const permissions = useSelector((state: RootState) => state.adminPermissions);
-
-   useEffect(() => {
-    // console.log(data)
-      if (isError) {
-        navigate("/admin/login");
-
-      }
-    }, [isError,navigate,isSuccess, data]);
-
-    
-    
-  
-  // useEffect(() => {
-  //   if (data.role === "USER") {
-      // toast.error("Unauthorized: Access is only for admins");
-  //     navigate("/admin/login", { replace: true });
-  //   } else if (isError) {
-  //     navigate("/admin/login", { replace: true });
-  //   }
-  // }, [data, isError, navigate]);
-  
-
   return (
     <Routes>
       <Route path="/login" element={<AdminLogin />} />
@@ -64,10 +30,16 @@ const AdminRoutes = () => {
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
         <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/leadmanagement/:leadid" element={<ClientInformation />} />
-        <Route path="/application/:visatype" element={<VisaApplicationInformation />} />
+        <Route
+          path="/application/:visatype"
+          element={<VisaApplicationInformation />}
+        />
         <Route path="/myclient" element={<MyClients />} />
         <Route path="/myclient/:userid" element={<ClientVisaApplications />} />
-        <Route path="/roleandpermission/:type" element={<RoleAndPermission />} />
+        <Route
+          path="/roleandpermission/:type"
+          element={<RoleAndPermission />}
+        />
         <Route path="/taskmanagement" element={<TaskManagment />} />
         <Route path="/taskmanagement/:taskid" element={<ParticularTask />} />
         <Route path="/logs" element={<Logs />} />
@@ -78,4 +50,3 @@ const AdminRoutes = () => {
 };
 
 export default AdminRoutes;
-
