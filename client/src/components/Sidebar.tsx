@@ -10,7 +10,7 @@ export type TAB = {
   icon: string;
   children?: TAB[];
   suffix?: string;
-  isPermitted?:boolean;
+  isPermitted?: boolean;
 };
 
 const SidebarTab = ({
@@ -36,7 +36,7 @@ const SidebarTab = ({
           } else {
             navigate("/" + tabInfo.route);
             setSidebarOpen(false);
-          }          
+          }
         }}
         className={`w-full flex items-center justify-between cursor-pointer hover:text-golden-yellow-400 ${
           isActive ? "text-golden-yellow-400" : "text-neutrals-400"
@@ -100,15 +100,14 @@ const SidebarTab = ({
 const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
   const [currentTab, setCurrentTab] = useState<string>("dashboard");
   const location = useLocation();
-  const navigate = useNavigate();
   const [logout] = useLogoutMutation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
       await logout(undefined).unwrap();
-      window.location.reload();
-      navigate("/login");
+      // window.location.reload();
+      // navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err);
     }
@@ -163,31 +162,34 @@ const Sidebar = ({ tabs }: { tabs: TAB[] }) => {
           <div className="w-full flex flex-col h-full flex-[0.9] justify-between">
             <div className="w-full space-y-5 mt-10">
               {tabs.map((tab, index) => {
-                if(!tab.isPermitted) return 
-                return(<SidebarTab
-                  key={index}
-                  tabInfo={tab}
-                  isActive={
-                    currentTab === tab.route ||
-                    tab.children?.some((child) => currentTab === child.route)
-                  }
-                  setSidebarOpen={setSidebarOpen}
-                />)
+                if (!tab.isPermitted) return;
+                return (
+                  <SidebarTab
+                    key={index}
+                    tabInfo={tab}
+                    isActive={
+                      currentTab === tab.route ||
+                      tab.children?.some((child) => currentTab === child.route)
+                    }
+                    setSidebarOpen={setSidebarOpen}
+                  />
+                );
               })}
             </div>
 
             {/* Logout */}
             <div className="w-full mt-5">
-              <div className="w-full flex items-center justify-between text-red-500 cursor-pointer">
+              <div
+                onClick={handleLogout}
+                className="w-full flex items-center justify-between text-red-500 cursor-pointer"
+              >
                 <div className="flex items-center space-x-4">
                   <Icon
                     icon="icon-park-outline:logout"
                     width="20"
                     height="20"
                   />
-                  <p className="text-sm" onClick={handleLogout}>
-                    Logout
-                  </p>
+                  <p className="text-sm">Logout</p>
                 </div>
                 <Icon
                   icon="material-symbols-light:chevron-right-rounded"

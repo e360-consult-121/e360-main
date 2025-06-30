@@ -121,7 +121,7 @@ const ClientConsultation = ({
     },
   ].filter((tab) => tab.show);
 
-  const [value, setValue] = useState(tabs.length - 1);
+  const [value, setValue] = useState(tabs.length - 2);
 
   useEffect(() => {
     if (tabs.length > 0) {

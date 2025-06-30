@@ -23,6 +23,7 @@ import {
 import { Search as SearchIcon } from "@mui/icons-material";
 import { useFetchAllInvoicesQuery } from "./invoicesManagementApi";
 import { useSearchPagination } from "../../searchPagination/useSearchPagination";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
 
 const InvoicesManagementTable: React.FC = () => {
   const theme = useTheme();
@@ -194,6 +195,7 @@ const InvoicesManagementTable: React.FC = () => {
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <ExportToExcelButton/>
           <TextField
             placeholder="Search invoices..."
             value={localSearch}

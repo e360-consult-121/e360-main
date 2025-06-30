@@ -21,6 +21,7 @@ import {
   CardContent,
 } from "@mui/material";
 import { AllConsultationsTypes } from "../../../features/admin/consultations/consultationTypes";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
 
 interface PaginationData {
   total: number;
@@ -116,6 +117,7 @@ const ConsultationsTable: React.FC<TableProps> = ({
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <ExportToExcelButton/>
           <FormControl sx={{ minWidth: 120 }}>
             <InputLabel>Date</InputLabel>
             <Select

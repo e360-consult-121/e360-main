@@ -28,6 +28,7 @@ import countryList from "react-select-country-list";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -153,7 +154,6 @@ const ClientsTable: React.FC<TableProps> = ({
               My Clients
             </Typography>
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-             
               <TextField
                 placeholder="Search clients..."
                 size="small"
@@ -171,6 +171,7 @@ const ClientsTable: React.FC<TableProps> = ({
               mb: 1,
             }}
           >
+            <ExportToExcelButton/>
             <Button
               sx={{
                 textTransform: "none",

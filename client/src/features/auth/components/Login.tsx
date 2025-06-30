@@ -3,41 +3,18 @@ import logo from "../../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";
 import {  useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {  useLoginMutation } from "../authApi";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../../app/store";
-import { setAuth } from "../authSlice";
 import { Roles } from "../authTypes";
 import { CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
 
 const Login = () => {
-
-
-  //  const navigate = useNavigate();
-    // const dispatch = useDispatch();
-    // const { user, isAuthenticated } = useSelector((state: any) => state.auth);
-  
-  // const { data, isSuccess, isError } = useFetchUserQuery(undefined);
   const [isRememberMe, setIsRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const [login, { isLoading }] = useLoginMutation();
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-
-  // useEffect(() => {
-  //    if ((isSuccess === true) ) {
-  //    dispatch(setAuth(data));
-  //    navigate("/dashboard")
-  //   }
-  //   else {
-  //     navigate("/login");
-  //   }
-  // }, [isError,navigate,isSuccess, data, dispatch]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,10 +24,9 @@ const Login = () => {
       if (!email || !password) return toast.info("All Fields are required");
       if (!emailRegex.test(email)) return toast.info("Enter a valid email");
 
-      const data = await login({ email, password, role: Roles.USER }).unwrap();
-      dispatch(setAuth(data));
-      toast.success("Login successful!");
-      navigate("/dashboard");
+      await login({ email, password, role: Roles.USER}).unwrap().then(()=>{
+        toast.success("Login successful!");
+      });
     } catch (error: any) {
       toast.error("Login failed. Please try again")
     }

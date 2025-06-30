@@ -18,6 +18,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
 
 interface PaginationData {
   total: number;
@@ -205,12 +206,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
             {type.charAt(0).toUpperCase() + type.slice(1)} Passport
           </Typography>
         )}
+        <Box>
+           <ExportToExcelButton/>
 
         <Select
           value={statusFilter}
           onChange={handleStatusFilterChange}
           displayEmpty
-          sx={{ mb: 2, minWidth: 150 }}
+          sx={{ mb: 2, minWidth: 150,ml:2 }}
         >
           <MenuItem value="All">All</MenuItem>
           {stepsData.map((step: string, index: number) => (
@@ -219,6 +222,9 @@ const TableComponent: React.FC<TableComponentProps> = ({
             </MenuItem>
           ))}
         </Select>
+
+        </Box>
+       
       </Box>
 
       {isMobile ? (

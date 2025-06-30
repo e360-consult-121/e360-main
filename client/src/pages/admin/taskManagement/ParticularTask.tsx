@@ -24,11 +24,13 @@ import {
   useFetchParticularTaskQuery,
   useUpdateTaskAttachmentsMutation,
 } from "../../../features/admin/taskManagement/taskManagementApi";
-import dayjs from "dayjs";
 import { MultiSelect } from "react-multi-select-component";
 import { toast } from "react-toastify";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import EditIcon from "@mui/icons-material/Edit";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import { formatDate } from "../../../utils/FormateDate";
+
 const ParticularTask = () => {
   const { taskid } = useParams();
   const navigate = useNavigate();
@@ -46,6 +48,10 @@ const ParticularTask = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [editIndex, setEditIndex] = useState(null);
   const [editText, setEditText] = useState("");
+  const [priority, setPriority] = useState("");
+  // const [startDate, setStartDate] = useState("");
+  // const [endDate, setEndDate] = useState("");
+
 
   const [editRemarkToTask] = useEditRemarkToTaskMutation();
 
@@ -153,6 +159,55 @@ const ParticularTask = () => {
     );
   };
 
+  const handleToggleStatus = async () => {
+    const newStatus = status === "Completed" ? "Due" : "Completed";
+    setStatus(newStatus);
+
+    try {
+      await editTask({
+        taskId: taskid,
+        body: { status: newStatus },
+      });
+      toast.success(`Status updated to ${newStatus}`);
+      refetch();
+    } catch (err) {
+      toast.error("Failed to update status.");
+    }
+  };
+
+  const handlePriorityChange = async (event:any) => {
+    const newPriority = event.target.value;
+    setPriority(newPriority);
+
+    try {
+      await editTask({
+        taskId: task?._id,
+        body: {
+          priority: newPriority, 
+        },
+      }).unwrap();
+      toast.success("Edited priority successfully");
+      refetch();
+    } catch (err) {
+      toast.error("Failed to update priority:");
+    }
+  };
+
+ const handleDateChange = async (field:any, value:any) => {
+    if (!value) return;
+
+    try {
+      await editTask({
+        taskId: task._id,
+        body: { [field]: new Date(value).toISOString() },
+      });
+      toast.success(`${field === "startDate" ? "Start" : "End"} date updated`);
+      refetch();
+    } catch (err) {
+      toast.error(`Failed to update ${field}`);
+    }
+  };
+
   return (
     <Box px={{ md: 4 }} width="100%" maxWidth="900px" mx="auto">
       <div className="flex justify-end">
@@ -176,7 +231,7 @@ const ParticularTask = () => {
         Assigned by - {task?.assignedBy?.name || "Admin/Manager"}
       </Typography>
 
-      <FormControl fullWidth margin="normal">
+      {/* <FormControl fullWidth margin="normal">
         <InputLabel>Status</InputLabel>
         <Select
           value={status}
@@ -197,7 +252,21 @@ const ParticularTask = () => {
           <MenuItem value="Completed">Completed</MenuItem>
           <MenuItem value="Due">Due</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl> */}
+
+      <Box mt={2} display={"flex"} alignItems={"center"} gap={1}>
+        <Typography fontWeight={600}>Status :</Typography>
+      <Tooltip title={`Mark as ${status === "Completed" ? "Due" : "Completed"}`}>
+        <IconButton onClick={handleToggleStatus}>
+          <AssignmentTurnedInIcon
+            sx={{
+              color: status === "Completed" ? "green" : "inherit",
+              transition: "color 0.3s",
+            }}
+          />
+        </IconButton>
+      </Tooltip>
+    </Box>
 
       <TextField
         fullWidth
@@ -241,6 +310,7 @@ const ParticularTask = () => {
         <Box
           px={2}
           py={1}
+          mb={3}
           bgcolor={
             task?.priority === "High"
               ? "#FFEAEF"
@@ -268,15 +338,55 @@ const ParticularTask = () => {
         >
           {task?.priority || "N/A"}
         </Box>
+        <FormControl size="small" fullWidth>
+        <InputLabel id="priority-select-label">Edit Priority</InputLabel>
+        <Select
+          labelId="priority-select-label"
+          value={priority}
+          label="Edit Priority"
+          onChange={handlePriorityChange}
+        >
+          <MenuItem value="High">High</MenuItem>
+          <MenuItem value="Medium">Medium</MenuItem>
+          <MenuItem value="Low">Low</MenuItem>
+        </Select>
+      </FormControl>
+      </Box>
+
+     <Box mt={3}>
+        <Typography fontWeight={600}>Start Date</Typography>
+        <Typography color="text.secondary" mb={1}>
+          {task?.startDate ? formatDate(task?.startDate) : "N/A"}
+        </Typography>
+        <TextField
+          fullWidth
+          type="date"
+          size="small"
+          value={task?.startDate ? new Date(task?.startDate).toISOString().slice(0, 10) : ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            // setStartDate(value);
+            handleDateChange("startDate", value);
+          }}
+        />
       </Box>
 
       <Box mt={3}>
         <Typography fontWeight={600}>End Date</Typography>
-        <Typography color="text.secondary">
-          {task?.endDate
-            ? dayjs(task.endDate).format("dddd, DD MMMM YYYY")
-            : "N/A"}
+        <Typography color="text.secondary" mb={1}>
+          {task?.endDate ? formatDate(task?.endDate) : "N/A"}
         </Typography>
+        <TextField
+          fullWidth
+          type="date"
+          size="small"
+          value={task?.endDate ? new Date(task?.endDate).toISOString().slice(0, 10) : ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            // setEndDate(value);
+            handleDateChange("endDate", value);
+          }}
+        />
       </Box>
 
       <Box mt={3}>
