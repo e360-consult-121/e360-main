@@ -130,6 +130,12 @@ export const dubaiApis = baseApi.injectEndpoints({
         data: paymentInfo,
       }),
     }),
+    dubaiProceedToPayment: build.mutation({
+      query: ({stepStatusId}) => ({
+        url: `/visaApplications/client-side/${stepStatusId}/dubai/payment/proceedToPayment`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -154,8 +160,8 @@ export const {
   useApproveReschedulingReqMutation,
   useMarkTestAsCompletedMutation,
 
-
   // Payments
   useFetchPaymentInfoQuery,
   useSendDubaiPaymentLinkMutation,
+  useDubaiProceedToPaymentMutation,
 } = dubaiApis;

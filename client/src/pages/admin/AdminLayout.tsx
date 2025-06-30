@@ -60,6 +60,13 @@ const useTabsWithPermissions = () => {
       isPermitted: permissions.Read_LeadManagement_Tab,
     },
     {
+      icon: "ic:sharp-payments",
+      label: "Invoices Management",
+      route: "admin/invoicesmanagement",
+      isPermitted:true,
+      // isPermitted: permissions.Read_LeadManagement_Tab,
+    },
+    {
       icon: "mingcute:idcard-fill",
       label: "Role and Permission",
       route: "admin/roleandpermission",
@@ -99,7 +106,13 @@ const useTabsWithPermissions = () => {
       icon: "clarity:list-solid",
       label: "Logs",
       route: "admin/logs",
-      isPermitted: true, // Hardcoded, or you can add a permission later
+      isPermitted: true,
+    },
+    {
+      icon: "ix:user-profile-filled",
+      label: "Profile",
+      route: "admin/profile",
+      isPermitted: true,
     },
   ];
 

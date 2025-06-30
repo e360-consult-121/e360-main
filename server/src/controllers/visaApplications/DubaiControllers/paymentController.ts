@@ -7,6 +7,8 @@ import Stripe from "stripe";
 import { VisaApplicationStepStatusModel } from "../../../models/VisaApplicationStepStatus";
 import mongoose from "mongoose";
 import { sendApplicationUpdateEmails } from "../../../services/emails/triggers/applicationTriggerSegregate/applicationTriggerSegregate";
+import { createLogForVisaApplication } from "../../../services/logs/triggers/visaApplications/createLogForVisaApplication";
+
 
 // For Admin
 export const handleSendPaymentLink = async (
@@ -52,7 +54,7 @@ export const handleSendPaymentLink = async (
 
 // For User
 export const proceedToPayment = async (req: Request, res: Response) => {
-  const stepStatusId = req.params.leadId;
+  const {stepStatusId} = req.params;
 
    // 1. Validate lead existence
    const paymentDoc = await dubaiPaymentModel.findOne({stepStatusId});
@@ -233,6 +235,8 @@ const handleDubaiPaymentSuccess = async (
           visaTypeId: 1,
           userId: 1,
           "visaStep.emailTriggers": 1,
+          "visaStep.logTriggers": 1,
+          "visaStep.stepName": 1,
           "visaType.visaType": 1,
           "user.email": 1,
           "user.name": 1,
@@ -253,6 +257,17 @@ const handleDubaiPaymentSuccess = async (
       visaType: aggregationResult[0].visaType.visaType,
       email: aggregationResult[0].user.email,
       firstName: aggregationResult[0].user.name,
+    })
+
+    // log creation
+    await createLogForVisaApplication({
+      triggers : aggregationResult[0].visaStep.logTriggers,
+      clientName : aggregationResult[0].user.name,
+      visaType : aggregationResult[0].visaType.visaType,
+      stepName : aggregationResult[0].visaStep.stepName,
+      stepStatus : StepStatusEnum.SUBMITTED, 
+      doneBy : null , 
+      visaApplicationId : aggregationResult[0].visaApplicationId,
     })
 
     console.log("Dubai payment step completed for stepStatusId:", stepStatusId);

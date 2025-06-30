@@ -1,11 +1,33 @@
 import { useMemo, useState } from "react";
-import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, TextField, Typography } from "@mui/material";
-import LoadingGif from "../../../../assets/customer/Rightt.gif"
+import {
+  Box,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  TextField,
+  Typography,
+} from "@mui/material";
+import LoadingGif from "../../../../assets/customer/Rightt.gif";
 import { useRequestTradenameChangeMutation } from "../../../../features/admin/visaApplication/additional/dubaiApis";
 import { toast } from "react-toastify";
 
-const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatusId:string,data:any,refetch:()=>void,onContinue: () => void }) => {
-  const [requestChange, { isLoading: isRequestChangeLoading }] = useRequestTradenameChangeMutation();
+const TradeNameApproved = ({
+  stepStatusId,
+  data,
+  refetch,
+  onContinue,
+}: {
+  stepStatusId: string;
+  data: any;
+  refetch: () => void;
+  onContinue: () => void;
+}) => {
+  const [requestChange, { isLoading: isRequestChangeLoading }] =
+    useRequestTradenameChangeMutation();
 
   const [open, setOpen] = useState(false);
   const [confirmAndProceeed, setConfirmAndProceeed] = useState(false);
@@ -13,18 +35,17 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
   const [altName1, setAltName1] = useState("");
   const [altName2, setAltName2] = useState("");
   const [reason, setReason] = useState("");
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const tradeStatus = useMemo(() => {
     if (data?.data?.status === "TradeName_Assigned") {
-      return {message:"Trade Name Assigned",color:"#000000"};
+      return { message: "Trade Name Assigned", color: "#000000" };
+    } else if (data?.data?.status === "ChangeReq_Approved") {
+      return { message: "Trade Name Change Approved", color: "#64AF64" };
+    } else if (data?.data?.status === "ChangeReq_Rejected") {
+      return { message: "Trade Name Change Rejected", color: "#FF0000" };
     }
-    else if(data?.data?.status === "ChangeReq_Approved") {
-      return {message:"Trade Name Change Approved",color:"#64AF64"};
-    }
-    else if(data?.data?.status === "ChangeReq_Rejected") { 
-      return {message:"Trade Name Change Rejected",color:"#FF0000"};
-    }
-    return {message:"",color:"#000000"};
+    return { message: "", color: "#000000" };
   }, [data]);
 
   const handleOpen = () => setOpen(true);
@@ -46,29 +67,45 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
     try {
       // Create array of options as required by the API
       const options = [tradeName, altName1, altName2];
-      
+
       // Call the mutation with the required parameters
       const response = await requestChange({
         stepStatusId,
         options,
-        reasonOfChange: reason.trim() // Include reason if provided
+        reasonOfChange: reason.trim(), // Include reason if provided
       }).unwrap();
-      
-      console.log('API Response:', response);
-      
+
+      console.log("API Response:", response);
+
       // Show success message
       toast.success("Trade name change request submitted successfully");
-      
+
       // Close the dialog
       handleClose();
-      
+
       // Refetch data as requested
       refetch();
     } catch (error) {
-      console.error('Failed to submit trade name change request:', error);
-      
+      console.error("Failed to submit trade name change request:", error);
+
       // Show error message using alert
-      toast.error("Failed to submit trade name change request. Please try again.");
+      toast.error(
+        "Failed to submit trade name change request. Please try again."
+      );
+    }
+  };
+
+  const handleContinue = () => {
+    setConfirmLoading(true);
+    try {
+      if (confirmAndProceeed) {
+        onContinue();
+      } else {
+        toast.error("Please confirm the trade name before proceeding.");
+      }
+    } catch (error) {
+      console.error("Error during continue action:", error);
+      toast.error("An error occurred while processing your request.");
     }
   };
 
@@ -78,17 +115,18 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
       <div className="rounded-full border-[20px] border-golden-yellow-50 w-fit">
         <div className="rounded-full border-[15px] border-[#FEFCEA]">
           <div className="text-neutrals-50 bg-[#FAE081] rounded-full">
-            <img
-              className="w-[90px] h-[90px]"
-              src={LoadingGif}
-            />
+            <img className="w-[90px] h-[90px]" src={LoadingGif} />
           </div>
         </div>
       </div>
 
       {/* Verified Message */}
-      <p className="mt-4 text-lg" style={{ color: tradeStatus.color }}>{tradeStatus.message}</p>
-      <p className="mt-4 text-[20px] font-bold">Trade name : {data?.data?.assignedName}</p>
+      <p className="mt-4 text-lg" style={{ color: tradeStatus.color }}>
+        {tradeStatus.message}
+      </p>
+      <p className="mt-4 text-[20px] font-bold">
+        Trade name : {data?.data?.assignedName}
+      </p>
 
       <FormControlLabel
         control={
@@ -107,10 +145,11 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
 
       {/* Continue Button */}
       <Button
-        onClick={onContinue}
-        disabled={!confirmAndProceeed}
+        onClick={handleContinue}
+        disabled={!confirmAndProceeed || confirmLoading}
         sx={{
-          backgroundColor: confirmAndProceeed ? "#F6C328" : "#E4E3E3",
+          backgroundColor:
+            !confirmAndProceeed || confirmLoading ? "#E4E3E3" : "#F6C328",
           my: 1,
           color: "black",
           borderRadius: "15px",
@@ -119,40 +158,44 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
           py: 1,
         }}
       >
+        {confirmLoading ? "true" : "false"}
         Confirm & Proceed
       </Button>
 
       {/* Request Change Trigger */}
-      {data?.data?.status==="TradeName_Assigned"&& <p className="my-5">
-        Is this trade name different from what you expected?{" "}
-        <span
-          className="font-bold text-[#F6C328] cursor-pointer"
-          onClick={handleOpen}
-        >
-          Request change
-        </span>
-      </p>}
+      {data?.data?.status === "TradeName_Assigned" && (
+        <p className="my-5">
+          Is this trade name different from what you expected?{" "}
+          <span
+            className="font-bold text-[#F6C328] cursor-pointer"
+            onClick={handleOpen}
+          >
+            Request change
+          </span>
+        </p>
+      )}
 
       {/* Dialog */}
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle 
-          align="center" 
+        <DialogTitle
+          align="center"
           sx={{
             fontWeight: "bold",
-            fontSize: "24px"
+            fontSize: "24px",
           }}
         >
           Request Trade Name Change
         </DialogTitle>
         <DialogContent>
-          <Typography 
+          <Typography
             align="center"
             sx={{
-              fontSize: "16px"
+              fontSize: "16px",
             }}
           >
-            Submit your new trade name request. Our team will review availability and update your trade license accordingly.
-          </Typography> 
+            Submit your new trade name request. Our team will review
+            availability and update your trade license accordingly.
+          </Typography>
           <Box width="100%" maxWidth={500}>
             <Typography mb={1}>Trade Name*</Typography>
             <TextField
@@ -163,9 +206,9 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
               onChange={(e) => setTradeName(e.target.value)}
               sx={{
                 mb: 3,
-                backgroundColor: '#F7F5F4',
-                borderRadius: 1, 
-                borderColor: "#0F1EF"
+                backgroundColor: "#F7F5F4",
+                borderRadius: 1,
+                borderColor: "#0F1EF",
               }}
             />
 
@@ -178,9 +221,9 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
               onChange={(e) => setAltName1(e.target.value)}
               sx={{
                 mb: 3,
-                backgroundColor: '#F7F5F4',
+                backgroundColor: "#F7F5F4",
                 borderRadius: 1,
-                borderColor: "#0F1EF"
+                borderColor: "#0F1EF",
               }}
             />
 
@@ -193,12 +236,14 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
               onChange={(e) => setAltName2(e.target.value)}
               sx={{
                 mb: 4,
-                backgroundColor: '#F7F5F4',
+                backgroundColor: "#F7F5F4",
                 borderRadius: 1,
-                borderColor: "#0F1EF"
+                borderColor: "#0F1EF",
               }}
             />
-            <Typography mb={1} sx={{fontWeight: "bold"}}>Reason for change</Typography>
+            <Typography mb={1} sx={{ fontWeight: "bold" }}>
+              Reason for change
+            </Typography>
             <TextField
               fullWidth
               placeholder="You can provide a reason for change."
@@ -207,23 +252,23 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
               onChange={(e) => setReason(e.target.value)}
               sx={{
                 mb: 4,
-                backgroundColor: '#F7F5F4',
+                backgroundColor: "#F7F5F4",
                 borderRadius: 1,
-                borderColor: "#0F1EF"
+                borderColor: "#0F1EF",
               }}
             />
           </Box>
         </DialogContent>
-        <DialogActions 
+        <DialogActions
           sx={{
             display: "flex",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
-          <Button 
+          <Button
             onClick={handleSubmit}
-            disabled={isRequestChangeLoading} 
-            sx={{  
+            disabled={isRequestChangeLoading}
+            sx={{
               backgroundColor: "#F6C328",
               color: "black",
               borderRadius: "15px",
@@ -238,11 +283,11 @@ const TradeNameApproved = ({stepStatusId, data, refetch, onContinue }:{stepStatu
           >
             {isRequestChangeLoading ? "Requesting..." : "Request Change"}
           </Button>
-          <Button 
-            variant="outlined" 
-            onClick={handleClose} 
+          <Button
+            variant="outlined"
+            onClick={handleClose}
             disabled={isRequestChangeLoading}
-            sx={{  
+            sx={{
               borderRadius: "15px",
               color: "black",
               textTransform: "none",

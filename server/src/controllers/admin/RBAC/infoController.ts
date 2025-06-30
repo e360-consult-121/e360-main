@@ -16,6 +16,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../../utils/jwtUtils";
+import { searchPaginatedQuery } from "../../../services/searchAndPagination/searchPaginatedQuery";
 
 
 // fetchAllFeatures 
@@ -68,10 +69,31 @@ export const fetchAllRoles = async (req: Request, res: Response) => {
 
 
 export const fetchAllAdminUsers = async (req: Request, res: Response) => {
-  const result = await userModel.aggregate([
-    {
-      $match: { role: RoleEnum.ADMIN }
-    },
+  const {
+    search,
+    page = "1",
+    limit = "10",
+    sortBy = "name",
+    order = "asc",
+  } = req.query;
+
+  const sortFieldsMap: Record<string, string> = {
+    name: "name",
+    email: "email",
+    phone: "phone",
+    employeeId: "employeeId",
+  };
+
+  const sortField = sortFieldsMap[sortBy as string] || "name";
+  const sortOrder = order === "desc" ? -1 : 1;
+
+  // Additional filters
+  const additionalFilters = {
+    role: RoleEnum.ADMIN
+  };
+
+  // Post match stages for the aggregation pipeline
+  const postMatchStages = [
     {
       $lookup: {
         from: "roles",
@@ -90,17 +112,37 @@ export const fetchAllAdminUsers = async (req: Request, res: Response) => {
         employeeId: 1,
         email: 1,
         roleInfo: 1,
-        // password: 0,
-        // refreshToken: 0,
-        // forgotPasswordToken: 0,
-        // forgotPasswordExpires: 0
       }
     }
-  ]);
+  ];
+
+  const customSort = {
+    [sortField]: sortOrder,
+  };
+
+  const result = await searchPaginatedQuery({
+    model: userModel,
+    collectionName: "users", // or whatever your user collection is called
+    search: search as string,
+    page: Number(page),
+    limit: Number(limit),
+    additionalFilters,
+    postMatchStages,
+    customSort,
+  });
 
   res.status(200).json({
     success: true,
-    admins: result
+    message: "Admin users fetched successfully",
+    admins: result.data,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPrevPage: result.hasPrevPage,
+    },
   });
 };
 

@@ -1,30 +1,32 @@
-import { useLocation, useParams } from "react-router-dom";
-import { useFetchParticularLeadQuery } from "../../../features/admin/leadManagement/leadManagementApi";
-import { ClientInfoType } from "../../../features/admin/leadManagement/leadManagementTypes";
-import { useEffect, useState } from "react";
+import {  useParams } from "react-router-dom";
+// import { useFetchParticularLeadQuery } from "../../../features/admin/leadManagement/leadManagementApi";
+// import { ClientInfoType } from "../../../features/admin/leadManagement/leadManagementTypes";
+import {  useState } from "react";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import ClientConsultation from "../clientInformation/ClientConsultation";
 import ClientInfoCard from "../../../components/admin/ClientInfoCard";
 import Chatbot from "../../../components/Chatbot";
 import ChatbotPanel from "../../../components/ChatbotPanel";
 import AddNewTaskDrawer from "../../../features/admin/taskManagement/components/AddNewTaskDrawer";
+import { useGetVisaApplicationInfoQuery } from "../../../features/admin/visaApplication/visApplicationApi";
 
 const VisaApplicationInformation = () => {
-  const location = useLocation();
-  const row = location.state?.row;
-  const leadid = row?.leadId;
-  const { visatype } = useParams();
-  const { data, isLoading, isError, refetch } =
-    useFetchParticularLeadQuery(leadid);
-  const [clientInfo, setClientInfo] = useState<ClientInfoType>();
+  // const location = useLocation();
+  // const row = location.state?.row;
+  // const leadid = row?.leadId;
+  const { visaApplicationId } = useParams();
+  // const { data, isLoading, isError, refetch } =
+  //   useFetchParticularLeadQuery(leadid);
+  // const [clientInfo, setClientInfo] = useState<ClientInfoType>();
   const [chatVisible, setChatVisible] = useState(false);
   const [employeeDrawerOpen, setEmployeeDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    if (data && !isLoading && !isError) {
-      setClientInfo(data.data);
-    }
-  }, [data, isLoading, isError]);
+  const {data:basicClientInfo,isLoading,isError} = useGetVisaApplicationInfoQuery(visaApplicationId)
+  // console.log(basicClientInfo.data.basicInfo)
+  // useEffect(() => {
+  //   if (data && !isLoading && !isError) {
+  //     setClientInfo(data.data);
+  //   }
+  // }, [data, isLoading, isError]);
 
   if (isLoading) {
     return (
@@ -41,7 +43,7 @@ const VisaApplicationInformation = () => {
     );
   }
 
-  if (isError || !data) {
+  if (isError || !basicClientInfo) {
     return (
       <Box
         sx={{
@@ -58,7 +60,7 @@ const VisaApplicationInformation = () => {
 
   return (
     <Box sx={{ position: "relative", mt: { md: 2 } }}>
-      <ClientInfoCard clientInfo={clientInfo} />
+      <ClientInfoCard clientInfo={basicClientInfo.data} />
       <Box
         sx={{
           display: "flex",
@@ -83,19 +85,19 @@ const VisaApplicationInformation = () => {
         </Button>
       </Box>
       <ClientConsultation
-        onRefreshLead={refetch}
-        leadStatus={clientInfo?.leadStatus || ""}
-        consultationInfo={clientInfo?.consultationInfo}
-        paymentInfo={clientInfo?.paymentInfo}
-        eligibilityForm={clientInfo?.eligibilityForm}
-        visaType={clientInfo?.leadInfo?.appliedFor ?? ""}
-        formSubmisionDate={clientInfo?.leadInfo?.createdAt || ""}
+        onRefreshLead={()=> {}}
+        leadStatus={""}
+        consultationInfo={null}
+        paymentInfo={basicClientInfo.data.paymentInfo}
+        eligibilityForm={null}
+        visaType={basicClientInfo.data.basicInfo.appliedFor || ""}
+        formSubmisionDate={""}
         showExtraTabs={true}
         isParticularVisaApplication={true}
       />
 
       <AddNewTaskDrawer
-        attachVisaApplication={visatype}
+        attachVisaApplication={visaApplicationId}
         open={employeeDrawerOpen}
         onClose={() => setEmployeeDrawerOpen(false)}
       />
@@ -110,7 +112,7 @@ const VisaApplicationInformation = () => {
         <ChatbotPanel
           chatVisible={chatVisible}
           setChatVisible={setChatVisible}
-          visaApplicationId={visatype}
+          visaApplicationId={visaApplicationId}
           source={"Admin"}
         />
       )}

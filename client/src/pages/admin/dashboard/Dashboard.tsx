@@ -58,7 +58,7 @@ const Dashboard = () => {
       setConsultationData(fetchedConsultationData.consultations ?? []);
     }
     if (fetchedRecentUpdatesData) {
-      setRecentUpdatesData(fetchedRecentUpdatesData.updates ?? []);
+      setRecentUpdatesData(fetchedRecentUpdatesData.data ?? []);
     }
     if (fetchedRevenueData) {
       setRevenueData(fetchedRevenueData.revenue ?? []);

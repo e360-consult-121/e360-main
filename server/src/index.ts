@@ -35,13 +35,17 @@ import { sendHighPriorityLeadEmail } from "./services/emails/triggers/leads/elig
 import { sendMediumPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/mediumPriority";
 import { sendLowPriorityLeadEmail } from "./services/emails/triggers/leads/eligibility-form-filled/lowPriority";
 import { leadEmailToAdmin } from "./services/emails/triggers/admin/eligibility-form-filled/priorityTrigger";
-import {assignDefaultLead , assignDefaultVisaApplication } from "./utils/defaultTaskAssign"
+import {
+  assignDefaultLead,
+  assignDefaultVisaApplication,
+} from "./utils/defaultTaskAssign";
 import {
   JOTFORM_ID_DOMINICA_GRENADA,
   JOTFORM_ID_DUBAI,
   JOTFORM_ID_PORTUGAL,
 } from "./utils/jotformIds";
-// import priority functions
+
+import {logLeadCame} from "./services/logs/triggers/leadLogs/lead/leadCame";
 
 dotenv.config();
 
@@ -235,31 +239,40 @@ app.post(
 
       const calendlyLink = `${process.env.CALENDLY_LINK}?utm_campaign=${newLead._id}&utm_source=EEE360`;
 
-      await leadEmailToAdmin(newLead.fullName.first, serviceType, priority);
+      await leadEmailToAdmin(
+        newLead.fullName.split(" ")[0],
+        serviceType,
+        priority
+      );
       if (priority === leadPriority.HIGH) {
         await sendHighPriorityLeadEmail(
           newLead.email,
-          newLead.fullName.first,
+          newLead.fullName.split(" ")[0],
           serviceType,
           calendlyLink
         );
       } else if (priority === leadPriority.MEDIUM) {
         await sendMediumPriorityLeadEmail(
           newLead.email,
-          newLead.fullName.first,
+          newLead.fullName.split(" ")[0],
           serviceType,
           calendlyLink
         );
       } else if (priority === leadPriority.LOW) {
         await sendLowPriorityLeadEmail(
           newLead.email,
-          newLead.fullName.first,
+          newLead.fullName.split(" ")[0],
           serviceType,
           "",
           ""
         );
       }
       logger.info("Lead saved successfully :", newLead);
+
+      // Add log (logLeadCame)
+      await logLeadCame({ priority:priority , leadName : `${newLead.fullName}`, doneBy:null , leadId : newLead._id as mongoose.Types.ObjectId});
+
+
       res.status(200).json({ status: "success", message: "Lead saved to DB" });
       return;
     } catch (error: any) {
@@ -280,7 +293,6 @@ if (process.env.NODE_ENV === "production") {
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
-
 
 const args = process.argv.slice(2);
 const portArgIndex = args.indexOf("--port");

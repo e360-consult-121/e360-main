@@ -13,7 +13,7 @@ router.get(
   "/fetchBankDetails",
   authenticate,
   authorizeAdmin,
-  // checkPermission("View Bank Details"),
+  checkPermission("View_Bank_Details"),
   asyncHandler(bankDetails.getBankDetails)
 );
 
@@ -21,7 +21,7 @@ router.put(
   "/editBankDetails/:visaTypeName",
   authenticate,
   authorizeAdmin,
-  // checkPermission("Edit Bank Details"),
+  checkPermission("Edit_Bank_Details"),
   asyncHandler(bankDetails.editBankDetails)
 );
 

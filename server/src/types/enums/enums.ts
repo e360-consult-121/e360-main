@@ -183,8 +183,8 @@ export enum PaymentSourceEnum {
 }
 
 export enum senderTypeEnum {
-  ADMIN = 'Admin',
-  USER = 'User'
+  ADMIN = 'ADMIN',
+  USER = 'USER'
 }
 
 export enum messageTypeEnum {
@@ -195,7 +195,8 @@ export enum messageTypeEnum {
 export enum logTypeEnum {
   LeadLogs = 'leadLogs',
   ActivityLogs = 'activityLogs',
-  VisaApplicationLogs = 'visaApplicationLogs'
+  VisaApplicationLogs = 'visaApplicationLogs',
+  TaskLogs = "taskLogs"
   
 }
 

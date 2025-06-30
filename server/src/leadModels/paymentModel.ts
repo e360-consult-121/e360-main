@@ -57,6 +57,7 @@ const PaymentSchema = new Schema<IPayment>(
       enum : Object.values(PaymentSourceEnum) 
     }
   },
+  {timestamps: true}
 );
 
 export const PaymentModel = mongoose.model<IPayment>('Payment', PaymentSchema);

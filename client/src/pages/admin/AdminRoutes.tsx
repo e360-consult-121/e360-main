@@ -16,6 +16,11 @@ import RoleAndPermission from "./roleandPermission/RoleAndPermission";
 import TaskManagment from "./taskManagement/TaskManagment";
 import ParticularTask from "./taskManagement/ParticularTask";
 import Logs from "./logs/Logs";
+import AdminProfile from "./adminProfile/AdminProfile";
+import InvoicesManagement from "./invoicesManagement/InvoicesManagement";
+// import { RootState } from "../../app/store";
+// import { useSelector } from "react-redux";
+// import { useFetchUIPermissionsQuery } from "../../features/admin/adminUIPermissionApi";
 
 const AdminRoutes = () => {
   return (
@@ -25,15 +30,13 @@ const AdminRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/applications/:type" element={<VisaService />} />
         <Route path="/leadmanagement" element={<LeadManagement />} />
+        <Route path="/invoicesmanagement" element={<InvoicesManagement/>} />
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/servicemanagement" element={<ServiceManagement />} />
         <Route path="/vipconciergeservice" element={<VIPConciergeService />} />
         <Route path="/bankdetails" element={<BankDetails />} />
         <Route path="/leadmanagement/:leadid" element={<ClientInformation />} />
-        <Route
-          path="/application/:visatype"
-          element={<VisaApplicationInformation />}
-        />
+        <Route path="/application/:visaApplicationId" element={<VisaApplicationInformation />} />
         <Route path="/myclient" element={<MyClients />} />
         <Route path="/myclient/:userid" element={<ClientVisaApplications />} />
         <Route
@@ -43,6 +46,7 @@ const AdminRoutes = () => {
         <Route path="/taskmanagement" element={<TaskManagment />} />
         <Route path="/taskmanagement/:taskid" element={<ParticularTask />} />
         <Route path="/logs" element={<Logs />} />
+        <Route path="/profile" element={<AdminProfile />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/dashboard" />} />
     </Routes>

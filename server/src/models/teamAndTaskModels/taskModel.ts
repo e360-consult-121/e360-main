@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { taskPriorityEnum , taskStatusEnum } from "../../types/enums/enums";
+import { taskPriorityEnum, taskStatusEnum } from "../../types/enums/enums";
 
 interface IRemark {
-  _id?: mongoose.Types.ObjectId; 
+  _id?: mongoose.Types.ObjectId;
   remarkMsg: string;
   doneBy: mongoose.Types.ObjectId;
 }
@@ -16,11 +16,11 @@ export interface ITask extends Document {
   endDate: Date;
 
   attachedLead: Types.ObjectId | null;
-  attachedConsultation : Types.ObjectId | null ;
+  attachedConsultation: Types.ObjectId | null;
   attachedVisaApplication: Types.ObjectId | null;
   attachedClient: Types.ObjectId | null;
 
-  status : taskStatusEnum;
+  status: taskStatusEnum;
 
   files: string[];
   remarks: IRemark[];
@@ -53,7 +53,7 @@ const TaskSchema = new Schema<ITask>(
       ref: "Leads",
       default: null,
     },
-    attachedConsultation : {
+    attachedConsultation: {
       type: Schema.Types.ObjectId,
       ref: "Consultations",
       default: null,
@@ -75,20 +75,23 @@ const TaskSchema = new Schema<ITask>(
     status: {
       type: String,
       enum: Object.values(taskStatusEnum),
+      default: taskStatusEnum.DUE,
       required: true,
     },
     remarks: {
-      type: [{
-        remarkMsg: {
-          type: String,
-          required: true,
+      type: [
+        {
+          remarkMsg: {
+            type: String,
+            required: true,
+          },
+          doneBy: {
+            type: Schema.Types.ObjectId,
+            ref: "Users",
+            required: true,
+          },
         },
-        doneBy: {
-          type: Schema.Types.ObjectId,
-          ref: "Users", 
-          required: true,
-        },
-      }],
+      ],
       default: [],
     },
   },

@@ -2,27 +2,39 @@ import { baseApi } from "../../../app/api";
 
 export const leadManagementApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    fetchAllLeads:build.query({
-        query:() => ({
-            url:"/admin/leads/fetchAllLeads",
-            method:"GET"
-        }),
+    fetchAllLeads: build.query({
+      query: ({ page = 1, limit = 5, search = "", sort = "-createdAt" }) => ({
+        url: `/admin/leads/fetchAllLeads?page=${page}&limit=${limit}&search=${encodeURIComponent(
+          search
+        )}&sort=${sort}`,
+        method: "GET",
+      }),
     }),
     fetchParticularLead: build.query({
-      query: (leadId) => (
-        {
+      query: (leadId) => ({
         url: `/admin/leads/${leadId}/fetchParticularLead`,
-        method: 'GET',
+        method: "GET",
       }),
     }),
     rejectParticularLead: build.mutation({
-      query: ({leadid ,body }) => (
-         { url: `/admin/leads/${leadid}/rejectLead`,
-          method: "POST",
-          data:body}
-      )
+      query: ({ leadid, body }) => ({
+        url: `/admin/leads/${leadid}/rejectLead`,
+        method: "POST",
+        data: body,
+      }),
     }),
-  })
-})
+    fetchLeadsStats: build.query({
+      query: () => ({
+        url: `/admin/leads/fetchLeadsStats`,
+        method: "GET",
+      }),
+    }),
+  }),
+});
 
-export const { useFetchAllLeadsQuery ,useFetchParticularLeadQuery ,useRejectParticularLeadMutation} = leadManagementApi;
+export const {
+  useFetchAllLeadsQuery,
+  useFetchParticularLeadQuery,
+  useRejectParticularLeadMutation,
+  useFetchLeadsStatsQuery,
+} = leadManagementApi;

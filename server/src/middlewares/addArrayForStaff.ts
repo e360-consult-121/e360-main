@@ -1,14 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import { AssignmentModel } from "../models/teamAndTaskModels/assignModel"; 
-import { RoleModel } from "../models/rbacModels/roleModel"; 
-import { TaskModel } from "../models/teamAndTaskModels/taskModel"; 
+import { AssignmentModel } from "../models/teamAndTaskModels/assignModel";
+import { RoleModel } from "../models/rbacModels/roleModel";
+import { TaskModel } from "../models/teamAndTaskModels/taskModel";
 import AppError from "../utils/appError";
-
 
 // Abhi toh fetch Upcoming taks fetch karna baaki hai (Special case se handle karna padega )
 export const addArrayForStaff = (modelName: string) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       if (
         req.isViewAllLeads === true ||
@@ -44,6 +47,8 @@ export const addArrayForStaff = (modelName: string) => {
           assignedIds = tasks
             .map((task) => task.attachedVisaApplication)
             .filter((id): id is mongoose.Types.ObjectId => !!id);
+          console.log("Tasks: ",tasks)
+          
           break;
 
         case "Clients":
@@ -59,8 +64,10 @@ export const addArrayForStaff = (modelName: string) => {
           break;
 
         case "Tasks":
-          assignedIds = assignedTaskIds.filter((id): id is mongoose.Types.ObjectId => !!id);
-          console.log(`Assigned taskIds in addArray middleware` ,assignedIds );
+          assignedIds = assignedTaskIds.filter(
+            (id): id is mongoose.Types.ObjectId => !!id
+          );
+          console.log(`Assigned taskIds in addArray middleware`, assignedIds);
           break;
 
         default:
@@ -70,8 +77,13 @@ export const addArrayForStaff = (modelName: string) => {
       req.assignedIds = assignedIds;
       return next();
     } catch (error) {
-      console.error(`Error in addArrayForStaff middleware for ${modelName}:`, error);
-      return next(new AppError("Server error while fetching assigned IDs", 500));
+      console.error(
+        `Error in addArrayForStaff middleware for ${modelName}:`,
+        error
+      );
+      return next(
+        new AppError("Server error while fetching assigned IDs", 500)
+      );
     }
   };
 };

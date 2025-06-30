@@ -63,6 +63,7 @@ const ClientConsultation = ({
   showExtraTabs: boolean;
   isParticularVisaApplication: boolean;
 }) => {
+  // console.log(paymentInfo)
   const tabs = [
     {
       //this is admin component only will show is show Extra is sent true
@@ -107,7 +108,7 @@ const ClientConsultation = ({
           paymentInfo={paymentInfo}
         />
       ),
-      show: consultationInfo?.status === "COMPLETED",
+      show: consultationInfo?.status === "COMPLETED" || paymentInfo,
     },
     {
       label: "Logs",
@@ -120,7 +121,7 @@ const ClientConsultation = ({
     },
   ].filter((tab) => tab.show);
 
-  const [value, setValue] = useState(tabs.length - 1);
+  const [value, setValue] = useState(tabs.length - 2);
 
   useEffect(() => {
     if (tabs.length > 0) {

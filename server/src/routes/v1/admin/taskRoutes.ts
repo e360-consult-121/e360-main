@@ -98,7 +98,7 @@ router.get(
   "/fetchAllVisaApplications",
   authenticate,
   authorizeAdmin,
-  addArrayForStaff("VisaApplications"),
+  // addArrayForStaff("VisaApplications"),
   asyncHandler(otherInfoControllers.getAllVisaApplications)
 );
 

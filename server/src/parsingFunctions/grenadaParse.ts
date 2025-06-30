@@ -40,10 +40,7 @@ export type ParsedGrenadaXXXData = {
     formId: string;
     visaTypeName : string ,
 
-    fullName: {
-        first: string;
-        last: string;
-    };
+    fullName: string;
     nationality: string;
     email: string;
     phone: string;
@@ -101,10 +98,7 @@ export const parseGrenadaData = (rawData: GrenadaRawData): ParsedGrenadaXXXData 
         formId: rawData?.slug?.split("/")?.[1] || "",
         visaTypeName : "GRENADA",
 
-        fullName: {
-            first: rawData?.q1_fullName?.first || "",
-            last: rawData?.q1_fullName?.last || ""
-        },
+        fullName: `${rawData?.q1_fullName?.first || ""} ${rawData?.q1_fullName?.last || ""}`,
         nationality: rawData?.q4_nationality || rawData?.dropdown_search || "",
         email: rawData?.q6_email || "",
         phone: rawData?.q62_fullPhone || "",

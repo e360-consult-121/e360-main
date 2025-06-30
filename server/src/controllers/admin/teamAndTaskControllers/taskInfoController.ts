@@ -8,10 +8,17 @@ import { LeadModel } from "../../../leadModels/leadModel";
 import { VisaApplicationModel } from "../../../models/VisaApplication";
 import { UserModel } from "../../../models/Users";
 import { ConsultationModel } from "../../../leadModels/consultationModel";
+import { searchPaginatedQuery } from "../../../services/searchAndPagination/searchPaginatedQuery";
 
 // Fetch All Tasks
 export const fetchAllTasks = async (req: Request, res: Response) => {
-  const { sortBy = "dueDate", order = "asc" } = req.query;
+  const {
+    search,
+    page = "1",
+    limit = "10",
+    sortBy = "dueDate",
+    order = "asc",
+  } = req.query;
 
   const sortFieldsMap: Record<string, string> = {
     priority: "priority",
@@ -22,8 +29,7 @@ export const fetchAllTasks = async (req: Request, res: Response) => {
   const sortField = sortFieldsMap[sortBy as string] || "endDate";
   const sortOrder = order === "desc" ? -1 : 1;
 
-  const tasks = await TaskModel.aggregate([
-    // Step 1: Join assignments
+  const preMatchStages = [
     {
       $lookup: {
         from: "assignments",
@@ -32,7 +38,6 @@ export const fetchAllTasks = async (req: Request, res: Response) => {
         as: "assignments",
       },
     },
-    // Step 2: Extract all assignedTo (users)
     {
       $lookup: {
         from: "users",
@@ -41,7 +46,6 @@ export const fetchAllTasks = async (req: Request, res: Response) => {
         as: "assignedToUsers",
       },
     },
-    // Step 3: Extract assignedBy (assuming same assignedBy for all )
     {
       $lookup: {
         from: "users",
@@ -50,54 +54,75 @@ export const fetchAllTasks = async (req: Request, res: Response) => {
         as: "assignedByUsers",
       },
     },
-    // Step 4: Project final structure
+  ];
+
+  const customFields = [
     {
-      $project: {
-        taskName: 1,
-        status: 1,
-        priority: 1,
-        endDate: 1,
-        dueDate: "$endDate",
-        assignedCount: { $size: "$assignedToUsers" },
-        assignedTo: {
-          $map: {
-            input: "$assignedToUsers",
-            as: "user",
-            in: {
-              _id: "$$user._id",
-              name: "$$user.name",
-              email: "$$user.email",
-            },
-          },
-        },
-        assignedBy: {
-          $cond: {
-            if: { $gt: [{ $size: "$assignedByUsers" }, 0] },
-            then: {
-              _id: { $arrayElemAt: ["$assignedByUsers._id", 0] },
-              name: { $arrayElemAt: ["$assignedByUsers.name", 0] },
-              email: { $arrayElemAt: ["$assignedByUsers.email", 0] },
-            },
-            else: null,
+      name: "assignedCount",
+      expression: { $size: "$assignedToUsers" },
+    },
+    {
+      name: "assignedTo",
+      expression: {
+        $map: {
+          input: "$assignedToUsers",
+          as: "user",
+          in: {
+            _id: "$$user._id",
+            name: "$$user.name",
+            email: "$$user.email",
           },
         },
       },
     },
-    // Step 5: Sort
     {
-      $sort: {
-        [sortField]: sortOrder,
+      name: "assignedBy",
+      expression: {
+        $cond: {
+          if: { $gt: [{ $size: "$assignedByUsers" }, 0] },
+          then: {
+            _id: { $arrayElemAt: ["$assignedByUsers._id", 0] },
+            name: { $arrayElemAt: ["$assignedByUsers.name", 0] },
+            email: { $arrayElemAt: ["$assignedByUsers.email", 0] },
+          },
+          else: null,
+        },
       },
     },
-  ]);
+  ];
+
+  const customSort = {
+    [sortField]: sortOrder,
+  };
+
+  // Include the custom fields in the select parameter
+  const result = await searchPaginatedQuery({
+    model: TaskModel,
+    collectionName: "tasks",
+    search: search as string,
+    page: Number(page),
+    limit: Number(limit),
+    preMatchStages,
+    customFields,
+    customSort,
+    // Fixed: Include custom fields in selection
+    select: "taskName status priority endDate assignedTo assignedBy assignedCount",
+  });
 
   res.status(200).json({
     success: true,
-    tasks,
+    tasks: result.data,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    },
   });
 };
 
 //   Fetch My tasks
+
 export const fetchMyTasks = async (
   req: Request,
   res: Response
@@ -107,12 +132,33 @@ export const fetchMyTasks = async (
     throw new AppError("Admin not authenticated", 401);
   }
 
-  const tasks = await AssignmentModel.aggregate([
-    {
-      $match: {
-        memberId: new mongoose.Types.ObjectId(adminId),
-      },
-    },
+  const {
+    search = "",
+    page = 1,
+    limit = 10,
+    sort = "-dueDate",
+    status,
+    priority,
+    assignedBy: assignedByFilter,
+  } = req.query;
+
+  const additionalFilters: any = {};
+  if (status) {
+    additionalFilters["taskDetails.status"] = status;
+  }
+  if (priority) {
+    additionalFilters["taskDetails.priority"] = priority;
+  }
+  if (assignedByFilter) {
+    additionalFilters["assignedByDetails._id"] = new mongoose.Types.ObjectId(
+      assignedByFilter as string
+    );
+  }
+
+  additionalFilters.memberId = new mongoose.Types.ObjectId(adminId);
+
+  const postMatchStages = [
+    // Lookup task details
     {
       $lookup: {
         from: "tasks",
@@ -123,7 +169,7 @@ export const fetchMyTasks = async (
     },
     { $unwind: "$taskDetails" },
 
-    // Get all users assigned to the same task
+    // Lookup assigned users
     {
       $lookup: {
         from: "assignments",
@@ -155,7 +201,7 @@ export const fetchMyTasks = async (
       },
     },
 
-    // Get info of the one who assigned this task
+    // Lookup assigned by user
     {
       $lookup: {
         from: "users",
@@ -171,6 +217,7 @@ export const fetchMyTasks = async (
       },
     },
 
+    // Final projection
     {
       $project: {
         _id: "$taskDetails._id",
@@ -180,27 +227,58 @@ export const fetchMyTasks = async (
           email: "$assignedByDetails.email",
           name: "$assignedByDetails.name",
         },
-        assignedTo: "$assignedToUsers", // all users this task is assigned to
+        assignedTo: "$assignedToUsers",
         status: "$taskDetails.status",
         priority: "$taskDetails.priority",
-        dueDate: "$taskDetails.endDate",
+        endDate: "$taskDetails.endDate",
+        // Keep these fields for search functionality
+        taskDetails: "$taskDetails",
+        assignedByDetails: "$assignedByDetails",
       },
     },
-  ]);
+  ];
+
+  const result = await searchPaginatedQuery({
+    model: AssignmentModel,
+    collectionName: "assignments",
+    search: search as string,
+    page: Number(page),
+    limit: Number(limit),
+    sort: sort as string,
+    additionalFilters,
+    postMatchStages,
+  });
 
   return res.status(200).json({
     success: true,
     message: "Tasks fetched successfully",
-    tasks,
+    tasks: result.data,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPrevPage: result.hasPrevPage,
+    },
   });
 };
 
 // Fetch Upcoming Taks -->> start date will start after now
-export const fetchUpcomingTasks = async (req: Request, res: Response) => {
+export const fetchUpcomingTasks = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   console.log(`these are assignedIds for Upcoming tasks :`, req.assignedIds);
 
   const now = new Date();
-  const { sortBy = "startDate", order = "asc" } = req.query;
+  const {
+    search = "",
+    page = 1,
+    limit = 10,
+    sortBy = "startDate",
+    order = "asc",
+  } = req.query;
 
   const sortFieldsMap: Record<string, string> = {
     priority: "priority",
@@ -210,19 +288,19 @@ export const fetchUpcomingTasks = async (req: Request, res: Response) => {
   };
 
   const sortField = sortFieldsMap[sortBy as string] || "startDate";
-  const sortOrder = order === "desc" ? -1 : 1;
+  const sortOrder = order === "desc" ? "-" : "";
+  const sort = `${sortOrder}${sortField}`;
 
-  const matchStage: any = {
+  const additionalFilters: any = {
     startDate: { $gt: now },
   };
 
   if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    matchStage._id = { $in: req.assignedIds };
+    additionalFilters._id = { $in: req.assignedIds };
   }
 
-  const tasks = await TaskModel.aggregate([
-    { $match: matchStage },
-
+  const postMatchStages = [
+    // Lookup assignments
     {
       $lookup: {
         from: "assignments",
@@ -231,6 +309,7 @@ export const fetchUpcomingTasks = async (req: Request, res: Response) => {
         as: "assignments",
       },
     },
+    // Lookup assigned to users
     {
       $lookup: {
         from: "users",
@@ -239,6 +318,7 @@ export const fetchUpcomingTasks = async (req: Request, res: Response) => {
         as: "assignedToUsers",
       },
     },
+    // Lookup assigned by users
     {
       $lookup: {
         from: "users",
@@ -247,6 +327,7 @@ export const fetchUpcomingTasks = async (req: Request, res: Response) => {
         as: "assignedByUsers",
       },
     },
+    // Final projection
     {
       $project: {
         taskName: 1,
@@ -279,21 +360,47 @@ export const fetchUpcomingTasks = async (req: Request, res: Response) => {
         },
       },
     },
-    {
-      $sort: { [sortField]: sortOrder },
-    },
-  ]);
+  ];
+
+  const result = await searchPaginatedQuery({
+    model: TaskModel,
+    collectionName: "tasks",
+    search: search as string,
+    page: Number(page),
+    limit: Number(limit),
+    sort: sort as string,
+    additionalFilters,
+    postMatchStages,
+  });
 
   return res.status(200).json({
     success: true,
-    tasks,
+    message: "Upcoming tasks fetched successfully",
+    tasks: result.data,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPrevPage: result.hasPrevPage,
+    },
   });
 };
 
 // Fetch Due Tasks  -->> Now is in b/w start and end
-export const fetchDueTasks = async (req: Request, res: Response) => {
+export const fetchDueTasks = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const now = new Date();
-  const { sortBy = "startDate", order = "asc" } = req.query;
+  const {
+    search = "",
+    page = 1,
+    limit = 10,
+    sortBy = "startDate",
+    order = "asc",
+  } = req.query;
 
   const sortFieldsMap: Record<string, string> = {
     priority: "priority",
@@ -303,20 +410,20 @@ export const fetchDueTasks = async (req: Request, res: Response) => {
   };
 
   const sortField = sortFieldsMap[sortBy as string] || "startDate";
-  const sortOrder = order === "desc" ? -1 : 1;
+  const sortOrder = order === "desc" ? "-" : "";
+  const sort = `${sortOrder}${sortField}`;
 
-  const matchStage: any = {
+  const additionalFilters: any = {
     startDate: { $lte: now },
     endDate: { $gte: now },
   };
 
   if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    matchStage._id = { $in: req.assignedIds };
+    additionalFilters._id = { $in: req.assignedIds };
   }
 
-  const tasks = await TaskModel.aggregate([
-    { $match: matchStage },
-
+  const postMatchStages = [
+    // Lookup assignments
     {
       $lookup: {
         from: "assignments",
@@ -325,6 +432,7 @@ export const fetchDueTasks = async (req: Request, res: Response) => {
         as: "assignments",
       },
     },
+    // Lookup assigned to users
     {
       $lookup: {
         from: "users",
@@ -333,6 +441,7 @@ export const fetchDueTasks = async (req: Request, res: Response) => {
         as: "assignedToUsers",
       },
     },
+    // Lookup assigned by users
     {
       $lookup: {
         from: "users",
@@ -341,13 +450,14 @@ export const fetchDueTasks = async (req: Request, res: Response) => {
         as: "assignedByUsers",
       },
     },
+    // Final projection
     {
       $project: {
         taskName: 1,
         status: 1,
         priority: 1,
         startDate: 1,
-        dueDate: "$endDate",
+        endDate: "$endDate",
         assignedCount: { $size: "$assignedToUsers" },
         assignedTo: {
           $map: {
@@ -373,23 +483,47 @@ export const fetchDueTasks = async (req: Request, res: Response) => {
         },
       },
     },
-    {
-      $sort: {
-        [sortField]: sortOrder,
-      },
-    },
-  ]);
+  ];
+
+  const result = await searchPaginatedQuery({
+    model: TaskModel,
+    collectionName: "tasks",
+    search: search as string,
+    page: Number(page),
+    limit: Number(limit),
+    sort: sort as string,
+    additionalFilters,
+    postMatchStages,
+  });
 
   return res.status(200).json({
     success: true,
-    tasks,
+    message: "Due tasks fetched successfully",
+    tasks: result.data,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPrevPage: result.hasPrevPage,
+    },
   });
 };
 
 // Fetch OverDue TaskS -->> Jinki EndDate bhi nikal chuki hai
-export const fetchOverdueTasks = async (req: Request, res: Response) => {
+export const fetchOverdueTasks = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const now = new Date();
-  const { sortBy = "endDate", order = "asc" } = req.query;
+  const {
+    search = "",
+    page = 1,
+    limit = 10,
+    sortBy = "endDate",
+    order = "asc",
+  } = req.query;
 
   const sortFieldsMap: Record<string, string> = {
     priority: "priority",
@@ -399,19 +533,19 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
   };
 
   const sortField = sortFieldsMap[sortBy as string] || "endDate";
-  const sortOrder = order === "desc" ? -1 : 1;
+  const sortOrder = order === "desc" ? "-" : "";
+  const sort = `${sortOrder}${sortField}`;
 
-  const matchStage: any = {
+  const additionalFilters: any = {
     endDate: { $lt: now },
   };
 
   if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
-    matchStage._id = { $in: req.assignedIds };
+    additionalFilters._id = { $in: req.assignedIds };
   }
 
-  const tasks = await TaskModel.aggregate([
-    { $match: matchStage },
-
+  const postMatchStages = [
+    // Lookup assignments
     {
       $lookup: {
         from: "assignments",
@@ -420,6 +554,7 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
         as: "assignments",
       },
     },
+    // Lookup assigned to users
     {
       $lookup: {
         from: "users",
@@ -428,6 +563,7 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
         as: "assignedToUsers",
       },
     },
+    // Lookup assigned by users
     {
       $lookup: {
         from: "users",
@@ -436,6 +572,7 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
         as: "assignedByUsers",
       },
     },
+    // Final projection
     {
       $project: {
         taskName: 1,
@@ -468,19 +605,33 @@ export const fetchOverdueTasks = async (req: Request, res: Response) => {
         },
       },
     },
-    {
-      $sort: {
-        [sortField]: sortOrder,
-      },
-    },
-  ]);
+  ];
+
+  const result = await searchPaginatedQuery({
+    model: TaskModel,
+    collectionName: "tasks",
+    search: search as string,
+    page: Number(page),
+    limit: Number(limit),
+    sort: sort as string,
+    additionalFilters,
+    postMatchStages,
+  });
 
   return res.status(200).json({
     success: true,
-    tasks,
+    message: "Overdue tasks fetched successfully",
+    tasks: result.data,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPrevPage: result.hasPrevPage,
+    },
   });
 };
-
 // Fetch Particular Task
 // isme vo bhi handle karna hai , jab ye taskId , incoming array me se hi ek ho ....
 export const fetchParticularTask = async (req: Request, res: Response) => {
@@ -488,6 +639,13 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
 
   if (!mongoose.Types.ObjectId.isValid(taskId)) {
     throw new AppError("Invalid task ID", 400);
+  }
+
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(taskId)  ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
   }
 
   const tasks = await TaskModel.aggregate([
@@ -498,43 +656,43 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
     },
     {
       $lookup: {
-        from: 'leads',
-        localField: 'attachedLead',
-        foreignField: '_id',
-        as: 'attachedLead',
+        from: "leads",
+        localField: "attachedLead",
+        foreignField: "_id",
+        as: "attachedLead",
       },
     },
     {
       $unwind: {
-        path: '$attachedLead',
+        path: "$attachedLead",
         preserveNullAndEmptyArrays: true,
       },
     },
     {
       $lookup: {
-        from: 'visaapplications',
-        localField: 'attachedVisaApplication',
-        foreignField: '_id',
-        as: 'attachedVisaApplication',
+        from: "visaapplications",
+        localField: "attachedVisaApplication",
+        foreignField: "_id",
+        as: "attachedVisaApplication",
       },
     },
     {
       $unwind: {
-        path: '$attachedVisaApplication',
+        path: "$attachedVisaApplication",
         preserveNullAndEmptyArrays: true,
       },
     },
     {
       $lookup: {
-        from: 'visatypes',
-        localField: 'attachedVisaApplication.visaTypeId',
-        foreignField: '_id',
-        as: 'visaTypeData',
+        from: "visatypes",
+        localField: "attachedVisaApplication.visaTypeId",
+        foreignField: "_id",
+        as: "visaTypeData",
       },
     },
     {
       $unwind: {
-        path: '$visaTypeData',
+        path: "$visaTypeData",
         preserveNullAndEmptyArrays: true,
       },
     },
@@ -653,19 +811,17 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
         // attachedLead: { $first: "$attachedLead" },
         attachedLead: {
           $first: {
-            leadId: '$attachedLead._id',
-            name: {
-              $concat: ['$attachedLead.fullName.first', ' ', '$attachedLead.fullName.last'],
-            },
-            leadType: '$attachedLead.__t',
+            leadId: "$attachedLead._id",
+            name: "$attachedLead.fullName",
+            leadType: "$attachedLead.__t",
           },
         },
         attachedClient: { $first: "$attachedClient" },
         // attachedVisaApplication: { $first: "$attachedVisaApplication" },
         attachedVisaApplication: {
           $first: {
-            visaId: '$attachedVisaApplication._id',
-            visaType: '$visaTypeData.visaType',
+            visaId: "$attachedVisaApplication._id",
+            visaType: "$visaTypeData.visaType",
           },
         },
         attachedConsultation: { $first: "$attachedConsultation" },

@@ -7,6 +7,7 @@ const tabs: TAB[] = [
     icon: "icon-park-outline:dashboard",
     label: "Dashboard",
     route: "dashboard",
+    isPermitted:true
   },
   // {
   //   icon: "icon-park-outline:folder-block-one",

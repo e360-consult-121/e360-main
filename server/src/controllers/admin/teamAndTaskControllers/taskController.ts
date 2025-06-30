@@ -8,6 +8,18 @@ import { LeadModel } from "../../../leadModels/leadModel";
 import { VisaApplicationModel } from "../../../models/VisaApplication";
 import { UserModel } from "../../../models/Users";
 import { ConsultationModel } from "../../../leadModels/consultationModel";
+import {logTaskUpdated} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/Task-updated";
+import {logTaskDeleted} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/Task-deleted";
+import {logNewTaskCreated} from "../../../services/logs/triggers/RBAC&TaskLogs/Task-Management/New-task-created";
+
+import { taskAssignedEmail }   from "../../../services/emails/triggers/admin/Task-Management/task-assigned";
+import { assigneeAddedEmail }  from "../../../services/emails/triggers/admin/Task-Management/assignee-added";
+import { taskCompletedEmail }  from "../../../services/emails/triggers/admin/Task-Management/task-completed";
+import { taskDeletedEmail }    from "../../../services/emails/triggers/admin/Task-Management/task-deleted";
+import { taskDueOverdueEmail } from "../../../services/emails/triggers/admin/Task-Management/task-due-overdue";
+import { taskEditedEmail }     from "../../../services/emails/triggers/admin/Task-Management/task-edited";
+
+
 
 export const addNewTask = async (req: Request, res: Response) => {
   const {
@@ -17,10 +29,12 @@ export const addNewTask = async (req: Request, res: Response) => {
     startDate,
     endDate,
     attachedLead,
-    attchedVisaApplication,
+    attachedVisaApplication,
   } = req.body;
 
   let { assignedTo } = req.body;
+
+  console.log("Data received for new task:", req.body);
 
   // Validate required fields
   if (!taskName || !priority || !startDate || !endDate || !assignedTo) {
@@ -50,9 +64,9 @@ export const addNewTask = async (req: Request, res: Response) => {
   let attchedClient = undefined;
 
   // Get client (userId) from visa application
-  if (attchedVisaApplication) {
+  if (attachedVisaApplication) {
     const visaApp = await VisaApplicationModel.findById(
-      attchedVisaApplication
+      attachedVisaApplication
     ).select("userId");
     if (!visaApp) {
       res.status(404);
@@ -81,7 +95,7 @@ export const addNewTask = async (req: Request, res: Response) => {
     startDate,
     endDate,
     attachedLead,
-    attchedVisaApplication,
+    attachedVisaApplication,
     attchedClient,
     attchedConsultation,
     files,
@@ -101,15 +115,67 @@ export const addNewTask = async (req: Request, res: Response) => {
     await AssignmentModel.insertMany(assignments);
   }
 
+  // ✅ Fetch assignee names for logging
+  const assignedUsers = await UserModel.find({ _id: { $in: assignedTo } });
+  const assignedToNames = assignedUsers.map((user) => user.name || "Unknown");
+
+  await logNewTaskCreated({
+    taskTitle: savedTask.taskName,
+    assignedTo : assignedToNames,
+    adminName: req.admin?.userName,
+    taskId: savedTask._id as mongoose.Types.ObjectId,
+  });
+
+
+  // send email to all assigneeS
+  await Promise.all(
+    assignedUsers.map(async (user) => {
+      try {
+        await taskAssignedEmail({
+          to: user.email,
+          assigneeName: user.name ,
+          taskName: savedTask.taskName,
+          priority : savedTask.priority,
+          startDate: new Date(startDate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          }),
+          endDate: new Date(endDate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          }),  
+          assignedBy: req.admin?.userName,
+        });
+      } catch (err) {
+        console.error(`Failed to send task email to ${user.email}`, err);
+      }
+    })
+  );
+
+ 
+
+
   res.status(201).json({
     message: "Task created successfully",
     task: savedTask,
   });
 };
 
+
+
+
+
+
+
+
+
+
+
 // API for edit task
 // REq type -->> only send required fields
-// And send only thise fields from fronte d (which are updated , not all )
+// And send only thise fields from frontend (which are updated , not all )
 export const editTask = async (req: Request, res: Response) => {
   const { taskId } = req.params;
 
@@ -125,6 +191,9 @@ export const editTask = async (req: Request, res: Response) => {
     status,
   } = req.body;
 
+  // Array for sending in logFunction
+  const updatedFields: string[] = [];
+
   // Validate assignedTo as an array
   if (assignedTo && !Array.isArray(assignedTo)) {
     res
@@ -138,6 +207,8 @@ export const editTask = async (req: Request, res: Response) => {
     res.status(404).json({ message: "Task not found" });
     return;
   }
+
+  const oldTaskName = task.taskName;
 
   // Convert uploaded files to S3 URLs (if any)
   const newFiles =
@@ -161,6 +232,9 @@ export const editTask = async (req: Request, res: Response) => {
       return;
     }
     attachedClient = visaApp.userId as unknown as mongoose.Types.ObjectId;
+    task.attachedVisaApplication = attachedVisaApplication;
+    task.attachedClient = attachedClient;
+    updatedFields.push("attachedVisaApplication", "attachedClient");
   }
 
   // Fetch updated consultation from lead if provided
@@ -170,51 +244,155 @@ export const editTask = async (req: Request, res: Response) => {
       leadId: attachedLead,
     }).select("_id");
     if (consultation) {
-      attachedConsultation =
-        consultation._id as unknown as mongoose.Types.ObjectId;
+      attachedConsultation =   consultation._id as unknown as mongoose.Types.ObjectId;
+      task.attachedLead = attachedLead;
+      task.attachedConsultation = attachedConsultation;
+      updatedFields.push("attachedLead", "attachedConsultation");
     }
   }
 
   // Update fields only if valid
-  if (taskName !== undefined) task.taskName = taskName;
-  if (description !== undefined) task.description = description;
-  if (priority !== undefined && priority !== "") task.priority = priority;
-  if (startDate !== undefined && startDate !== "") task.startDate = startDate;
-  if (endDate !== undefined && endDate !== "") task.endDate = endDate;
-  if (attachedLead !== undefined) task.attachedLead = attachedLead;
-  if (attachedVisaApplication !== undefined)
-    task.attachedVisaApplication = attachedVisaApplication;
-  if (attachedClient !== undefined) task.attachedClient = attachedClient;
-  if (attachedConsultation !== undefined)
-    task.attachedConsultation = attachedConsultation;
-  if (status !== undefined) task.status = status;
+  if (taskName !== undefined && task.taskName !== taskName) {
+    task.taskName = taskName;
+    updatedFields.push("taskName");
+  }
+
+  if (description !== undefined && task.description !== description) {
+    task.description = description;
+    updatedFields.push("description");
+  }
+
+  if (priority !== undefined && priority !== "" && task.priority !== priority) {
+    task.priority = priority;
+    updatedFields.push("priority");
+  }
+
+  if (startDate !== undefined && startDate !== "" && task.startDate?.toISOString() !== new Date(startDate).toISOString()) {
+    task.startDate = startDate;
+    updatedFields.push("startDate");
+  }
+
+  if (endDate !== undefined && endDate !== "" && task.endDate?.toISOString() !== new Date(endDate).toISOString()) {
+    task.endDate = endDate;
+    updatedFields.push("endDate");
+  }
+
+  if (status !== undefined && task.status !== status) {
+    task.status = status;
+    updatedFields.push("status");
+  }
 
   // Merge & deduplicate files
-  task.files = Array.from(new Set([...task.files, ...newFiles]));
+  // task.files = Array.from(new Set([...task.files, ...newFiles]));
+  if (newFiles.length > 0) {
+    const merged = Array.from(new Set([...task.files, ...newFiles]));
+    if (merged.length !== task.files.length) {
+      task.files = merged;
+      updatedFields.push("files");
+    }
+  }
 
   const updatedTask = await task.save();
 
-  // Update assignments
+  // --- STEP 1: Get Old Assignees ---
+  const oldAssignments = await AssignmentModel.find({ taskId });
+  const oldAssigneeIds = oldAssignments.map(a => a.memberId.toString());
+
+  // --- STEP 2: Compare AssignedTo Lists ---
   if (assignedTo) {
-    // Delete existing assignments
-    await AssignmentModel.deleteMany({ taskId });
+      const newAssigneeIds = assignedTo.map((id: string) => id.toString());
+      // newlyAdded -->> jo abhi hai , lekin pahle nahi the
+      const newlyAdded = newAssigneeIds.filter((id:string) => !oldAssigneeIds.includes(id));
+      // stillAssigned -->. jo pahle bhi the , aur abhi bhi hai 
+      const stillAssigned = oldAssigneeIds.filter((id:string) => newAssigneeIds.includes(id));
 
-    const assignments = assignedTo.map((memberId: string) => ({
-      taskId: task._id,
-      memberId,
-      assignedBy: req.admin?.id,
-    }));
+      // Now call email function to send mail to stillAssigned employees...
+      if (newlyAdded.length > 0 && stillAssigned.length > 0) {
+        //  Fetch user details
+        const stillUsers = await UserModel.find({ _id: { $in: stillAssigned } });
+        const newUsers = await UserModel.find({ _id: { $in: newlyAdded } });
+        const newAssigneeNames = newUsers.map(user => user.name);
+    
+        for (const user of stillUsers) {
+          // Email for Assignees added
+          await assigneeAddedEmail(
+            user.email,
+            user.name,
+            task.taskName,
+            newAssigneeNames,
+            req.admin?.userName
+          );
+          // Email when task edited
+          await taskEditedEmail({
+            to : user.email ,                  
+            assigneeName : user.name,        
+            taskName : oldTaskName ,         
+            updatedBy : req.admin?.userName,          
+            updatedAt : new Date().toLocaleString("en-IN", {
+              timeZone: "Asia/Kolkata",
+            }),          
+            updatedFields : updatedFields
+          })
+        }
 
-    if (assignments.length > 0) {
-      await AssignmentModel.insertMany(assignments);
-    }
+        // email when task is completed
+        if (status !== undefined   &&   status == taskStatusEnum.COMPLETED    &&     task.status == status){
+          for (const user of stillUsers) {
+            // Email for Assignees added
+            await taskCompletedEmail({
+              to : user.email,                 
+              assigneeName : user.name ,    
+              taskName :  task.taskName ,          
+              completedBy : req.admin?.userName  ,       
+              completedAt : new Date().toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+              })
+            });
+          }
+        }
+
+
+      }
+      // Delete existing assignments
+      await AssignmentModel.deleteMany({ taskId });
+
+      const assignments = assignedTo.map((memberId: string) => ({
+        taskId: task._id,
+        memberId,
+        assignedBy: req.admin?.id,
+      }));
+
+      if (assignments.length > 0) {
+        await AssignmentModel.insertMany(assignments);
+        updatedFields.push("assignedTo");
+      }
   }
+
+
+  // ✅ Call logging function & edit email function if fields were updated
+  if (updatedFields.length > 0) {
+    await logTaskUpdated({
+      taskTitle: oldTaskName,
+      updatedFields,
+      updatedAt: new Date(),
+      adminName: req.admin?.userName,
+      taskId : task._id as mongoose.Types.ObjectId
+    }); 
+  }
+
+  
 
   return res.status(200).json({
     message: "Task updated successfully",
     task: updatedTask,
   });
 };
+
+
+
+
+
+
 
 // Deleting a task
 export const deleteTask = async (
@@ -236,11 +414,41 @@ export const deleteTask = async (
     throw new AppError("Task not found", 404);
   }
 
+  // ✅ Get assignees before deletion
+  const assignments = await AssignmentModel.find({ taskId });
+  const assigneeIds = assignments.map(a => a.memberId);
+
+  const assignees = await UserModel.find({ _id: { $in: assigneeIds } });
+
+  const deletedBy = req.admin?.userName || "Admin";
+  const deletedAt = new Date().toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+  });
+
+  await Promise.all(
+    assignees.map(user =>
+      taskDeletedEmail(
+        user.email,
+        user.name,
+        task.taskName,
+        deletedBy,
+        deletedAt
+      )
+    )
+  );
+
   // Delete the task
   await TaskModel.findByIdAndDelete(taskId);
 
   // Delete all assignments associated with the task
   await AssignmentModel.deleteMany({ taskId });
+
+   // ✅ Log task deletion
+   await logTaskDeleted({
+    taskTitle: task.taskName,
+    adminName :  req.admin?.userName,
+    taskId: task._id as mongoose.Types.ObjectId,
+  });
 
   return res.status(200).json({
     success: true,

@@ -60,6 +60,13 @@ export const fetchAllLogs = async (req: Request, res: Response) => {
     if (!mongoose.Types.ObjectId.isValid(visaApplicationId)) {
       return res.status(400).json({ success: false, message: "Invalid visaApplicationId" });
     }
+
+    // Check if assignedIds exist and leadId is not included
+    if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(visaApplicationId)  ) {
+      return res
+        .status(403)
+        .json({ message: "Your role does not have permission to do this action." });
+    }
   
     const logs = await LogModel.aggregate([
       {
@@ -114,6 +121,13 @@ export const fetchAllLogs = async (req: Request, res: Response) => {
   
     if (!mongoose.Types.ObjectId.isValid(leadId)) {
       return res.status(400).json({ success: false, message: "Invalid leadId" });
+    }
+
+    // Check if assignedIds exist and leadId is not included
+    if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)  ) {
+      return res
+        .status(403)
+        .json({ message: "Your role does not have permission to do this action." });
     }
   
     const logs = await LogModel.aggregate([

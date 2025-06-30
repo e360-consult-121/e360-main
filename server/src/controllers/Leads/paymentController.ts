@@ -13,18 +13,17 @@ import { VisaApplicationModel } from "../../models/VisaApplication";
 import { VisaStepModel as stepModel } from "../../models/VisaStep";
 import { VisaApplicationStepStatusModel as stepStatusModel } from "../../models/VisaApplicationStepStatus";
 import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
-import {VisaApplicationReqStatusModel as reqStatusModel} from "../../models/VisaApplicationReqStatus"
-
+import { VisaApplicationReqStatusModel as reqStatusModel } from "../../models/VisaApplicationReqStatus";
 
 import {
   leadStatus,
   RoleEnum,
   AccountStatusEnum,
   VisaApplicationStatusEnum,
-  StepStatusEnum , 
+  StepStatusEnum,
   visaApplicationReqStatusEnum,
-  paymentPurpose , 
-  PaymentSourceEnum
+  paymentPurpose,
+  PaymentSourceEnum,
 } from "../../types/enums/enums";
 import { paymentStatus } from "../../types/enums/enums";
 import { sendEmail } from "../../utils/sendEmail";
@@ -38,8 +37,11 @@ import { getServiceType } from "../../utils/leadToServiceType";
 import { sendPortalAccessToClient } from "../../services/emails/triggers/leads/payment/payment-successful";
 import { handleDubaiPayment } from "../visaApplications/DubaiControllers/paymentController";
 // import functions
-import {createUserFunction , createVisaApplication} from "./paymentFunctions"
+import { createUserFunction, createVisaApplication } from "./paymentFunctions";
 import { PORTAL_LINK } from "../../config/configLinks";
+
+import { logPaymentDone } from "../../services/logs/triggers/leadLogs/payment/payment-done";
+import { logPaymentLinkSent } from "../../services/logs/triggers/leadLogs/payment/payment-link-sent";
 
 // send payment link
 export const sendPaymentLink = async (req: Request, res: Response) => {
@@ -51,27 +53,50 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
   if (!lead) {
     res.status(404);
     throw new Error("Lead not found");
-    return;
   }
 
-  const pageUrl = `${process.env.FRONTEND_URL}/payments/${lead._id}`
+  // Check if assignedIds exist and leadId is not included
+  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(leadId)  ) {
+    return res
+      .status(403)
+      .json({ message: "Your role does not have permission to do this action." });
+  }
+
+  const pageUrl = `${process.env.FRONTEND_URL}/payments/${lead._id}`;
 
   // const pageUrl = `${PORTAL_LINK}/payments/${lead._id}`
 
-  
-  //  send link to the customer / lead 
-  await sendPaymentLinkToLead(lead.email,lead.fullName.first,getServiceType(lead.__t??""),pageUrl)
+  //  send link to the customer / lead
+  await sendPaymentLinkToLead(
+    lead.email,
+    lead.fullName?.split(" ")[0],
+    getServiceType(lead.__t ?? ""),
+    pageUrl
+  );
+
+  const id = req.admin?.id;
+
+  const userDoc = await UserModel
+      .findById(id)
+      .select("name")
+      .lean();
+
+  await logPaymentLinkSent({
+    leadName : lead.fullName,
+    adminName : userDoc?.name ,
+    leadId : lead._id as mongoose.Types.ObjectId,
+  })
 
   // save payemnt details in DB
   const payment = new PaymentModel({
     leadId: lead._id,
-    name: lead.fullName.first,
+    name: lead.fullName,
     email: lead.email,
-    amount , 
-    currency ,
-    paymentLink: null, // yaha isko null rakh denge 
+    amount,
+    currency,
+    paymentLink: null, // yaha isko null rakh denge
     status: paymentStatus.LINKSENT,
-    source : PaymentSourceEnum.STRIPE
+    source: PaymentSourceEnum.STRIPE,
   });
 
   await payment.save();
@@ -84,21 +109,16 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
   return;
 };
 
-
-
-
-
-
 export const proceedToPayment = async (req: Request, res: Response) => {
   const leadId = req.params.leadId;
 
-   // 1. Validate lead existence
-   const lead = await LeadModel.findById(leadId);
-   if (!lead) {
-     res.status(404);
-     throw new Error("Lead not found");
-     return;
-   }
+  // 1. Validate lead existence
+  const lead = await LeadModel.findById(leadId);
+  if (!lead) {
+    res.status(404);
+    throw new Error("Lead not found");
+    return;
+  }
 
   // 2. Fetch existing payment document by leadId
   const paymentDoc = await PaymentModel.findOne({ leadId });
@@ -115,40 +135,33 @@ export const proceedToPayment = async (req: Request, res: Response) => {
     return;
   }
   // prepare data and metaData (to send in cretaeSession function)
-  const productName = `Visa Consultation for ${lead.fullName.first} ${lead.fullName.last}`;
+  const productName = `Visa Consultation for ${lead.fullName}`;
   const metadata = {
     leadId: lead._id?.toString(),
     email: lead.email,
-    purpose: paymentPurpose.CONSULTATION
+    purpose: paymentPurpose.CONSULTATION,
   };
 
-  const paymentUrl = await createPaymentSession(productName,metadata, amount, currency);
+  const paymentUrl = await createPaymentSession(
+    productName,
+    metadata,
+    amount,
+    currency
+  );
 
   paymentDoc.paymentLink = paymentUrl;
   await paymentDoc.save();
 
   res.status(200).json({ paymentUrl });
   return;
-
 };
-
-
-
-
-
-
-
-
-
 
 const VISATYPE_MAP: Record<string, string> = {
-  "Portugal": "6803644993e23a8417963622",
-  "Dubai": "6803644993e23a8417963623",
-  "Dominica": "6803644993e23a8417963620", 
-  "Grenada": "6803644993e23a8417963621", 
+  Portugal: "6803644993e23a8417963622",
+  Dubai: "6803644993e23a8417963623",
+  Dominica: "6803644993e23a8417963620",
+  Grenada: "6803644993e23a8417963621",
 };
-
-
 
 // stripe webhook
 export const stripeWebhookHandler = async (req: Request, res: Response) => {
@@ -196,7 +209,7 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
         // Default to consultation payment for backward compatibility
         await handleConsultationPayment(event, paymentIntent);
     }
-    
+
     res.sendStatus(200);
   } catch (error) {
     console.error("Error processing payment:", error);
@@ -204,8 +217,6 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
     res.sendStatus(200);
   }
 };
-
-
 
 export const handleConsultationPayment = async (
   event: Stripe.Event,
@@ -226,7 +237,7 @@ export const handleConsultationPayment = async (
   console.log("Lead found:", lead);
 
   // Extract name to store in userDb
-  const name = [lead?.fullName?.first, lead?.fullName?.last].filter(Boolean).join(" ");
+  const name = lead.fullName
 
   const payment = await PaymentModel.findOne({ leadId });
   if (payment) {
@@ -241,7 +252,12 @@ export const handleConsultationPayment = async (
   // Handle different event types
   switch (event.type) {
     case "payment_intent.succeeded":
-      await handleConsultationPaymentSuccess(paymentIntent, payment, lead, name);
+      await handleConsultationPaymentSuccess(
+        paymentIntent,
+        payment,
+        lead,
+        name
+      );
       break;
 
     case "payment_intent.payment_failed":
@@ -289,17 +305,25 @@ const handleConsultationPaymentSuccess = async (
     lead.leadStatus = leadStatus.PAYMENTDONE;
     await lead.save();
 
+    // log for payment done
+    await logPaymentDone({
+      leadName : lead.fullName,
+      amount : payment.amount,
+      currency : payment.currency,
+      leadId : lead._id as mongoose.Types.ObjectId,
+    })
+
     // Extract phone number to store in userDb
     const phone = lead?.phone;
     const nationality = lead?.nationality;
-    const fullName = `${lead?.fullName?.first || ""} ${lead?.fullName?.last || ""}`.trim();
+    const fullName = lead.fullName;
     console.log(fullName);
 
     const user = await createUserFunction({
       name: fullName,
       email: lead?.email || "",
       phone: phone,
-      nationality : nationality ,
+      nationality: nationality,
       serviceType: getServiceType(lead.__t || ""),
     });
 
@@ -310,7 +334,7 @@ const handleConsultationPaymentSuccess = async (
       leadId: lead._id as mongoose.Types.ObjectId,
       userId: user._id,
       visaTypeId: visaTypeId,
-      paymentId : payment._id
+      paymentId: payment._id,
     });
 
     // Function call to add visapplication recent updates Db
@@ -358,7 +382,5 @@ const handleConsultationPaymentFailure = async (payment: any | null) => {
   }
 };
 
-
-
-// consultation   -->>  Admin clike kare and link( website page ka link ) mail ho jaye user ko 
-//                      proceed to payment per api call -->> create payment session , and all 
+// consultation   -->>  Admin clike kare and link( website page ka link ) mail ho jaye user ko
+//                      proceed to payment per api call -->> create payment session , and all
