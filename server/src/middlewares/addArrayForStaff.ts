@@ -17,7 +17,10 @@ export const addArrayForStaff = (modelName: string) => {
         req.isViewAllLeads === true ||
         req.isViewAllConsultations === true ||
         req.isViewAllClients === true ||
-        req.isViewAllVisaApplications === true
+        req.isViewAllVisaApplications === true || req.readAllLeads === true || 
+        req.readAllVisaApplications === true ||
+        req.writeOnAllLeads === true ||
+        req.writeOnAllVisaApplications === true
       ) {
         return next();
       }

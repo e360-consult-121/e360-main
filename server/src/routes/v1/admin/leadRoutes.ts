@@ -20,11 +20,20 @@ router.get(
 );
 
 router.get(
+  "/downloadLeadsReport",
+  authenticate,
+  authorizeAdmin,
+  checkPermission("View-Leads"),
+  addArrayForStaff("Leads"),
+  asyncHandler(leadControllers.downloadLeadsReport)
+);
+
+router.get(
   "/:leadId/fetchParticularLead",
   authenticate,
   authorizeAdmin,
-   checkPermission("Read-L"),
-   addArrayForStaff("Leads"),
+  checkPermission("Read-L"),
+  addArrayForStaff("Leads"),
   asyncHandler(leadControllers.getParticularLeadInfo)
 );
 
@@ -32,8 +41,8 @@ router.post(
   "/:leadId/rejectLead",
   authenticate,
   authorizeAdmin,
-   checkPermission("Write-L"),
-   addArrayForStaff("Leads"),
+  checkPermission("Write-L"),
+  addArrayForStaff("Leads"),
   asyncHandler(leadControllers.rejectLead)
 );
 

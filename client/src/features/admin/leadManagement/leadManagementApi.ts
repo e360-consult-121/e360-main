@@ -1,4 +1,5 @@
 import { baseApi } from "../../../app/api";
+import { downloadFile } from "../../../utils/downloadFile";
 
 export const leadManagementApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -31,6 +32,12 @@ export const leadManagementApi = baseApi.injectEndpoints({
     }),
   }),
 });
+
+export const downloadLeadsReport = async (startDate: string, endDate: string) => {
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const url = `${baseURL}/api/v1/admin/leads/downloadLeadsReport?startDate=${startDate}&endDate=${endDate}`;
+  return downloadFile(url);
+};
 
 export const {
   useFetchAllLeadsQuery,

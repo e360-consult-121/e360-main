@@ -116,6 +116,7 @@ const ConsultationsTable: React.FC<TableProps> = ({
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          {/* <ExportToExcelButton/> */}
           <FormControl sx={{ minWidth: 120 }}>
             <InputLabel>Date</InputLabel>
             <Select

@@ -116,6 +116,7 @@ export const login = async (
     success: true,
     message: "Login successfully",
     accessToken,
+    role: user.role,
   });
 };
 

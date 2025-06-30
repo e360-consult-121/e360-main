@@ -18,6 +18,8 @@ import {
 import { AllLeads } from "../../../features/admin/leadManagement/leadManagementTypes";
 import { formatDate } from "../../../utils/FormateDate";
 import { useNavigate } from "react-router-dom";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
+import { downloadLeadsReport } from "../../../features/admin/leadManagement/leadManagementApi";
 
 interface PaginationData {
   total: number;
@@ -45,7 +47,6 @@ const LeadTable: React.FC<LeadTableProps> = ({
 }) => {
   const [internalPage, setInternalPage] = useState(0);
   const [internalRowsPerPage, setInternalRowsPerPage] = useState(5);
-
   const navigate = useNavigate();
 
   const handleNavigation = (row: AllLeads) => {
@@ -95,6 +96,14 @@ const LeadTable: React.FC<LeadTableProps> = ({
         currentPage * currentLimit + currentLimit
       );
 
+  const handleExportToExcel = async (startDate: string, endDate: string) => {
+    try {
+      await downloadLeadsReport(startDate, endDate);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    }
+  };
+
   return (
     <Paper sx={{ p: 2, boxShadow: "none" }}>
       <Box
@@ -109,16 +118,18 @@ const LeadTable: React.FC<LeadTableProps> = ({
         <Typography variant="h6" sx={{ fontWeight: "bolder", mb: 1 }}>
           Lead Management
         </Typography>
-
-        <Select
-          value={sort === "createdAt" ? "Oldest First" : "Newest First"}
-          onChange={handleSortChange}
-          displayEmpty
-          sx={{ mb: 1, float: "right" }}
-        >
-          <MenuItem value="Newest First">Newest First</MenuItem>
-          <MenuItem value="Oldest First">Oldest First</MenuItem>
-        </Select>
+        <Box display={"flex"} alignItems={"center"} gap={3}>
+          <ExportToExcelButton onDownload={handleExportToExcel} />
+          <Select
+            value={sort === "createdAt" ? "Oldest First" : "Newest First"}
+            onChange={handleSortChange}
+            displayEmpty
+            sx={{ mb: 1, float: "right" }}
+          >
+            <MenuItem value="Newest First">Newest First</MenuItem>
+            <MenuItem value="Oldest First">Oldest First</MenuItem>
+          </Select>
+        </Box>
       </Box>
 
       {/* Desktop Table View */}

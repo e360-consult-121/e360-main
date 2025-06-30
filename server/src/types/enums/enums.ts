@@ -63,7 +63,7 @@ export enum StepStatusEnum {
 export enum visaApplicationReqStatusEnum{
   NOT_UPLOADED="NOT_UPLOADED",
   UPLOADED ="UPLOADED",
-  VERIFIED="VERIFIED",  // Mark as verified
+  VERIFIED="VERIFIED",  
   RE_UPLOAD="RE_UPLOAD",
 }
 
@@ -210,5 +210,19 @@ export enum taskStatusEnum {
   COMPLETED = 'Completed',
   DUE = 'Due',
   OVERDUE = 'Overdue'
+}
+
+// Additional doc enums 
+
+export enum additionalDocVisaType {
+  PORTUGAL = 'Portugal',
+  DUBAI = 'Dubai',
+}
+
+export enum additionalDocStatusEnum {
+  NOT_UPLOADED="NOT_UPLOADED",
+  UPLOADED ="UPLOADED",
+  VERIFIED="VERIFIED",  
+  RE_UPLOAD="RE_UPLOAD",
 }
 

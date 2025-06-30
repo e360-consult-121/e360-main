@@ -18,6 +18,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
+import { downloadVisaApplicationsReport } from "../../../features/admin/visaApplication/visApplicationApi";
 
 interface PaginationData {
   total: number;
@@ -31,6 +33,7 @@ interface TableComponentProps {
   stepsData: string[];
   pagination?: PaginationData;
   statusFilter?: string;
+  visaType: string;
   onStatusFilterChange?: (filter: string) => void;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (limit: number) => void;
@@ -40,6 +43,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
   data,
   stepsData,
   pagination,
+  visaType,
   statusFilter = "All",
   onStatusFilterChange,
   onPageChange,
@@ -90,6 +94,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
   const handleStatusFilterChange = (event: any) => {
     if (onStatusFilterChange) {
       onStatusFilterChange(event.target.value);
+    }
+  };
+
+  const handleExportToExcel = async (startDate: string, endDate: string) => {
+    try {
+      await downloadVisaApplicationsReport(startDate, endDate, visaType);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
     }
   };
   // Convert backend page (1-based) to MUI page (0-based) for display
@@ -205,20 +217,23 @@ const TableComponent: React.FC<TableComponentProps> = ({
             {type.charAt(0).toUpperCase() + type.slice(1)} Passport
           </Typography>
         )}
+        <Box>
+          <ExportToExcelButton onDownload={handleExportToExcel} />
 
-        <Select
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
-          displayEmpty
-          sx={{ mb: 2, minWidth: 150 }}
-        >
-          <MenuItem value="All">All</MenuItem>
-          {stepsData.map((step: string, index: number) => (
-            <MenuItem key={index} value={step}>
-              {step}
-            </MenuItem>
-          ))}
-        </Select>
+          <Select
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+            displayEmpty
+            sx={{ mb: 2, minWidth: 150, ml: 2 }}
+          >
+            <MenuItem value="All">All</MenuItem>
+            {stepsData.map((step: string, index: number) => (
+              <MenuItem key={index} value={step}>
+                {step}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
       </Box>
 
       {isMobile ? (

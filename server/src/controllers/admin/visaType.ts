@@ -4,6 +4,7 @@ import { VisaApplicationModel } from "../../models/VisaApplication";
 import { currencyConversion } from "../../services/currencyConversion/currencyConversion";
 import { searchPaginatedQuery } from "../../services/searchAndPagination/searchPaginatedQuery";
 import { RoleEnum } from "../../types/enums/enums";
+import { streamExcelToResponse } from "../../utils/downloadExcelReport";
 
 // API for fetchAllClients
 export const fetchAllClients = async (req: Request, res: Response) => {
@@ -185,7 +186,7 @@ export const fetchAllClients = async (req: Request, res: Response) => {
         return {
           ...user,
           totalRevenue,
-          payments: undefined, // Remove payments array from final response
+          payments: undefined,
         };
       })
     );
@@ -213,10 +214,118 @@ export const fetchAllClients = async (req: Request, res: Response) => {
   }
 };
 
+export const handleDownloadClientsReport = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { startDate, endDate } = req.query;
+  if (!startDate || !endDate) {
+    return res
+      .status(400)
+      .json({ message: "Start date and end date are required" });
+  }
 
+  const filters: any = {
+    role: RoleEnum.USER,
+    createdAt: {
+      $gte: new Date(startDate as string),
+      $lte: new Date(endDate as string),
+    },
+  };
 
+  if (Array.isArray(req.assignedIds) && req.assignedIds.length > 0) {
+    filters._id = { $in: req.assignedIds };
+  }
 
-//fetch all the visa appliactions of a client
+  try {
+    const columns = [
+      { header: "Name", key: "name", width: 20 },
+      { header: "Email", key: "email", width: 30 },
+      { header: "Phone", key: "phone", width: 20 },
+      { header: "Case ID", key: "caseId", width: 20 },
+      { header: "Last Service", key: "lastService", width: 20 },
+      { header: "Status", key: "status", width: 20 },
+      { header: "Starting Date", key: "startingDate", width: 20 },
+    ];
+
+    const result = await UserModel.aggregate([
+      { $match: filters },
+      {
+        $lookup: {
+          from: "visaapplications",
+          localField: "_id",
+          foreignField: "userId",
+          as: "applications",
+        },
+      },
+      {
+        $addFields: {
+          latestApplication: {
+            $arrayElemAt: [
+              {
+                $sortArray: {
+                  input: "$applications",
+                  sortBy: { createdAt: -1 },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "visatypes",
+          localField: "latestApplication.visaTypeId",
+          foreignField: "_id",
+          as: "visaTypeInfo",
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          phone: 1,
+          caseId: "$nanoUserId",
+          lastService: {
+            $ifNull: [{ $arrayElemAt: ["$visaTypeInfo.visaType", 0] }, "N/A"],
+          },
+          status: {
+            $ifNull: ["$latestApplication.status", "N/A"],
+          },
+          startingDate: {
+            $ifNull: [
+              {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$latestApplication.createdAt",
+                },
+              },
+              "N/A",
+            ],
+          },
+        },
+      },
+    ]);
+
+    await streamExcelToResponse({
+      filename: `clients_report_${startDate}_to_${endDate}.xlsx`,
+      response: res,
+      sheets: [
+        {
+          name: "Clients Report",
+          data: result,
+          columns: columns,
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("Error downloading clients report:", error);
+    return next(new Error("Failed to download clients report"));
+  }
+};
+
 export const fetchClientVisaApplications = async (
   req: Request,
   res: Response
@@ -276,4 +385,3 @@ export const getAllApplications = async (
     data: applications,
   });
 };
-

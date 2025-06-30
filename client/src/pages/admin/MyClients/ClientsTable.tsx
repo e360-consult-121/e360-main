@@ -28,6 +28,8 @@ import countryList from "react-select-country-list";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import ExportToExcelButton from "../../../components/ExportToExcelButton";
+import { downloadClientsReport } from "../../../features/admin/myClients/myClientsApi";
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -137,6 +139,14 @@ const ClientsTable: React.FC<TableProps> = ({
     searchPaginationActions.setLimit(parseInt(event.target.value, 10));
   };
 
+  const handleExportToExcel = async (startDate: string, endDate: string) => {
+    try {
+      await downloadClientsReport(startDate, endDate);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    }
+  };
+
   return (
     <>
       <Paper sx={{ p: 2, boxShadow: "none" }}>
@@ -153,7 +163,6 @@ const ClientsTable: React.FC<TableProps> = ({
               My Clients
             </Typography>
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-             
               <TextField
                 placeholder="Search clients..."
                 size="small"
@@ -171,6 +180,7 @@ const ClientsTable: React.FC<TableProps> = ({
               mb: 1,
             }}
           >
+            <ExportToExcelButton onDownload={handleExportToExcel} />
             <Button
               sx={{
                 textTransform: "none",
@@ -203,7 +213,7 @@ const ClientsTable: React.FC<TableProps> = ({
                     "Action",
                   ].map((header) => (
                     <TableCell key={header} sx={{ color: "#8D8883" }}>
-Ge                      {header}
+                      {header}
                     </TableCell>
                   ))}
                 </TableRow>
