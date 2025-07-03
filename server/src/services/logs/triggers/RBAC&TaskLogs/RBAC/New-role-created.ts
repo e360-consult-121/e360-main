@@ -12,7 +12,7 @@ export const logNewRoleCreated = async ({
 }: {
   roleName: string;
   createdAt?: Date;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   doneByName?: string;
 }) => {
   const dateTime = formatDateTime(createdAt);

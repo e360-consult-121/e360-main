@@ -60,15 +60,11 @@ export const addNewRole = async (req: Request, res: Response) => {
   await permissionModel.insertMany(permissions);
 
   // call log function
-  const id = req.admin?.id;
-  const userDoc = await userModel
-      .findById(id)
-      .select("name")
-      .lean();
 
   await logNewRoleCreated({
     roleName : name,
-    doneByName : userDoc?.name,
+    doneByName : req.admin?.userName,
+    doneBy : req.admin?.userName
   })
 
   res.status(201).json({
@@ -147,6 +143,7 @@ export const addNewAdminUser = async (req: Request, res: Response) => {
     roleName : roleDoc?.roleName ,
     employeeEmail :newUser.email ,
     doneByName : req.admin?.userName,
+    doneBy : req.admin?.userName
   })
 
   // Call Email trigger 
@@ -295,6 +292,7 @@ export const assignActionsToRole = async (req: Request, res: Response) => {
   await logRolePermissionsUpdated({
     roleName: role.roleName,
     doneByName : req.admin?.userName ,
+    doneBy : req.admin?.userName
   })
 
   res.status(200).json({
@@ -369,6 +367,7 @@ export const editAdminUser = async (req: Request, res: Response) => {
   await logEmployeeEdited({
     employeeName :  oldName,
     doneByName   :  req.admin?.userName,
+    doneBy : req.admin?.userName,
   });
 
   // Email for credentails change
@@ -389,11 +388,6 @@ export const editAdminUser = async (req: Request, res: Response) => {
 
 // Delete the ADMIN USER
 export const deleteAdminUser = async (req: Request, res: Response): Promise<Response> => {
-  // Get the authenticated admin's ID from the JWT payload
-  const adminId = req.admin?.id;
-  if (!adminId) {
-    throw new AppError("Admin not authenticated", 401);
-  }
 
   // Get userId from request parameters
   const { userId } = req.params;
@@ -402,7 +396,7 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<Resp
   }
 
   // Prevent admin from deleting themselves
-  if (userId === adminId) {
+  if (userId === req.admin?.id) {
     throw new AppError("Cannot delete your own account", 403);
   }
 
@@ -412,15 +406,11 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<Resp
     throw new AppError("Admin user not found", 404);
   }
 
-  // log for deleting the admin user
-  const adminDoc = await userModel
-      .findById(adminId)
-      .select("name")
-      .lean();
 
   await logEmployeeDeleted({
     employeeName: user.name ,
-    doneByName : adminDoc?.name
+    doneByName : req.admin?.userName , 
+    doneBy : req.admin?.userName
   });
 
   // Delete the user

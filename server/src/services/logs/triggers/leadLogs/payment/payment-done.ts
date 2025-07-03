@@ -16,7 +16,7 @@ export const logPaymentDone = async ({
   paidAt?: Date;
   amount: number;
   currency?: string;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   leadId? : Types.ObjectId | null;
 }) => {
   const dateTime = formatDateTime(paidAt);

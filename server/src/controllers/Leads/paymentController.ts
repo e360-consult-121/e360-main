@@ -74,17 +74,13 @@ export const sendPaymentLink = async (req: Request, res: Response) => {
     pageUrl
   );
 
-  const id = req.admin?.id;
-
-  const userDoc = await UserModel
-      .findById(id)
-      .select("name")
-      .lean();
+  
 
   await logPaymentLinkSent({
     leadName : lead.fullName,
-    adminName : userDoc?.name ,
+    adminName : req.admin?.userName ,
     leadId : lead._id as mongoose.Types.ObjectId,
+    doneBy : req.admin?.userName 
   })
 
   // save payemnt details in DB
@@ -281,17 +277,41 @@ const handleConsultationPaymentSuccess = async (
   let invoiceUrl: string | null = null;
   let paymentMethod: string | null = null;
 
-  if (paymentIntent.latest_charge) {
+  // if (paymentIntent.latest_charge) {
+  //   try {
+  //     const charge = await stripe.charges.retrieve(
+  //       paymentIntent.latest_charge as string
+  //     );
+  //     invoiceUrl = charge.receipt_url ?? null;
+  //     paymentMethod = charge.payment_method_details?.type ?? null;
+  //   } catch (err) {
+  //     console.error("Failed to retrieve charge:", err);
+  //   }
+  // }
+
+  if ('invoice' in paymentIntent && typeof paymentIntent.invoice === 'string') {
+    try {
+      const invoice = await stripe.invoices.retrieve(paymentIntent.invoice);
+      invoiceUrl = invoice.hosted_invoice_url ?? null;
+      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
+      paymentMethod = paymentIntent.payment_method_types?.[0] ?? null;
+    } catch (err) {
+      console.error("Failed to retrieve invoice:", err);
+    }
+  } else if (paymentIntent.latest_charge) {
     try {
       const charge = await stripe.charges.retrieve(
         paymentIntent.latest_charge as string
       );
-      invoiceUrl = charge.receipt_url ?? null;
       paymentMethod = charge.payment_method_details?.type ?? null;
     } catch (err) {
       console.error("Failed to retrieve charge:", err);
     }
   }
+
+
+
+
 
   if (payment) {
     payment.status = paymentStatus.PAID;
@@ -311,6 +331,7 @@ const handleConsultationPaymentSuccess = async (
       amount : payment.amount,
       currency : payment.currency,
       leadId : lead._id as mongoose.Types.ObjectId,
+      doneBy : lead.fullName
     })
 
     // Extract phone number to store in userDb

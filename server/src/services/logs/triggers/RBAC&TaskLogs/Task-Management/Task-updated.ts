@@ -10,12 +10,12 @@ export const logTaskUpdated = async ({
   updatedAt = new Date(),
   doneBy = null,
   adminName,
-  taskId
+  taskId 
 }: {
   taskTitle: string;
   updatedFields: string[]; // e.g., ["status", "due date"]
   updatedAt?: Date;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   adminName?: string;
   taskId : Types.ObjectId | null;
 }) => {
@@ -27,5 +27,6 @@ export const logTaskUpdated = async ({
     logMsg: msg,
     logType: logTypeEnum.TaskLogs,
     taskId,
+    doneBy
   });
 };

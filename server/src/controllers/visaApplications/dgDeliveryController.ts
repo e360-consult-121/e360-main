@@ -127,7 +127,7 @@ export const uploadDeliveryDetails = async (req: Request, res: Response) => {
       visaType: visaType.visaType, 
       stepName : step.stepName ,
       stepStatus: StepStatusEnum.SUBMITTED, 
-      doneBy: null,
+      doneBy: req.admin?.userName || req.user?.userName ,
       visaApplicationId ,
     });
   }
@@ -232,11 +232,11 @@ export const uploadShippingDetails = async (req: Request, res: Response) => {
     await createLogForVisaApplication({
       triggers : step.logTriggers,
       clientName : user.name,
-      adminName : userDoc?.name,
+      adminName : req.admin?.userName,
       visaType: visaType.visaType, 
       stepName : step.stepName ,
       stepStatus: StepStatusEnum.APPROVED, 
-      doneBy: null,
+      doneBy: req.admin?.userName || req.user?.userName ,
       visaApplicationId ,
     });
   }

@@ -124,6 +124,7 @@ export const addNewTask = async (req: Request, res: Response) => {
     assignedTo : assignedToNames,
     adminName: req.admin?.userName,
     taskId: savedTask._id as mongoose.Types.ObjectId,
+    doneBy : req.admin?.userName,
   });
 
 
@@ -376,7 +377,8 @@ export const editTask = async (req: Request, res: Response) => {
       updatedFields,
       updatedAt: new Date(),
       adminName: req.admin?.userName,
-      taskId : task._id as mongoose.Types.ObjectId
+      taskId : task._id as mongoose.Types.ObjectId , 
+      doneBy : req.admin?.userName,
     }); 
   }
 
@@ -448,6 +450,7 @@ export const deleteTask = async (
     taskTitle: task.taskName,
     adminName :  req.admin?.userName,
     taskId: task._id as mongoose.Types.ObjectId,
+    doneBy : req.admin?.userName,
   });
 
   return res.status(200).json({

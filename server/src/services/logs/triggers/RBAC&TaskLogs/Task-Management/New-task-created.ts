@@ -9,13 +9,15 @@ export const logNewTaskCreated = async ({
   assignedTo,
   createdAt = new Date(),
   adminName,
-  taskId 
+  taskId , 
+  doneBy 
 }: {
   taskTitle: string;
   assignedTo: string[];
   createdAt?: Date;
   adminName?: string;
   taskId: Types.ObjectId | null;
+  doneBy? : string | null
 }) => {
   const dateTime = formatDateTime(createdAt);
   const assignedToUsers = assignedTo.join(", ");
@@ -25,5 +27,6 @@ export const logNewTaskCreated = async ({
     logMsg: msg,
     logType: logTypeEnum.TaskLogs,
     taskId,
+    doneBy
   });
 };

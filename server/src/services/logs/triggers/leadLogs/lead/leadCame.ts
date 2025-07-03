@@ -11,7 +11,7 @@ export const logLeadCame = async ({
   leadId,
   createdAt = new Date(),
 }: {
-  doneBy: Types.ObjectId | null;
+  doneBy: string | null;
   priority : string;
   leadName: string;
   leadId : Types.ObjectId;
