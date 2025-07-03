@@ -187,6 +187,13 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   }
 
   const paymentIntent = event.data.object as Stripe.PaymentIntent;
+  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
+  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
+  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
+  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
+  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
+
+
   console.log("Payment metadata:", paymentIntent.metadata);
 
   // Route to appropriate handler based on payment purpose
@@ -277,6 +284,11 @@ const handleConsultationPaymentSuccess = async (
   let invoiceUrl: string | null = null;
   let paymentMethod: string | null = null;
 
+  console.log("we are in paymentSuccess Handler.........");
+  console.log("we are in paymentSuccess Handler.........");
+  console.log("we are in paymentSuccess Handler.........");
+  console.log("we are in paymentSuccess Handler.........");
+  console.log("we are in paymentSuccess Handler.........");
   // if (paymentIntent.latest_charge) {
   //   try {
   //     const charge = await stripe.charges.retrieve(
@@ -290,9 +302,14 @@ const handleConsultationPaymentSuccess = async (
   // }
 
   if ('invoice' in paymentIntent && typeof paymentIntent.invoice === 'string') {
+    console.log ("this is our paymentIntent.invoiveeeeeeeeeee : " ,paymentIntent.invoice );
     try {
       const invoice = await stripe.invoices.retrieve(paymentIntent.invoice);
       invoiceUrl = invoice.hosted_invoice_url ?? null;
+      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
+      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
+      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
+      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
       console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
       paymentMethod = paymentIntent.payment_method_types?.[0] ?? null;
     } catch (err) {
