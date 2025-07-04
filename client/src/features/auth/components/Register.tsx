@@ -1,5 +1,5 @@
 import logo from "../../../assets/logo.png";
-import globeAnimation from "../../../assets/globe-animation.webm";
+import globeAnimation from "../../../assets/animations/globe-animation.webm";
 import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";
 import { useState } from "react";
