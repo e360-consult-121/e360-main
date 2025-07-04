@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 
 interface CreateLogInput {
   logMsg: string;
-  doneBy: Types.ObjectId | null;
+  doneBy?: string | null;
   logType: logTypeEnum;
   leadId: Types.ObjectId | null;
   visaApplicationId: Types.ObjectId | null;

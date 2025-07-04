@@ -34,7 +34,7 @@ export const createLogForVisaApplication = async ({
   stepStatus: StepStatusEnum | dgInvestStatusEnum | tradeNameStatus | moaStatusEnum | medicalTestStatus ;
   investmentOption?: string;
   adminName?: string;
-  doneBy: Types.ObjectId | null;
+  doneBy?: string | null;
   visaApplicationId: Types.ObjectId;  
 }) => {
   /** ---------- 1. Pick correct message‑builder fn ---------- */

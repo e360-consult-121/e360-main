@@ -13,7 +13,7 @@ export const logConsultationLinkSent = async ({
 }: {
   leadName: string;
   sentAt?: Date;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   adminName?: string;
   leadId : Types.ObjectId;
 }) => {

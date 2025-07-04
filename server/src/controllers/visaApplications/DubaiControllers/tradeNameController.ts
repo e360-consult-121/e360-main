@@ -104,7 +104,7 @@ export const uploadTradeNameOptions = async (
     visaType : data.visaType.visaType,
     stepName : data.visaStep.stepName,
     stepStatus : tradeNameStatus.TradeNames_Uploaded , 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName , 
     visaApplicationId : data.visaApplicationId,
   })
 
@@ -213,7 +213,7 @@ export const assignOneTradeName = async (req: Request, res: Response) => {
     visaType : data.visaType.visaType,
     stepName : data.visaStep.stepName,
     stepStatus : tradeNameStatus.TradeName_Assigned , 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : data.visaApplicationId,
   })
 
@@ -305,7 +305,7 @@ export const sendChangeRequest = async (req: Request, res: Response) => {
     visaType : data.visaType.visaType,
     stepName : data.visaStep.stepName,
     stepStatus : tradeNameStatus.ChangeReq_Sent , 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : data.visaApplicationId,
   })
 
@@ -398,7 +398,7 @@ export const approveChangeReq = async (req: Request, res: Response) => {
     visaType : data.visaType.visaType,
     stepName : data.visaStep.stepName,
     stepStatus : tradeNameStatus.ChangeReq_Approved , 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName , 
     visaApplicationId : data.visaApplicationId,
   })
 
@@ -483,7 +483,7 @@ export const rejectChangeReq = async (req: Request, res: Response) => {
     visaType : data.visaType.visaType,
     stepName : data.visaStep.stepName,
     stepStatus : tradeNameStatus.ChangeReq_Rejected , 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName , 
     visaApplicationId : data.visaApplicationId,
   })
 

@@ -1,9 +1,9 @@
-import globeAnim from "../../../assets/animations/login-anim.gif";
+import globeAnimation from "../../../assets/animations/globe-animation.webm";
 import logo from "../../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";
-import {  useState } from "react";
-import {  useLoginMutation } from "../authApi";
+import { useState } from "react";
+import { useLoginMutation } from "../authApi";
 import { Roles } from "../authTypes";
 import { CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
@@ -24,11 +24,13 @@ const Login = () => {
       if (!email || !password) return toast.info("All Fields are required");
       if (!emailRegex.test(email)) return toast.info("Enter a valid email");
 
-      await login({ email, password, role: Roles.USER}).unwrap().then(()=>{
-        toast.success("Login successful!");
-      });
+      await login({ email, password, role: Roles.USER })
+        .unwrap()
+        .then(() => {
+          toast.success("Login successful!");
+        });
     } catch (error: any) {
-      toast.error("Login failed. Please try again")
+      toast.error("Login failed. Please try again");
     }
   };
 
@@ -36,11 +38,20 @@ const Login = () => {
     <div className="md:w-full h-screen flex flex-1 items-center px-5">
       {/* Left animation */}
       <div className="hidden md:block md:w-full h-[90%] flex-[0.6] rounded-[20px]">
-        <img
+        {/* <img
           src={globeAnim}
           alt="globe animation"
           className="w-full h-full object-cover rounded-[20px]"
-        />
+        /> */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover rounded-[20px]"
+        >
+          <source src={globeAnimation} type="video/webm" />
+        </video>
       </div>
 
       {/* Right section */}
@@ -106,28 +117,28 @@ const Login = () => {
               <p className="text-neutrals-950 text-xs">Remember me</p>
             </div>
             <a href="/forgot-password">
-            <button className="text-xs text-neutrals-400 cursor-pointer">
-              Forgot password
-            </button>
+              <button className="text-xs text-neutrals-400 cursor-pointer">
+                Forgot password
+              </button>
             </a>
           </div>
 
           {/* Sign In Button */}
-         <div>
-           <button
-            className={`w-[90%] md:w-full py-3 rounded-[20px] cursor-pointer active:scale-95 transition-transform flex justify-center items-center ${
-              isLoading ? "bg-gray-400" : "bg-golden-yellow-400"
-            }`}
-            onClick={handleLogin}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <CircularProgress size={22} sx={{ color: "#fff" }} />
-            ) : (
-              "Sign In"
-            )}
-          </button>
-         </div>
+          <div>
+            <button
+              className={`w-[90%] md:w-full py-3 rounded-[20px] cursor-pointer active:scale-95 transition-transform flex justify-center items-center ${
+                isLoading ? "bg-gray-400" : "bg-golden-yellow-400"
+              }`}
+              onClick={handleLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <CircularProgress size={22} sx={{ color: "#fff" }} />
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </div>
 
           {/* Sign Up Link */}
           {/* <Typography

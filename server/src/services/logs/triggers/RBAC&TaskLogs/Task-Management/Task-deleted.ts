@@ -8,12 +8,14 @@ export const logTaskDeleted = async ({
   taskTitle,
   deletedAt = new Date(),
   adminName,
-  taskId
+  taskId , 
+  doneBy
 }: {
   taskTitle: string;
   deletedAt?: Date;
   adminName?: string;
   taskId : Types.ObjectId | null;
+  doneBy? : string | null
 }) => {
   const dateTime = formatDateTime(deletedAt);
   const msg = `Task "${taskTitle}" was deleted on ${dateTime} by ${adminName}`;
@@ -22,5 +24,6 @@ export const logTaskDeleted = async ({
     logMsg: msg,
     logType: logTypeEnum.TaskLogs,
     taskId,
+    doneBy
   });
 };

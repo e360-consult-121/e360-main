@@ -578,7 +578,7 @@ export const stepSubmit = async (req: Request, res: Response) => {
       visaType : data.visaType.visaType,
       stepName : data.currentStepDoc.stepName,
       stepStatus : StepStatusEnum.SUBMITTED , 
-      doneBy : null , 
+      doneBy : req.admin?.userName || req.user?.userName , 
       visaApplicationId : new mongoose.Types.ObjectId(visaApplicationId),
     })
   }

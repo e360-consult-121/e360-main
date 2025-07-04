@@ -105,7 +105,7 @@ export const selectOption = async (req: Request, res: Response) => {
       stepName : stepName ,
       stepStatus: dgInvestStatusEnum.optionSelected, 
       adminName : adminName,
-      doneBy: null,
+      doneBy: req.admin?.userName || req.user?.userName ,
       visaApplicationId ,
     });
   
@@ -218,7 +218,7 @@ export const addOptionsForRealState = async (req: Request, res: Response) => {
       stepName : stepName ,
       stepStatus: dgInvestStatusEnum.realStateOptionsUploaded, 
       adminName : adminName,
-      doneBy: null,
+      doneBy: req.admin?.userName || req.user?.userName ,
       visaApplicationId,
     });
   
@@ -330,7 +330,7 @@ export const uploadInvoice = async (req: Request, res: Response) => {
       stepName : stepName ,
       stepStatus: dgInvestStatusEnum.paymentDone, 
       adminName : adminName,
-      doneBy: null,
+      doneBy: req.admin?.userName || req.user?.userName ,
       visaApplicationId ,
     });
   

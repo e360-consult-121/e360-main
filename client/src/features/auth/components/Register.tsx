@@ -1,5 +1,5 @@
-import globeAnim from "../../../assets/animations/login-anim.gif";
 import logo from "../../../assets/logo.png";
+import globeAnimation from "../../../assets/globe-animation.webm";
 import { Icon } from "@iconify/react";
 import Toggle from "../../../components/Toggle";
 import { useState } from "react";
@@ -35,11 +35,15 @@ const Register = () => {
     <div className="w-full h-screen flex flex-1  items-center px-5">
       {/* Left animation */}
       <div className="w-full h-[90%] flex-[0.6] rounded-[20px]">
-        <img
-          src={globeAnim}
-          alt="globe animation"
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
           className="w-full h-full object-cover rounded-[20px]"
-        />
+        >
+          <source src={globeAnimation} type="video/webm" />
+        </video>
       </div>
 
       {/* Right animation */}

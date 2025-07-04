@@ -1,4 +1,4 @@
-import globeAnim from "../../assets/animations/login-anim.gif";
+import globeAnimation from "../../assets/animations/globe-animation.webm";
 import logo from "../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
@@ -55,11 +55,15 @@ const AdminLogin = () => {
     <div className="w-full h-screen flex flex-col md:flex-row items-center justify-center px-5">
       {/* Left animation - hidden on small screens */}
       <div className="hidden md:flex md:w-full h-[90%] flex-[0.6] rounded-[20px]">
-        <img
-          src={globeAnim}
-          alt="globe animation"
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
           className="w-full h-full object-cover rounded-[20px]"
-        />
+        >
+          <source src={globeAnimation} type="video/webm" />
+        </video>
       </div>
 
       {/* Right section - full width on mobile */}

@@ -12,7 +12,7 @@ export const logConsultationCanceled = async ({
 }: {
   leadName: string;
   canceledAt?: Date;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   leadId : Types.ObjectId;
 }) => {
   const dateTime = formatDateTime(canceledAt);

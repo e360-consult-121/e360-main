@@ -266,7 +266,7 @@ const handleDubaiPaymentSuccess = async (
       visaType : aggregationResult[0].visaType.visaType,
       stepName : aggregationResult[0].visaStep.stepName,
       stepStatus : StepStatusEnum.SUBMITTED, 
-      doneBy : null , 
+      doneBy : aggregationResult[0].user.name , 
       visaApplicationId : aggregationResult[0].visaApplicationId,
     })
 

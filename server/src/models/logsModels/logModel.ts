@@ -3,7 +3,7 @@ import { logTypeEnum } from "../../types/enums/enums";
 
 export interface ILog extends Document {
   logMsg: string;
-  doneBy: Types.ObjectId | null;
+  doneBy: string | null;
   logType: logTypeEnum; 
   leadId : Types.ObjectId | null;
   visaApplicationId : Types.ObjectId | null;
@@ -12,7 +12,7 @@ export interface ILog extends Document {
 
 const LogSchema = new Schema<ILog>({
   logMsg: { type : String , required : true},
-  doneBy: { type : Schema.Types.ObjectId, ref: "User", default: null },
+  doneBy: { type : String , default: null },
   logType: {
     type: String,
     required: true,

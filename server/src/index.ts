@@ -271,7 +271,7 @@ app.post(
       logger.info("Lead saved successfully :", newLead);
 
       // Add log (logLeadCame)
-      await logLeadCame({ priority:priority , leadName : `${newLead.fullName}`, doneBy:null , leadId : newLead._id as mongoose.Types.ObjectId});
+      await logLeadCame({ priority:priority , leadName : `${newLead.fullName}`, doneBy:newLead.fullName , leadId : newLead._id as mongoose.Types.ObjectId});
 
 
       res.status(200).json({ status: "success", message: "Lead saved to DB" });
