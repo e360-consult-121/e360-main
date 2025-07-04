@@ -18,4 +18,9 @@ router.post("/:leadId/sendPaymentLink",
 
 // This is for Customer -->> no need of role management
 router.post("/:leadId/proceedToPayment",asyncHandler(paymentControllers.proceedToPayment));
+
+// view invoice 
+router.get("/:paymentId/viewInvoice",
+authenticate , authorizeAdmin ,
+ asyncHandler(paymentControllers.viewInvoice));
 export default router;

@@ -9,7 +9,7 @@ import { LeadModel } from "../../leadModels/leadModel";
 import { UserModel } from "../../models/Users";
 import { PaymentModel } from "../../leadModels/paymentModel";
 import { VisaApplicationModel } from "../../models/VisaApplication";
-
+import axios from 'axios';
 import { VisaStepModel as stepModel } from "../../models/VisaStep";
 import { VisaApplicationStepStatusModel as stepStatusModel } from "../../models/VisaApplicationStepStatus";
 import { VisaStepRequirementModel as reqModel } from "../../models/VisaStepRequirement";
@@ -189,9 +189,6 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
   const paymentIntent = event.data.object as Stripe.PaymentIntent;
   console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
   console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
-  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
-  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
-  console.log("paymentIntent kaaaaaa dataaaaaa:", paymentIntent);
 
 
   console.log("Payment metadata:", paymentIntent.metadata);
@@ -286,45 +283,20 @@ const handleConsultationPaymentSuccess = async (
 
   console.log("we are in paymentSuccess Handler.........");
   console.log("we are in paymentSuccess Handler.........");
-  console.log("we are in paymentSuccess Handler.........");
-  console.log("we are in paymentSuccess Handler.........");
-  console.log("we are in paymentSuccess Handler.........");
-  // if (paymentIntent.latest_charge) {
-  //   try {
-  //     const charge = await stripe.charges.retrieve(
-  //       paymentIntent.latest_charge as string
-  //     );
-  //     invoiceUrl = charge.receipt_url ?? null;
-  //     paymentMethod = charge.payment_method_details?.type ?? null;
-  //   } catch (err) {
-  //     console.error("Failed to retrieve charge:", err);
-  //   }
-  // }
 
-  if ('invoice' in paymentIntent && typeof paymentIntent.invoice === 'string') {
-    console.log ("this is our paymentIntent.invoiveeeeeeeeeee : " ,paymentIntent.invoice );
-    try {
-      const invoice = await stripe.invoices.retrieve(paymentIntent.invoice);
-      invoiceUrl = invoice.hosted_invoice_url ?? null;
-      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
-      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
-      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
-      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
-      console.log(`this is your invoiceUrl for payment : ${invoiceUrl}`);
-      paymentMethod = paymentIntent.payment_method_types?.[0] ?? null;
-    } catch (err) {
-      console.error("Failed to retrieve invoice:", err);
-    }
-  } else if (paymentIntent.latest_charge) {
+  if (paymentIntent.latest_charge) {
     try {
       const charge = await stripe.charges.retrieve(
         paymentIntent.latest_charge as string
       );
+      invoiceUrl = charge.receipt_url ?? null;
       paymentMethod = charge.payment_method_details?.type ?? null;
     } catch (err) {
       console.error("Failed to retrieve charge:", err);
     }
   }
+
+
 
 
 
@@ -422,3 +394,82 @@ const handleConsultationPaymentFailure = async (payment: any | null) => {
 
 // consultation   -->>  Admin clike kare and link( website page ka link ) mail ho jaye user ko
 //                      proceed to payment per api call -->> create payment session , and all
+
+
+
+
+export const viewInvoice = async (req: Request, res: Response) => {
+  const { paymentId } = req.params;
+  // console.log(`This is our paymentId in viewInvoice controller :` , paymentId );
+  if (!mongoose.Types.ObjectId.isValid(paymentId)) {
+    return res.status(400).json({ message: "Invalid payment ID" });
+  }
+
+  // 1. Find payment from DB
+  const payment = await PaymentModel.findById(paymentId);
+  // console.log({ payment });
+  if (!payment) {
+    return res.status(404).json({ message: "Payment not found" });
+  }
+
+  let { invoiceUrl, paymentIntentId } = payment;
+  let isExpired = false;
+
+  // 2. Check if stored invoiceUrl exists
+  if (invoiceUrl) {
+    try {
+      const response = await axios.head(invoiceUrl, {
+        maxRedirects: 0,
+        validateStatus: null,
+      });
+
+      // console.log(`this is our response : ` , response );
+
+      // 3. Detect if it's expired based on response
+      if (
+        [302, 403, 410].includes(response.status) ||
+        response.headers.location?.includes("expired")
+      ) {
+        // console.log(`this is response status : ` , response.status );
+        isExpired = true;
+      }
+    }
+    catch (err) {
+      isExpired = true; // network failure = treat as expired
+    }
+  }
+  else{
+    isExpired = true;
+  }
+
+  // 4. If expired or missing, fetch fresh receipt_url from Stripe
+  if (isExpired) {
+    if (!paymentIntentId) {
+      return res.status(400).json({ message: "No paymentIntentId found to regenerate invoice" });
+    }
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    // console.log(`this is our paymentIntent in viewInvoice controller :` , paymentIntent);
+    if (!paymentIntent.latest_charge) {
+      return res.status(400).json({ message: "No latest charge found for this paymentIntent" });
+    }
+
+    const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
+    // console.log(`this is our charge in viewInvoice controller :` , charge);
+    const freshUrl = charge.receipt_url ?? null;
+    // console.log(`this is our freshUrl in viewInvoice controller :` , freshUrl);
+
+    if (!freshUrl) {
+      return res.status(500).json({ message: "Unable to retrieve fresh receipt URL from Stripe" });
+    }
+
+    // 5. Update in DB
+    payment.invoiceUrl = freshUrl;
+    await payment.save();
+
+    return res.status(200).json({ invoiceUrl: freshUrl });
+  }
+
+  // 6. If not expired, return old one
+  // console.log( `there was no need to reGenerate , not expoired: ` ,invoiceUrl );
+  return res.status(200).json({ invoiceUrl });
+};
