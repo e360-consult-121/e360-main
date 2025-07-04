@@ -158,7 +158,7 @@ export const updateStatus = async (req: Request, res: Response) => {
     stepName,
     stepStatus: StepStatusEnum.APPROVED,
     adminName: adminDoc?.name ,
-    doneBy: null, 
+    doneBy: req.admin?.userName || req.user?.userName ,
     visaApplicationId : visaApplicationId , 
   });
 

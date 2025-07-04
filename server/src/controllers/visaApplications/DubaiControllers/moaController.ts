@@ -101,7 +101,7 @@ export const moaUpload = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : moaStatusEnum.MOA_Uploaded, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : aggregationResult[0].visaApplicationId,
   });
 
@@ -220,7 +220,7 @@ export const uploadSignature = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : moaStatusEnum.Sig_Uploaded, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName , 
     visaApplicationId : aggregationResult[0].visaApplicationId,
   })
 
@@ -338,7 +338,7 @@ export const approveSignature = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : moaStatusEnum.Sig_Approved, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : aggregationResult[0].visaApplicationId,
   })
 

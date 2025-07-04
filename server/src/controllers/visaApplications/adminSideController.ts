@@ -173,12 +173,7 @@ export const approveStep = async (req: Request, res: Response) => {
     });
   }
   
-  const id = req.admin?.id;
-
-  const userDoc = await UserModel
-      .findById(id)
-      .select("name")
-      .lean();
+ 
 
   // For log Triggers
   if (data.currentStepDoc.logTriggers) {
@@ -188,8 +183,8 @@ export const approveStep = async (req: Request, res: Response) => {
       visaType : data.visaType.visaType,
       stepName : data.currentStepDoc.stepName,
       stepStatus : StepStatusEnum.APPROVED , 
-      adminName : userDoc?.name,
-      doneBy : null , 
+      adminName : req.admin?.userName,
+      doneBy : req.admin?.userName , 
       visaApplicationId : new mongoose.Types.ObjectId(visaApplicationId),
     });
   }

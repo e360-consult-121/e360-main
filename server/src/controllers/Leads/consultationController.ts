@@ -186,7 +186,8 @@ export const sendConsultationLink = async (req: Request, res: Response) => {
   await logConsultationLinkSent({
     leadName : lead.fullName,
     adminName : req.admin?.userName,
-    leadId :lead._id as mongoose.Types.ObjectId
+    leadId :lead._id as mongoose.Types.ObjectId , 
+    doneBy : req.admin?.userName
   })
 
   res
@@ -287,6 +288,7 @@ export const calendlyWebhook = async (req: Request, res: Response) => {
         leadName: lead.fullName ,
         scheduledAt :consultationDate ,
         leadId : lead._id as mongoose.Types.ObjectId,
+        doneBy : lead.fullName 
     })
 
     const newConsultation = await ConsultationModel.create({
@@ -392,19 +394,14 @@ export const markConsultationAsCompleted = async (
     leadStatus: leadStatus.CONSULTATIONDONE,
   });
 
-  const id = req.admin?.id;
-
-  const userDoc = await UserModel
-      .findById(id)
-      .select("name")
-      .lean();
 
   const leadDoc = await LeadModel.findById(updatedConsultation.leadId).select("name");
 
   await logConsultationCompleted({
     leadName: leadDoc?.fullName,
-    adminName :userDoc?.name,
-    leadId :updatedConsultation.leadId 
+    adminName :req.admin?.userName,
+    leadId :updatedConsultation.leadId ,
+    doneBy : req.admin?.userName
   })
 
   res.status(200).json({

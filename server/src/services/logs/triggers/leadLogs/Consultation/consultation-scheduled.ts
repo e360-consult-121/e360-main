@@ -11,7 +11,7 @@ export const logConsultationScheduled = async ({
 }: {
   leadName: string;
   scheduledAt: Date;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   leadId : Types.ObjectId;
 }) => {
   await createLog({

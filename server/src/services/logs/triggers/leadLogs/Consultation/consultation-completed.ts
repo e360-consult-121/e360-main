@@ -13,7 +13,7 @@ export const logConsultationCompleted = async ({
 }: {
   leadName?: string;
   completedAt?: Date;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   adminName?: string;
   leadId : Types.ObjectId;
 }) => {

@@ -103,7 +103,7 @@ export const uploadMedicalTestDetails = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : medicalTestStatus.Scheduled, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : aggregationResult[0].visaApplicationId,
   });
 
@@ -192,7 +192,7 @@ export const markTestAsCompleted = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : medicalTestStatus.Completed, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : aggregationResult[0].visaApplicationId,
   });
 
@@ -295,7 +295,7 @@ export const sendReschedulingReq = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : medicalTestStatus.RescheduleReq_Sent, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName , 
     visaApplicationId : aggregationResult[0].visaApplicationId,
   });
 
@@ -402,7 +402,7 @@ export const approveReschedulingReq = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : medicalTestStatus.RescheduleReq_Approved, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : aggregationResult[0].visaApplicationId,
   });
 
@@ -500,7 +500,7 @@ export const rejectReschedulingReq = async (req: Request, res: Response) => {
     visaType : aggregationResult[0].visaType.visaType,
     stepName : aggregationResult[0].visaStep.stepName,
     stepStatus : medicalTestStatus.RescheduleReq_Rejected, 
-    doneBy : null , 
+    doneBy : req.admin?.userName || req.user?.userName ,
     visaApplicationId : aggregationResult[0].visaApplicationId,
   });
 

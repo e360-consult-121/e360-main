@@ -2249,7 +2249,7 @@
 {"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"2208.372\"}","timestamp":"2025-06-30T10:40:33.504Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/additionalDoc/fetchAdditionalDocsInfo/6807d3c3dbe5c135db4af1fc\",\"status\":\"200\",\"responseTime\":\"479.066\"}","timestamp":"2025-06-30T10:41:54.993Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/visaApplications/additionalDoc/fetchAdditionalDocsInfo/6807d3c3dbe5c135db4af1fc\",\"status\":\"200\",\"responseTime\":\"467.918\"}","timestamp":"2025-06-30T10:56:26.454Z"}
-{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"401\",\"responseTime\":\"92.059\"}","timestamp":"2025-07-04T18:00:35.528Z"}
-{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/refresh-token\",\"status\":\"401\",\"responseTime\":\"199.695\"}","timestamp":"2025-07-04T18:00:35.752Z"}
-{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/auth/fetch-user\",\"status\":\"401\",\"responseTime\":\"5.489\"}","timestamp":"2025-07-04T18:00:44.969Z"}
-{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/refresh-token\",\"status\":\"401\",\"responseTime\":\"129.947\"}","timestamp":"2025-07-04T18:00:45.219Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/payment/68318dce306ca05312ba3255/viewInvoice\",\"status\":\"404\",\"responseTime\":\"177.252\"}","timestamp":"2025-07-04T08:30:16.542Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/payment/68318dce306ca05312ba3255/viewInvoice\",\"status\":\"404\",\"responseTime\":\"72.455\"}","timestamp":"2025-07-04T08:31:07.742Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/payment/68318dce306ca05312ba3255/viewInvoice\",\"status\":\"404\",\"responseTime\":\"181.443\"}","timestamp":"2025-07-04T08:37:31.598Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/payment/68318dce306ca05312ba3255/viewInvoice\",\"status\":\"200\",\"responseTime\":\"4330.476\"}","timestamp":"2025-07-04T08:40:20.514Z"}

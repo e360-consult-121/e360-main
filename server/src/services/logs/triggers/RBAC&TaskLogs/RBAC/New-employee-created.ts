@@ -16,7 +16,7 @@ export const logNewEmployeeCreated = async ({
   roleName : string ;
   employeeEmail: string;
   createdAt?: Date;
-  doneBy?: Types.ObjectId | null;
+  doneBy?: string | null;
   doneByName?: string;
 }) => {
   const dateTime = formatDateTime(createdAt);
