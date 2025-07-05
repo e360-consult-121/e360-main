@@ -106,12 +106,21 @@ export const fetchAllTasks = async (req: Request, res: Response) => {
     customFields,
     customSort,
     // Fixed: Include custom fields in selection
-    select: "taskName status priority endDate assignedTo assignedBy assignedCount",
+    select:
+      "taskName status priority endDate assignedTo assignedBy assignedCount",
   });
+
+  const tasks = result.data.map((task: any) => ({
+    ...task,
+    status:
+      task.status === taskStatusEnum.DUE && task.endDate < new Date()
+        ? taskStatusEnum.OVERDUE
+        : task.status,
+  }));
 
   res.status(200).json({
     success: true,
-    tasks: result.data,
+    tasks: tasks,
     pagination: {
       total: result.total,
       page: result.page,
@@ -249,10 +258,18 @@ export const fetchMyTasks = async (
     postMatchStages,
   });
 
+  const tasks = result.data.map((task: any) => ({
+    ...task,
+    status:
+      task.status === taskStatusEnum.DUE && task.endDate < new Date()
+        ? taskStatusEnum.OVERDUE
+        : task.status,
+  }));
+
   return res.status(200).json({
     success: true,
     message: "Tasks fetched successfully",
-    tasks: result.data,
+    tasks: tasks,
     pagination: {
       total: result.total,
       page: result.page,
@@ -537,6 +554,7 @@ export const fetchOverdueTasks = async (
   const sort = `${sortOrder}${sortField}`;
 
   const additionalFilters: any = {
+    status: taskStatusEnum.DUE,
     endDate: { $lt: now },
   };
 
@@ -618,10 +636,18 @@ export const fetchOverdueTasks = async (
     postMatchStages,
   });
 
+  const tasks = result.data.map((task: any) => ({
+    ...task,
+    status:
+      task.status === taskStatusEnum.DUE && task.endDate < new Date()
+        ? taskStatusEnum.OVERDUE
+        : task.status,
+  }));
+
   return res.status(200).json({
     success: true,
     message: "Overdue tasks fetched successfully",
-    tasks: result.data,
+    tasks: tasks,
     pagination: {
       total: result.total,
       page: result.page,
@@ -642,10 +668,13 @@ export const fetchParticularTask = async (req: Request, res: Response) => {
   }
 
   // Check if assignedIds exist and leadId is not included
-  if (Array.isArray(req.assignedIds) &&  !req.assignedIds.map((id) => id.toString()).includes(taskId)  ) {
-    return res
-      .status(403)
-      .json({ message: "Your role does not have permission to do this action." });
+  if (
+    Array.isArray(req.assignedIds) &&
+    !req.assignedIds.map((id) => id.toString()).includes(taskId)
+  ) {
+    return res.status(403).json({
+      message: "Your role does not have permission to do this action.",
+    });
   }
 
   const tasks = await TaskModel.aggregate([
