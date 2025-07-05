@@ -2253,3 +2253,5 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/payment/68318dce306ca05312ba3255/viewInvoice\",\"status\":\"404\",\"responseTime\":\"72.455\"}","timestamp":"2025-07-04T08:31:07.742Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/payment/68318dce306ca05312ba3255/viewInvoice\",\"status\":\"404\",\"responseTime\":\"181.443\"}","timestamp":"2025-07-04T08:37:31.598Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/payment/68318dce306ca05312ba3255/viewInvoice\",\"status\":\"200\",\"responseTime\":\"4330.476\"}","timestamp":"2025-07-04T08:40:20.514Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"1733.636\"}","timestamp":"2025-07-05T05:29:49.142Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/admin/rbac/fetchRoleWisePermissions\",\"status\":\"200\",\"responseTime\":\"337.762\"}","timestamp":"2025-07-05T05:30:02.804Z"}
