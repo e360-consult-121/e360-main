@@ -636,10 +636,18 @@ export const fetchOverdueTasks = async (
     postMatchStages,
   });
 
+  const tasks = result.data.map((task: any) => ({
+    ...task,
+    status:
+      task.status === taskStatusEnum.DUE && task.endDate < new Date()
+        ? taskStatusEnum.OVERDUE
+        : task.status,
+  }));
+
   return res.status(200).json({
     success: true,
     message: "Overdue tasks fetched successfully",
-    tasks: result.data,
+    tasks: tasks,
     pagination: {
       total: result.total,
       page: result.page,
