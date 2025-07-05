@@ -203,6 +203,7 @@ export const fetchRoleWisePermissions = async (req: Request, res: Response) => {
       return {
         roleId: role._id,
         roleName: role.roleName,
+        isEditable: role.isEditable,
         features: permissions
       };
     })
