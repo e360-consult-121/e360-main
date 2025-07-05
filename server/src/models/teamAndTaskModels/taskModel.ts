@@ -8,22 +8,22 @@ interface IRemark {
 }
 
 export interface ITask extends Document {
-  taskName     : string;
-  description? : string;
-  priority     : taskPriorityEnum;
+  taskName: string;
+  description?: string;
+  priority: taskPriorityEnum;
 
-  startDate : Date;
-  endDate   : Date;
+  startDate: Date;
+  endDate: Date;
 
-  attachedLead            :  Types.ObjectId | null;
-  attachedConsultation    :  Types.ObjectId | null;
-  attachedVisaApplication :  Types.ObjectId | null;
-  attachedClient          :  Types.ObjectId | null;
+  attachedLead: Types.ObjectId | null;
+  attachedConsultation: Types.ObjectId | null;
+  attachedVisaApplication: Types.ObjectId | null;
+  attachedClient: Types.ObjectId | null;
 
-  status  : taskStatusEnum;
+  status: taskStatusEnum;
 
-  files   : string[];
-  remarks : IRemark[];
+  files: string[];
+  remarks: IRemark[];
 }
 
 const TaskSchema = new Schema<ITask>(
