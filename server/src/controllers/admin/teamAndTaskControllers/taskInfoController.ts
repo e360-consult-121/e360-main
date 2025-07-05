@@ -638,10 +638,7 @@ export const fetchOverdueTasks = async (
 
   const tasks = result.data.map((task: any) => ({
     ...task,
-    status:
-      task.status === taskStatusEnum.DUE && task.endDate < new Date()
-        ? taskStatusEnum.OVERDUE
-        : task.status,
+    status: taskStatusEnum.OVERDUE,
   }));
 
   return res.status(200).json({
