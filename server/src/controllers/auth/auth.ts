@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../utils/appError";
 import { UserModel } from "../../models/Users";
+import { TrustedDeviceModel } from "../../models/authModels/trustedDevices";
 import bcrypt from "bcrypt";
 import { RoleEnum } from "../../types/enums/enums";
 import {
@@ -9,6 +10,7 @@ import {
   verifyRefreshToken,
 } from "../../utils/jwtUtils";
 import { sendForgotPasswordEmail } from "../../services/emails/triggers/customer/auth/forgotPassword";
+import { sendLoginOtp } from "../../services/emails/triggers/admin/2FA-otp/sendLoginOtp";
 import jwt from "jsonwebtoken";
 import { PORTAL_LINK } from "../../config/configLinks";
 import mongoose from "mongoose";
@@ -46,13 +48,15 @@ export const registerUser = async (
     id: String(user._id),
     role: user.role,
     roleId : String(user.roleId),
-    userName: user.name
+    userName: user.name , 
+    email : user.email
   });
   let refreshToken = generateRefreshToken({
     id: String(user._id),
     role: user.role,
     roleId : String(user.roleId),
-    userName: user.name
+    userName: user.name,
+    email : user.email
   });
 
   // Store the refresh token in user document (Optional)
@@ -65,35 +69,198 @@ export const registerUser = async (
   });
 };
 
-// login-user
+
 export const login = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-  const data = req.body;
+  const { email, password, role, deviceId } = req.body;
 
-  if (!data.email || !data.password || !data.role)
+  if (!email || !password || !role || !deviceId)
     return next(new AppError("Fields not found", 400));
 
-  const user = await UserModel.findOne({ email: data.email });
+  const user = await UserModel.findOne({ email });
   if (!user) return next(new AppError("Email id not registered", 404));
 
-  if (!(await bcrypt.compare(data.password, user.password)))
+  if (!(await bcrypt.compare(password, user.password)))
     return next(new AppError("Invalid password", 403));
 
-  let accessToken = generateAccessToken({
-    id: String(user._id),
-    role: user.role,
-    roleId : String(user.roleId),
-    userName: user.name
-  });
-  let refreshToken = generateRefreshToken({
-    id: String(user._id),
-    role: user.role,
-    roleId : String(user.roleId),
-    userName: user.name
+  //  Role check
+  if (user.role === RoleEnum.USER) {
+    // No OTP for regular users → direct login
+    const accessToken = generateAccessToken({
+      id: String(user._id),
+      role: user.role,
+      roleId: String(user.roleId),
+      userName: user.name,
+      email : user.email
+    });
 
+    const refreshToken = generateRefreshToken({
+      id: String(user._id),
+      role: user.role,
+      roleId: String(user.roleId),
+      userName: user.name,
+      email : user.email
+    });
+
+    await UserModel.findByIdAndUpdate(user._id, { refreshToken });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 2 * 60 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      accessToken,
+      role: user.role,
+    });
+  }
+
+  //  Admin user — check for trusted device
+  const trusted = await TrustedDeviceModel.findOne({
+    userId: user._id,
+    deviceId,
+    expiresAt: { $gt: new Date() },
+  });
+
+  if (trusted) {
+    // Trusted device — skip OTP
+    const accessToken = generateAccessToken({
+      id: String(user._id),
+      role: user.role,
+      roleId: String(user.roleId),
+      userName: user.name,
+      email : user.email
+    });
+
+    const refreshToken = generateRefreshToken({
+      id: String(user._id),
+      role: user.role,
+      roleId: String(user.roleId),
+      userName: user.name,
+      email : user.email
+    });
+
+    await UserModel.findByIdAndUpdate(user._id, { refreshToken });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 2 * 60 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful (trusted device)",
+      accessToken,
+      role: user.role,
+    });
+  }
+
+  //  Device not trusted → send OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  user.otp = otp;
+  user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+  await user.save();
+
+  // send email for otp
+  await sendLoginOtp({
+    email : email,
+    otp :otp ,
+    name :  user.name  ,   
+    expiresIn : 5
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "OTP sent to your email",
+    needsOtp: true,
+  });
+};
+
+
+// Verify - otp
+export const verifyOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+  const { email, otp, rememberMe, deviceId } = req.body;
+
+  if (!email || !otp || !deviceId)
+    return next(new AppError("Missing fields", 400));
+
+  const user = await UserModel.findOne({ email });
+  if (!user) return next(new AppError("User not found", 404));
+
+  if (
+    !user.otp ||
+    !user.otpExpiry ||
+    user.otp !== otp ||
+    user.otpExpiry < new Date()
+  ) {
+    return next(new AppError("Invalid or expired OTP", 400));
+  }
+
+  //  Clear OTP
+  user.otp = null;
+  user.otpExpiry = null;
+  await user.save();
+
+  //  Save trusted device if rememberMe is true
+  if (rememberMe) {
+    const signedToken = jwt.sign({ deviceId }, process.env.JWT_SECRET!, {
+      expiresIn: "90d",
+    });
+
+    await TrustedDeviceModel.findOneAndUpdate(
+      { userId: user._id, deviceId },
+      {
+        userId: user._id,
+        deviceId,
+        token: signedToken,
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      },
+      { upsert: true, new: true }
+    );
+  }
+
+  // ✅ Issue tokens
+  const accessToken = generateAccessToken({
+    id: String(user._id),
+    role: user.role,
+    roleId: String(user.roleId),
+    userName: user.name,
+    email : user.email
+  });
+
+  const refreshToken = generateRefreshToken({
+    id: String(user._id),
+    role: user.role,
+    roleId: String(user.roleId),
+    userName: user.name,
+    email : user.email
   });
 
   await UserModel.findByIdAndUpdate(user._id, { refreshToken });
@@ -102,7 +269,7 @@ export const login = async (
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 2 * 60 * 60 * 1000, // 2 hours
+    maxAge: 2 * 60 * 60 * 1000, // 2 hr
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -114,11 +281,36 @@ export const login = async (
 
   return res.status(200).json({
     success: true,
-    message: "Login successfully",
+    message: "OTP verified, login successful",
     accessToken,
     role: user.role,
   });
 };
+
+
+// revokeTrustedDevice
+export const revokeTrustedDevice = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+  const { deviceId } = req.body;
+  const userId = req.admin?.id; // assume you're using a `protect` middleware
+
+  if (!deviceId) return next(new AppError("Device ID required", 400));
+
+  await TrustedDeviceModel.deleteOne({ userId, deviceId });
+
+  return res.status(200).json({
+    success: true,
+    message: "Device revoked successfully",
+  });
+};
+
+
+
+
+
 
 export const refreshToken = async (
   req: Request,
@@ -142,7 +334,8 @@ export const refreshToken = async (
       id: payload.id,
       role: payload.role,
       roleId : String(user.roleId),
-      userName: user.name
+      userName: user.name , 
+      email : user.email
     });
 
     res.cookie("accessToken", newAccessToken, {

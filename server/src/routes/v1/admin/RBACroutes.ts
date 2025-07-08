@@ -4,6 +4,7 @@ import { checkPermission } from "../../../middlewares/permissionMiddleware";
 import asyncHandler from "../../../utils/asyncHandler";
 import * as rbacControllers from "../../../controllers/admin/RBAC/rbacControllers"
 import * as rbacInfoControllers from "../../../controllers/admin/RBAC/infoController"
+import * as empCreationControlers from "../../../controllers/admin/RBAC/employeeCreation";
 
 const router = Router();
 
@@ -12,10 +13,21 @@ router.post("/addNewRole",
  checkPermission("Add_new_Role"),
  asyncHandler(rbacControllers.addNewRole));
 
-router.post("/addNewAdminUser/:roleId",
+ router.get ("/requestOtpForEmpCreation",
  authenticate ,authorizeAdmin,
  checkPermission("Add_new_Admin_User"),
- asyncHandler(rbacControllers.addNewAdminUser));
+ asyncHandler(empCreationControlers.requestOtpForEmpCreation));
+
+ router.post ("/verifyOtpForEmpCreation",
+ authenticate ,authorizeAdmin,
+ checkPermission("Add_new_Admin_User"),
+ asyncHandler(empCreationControlers.verifyOtpForEmpCreation));
+
+ router.post("/addNewAdminUser/:roleId",
+ authenticate ,authorizeAdmin,
+ checkPermission("Add_new_Admin_User"),
+ asyncHandler(empCreationControlers.addNewAdminUser));
+ 
 
 router.post("/assignActionsToRole",
   authenticate ,authorizeAdmin,

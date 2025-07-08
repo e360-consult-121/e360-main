@@ -75,149 +75,6 @@ export const addNewRole = async (req: Request, res: Response) => {
 };
 
 
-  
-// 2nd
-export const addNewAdminUser = async (req: Request, res: Response) => {
-  const {
-    name,
-    email,
-    phone,
-    nationality,
-    password, //optional
-  } = req.body;
-
-  if (!name || !email || !phone ) {
-    res.status(400);
-    throw new Error("Missing required fields.");
-  }
-
-  const { roleId } = req.params;
-
-  // Check if the user already exists
-  const existingUser = await userModel.findOne({ email });
-  if (existingUser) {
-    res.status(409);
-    throw new Error("User with this email already exists.");
-  }
-
-  // Use provided password or generate a 5-digit one
-  const plainPassword = password || Math.floor(10000 + Math.random() * 90000).toString();
-  const hashedPassword = await bcrypt.hash(plainPassword, 10);
-  
-
-  const roleDoc =  await roleModel.findById(roleId);
-
-  if (!roleDoc) {
-    res.status(400);
-    throw new Error(`No role found with name: ${roleId}`);
-  }
-
-  // Create the new admin user
-  const newUser = new userModel({
-    name,
-    email,
-    phone,
-    nationality,
-    password: hashedPassword,
-    UserStatus: AccountStatusEnum.ACTIVE,
-    role: RoleEnum.ADMIN,
-    roleId : roleDoc?._id || null,
-    forgotPasswordToken: null,
-    forgotPasswordExpires: null
-  });
-
-  await newUser.save();
-
-  let refreshToken = generateRefreshToken({
-    id: String(newUser._id),
-    role: newUser.role,
-    roleId: String(newUser.roleId),
-    userName : newUser.name
-  });
-
-  await userModel.findByIdAndUpdate(newUser._id, { refreshToken });
-
-  // call log function for employee create
-  await logNewEmployeeCreated({
-    employeeName: newUser.name,
-    roleName : roleDoc?.roleName ,
-    employeeEmail :newUser.email ,
-    doneByName : req.admin?.userName,
-    doneBy : req.admin?.userName
-  })
-
-  // Call Email trigger 
-  await employeeAccountCreatedEmail({
-    to : newUser.email,               
-    employeeName : newUser.name,     
-    email : newUser.email,            
-    password : password ,         
-    role : roleDoc.roleName,             
-    loginUrl : `${process.env.FRONTEND_URL}/login`
-  })
-
-  res.status(201).json({
-    message: "Admin user created successfully.",
-    newUser ,
-  });
-};
-
-// 3rd
-// export const assignActionsToRole = async (req: Request, res: Response) => {
-//   const { roleId, actionIds } = req.body;
-
-//   if (!roleId || !Array.isArray(actionIds)) {
-//     res.status(400);
-//     throw new Error("roleId and actionIds array are required");
-//   }
-
-//   if (actionIds.length === 0) {
-//     res.status(400);
-//     throw new Error("actionIds array cannot be empty");
-//   }
-
-//   // Check if role exists
-//   const role = await roleModel.findById(roleId);
-//   if (!role) {
-//     res.status(404);
-//     throw new Error("Role not found");
-//   }
-
-//   // Validate all actionIds exist
-//   const validActions = await actionModel.find({ _id: { $in: actionIds } });
-//   const validActionIds = validActions.map(action => String(action._id));
-
-//   if (validActionIds.length !== actionIds.length) {
-//     res.status(400);
-//     throw new Error("One or more actionIds are invalid");
-//   }
-
-//   // Filter out already existing permissions
-//   const existingPermissions = await permissionModel.find({
-//     roleId,
-//     actionId: { $in: validActionIds },
-//   });
-
-//   // find existing Id's (so we can filter  filter kar lenge )
-//   const existingActionIds = new Set(existingPermissions.map(p => String(p.actionId)));
-
-//   const newPermissionsData = validActionIds
-//     .filter(id => !existingActionIds.has(id))
-//     .map(actionId => ({
-//       roleId,
-//       actionId,
-//     }));
-
-//   // Insert only the new (non-duplicate) permissions
-//   const insertedPermissions = await permissionModel.insertMany(newPermissionsData);
-
-//   res.status(201).json({
-//     success: true,
-//     message: `${insertedPermissions.length} permission(s) assigned to role.`,
-//     permissions: insertedPermissions,
-//     skipped: validActionIds.length - insertedPermissions.length,
-//   });
-// };
 
 export const assignActionsToRole = async (req: Request, res: Response) => {
   
@@ -497,3 +354,158 @@ export const editRoleName = async (req: Request, res: Response) => {
     role: existingRole,
   });
 };
+
+
+
+
+
+
+
+
+
+
+  //2nd 
+  // export const addNewAdminUser = async (req: Request, res: Response) => {
+  //   const {
+  //     name,
+  //     email,
+  //     phone,
+  //     nationality,
+  //     password, //optional
+  //   } = req.body;
+  
+  //   if (!name || !email || !phone ) {
+  //     res.status(400);
+  //     throw new Error("Missing required fields.");
+  //   }
+  
+  //   const { roleId } = req.params;
+  
+  //   // Check if the user already exists
+  //   const existingUser = await userModel.findOne({ email });
+  //   if (existingUser) {
+  //     res.status(409);
+  //     throw new Error("User with this email already exists.");
+  //   }
+  
+  //   // Use provided password or generate a 5-digit one
+  //   const plainPassword = password || Math.floor(10000 + Math.random() * 90000).toString();
+  //   const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    
+  
+  //   const roleDoc =  await roleModel.findById(roleId);
+  
+  //   if (!roleDoc) {
+  //     res.status(400);
+  //     throw new Error(`No role found with name: ${roleId}`);
+  //   }
+  
+  //   // Create the new admin user
+  //   const newUser = new userModel({
+  //     name,
+  //     email,
+  //     phone,
+  //     nationality,
+  //     password: hashedPassword,
+  //     UserStatus: AccountStatusEnum.ACTIVE,
+  //     role: RoleEnum.ADMIN,
+  //     roleId : roleDoc?._id || null,
+  //     forgotPasswordToken: null,
+  //     forgotPasswordExpires: null
+  //   });
+  
+  //   await newUser.save();
+  
+  //   let refreshToken = generateRefreshToken({
+  //     id: String(newUser._id),
+  //     role: newUser.role,
+  //     roleId: String(newUser.roleId),
+  //     userName : newUser.name,
+  //     email : newUser.email
+  //   });
+  
+  //   await userModel.findByIdAndUpdate(newUser._id, { refreshToken });
+  
+  //   // call log function for employee create
+  //   await logNewEmployeeCreated({
+  //     employeeName: newUser.name,
+  //     roleName : roleDoc?.roleName ,
+  //     employeeEmail :newUser.email ,
+  //     doneByName : req.admin?.userName,
+  //     doneBy : req.admin?.userName
+  //   })
+  
+  //   // Call Email trigger 
+  //   await employeeAccountCreatedEmail({
+  //     to : newUser.email,               
+  //     employeeName : newUser.name,     
+  //     email : newUser.email,            
+  //     password : password ,         
+  //     role : roleDoc.roleName,             
+  //     loginUrl : `${process.env.FRONTEND_URL}/login`
+  //   })
+  
+  //   res.status(201).json({
+  //     message: "Admin user created successfully.",
+  //     newUser ,
+  //   });
+  // };
+
+
+
+  // 3rd
+  // export const assignActionsToRole = async (req: Request, res: Response) => {
+  //   const { roleId, actionIds } = req.body;
+
+  //   if (!roleId || !Array.isArray(actionIds)) {
+  //     res.status(400);
+  //     throw new Error("roleId and actionIds array are required");
+  //   }
+
+  //   if (actionIds.length === 0) {
+  //     res.status(400);
+  //     throw new Error("actionIds array cannot be empty");
+  //   }
+
+  //   // Check if role exists
+  //   const role = await roleModel.findById(roleId);
+  //   if (!role) {
+  //     res.status(404);
+  //     throw new Error("Role not found");
+  //   }
+
+  //   // Validate all actionIds exist
+  //   const validActions = await actionModel.find({ _id: { $in: actionIds } });
+  //   const validActionIds = validActions.map(action => String(action._id));
+
+  //   if (validActionIds.length !== actionIds.length) {
+  //     res.status(400);
+  //     throw new Error("One or more actionIds are invalid");
+  //   }
+
+  //   // Filter out already existing permissions
+  //   const existingPermissions = await permissionModel.find({
+  //     roleId,
+  //     actionId: { $in: validActionIds },
+  //   });
+
+  //   // find existing Id's (so we can filter  filter kar lenge )
+  //   const existingActionIds = new Set(existingPermissions.map(p => String(p.actionId)));
+
+  //   const newPermissionsData = validActionIds
+  //     .filter(id => !existingActionIds.has(id))
+  //     .map(actionId => ({
+  //       roleId,
+  //       actionId,
+  //     }));
+
+  //   // Insert only the new (non-duplicate) permissions
+  //   const insertedPermissions = await permissionModel.insertMany(newPermissionsData);
+
+  //   res.status(201).json({
+  //     success: true,
+  //     message: `${insertedPermissions.length} permission(s) assigned to role.`,
+  //     permissions: insertedPermissions,
+  //     skipped: validActionIds.length - insertedPermissions.length,
+  //   });
+  // };

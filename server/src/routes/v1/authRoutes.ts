@@ -6,6 +6,7 @@ import { authenticate } from "../../middlewares/authenticate"
 const router = express.Router()
 
 router.post("/login", asyncHandler(authControllers.login))
+router.post("/verifyOtp", asyncHandler(authControllers.verifyOtp))
 router.post("/logout", asyncHandler(authControllers.logout))
 router.post("/register", asyncHandler(authControllers.registerUser))
 router.post("/refresh-token", asyncHandler(authControllers.refreshToken))

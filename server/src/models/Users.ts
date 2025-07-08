@@ -20,6 +20,9 @@ export interface IUser extends Document {
   // roleId: Types.ObjectId | null;
   roleId: Types.ObjectId ;
   employeeId : string | null;
+
+  otp?: string | null;
+  otpExpiry?: Date | null;
 }
 
 const UserSchema: Schema = new Schema <IUser> ({
@@ -48,7 +51,7 @@ const UserSchema: Schema = new Schema <IUser> ({
     // required: true,
   } , 
   roleId: { 
-    type: Schema.Types.ObjectId,    //optional  (no need , only 1 entry in DB )
+    type: Schema.Types.ObjectId,    
     ref: "Role", 
     required: true
   },
@@ -56,7 +59,16 @@ const UserSchema: Schema = new Schema <IUser> ({
     type: String,     
     unique: true,
     default : null
-  } ,
+  },
+  otp: { 
+    type: String, 
+    default: null 
+  },
+  otpExpiry: { 
+    type: Date, 
+    default: null 
+  },
+
 },
 {
   timestamps: true
